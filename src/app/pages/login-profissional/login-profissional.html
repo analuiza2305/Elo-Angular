@@ -1,0 +1,41 @@
+<main class="login-container">
+    <div class="login-box fade-in visible">
+        <div class="auth-top-actions">
+            <button type="button" class="icon-btn theme-toggle" (click)="alternarTema()" title="Alternar modo escuro">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            
+            <div class="accessibility-selector">
+                <button type="button" class="icon-btn" id="accessibility-toggle" (click)="toggleAccessibilityMenu($event)" title="Opções de acessibilidade">
+                    <i class="fa-solid fa-universal-access"></i>
+                </button>
+                
+                <ul id="accessibility-menu" [class.hidden]="!isAccessibilityOpen()">
+                    <li (click)="aumentarFonte()"><i class="fa-solid fa-plus-circle"></i> Aumentar Fonte</li>
+                    <li (click)="diminuirFonte()"><i class="fa-solid fa-minus-circle"></i> Diminuir Fonte</li>
+                    <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
+                    <li (click)="alternarLeituraVoz()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
+                    <li (click)="alternarMascaraLeitura()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
+                    <li (click)="alternarTextoDestacado()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
+                    <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
+                    <li (click)="aumentarEspacamentoLinhas()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
+                    <li (click)="diminuirEspacamentoLinhas()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
+                    <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+                </ul>
+            </div>
+        </div>
+
+        <a routerLink="/">
+            <img src="/img/logo_icon.png" alt="Logo EloMaterno" class="logo">
+        </a>
+
+        <h2>Área de Profissionais e Parceiros</h2>
+        <p class="subtexto">Faça login para gerenciar seus atendimentos</p>
+
+        <app-auth-form acao="login" publico="profissional"></app-auth-form>
+
+        <p class="cad-link" style="margin-top: 15px;">
+            Ainda não tem uma conta? <a routerLink="/cadastro-profissional">Cadastre-se aqui</a>
+        </p>
+    </div>
+</main>

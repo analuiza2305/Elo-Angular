@@ -1,0 +1,131 @@
+
+<app-header
+  tipo="adm"
+  (menuAdm)="abrirOuFecharSidebar()">
+</app-header>
+
+<div
+  id="sidebar-overlay"
+  [class.active]="sidebarAberta"
+  [class.hidden]="!sidebarAberta"
+  aria-hidden="true"
+  (click)="fecharSidebar()">
+</div>
+
+
+<main class="main-container">
+  <aside class="sidebar" id="adminSidebar" [class.active]="sidebarAberta">
+    <div class="sidebar-group-label">Gerenciar</div>
+    <button class="menu-btn" [class.active]="abaAtiva === 'dashboard'" (click)="mudarAba('dashboard')">
+      <i class="fa-solid fa-chart-line"></i>
+      <span>Painel Geral</span>
+    </button>
+    <button class="menu-btn" [class.active]="abaAtiva === 'usuarios'" (click)="mudarAba('usuarios')">
+      <i class="fa-solid fa-users"></i>
+      <span>Usuários</span>
+    </button>
+    <button class="menu-btn" [class.active]="abaAtiva === 'autorizacoes'" (click)="mudarAba('autorizacoes')">
+      <i class="fa-solid fa-user-check"></i>
+      <span>Autorizações</span>
+    </button>
+  </aside>
+
+  <!-- DASHBOARD -->
+  <!-- Usando [class.hidden] em vez de *ngIf para não destruir o Canvas -->
+  <section class="content" id="dashboard" [class.hidden]="abaAtiva !== 'dashboard'">
+    <div class="admin-hero">
+      <span class="hero-badge">ÁREA ADMINISTRATIVA</span>
+      <h1>Visão Geral do Sistema</h1>
+      <p>Acompanhe em tempo real os profissionais ativos na plataforma e a distribuição de usuários do EloMaterno.</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-brain"></i></div>
+        <div class="stat-info">
+          <!-- Binding Angular das variáveis numéricas -->
+          <span class="stat-number">{{ psicologosAtivos }}</span>
+          <span class="stat-label">Psicólogos Ativos</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-scale-balanced"></i></div>
+        <div class="stat-info">
+          <span class="stat-number">{{ advogadosAtivos }}</span>
+          <span class="stat-label">Advogados Ativos</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-columns">
+      <div class="dash-panel chart-card">
+        <h3>Uso por Categoria</h3>
+        <canvas id="usageChart"></canvas>
+      </div>
+
+      <div class="dash-panel chart-card">
+        <h3>Distribuição de Usuários</h3>
+        <canvas id="pieChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- USUÁRIOS -->
+  <section class="content" id="usuarios" [class.hidden]="abaAtiva !== 'usuarios'">
+   <h2 class="page-title">Usuários do Sistema</h2>
+  <p class="page-subtitle">Consulte e gerencie mães, psicólogos e advogados cadastrados na plataforma.</p>
+
+    <div class="dash-panel user-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Função</th>
+            <th>Email / Documento</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Estrutura de repetição Angular (*ngFor) -->
+          <tr *ngFor="let user of usuarios">
+            <td>{{ user.nome }}</td>
+            <td>{{ user.colLabel }}</td>
+            <td>{{ user.emailOrDoc }}</td>
+            <td>
+              <span class="status" [ngClass]="user.status === 'aprovado' ? 'ativo' : user.status">
+                {{ user.status }}
+              </span>
+            </td>
+            <td>
+              <button class="remove-btn" (click)="removerUsuario(user.id, user.colName)">Remover</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+
+  <!-- AUTORIZAÇÕES -->
+  <section class="content" id="autorizacoes" [class.hidden]="abaAtiva !== 'autorizacoes'">
+    <h2 class="page-title">Solicitações de Profissionais</h2>
+    <p class="page-subtitle">Analise e aprove os cadastros pendentes de psicólogos e advogados.</p>
+
+    <div class="request-list">
+      <!-- Repetição Angular para as solicitações -->
+      <div class="request-card" *ngFor="let req of solicitacoes">
+        <div>
+          <strong>{{ req.nome }}</strong>
+          <p>{{ req.colTipo === 'psicologo' ? 'Psicólogo(a) | CRP: ' + req.registro : 'Advogado(a) | OAB: ' + req.registro }}</p>
+          <p>Status: <span class="status pendente">{{ req.status }}</span></p>
+        </div>
+        <div class="actions">
+          <button class="approve-btn" (click)="aprovar(req.id, req.colTipo)">Aprovar</button>
+          <button class="deny-btn" (click)="recusar(req.id, req.colTipo)">Recusar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

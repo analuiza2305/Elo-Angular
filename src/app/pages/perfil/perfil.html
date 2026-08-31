@@ -1,0 +1,177 @@
+<app-header tipo="mae"></app-header>
+
+<div class="perfil-container">
+
+  @if (isLoading()) {
+    <div class="loading-container" style="padding: 100px 0; text-align: center;">
+        <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+  } @else {
+
+    <section class="perfil-top">
+      <div class="avatar-wrapper">
+        <img class="perfil-avatar" id="perfil-foto" [src]="userData()?.avatar || userData()?.fotoURL || './img/avatar_usuario.png'" />
+        <button class="btn-edit-avatar" (click)="abrirModalAvatar()">
+          <i class="fa fa-pencil"></i>
+        </button>
+      </div>
+
+      <div class="perfil-info">
+        <h2>{{ userData()?.nome || 'Carregando...' }}</h2>
+        <span class="perfil-tag">{{ userData()?.tipo || 'Usuário' }}</span>
+      </div>
+
+      <div class="perfil-acoes">
+        <button class="btn-editar" (click)="abrirModalEditar()">
+          <i class="fa fa-user-edit"></i> Editar Perfil
+        </button>
+        <a routerLink="/artigos-favoritos" class="btn-favoritos">
+          <i class="fa fa-bookmark"></i> Artigos Favoritos
+        </a>
+      </div>
+    </section>
+
+    <div class="card card-principal">
+      <h3><i class="fa fa-id-card"></i> Informações Principais:</h3>
+      <div class="info-grid"> 
+        <p><i class="fas fa-envelope"></i> Email: <span>{{ currentUser()?.email }}</span></p> 
+        <p><i class="fa fa-briefcase"></i> Emprego: <span>{{ userData()?.emprego || 'Não informado' }}</span></p> 
+        <p><i class="fas fa-baby"></i> Filhos: <span>{{ userData()?.filhos || 'Não informado' }}</span></p>
+        <p><i class="fas fa-location-dot"></i> Cidade: <span>{{ userData()?.cidade || 'Não informada' }}</span></p>
+      </div>
+    </div>
+
+    <div class="cards-secundarios">
+      <div class="card" id="consulta-card">
+        <h3><i class="fa fa-comments"></i> Consultorias agendadas:</h3>
+        <p>Ainda não existem consultas agendadas.</p>
+        <a routerLink="/consultas">Ver Histórico</a>
+      </div>
+
+      <div class="card" id="interacoes-card">
+        <h3><i class="fa fa-users"></i> Minhas interações:</h3>
+        @if (interacaoRecente()) {
+          <div class="card-item-preview">
+            <strong>{{ interacaoRecente().titulo || 'Sem título' }}</strong>
+            <span>{{ (interacaoRecente().conteudo | slice:0:100) }}{{ interacaoRecente().conteudo?.length > 100 ? '...' : '' }}</span>
+          </div>
+        } @else {
+          <p>Você ainda não publicou nada no fórum.</p>
+        }
+        <a routerLink="/forum">Ver Interações</a>
+      </div>
+    </div>
+
+  }
+
+</div>
+
+<div class="modals" [class.show]="showModalEditar()" id="modal-editar">
+  <div class="modals-content">
+    <h3>Editar Perfil</h3>
+    <form (ngSubmit)="salvarPerfil()">
+      <label for="nome">Nome:</label>
+      <input type="text" [(ngModel)]="editForm().nome" name="nome" placeholder="Digite seu nome">
+
+      <label for="cidade">Cidade:</label>
+      <input type="text" [(ngModel)]="editForm().cidade" name="cidade" placeholder="Digite sua cidade">
+
+      <label for="emprego">Emprego:</label>
+      <input type="text" [(ngModel)]="editForm().emprego" name="emprego" placeholder="Ex: Atendente, Vendedora, ...">
+
+      <label for="filhos">Filhos:</label>
+      <input type="number" [(ngModel)]="editForm().filhos" name="filhos" placeholder="Quantos filhos?" min="0" step="1">
+
+      <div class="modals-actions">
+        <button type="button" (click)="showModalEditar.set(false)">Cancelar</button>
+        <button type="submit">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" [class.show]="showModalAvatar()" id="modal-avatar">
+  <div class="modal-content">
+    <button class="btn-fechar-modal" (click)="showModalAvatar.set(false)">&times;</button>
+    <h3>Escolha seu Avatar</h3>
+    <div class="avatar-grid">
+      <button id="criar-avatar-btn" class="avatar-btn" (click)="abrirCriador()">
+        <img src="./img/mamaesemfundo/avatar_cria.png" alt="Criar Avatar">
+      </button>
+      @for (avatar of avataresDisponiveis; track avatar) {
+        <button class="avatar-btn" [class.selecionado]="avatarSelecionado() === avatar" (click)="selecionarAvatar(avatar)">
+          <img [src]="avatar" alt="Avatar">
+        </button>
+      }
+    </div>
+    <button id="confirmar-avatar" class="confirmar-btn" [disabled]="!avatarSelecionado()" (click)="confirmarAvatar()">Confirmar Avatar</button>
+  </div>
+</div>
+
+<!-- Modal Criador de Avatar por Camadas -->
+<div id="avatarModal" class="modal" [class.show]="showModalCriador()">
+    <div class="modal-content modal-avatar-criador">
+      <span class="close-btn" (click)="showModalCriador.set(false)">&times;</span>
+      <h2>Crie seu Avatar</h2>
+      
+      <div id="avatar-criador-area">
+        <!-- Preview Visual das Camadas -->
+        <div class="avatar-container">
+          <div class="avatar-preview" id="avatar-preview">
+            <div class="layer" id="cabelotras-layer">
+              <img id="cabelotras" [src]="avatarCamadas().cabeloTras" alt="Cabelo Trás">
+            </div>
+            <div class="layer" id="base-layer">
+              <img id="base" [src]="avatarCamadas().base" alt="Base">
+            </div>
+            <div class="layer" id="camisa-layer">
+              <img id="camisa" [src]="avatarCamadas().camisa" alt="Camisa">
+            </div>
+            <div class="layer" id="sobrancelha-layer">
+              <img id="sobrancelha" [src]="avatarCamadas().sobrancelha" alt="Sobrancelha">
+            </div>
+            <div class="layer" id="cabelo-layer">
+              <img id="cabelo" [src]="avatarCamadas().cabelo" alt="Cabelo">
+            </div>
+            <div class="layer" id="boca-layer">
+              <img id="boca" [src]="avatarCamadas().boca" alt="Boca">
+            </div>
+            <div class="layer" id="olhos-layer">
+              <img id="olhos" [src]="avatarCamadas().olhos" alt="Olhos">
+            </div>
+            <div class="layer" id="orelhas-layer">
+              <img id="orelha" [src]="avatarCamadas().orelha" alt="Orelhas">
+            </div>
+          </div>
+        </div>
+
+        <!-- Controles para trocar as partes -->
+        <div class="controls">
+          <div class="control-group">
+            <h3>Base</h3>
+            <button type="button" (click)="mudarParte('base', -1)">◀</button>
+            <button type="button" (click)="mudarParte('base', 1)">▶</button>
+          </div>
+          <div class="control-group">
+            <h3>Camisa</h3>
+            <button type="button" (click)="mudarParte('camisa', -1)">◀</button>
+            <button type="button" (click)="mudarParte('camisa', 1)">▶</button>
+          </div>
+          <div class="control-group">
+            <h3>Sobrancelha</h3>
+            <button type="button" (click)="mudarParte('sobrancelha', -1)">◀</button>
+            <button type="button" (click)="mudarParte('sobrancelha', 1)">▶</button>
+          </div>
+          <div class="control-group">
+            <h3>Cabelo</h3>
+            <button type="button" (click)="mudarParte('cabelo', -1)">◀</button>
+            <button type="button" (click)="mudarParte('cabelo', 1)">▶</button>
+          </div>
+        </div>
+      </div>
+
+      <button id="salvarAvatarBtn" (click)="salvarAvatarCriado()">Salvar avatar</button>
+    </div>
+</div>
+
+<app-footer></app-footer>

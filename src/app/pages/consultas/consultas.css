@@ -1,0 +1,501 @@
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.consultas-container {
+    text-align: center;
+    padding: 40px 20px;
+    animation: fadeSlideDown 0.6s ease-out forwards;
+}
+.tabs {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 30px;
+}
+
+
+.tab {
+    flex: 1;
+    min-width: 80px;
+    max-width: 200px;
+    text-align: center;
+
+    background: none;
+    border: none;
+    padding: 11px 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color-light);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab.ativo {
+    color: var(--accent-color);
+    border-bottom: 3px solid var(--accent-color);
+}
+
+.conteudo-tab {
+    display: none;
+    animation: fadeSlideDown 0.4s ease-out forwards;
+}
+
+.conteudo-tab.ativo {
+    display: grid;
+}
+#agendadas.ativo,
+#realizadas.ativo,
+#canceladas.ativo {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+    #agendadas.ativo,
+    #realizadas.ativo,
+    #canceladas.ativo {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Celular */
+@media (max-width: 700px) {
+    #agendadas.ativo,
+    #realizadas.ativo,
+    #canceladas.ativo {
+        grid-template-columns: 1fr;
+    }
+}
+.consulta-img {
+    width: 320px;
+    max-width: 80%;
+    margin: 20px auto;
+    display: block;
+}
+
+h2 {
+    font-size: 20px;
+    color: var(--text-color);
+    margin-top: 20px;
+}
+
+p {
+    font-size: 15px;
+    margin-top: 8px;
+    line-height: 1.6;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;  
+}
+
+.agendar-btn {
+    background-color: var(--botaoconsultoria);
+    color: var(--text-on-primary);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 32px;
+    font-size: 16px;
+    margin-top: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.agendar-btn:hover {
+    background-color: var(--primary-color-dark);
+    transform: translateY(-2px);
+}
+
+.agendar-btn a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .tabs {
+        gap: 25px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    p {
+        font-size: 14px;
+    }
+}
+
+.consulta-profissional {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+.consulta-foto-prof {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent-color);
+}
+
+.consulta-profissional h3 {
+    margin: 0;
+}
+
+.consulta-card {
+   background: linear-gradient(
+         135deg,
+         #e7e3f6d4 20%,
+         var(--bg-color)100%
+    );
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    text-align: left;
+    box-shadow: 0 2px 6px rgba(63, 22, 109, 0.185);
+}
+.consulta-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px #341b6541;;
+
+}
+
+
+.consulta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge {
+    padding: 8px 16px;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.badge-pendente {
+    background: #ecd394;
+    color: #4a3f20;
+}
+
+.badge-aceito {
+    background: #706af0;
+}
+
+
+.btn-psi {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border: none;
+    background: var(--accent-color);
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-chat {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border: none;
+    background: var(--accent-color);
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-psi:hover,
+.btn-chat:hover {
+    transform: translateY(-1px);
+} 
+
+.consulta-card p {
+    margin: 6px 0px 20px;
+    color: #21133ed7;
+}
+
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+
+.psi-foto-modal {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 10px auto;
+}
+
+.close-modal {
+    position: absolute;
+    background: var(--text-color);
+    border: none;
+    padding: 6px 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    right: 10px;
+    top: 10px;
+}
+
+.loading-consultas {
+    width: 100%;
+    padding: 40px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#agendadas .avatar-loader-container {
+    width: 90px !important;
+    height: 90px !important;
+    border-radius: 100%;
+    overflow: hidden;
+}
+
+#agendadas .avatar-loader-container img {
+    border-radius: 100%;
+}
+
+#agendadas .loader {
+    border-radius: 100%;
+}
+
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+}
+
+.modal.hidden {
+    display: none !important;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    color: var(--text-color);
+    padding: 25px;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 18px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.25);
+    animation: fadeInScale 0.3s ease;
+    text-align: center;
+}
+
+.close-modal {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+.psi-foto-modal {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+
+.btn-detalhes {
+    background: linear-gradient(160deg, #482c81 0%,  #806cae 100%);
+    color: white;
+    border: none;
+    padding: 6px 11px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.25s ease;
+}
+
+.btn-detalhes:hover {
+    background: linear-gradient(160deg,  #806cae,#462b7d );
+    transform: translateY(-1px);
+}
+
+.btn-chat {
+    background:  #d4bff941;
+    color: var(--text-color);
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.25s ease;
+}
+
+
+.btn-chat:hover {
+    background-color:  #53318e23;
+   
+    transform: translateY(-2px);
+}
+
+
+.fazer-outros-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 0px;
+    grid-column: 1 / -1;
+    
+    margin-bottom: 15px;
+}
+
+.fazer-outros-link {
+    text-decoration: none;
+}
+
+.fazer-outros-btn {
+    background: linear-gradient(160deg, #482c81 0%,  #806cae 100%);
+    color: #f9f3ff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 10px 28px rgba(62, 42, 114, 0.16);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.fazer-outros-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 38px rgba(78, 49, 128, 0.322);
+     background: linear-gradient(160deg,  #806cae,#462b7d );
+}
+
+
+@media (max-width: 480px) {
+    .fazer-outros-btn {
+        width: 92%;
+        padding: 12px;
+    }
+}
+/* Cards CONSULTA */
+.conteudo-tab.ativo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    align-items: start;
+}
+
+
+.consulta-card {
+    width: 100%;
+    margin-bottom: 0;
+    box-sizing: border-box;
+}
+/* Badge Padrão (caso já tenha, pode complementar com estas) */
+.badge {
+    padding: 8px 16px;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+    display: inline-block;
+    text-align: center;
+}
+
+/* Pendente (Amarelo suave) */
+.badge-pendente {
+    background: #ecd394;
+    color: #4a3f20;
+}
+
+/* Aceito / Agendada (Roxo da marca) */
+.badge-aceito {
+    background: #706af0;
+    color: #fff;
+}
+
+/* Realizada (Verde suave e acolhedor) */
+.badge-realizado {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Negada / Cancelada (Vermelho suave) */
+.badge-negado {
+    background: #f8d7da;
+    color: #721c24;
+}
+/* =========================================
+   TRAVA E RESPONSIVIDADE DO AVATAR NO MODAL - CONSULTAS.CSS
+========================================= */
+
+.psi-foto-modal {
+    width: 90px !important;
+    height: 90px !important;
+    min-width: 90px !important;
+    min-height: 90px !important;
+    max-width: 90px !important;
+    max-height: 90px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    margin: 10px auto 15px auto !important;
+    display: block !important;
+}
+
+@media (max-width: 480px) {
+    .psi-foto-modal {
+        width: 80px !important;
+        height: 80px !important;
+        min-width: 80px !important;
+        min-height: 80px !important;
+        max-width: 80px !important;
+        max-height: 80px !important;
+    }
+}

@@ -1,0 +1,122 @@
+<div class="auth-container">
+  
+  @if (errorMessage()) {
+    <div class="custom-alert-box">
+      <i class="fa fa-circle-exclamation"></i>
+      <span>{{ errorMessage() }}</span>
+      <button type="button" (click)="errorMessage.set('')">&times;</button>
+    </div>
+  }
+
+  @if (successMessage()) {
+    <div class="custom-alert-box custom-success-box">
+      <i class="fa fa-circle-check"></i>
+      <span>{{ successMessage() }}</span>
+      <button type="button" (click)="successMessage.set('')">&times;</button>
+    </div>
+  }
+
+  <form (submit)="onSubmit($event)" class="cadastro-form">
+    
+    @if (acao === 'cadastro') {
+      <div class="input-group">
+        <i class="fa fa-user icon"></i>
+        <input type="text" placeholder="Nome completo ou Razão Social:" [(ngModel)]="nome" name="nome" required>
+      </div>
+    }
+
+    <!-- Cadastro de Profissional (pede e-mail de contato) -->
+    @if (acao === 'cadastro' && publico === 'profissional') {
+      <div class="input-group">
+        <i class="fa fa-envelope icon"></i>
+        <input type="email" placeholder="E-mail de contato:" [(ngModel)]="email" name="email" required>
+      </div>
+    }
+
+    <!-- Seletor de documento (OAB/CNPJ/CRP) — usado tanto no CADASTRO quanto no LOGIN de profissionais/parceiros -->
+    @if (publico === 'profissional') {
+      <div class="campo-documento">
+        <div class="input-group dropdown-container" (click)="toggleDropdown($event)">
+          <i class="fa-solid fa-id-card icon"></i>
+          <div class="dropdown" [class.active]="isDropdownOpen" id="dropdownDocumento">
+            <div class="dropdown-btn" id="dropdownBtn">
+              <span id="documentoSelecionado">{{ getDocumentoLabel() }}</span>
+              <span class="seta">▼</span>
+            </div>
+
+            <div class="dropdown-menu">
+              <div class="dropdown-titulo">Selecione uma opção:</div>
+              <div class="dropdown-item" (click)="selectDocument('oab', $event)">OAB</div>
+              <div class="dropdown-item" (click)="selectDocument('cnpj', $event)">CNPJ</div>
+              <div class="dropdown-item" (click)="selectDocument('crp', $event)">CRP</div>
+            </div>
+          </div>
+        </div>
+
+        @if (tipoDocumento) {
+          <div class="input-group" id="campoNumeroDocumento">
+            <i class="fa fa-hashtag icon"></i>
+            <input type="text" [(ngModel)]="numeroDocumento" name="numeroDocumento" [placeholder]="'Digite o número do ' + tipoDocumento.toUpperCase()" (blur)="onNumeroDocumentoBlur()" required>
+          </div>
+          @if (tipoDocumento === 'cnpj' && razaoSocialCarregando()) {
+            <p class="cnpj-hint">Buscando razão social na Receita Federal...</p>
+          }
+        }
+      </div>
+    }
+
+    <!-- LOGIN DE MÃE (Pede e-mail normal) -->
+    @if (acao === 'login' && publico === 'mae') {
+      <div class="input-group">
+        <i class="fa fa-envelope icon"></i>
+        <input type="email" placeholder="E-mail:" [(ngModel)]="email" name="email" required>
+      </div>
+    }
+
+    <!-- CADASTRO DE MÃE (Pede e-mail normal) -->
+    @if (acao === 'cadastro' && publico === 'mae') {
+      <div class="input-group">
+        <i class="fa fa-envelope icon"></i>
+        <input type="email" placeholder="E-mail:" [(ngModel)]="email" name="email" required>
+      </div>
+    }
+
+    <div class="senha-linha">
+      <div class="input-group">
+        <i class="fa fa-lock icon"></i>
+        <input type="password" placeholder="Senha:" [(ngModel)]="senha" name="senha" required>
+      </div>
+      @if (acao === 'cadastro') {
+        <div class="input-group">
+          <i class="fa fa-lock icon"></i>
+          <input type="password" placeholder="Repita a senha:" [(ngModel)]="senha2" name="senha2" required>
+        </div>
+      }
+    </div>
+
+    @if (acao === 'login') {
+      <p class="esqueci-senha-link">
+        <a href="#" (click)="esqueciSenha($event)">Esqueci minha senha</a>
+      </p>
+    }
+
+    @if (acao === 'cadastro' && publico === 'profissional') {
+      <div class="aceite-termos">
+        <input type="checkbox" id="termos" [(ngModel)]="termos" name="termos">
+        <label for="termos"> Li e aceito os termos de parceria</label>
+        <p>Receba apoio, visibilidade e participe de nossa rede de impacto social.</p>
+      </div>
+    }
+
+    <button type="submit" class="btn-cadastrar" [disabled]="loading()">
+      {{ loading() ? 'Aguarde...' : (acao === 'login' ? 'Entrar' : 'Cadastrar') }}
+    </button>
+  </form>
+
+  @if (permitirGoogle) {
+    <button type="button" (click)="loginGoogle()" class="btn-google" [disabled]="loading()" [title]="acao === 'login' ? 'Entrar com o Google' : 'Cadastrar com o Google'">
+      <span class="google-icon-text">G</span>
+    </button>
+  }
+
+</div>

@@ -1,0 +1,148 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+i {
+    color: #583E8E;
+}
+
+/* Garante o fundo em gradiente roxo idêntico ao original */
+:host {
+    display: block;
+    min-height: 100vh;
+    background: linear-gradient(
+        135deg,
+        #c2b2dfe1 0%,   
+        #c9c1e3e1 45%,
+        #f6f3ff 100%
+    );
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+}
+
+.login-box {
+    background: #ffffffbc; 
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(87, 62, 142, 0.276); 
+    border: 8px solid rgba(229, 220, 255, 0.299);
+    text-align: center;
+    max-width: 550px;
+    width: 100%;
+    font-family: 'Nunito', sans-serif;
+}
+
+.logo {
+    width: 90px;
+    margin-bottom: 15px;
+}
+
+.login-box h2 {
+    color: #583E8E;
+    margin-bottom: 8px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.subtexto {
+    color: #564286; 
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #6844b0ca;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    padding: 8px 10px;
+}
+
+.input-group .icon {
+    font-size: 16px;
+    margin-right: 8px;
+    color: #583E8E;
+    width: 20px;
+    text-align: center;
+}
+
+.input-group input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+    background: transparent;
+    font-family: inherit;
+}
+
+.btn-entrar {
+    width: 100%;
+    padding: 12px;
+    background: #583E8E;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.btn-entrar:hover {
+    background: #432e6a;
+}
+
+.forgot {
+    text-align: right;
+    margin-top: -8px;
+    margin-bottom: 15px;
+    font-size: 13px;
+}
+
+.forgot a {
+    color: #664F9F;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.forgot a:hover {
+    text-decoration: underline;
+}
+
+.divider-google {
+    margin: 15px 0;
+    font-size: 14px;
+    color: #583E8E;
+    font-weight: bold;
+}
+
+.cad-link {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #664F9F;
+    line-height: 1.6;
+}
+
+.cad-link a {
+    color: #583E8E;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.cad-link a:hover {
+    text-decoration: underline;
+}

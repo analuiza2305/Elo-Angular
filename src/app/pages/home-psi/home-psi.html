@@ -1,0 +1,405 @@
+<div class="home-psi-page">
+  <header class="header">
+    <h1 id="boasVindas">Bem-vindo(a), Dr(a). {{ nomeCompleto() }}</h1>
+
+    <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" (click)="toggleSidebar()">☰</button>
+
+    <div id="sidebar-overlay" class="sidebar-overlay" [class.active]="sidebarOpen()" (click)="closeSidebar()" aria-hidden="true"></div>
+
+    <div class="right-section">
+      <div class="accessibility-selector">
+        <button id="accessibility-toggle" aria-label="Opções de acessibilidade" (click)="toggleAccessibilityMenu()">
+          <i class="fa fa-universal-access" aria-hidden="true"></i>
+        </button>
+        <ul id="accessibility-menu" [class.hidden]="!accessibilityMenuOpen()">
+          <li (click)="aumentarFonte()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Aumentar Fonte</li>
+          <li (click)="diminuirFonte()"><i class="fa fa-minus-circle" aria-hidden="true"></i> Diminuir Fonte</li>
+          <li (click)="alternarFiltroDaltonismo()"><i class="fa fa-low-vision" aria-hidden="true"></i> Filtros Daltonismo</li>
+          <li (click)="alternarLeituraVoz()"><i class="fa fa-assistive-listening-systems" aria-hidden="true"></i> Leitura em Voz</li>
+          <li (click)="alternarMascaraLeitura()"><i class="fa fa-highlighter" aria-hidden="true"></i> Máscara de leitura</li>
+          <li (click)="alternarTextoDestacado()"><i class="fa fa-bold" aria-hidden="true"></i> Letras destacadas</li>
+          <li (click)="alternarAltoContraste()"><i class="fa fa-adjust" aria-hidden="true"></i> Alto contraste</li>
+          <li (click)="aumentarEspacamentoLinhas()"><i class="fa fa-arrows-alt-v" aria-hidden="true"></i> Aumentar Espaçamento</li>
+          <li (click)="diminuirEspacamentoLinhas()"><i class="fa fa-compress-arrows-alt" aria-hidden="true"></i> Diminuir Espaçamento</li>
+          <li (click)="redefinirAcessibilidade()"><i class="fa fa-undo" aria-hidden="true"></i> Redefinir</li>
+        </ul>
+      </div>
+
+      <div id="reading-mask-overlay"><div class="highlight-window"></div></div>
+
+      <div class="theme-toggle" id="theme-toggle" (click)="toggleTheme()">
+        <i class="fas fa-moon" aria-label="Alternar tema claro e escuro"></i>
+      </div>
+
+      <button id="infoBtn" class="info-btn" (click)="abrirInformacoes()">
+        <i class="fa-solid fa-circle-info"></i>
+      </button>
+
+      <button id="logoutBtn" class="logout-btn" (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+
+      <button id="avatarBtn" class="avatar-btn" (click)="abrirTrocaAvatar()">
+        <img id="currentAvatar" [src]="avatarUrl()" alt="Avatar">
+      </button>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <aside class="sidebar" [class.active]="sidebarOpen()">
+      <button
+        *ngFor="let item of menuItems"
+        class="menu-btn"
+        [class.active]="activeSection() === item.target"
+        [attr.data-target]="item.target"
+        (click)="selecionarSecao(item.target)"
+      >
+        <i [class]="item.icon"></i>
+        <span>{{ item.label }}</span>
+      </button>
+
+      <div class="last-activities">
+        <h3>Últimas Atividades</h3>
+        <ul>
+          <li *ngFor="let atividade of ultimasAtividades()">{{ atividade }}</li>
+          <li *ngIf="ultimasAtividades().length === 0">Sem próximas consultas</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- DASHBOARD -->
+    <section class="content" id="dashboard" *ngIf="activeSection() === 'dashboard'">
+      <div class="welcome-hero" [style.--mouse-x]="heroMouseX()" [style.--mouse-y]="heroMouseY()" (mousemove)="onHeroMouseMove($event)">
+        <div class="hero-content">
+          <span class="hero-badge">Área do Profissional</span>
+          <h2 id="hero-nome">Olá, Dr(a). {{ primeiroNome() }}!</h2>
+          <p>Seu espaço de cuidado está pronto. Acompanhe seus atendimentos, gerencie sua agenda e transforme o dia dos seus pacientes.</p>
+        </div>
+        <div class="hero-glow shape-1"></div>
+        <div class="hero-glow shape-2"></div>
+        <div class="hero-glow shape-3"></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon icon-hoje"><i class="fa-solid fa-calendar-day"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="count-hoje">
+              <ng-container *ngIf="carregandoStats(); else valorHoje"><div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></ng-container>
+              <ng-template #valorHoje>{{ consultasHoje() }}</ng-template>
+            </span>
+            <span class="stat-label">Consultas para hoje</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon icon-total"><i class="fa-solid fa-users"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="count-total">
+              <ng-container *ngIf="carregandoStats(); else valorTotal"><div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></ng-container>
+              <ng-template #valorTotal>{{ sessoesAgendadas() }}</ng-template>
+            </span>
+            <span class="stat-label">Sessões agendadas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-appointments-section">
+        <div class="section-title-row">
+          <h3>Consultas de Hoje</h3>
+          <button class="btn-ver-agenda" (click)="irParaAgenda()">Ver agenda completa <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+
+        <div class="appointments-container" *ngIf="!carregandoConsultasHoje() && consultasDeHoje().length > 0">
+          <div class="appointment-item" *ngFor="let consulta of consultasDeHoje()">
+            <img [src]="consulta.avatar" class="appointment-avatar" alt="Avatar da mãe">
+            <div class="appointment-info">
+              <h4>{{ consulta.nome }}</h4>
+              <span><i class="fa-regular fa-clock"></i> Hoje - {{ consulta.horario }}</span>
+            </div>
+            <button class="btn-contato-consulta" (click)="abrirChatComMae(consulta.maeId)">Contato</button>
+          </div>
+        </div>
+
+        <div id="todayAppointments" *ngIf="carregandoConsultasHoje() || consultasDeHoje().length === 0">
+          <div class="loader" *ngIf="carregandoConsultasHoje()"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          <p *ngIf="!carregandoConsultasHoje() && consultasDeHoje().length === 0">Nenhuma consulta hoje.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENDA -->
+    <section class="content" id="agenda" *ngIf="activeSection() === 'agenda'">
+      <div class="agenda-container">
+        <div class="calendar-container">
+          <div class="calendar-header">
+            <button type="button" class="calendar-nav-btn" (click)="mesAnterior()" aria-label="Mês anterior"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="month-year-select">
+              <select [ngModel]="currentMonth()" (ngModelChange)="selecionarMes($event)" aria-label="Selecionar mês">
+                <option *ngFor="let mes of nomesMeses; let i = index" [value]="i">{{ mes }}</option>
+              </select>
+              <select [ngModel]="currentYear()" (ngModelChange)="selecionarAno($event)" aria-label="Selecionar ano">
+                <option *ngFor="let ano of anosSelecionaveis" [value]="ano">{{ ano }}</option>
+              </select>
+            </div>
+            <button type="button" class="calendar-nav-btn" (click)="mesSeguinte()" aria-label="Próximo mês"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+          <div class="calendar-days"><div *ngFor="let d of diasSemana">{{ d }}</div></div>
+          <div class="calendar-dates">
+            <div *ngFor="let celula of celulasCalendario()" class="date" [class.vazio]="celula.dia === null" [class.today]="celula.isHoje" [class.has-event]="celula.temDisponibilidade" (click)="abrirSelecaoHorarios(celula.dia)">
+              {{ celula.dia }}
+            </div>
+          </div>
+        </div>
+
+        <div class="events-container">
+          <h3>Consultas do mês</h3>
+          <div class="event-list">
+            <div class="event" *ngFor="let evento of eventosDoMesOrdenados()">
+              <strong>{{ evento.data | date:'dd/MM' }} — {{ evento.titulo }}</strong>
+              <p>{{ evento.descricao }}</p>
+              <small>{{ evento.local }}</small>
+            </div>
+            <p class="em-construcao" *ngIf="eventosDoMesOrdenados().length === 0">Nenhuma consulta marcada neste mês.</p>
+          </div>
+          <button type="button" class="add-consult-btn" (click)="adicionarConsulta()">Adicionar consulta</button>
+        </div>
+      </div>
+
+      <div class="modal" [class.hidden]="!modalHorariosAberto()" *ngIf="modalHorariosAberto()">
+        <div class="modal-content detalhes-consulta-card">
+          <h3>Selecionar horários disponíveis</h3>
+          <p class="data-selecionada" *ngIf="diaSelecionado()">{{ diaSelecionado() | date:'dd \'de\' MMMM \'de\' yyyy' }}</p>
+          <p class="mensagem-agenda" *ngIf="mensagemAgenda()">{{ mensagemAgenda() }}</p>
+          <div class="horarios-container">
+            <div class="loader" *ngIf="carregandoHorarios()"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <button type="button" *ngFor="let slot of horariosDoDia()" class="horario-btn" [class.selecionado]="slot.selecionado" [class.ocupado]="slot.status === 'ocupado' || slot.status === 'aceito'" [class.finalizadobtn]="slot.status === 'realizado'" [disabled]="slot.status !== 'livre'" [title]="slot.pacienteNome || ''" (click)="alternarHorario(slot)">
+              {{ slot.horario }}
+            </button>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="contact-btn" (click)="confirmarDisponibilidade()">Confirmar</button>
+            <button type="button" class="add-consult-btn" (click)="fecharModalHorarios()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+ <!-- ============================================================ -->
+    <!-- ARTIGOS E CONTEÚDOS (CARROSSEL) -->
+    <!-- ============================================================ -->
+    <section class="content" id="artigos" *ngIf="activeSection() === 'artigos'">
+      
+     <!-- Cabeçalho -->
+      <div class="artigos-header-top">
+          <div class="artigos-title-box">
+              <h2 style="margin-bottom: 8px;">Artigos e Conteúdos</h2>
+              <p style="color: var(--text-color2); margin: 0;">Acesse materiais, tutoriais e recursos para apoiar o tratamento.</p>
+          </div>
+      </div>
+
+      <!-- Nova Barra de Filtros (Estilo Pílula) -->
+      <div class="artigos-filter-bar">
+          <div class="artigos-categorias">
+              <button class="cat-btn active"><i class="fa-solid fa-border-all"></i> Todos</button>
+              <button class="cat-btn"><i class="fa-solid fa-scale-balanced"></i> Legislativos</button>
+              <button class="cat-btn"><i class="fa-solid fa-graduation-cap"></i> Educacionais</button>
+              <button class="cat-btn"><i class="fa-solid fa-lightbulb"></i> Dicas</button>
+              <button class="cat-btn"><i class="fa-regular fa-newspaper"></i> Posts</button>
+          </div>
+          
+          <button class="btn-sort">
+              <i class="fa-solid fa-sliders"></i> Mais recentes <i class="fa-solid fa-chevron-down" style="margin-left: 8px; font-size: 0.8em;"></i>
+          </button>
+      </div>
+      <!-- Carrossel de Artigos -->
+      <div class="artigos-carousel-psi">
+        <a [routerLink]="['/artigo_ind']" [queryParams]="{ id: artigo.id }" class="artigo-card-novo" *ngFor="let artigo of artigos()">
+            <div class="ac-img-wrapper">
+                <img [src]="artigo.capa || artigo.imagem || artigo.img || './img/artigos/1.jpg'" 
+                     (error)="artigo.capa = './img/artigos/1.jpg'; artigo.imagem = null; artigo.img = null"
+                     [alt]="artigo.titulo" 
+                     class="ac-cover">
+                <!-- A cor da tag muda dinamicamente de acordo com a sua imagem -->
+                <span class="ac-tag" [ngStyle]="{'color': artigo.categoria === 'Finanças' ? '#059669' : (artigo.categoria === 'Maternidade' ? '#e11d48' : 'var(--primary-dark)')}">
+                    {{ artigo.categoria || 'Conteúdo' }}
+                </span>
+                <div class="ac-bookmark">
+                    <i class="fa-regular fa-bookmark"></i>
+                </div>
+            </div>
+            
+            <div class="ac-body">
+                <span class="ac-time"><i class="fa-regular fa-clock"></i> {{ artigo.tempoLeitura || '5 min' }} de leitura</span>
+                <h4 class="ac-title">{{ artigo.titulo }}</h4>
+                <p class="ac-excerpt">{{ artigo.resumo || artigo.conteudo | slice:0:100 }}...</p>
+                <div class="ac-footer">
+                    <span class="ac-author"><i class="fa-solid fa-users" style="margin-right: 6px;"></i> {{ artigo.autorNome || 'Equipe EloMaterno' }}</span>
+                     <span class="ac-ler">Ler artigo <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+            </div>
+        </a>
+      </div>
+      <p *ngIf="artigos().length === 0" style="text-align: center; color: var(--text-color2); margin-top: 40px; margin-bottom: 40px;">Nenhum artigo publicado ainda.</p>
+
+    </section>
+
+    <!-- CONSULTAS -->
+    <section class="content" id="consultas" *ngIf="activeSection() === 'consultas'">
+      <div class="tabs">
+        <button class="tab" [class.ativo]="abaConsultas() === 'Pendentes'" (click)="setAbaConsultas('Pendentes')">Pendentes</button>
+        <button class="tab" [class.ativo]="abaConsultas() === 'Agendadas'" (click)="setAbaConsultas('Agendadas')">Agendadas</button>
+        <button class="tab" [class.ativo]="abaConsultas() === 'Realizadas'" (click)="setAbaConsultas('Realizadas')">Realizadas</button>
+        <button class="tab" [class.ativo]="abaConsultas() === 'Negadas'" (click)="setAbaConsultas('Negadas')">Negadas</button>
+      </div>
+
+      <div class="conteudo-tab ativo" style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+        <div class="consulta-card" *ngFor="let consulta of consultasFiltradas()" style="width: 100%; max-width: 100%;">
+          <div class="consulta-header">
+            <h3>{{ consulta.nome }}</h3>
+            <span class="badge" 
+                  [class.badge-pendente]="consulta.status === 'Pendente'"
+                  [class.badge-aceito]="consulta.status === 'Agendada'"
+                  [class.badge-realizado]="consulta.status === 'Realizada'"
+                  [class.badge-negado]="consulta.status === 'Negada'">
+              {{ consulta.status }}
+            </span>
+          </div>
+          <div class="consulta-profissional" style="margin-bottom: 12px;">
+            <img [src]="consulta.avatar || './img/avatar_usuario.png'" class="consulta-foto-prof" alt="Avatar">
+            <div>
+              <h3 style="font-size: 1rem;">{{ consulta.data }} - {{ consulta.horario }}</h3>
+              <p style="margin: 0; font-size: 0.85rem; color: var(--text-color2);">Motivo: {{ consulta.motivo }}</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 16px;">
+            <button class="btn-detalhes" *ngIf="consulta.status === 'Pendente'" (click)="aceitarConsulta(consulta)">Aceitar</button>
+            <button class="btn-chat" *ngIf="consulta.status === 'Pendente'" (click)="recusarConsulta(consulta)" style="border-color: #dc3545; color: #dc3545; background: #fff;">Recusar</button>
+            <button class="btn-detalhes" *ngIf="consulta.status !== 'Pendente'" (click)="abrirChatComMae(consulta.maeId)">Abrir Chat</button>
+          </div>
+        </div>
+        
+        <p *ngIf="consultasFiltradas().length === 0" style="text-align: center; color: var(--text-color2); margin-top: 40px;">
+          Nenhuma consulta encontrada nesta categoria.
+        </p>
+      </div>
+    </section>
+
+    <!-- FÓRUM -->
+    <section class="content" id="forum" *ngIf="activeSection() === 'forum'">
+      <div class="search-box novo-search" style="margin-bottom: 24px; width: 100%; max-width: 600px; display: flex; align-items: center; background: #fff; border-radius: 30px; padding: 12px 20px; border: 1px solid var(--border-color);">
+        <i class="fa-solid fa-magnifying-glass icon-search-left" style="color: var(--text-color2); margin-right: 12px;"></i>
+        <input type="text" placeholder="Pesquisar no fórum..." style="border: none; outline: none; background: transparent; width: 100%;">
+      </div>
+
+      <div class="coment-container" style="display: grid; gap: 20px;">
+        <div class="post-card mini-card" *ngFor="let post of forumPosts()">
+          <div class="mini-header" style="border: none; padding-top: 0; margin-bottom: 12px; display: flex; gap: 12px; align-items: center;">
+            <img src="./img/avatar_usuario.png" class="post-avatar" alt="Avatar">
+            <div class="post-info">
+              <h4 style="margin: 0; color: var(--primary-dark);">{{ post.autor }}</h4>
+              <span class="post-date" style="font-size: 12px; color: var(--text-color2);">{{ post.data }}</span>
+            </div>
+          </div>
+          <h3 class="post-title" style="margin: 0 0 8px 0; font-size: 1.1rem;">{{ post.titulo }}</h3>
+          <p class="post-content" style="margin: 0;">{{ post.conteudo }}</p>
+        </div>
+        <p *ngIf="forumPosts().length === 0" style="text-align: center; color: var(--text-color2);">Nenhum post encontrado no fórum.</p>
+      </div>
+    </section>
+
+    <!-- PACIENTES -->
+    <section class="content" id="pacientes" *ngIf="activeSection() === 'pacientes'">
+      <h2 style="margin-bottom: 24px;">Histórico de Pacientes</h2>
+      <div class="cards-grid-3">
+        <div class="feature-card text-center" *ngFor="let paciente of pacientes()" style="padding: 24px; display: flex; flex-direction: column; align-items: center; background: #fff; border-radius: 24px; border: 1px solid var(--border-color);">
+          <img [src]="paciente.avatar || './img/avatar_usuario.png'" style="width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; object-fit: cover;">
+          <h3 style="color: var(--primary-dark); margin-bottom: 4px;">{{ paciente.nome }}</h3>
+          <span class="badge badge-aceito" style="margin-bottom: 12px; background-color: var(--primary-light);">Paciente</span>
+          <p style="font-size: 14px; color: var(--text-color2); margin-bottom: 16px;">Última consulta: <strong>{{ paciente.ultimaConsulta }}</strong></p>
+          <button class="btn-primary" style="width: 100%;" (click)="abrirChatComPaciente(paciente)">Abrir Chat</button>
+        </div>
+      </div>
+      <p *ngIf="pacientes().length === 0" style="text-align: center; color: var(--text-color2);">Você ainda não possui pacientes no histórico.</p>
+    </section>
+
+    <!-- CHATS -->
+    <section class="content" id="chats" *ngIf="activeSection() === 'chats'">
+      <div style="display: flex; height: calc(100vh - 160px); background: #fff; border-radius: 20px; box-shadow: var(--shadow-soft); overflow: hidden; border: 1px solid var(--border-color);">
+        
+        <!-- Sidebar -->
+        <div style="width: 300px; background: #fdfcff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column;">
+          <div style="padding: 20px; border-bottom: 1px solid var(--border-color);">
+            <h3 style="margin: 0; color: var(--primary-dark); font-size: 16px;">Usuários</h3>
+          </div>
+          <div style="flex: 1; overflow-y: auto;">
+            <div *ngFor="let user of chatUsers()" 
+                 style="display: flex; align-items: center; gap: 12px; padding: 16px 20px; cursor: pointer; border-bottom: 1px solid rgba(132, 113, 177, 0.1);"
+                 [style.background]="chatSelecionado()?.id === user.id ? '#fff' : 'transparent'"
+                 [style.border-left]="chatSelecionado()?.id === user.id ? '4px solid var(--primary-color)' : '4px solid transparent'"
+                 (click)="selecionarChat(user)">
+              <img [src]="user.avatar || './img/avatar_usuario.png'" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover;">
+              <div>
+                <h4 style="margin: 0; font-size: 0.95rem; color: var(--primary-dark);">{{ user.nome }}</h4>
+              </div>
+            </div>
+            <p *ngIf="chatUsers().length === 0" style="padding: 20px; color: var(--text-color2); text-align: center; font-size: 14px;">Nenhum chat disponível.</p>
+          </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div style="flex: 1; display: flex; flex-direction: column; background: #fff;">
+          <ng-container *ngIf="chatSelecionado(); else noChat">
+            <div style="padding: 16px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px;">
+              <img [src]="chatSelecionado().avatar || './img/avatar_usuario.png'" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover;">
+              <div>
+                <h4 style="margin: 0 0 4px 0; color: var(--primary-dark);">{{ chatSelecionado().nome }}</h4>
+                <span style="font-size: 12px; color: #10b981; font-weight: bold;">● Online</span>
+              </div>
+            </div>
+
+            <div style="flex: 1; padding: 24px; overflow-y: auto; background: #faf8ff; display: flex; flex-direction: column; gap: 16px;">
+              <div *ngFor="let msg of mensagensChat()" 
+                   style="max-width: 65%; padding: 12px 16px; position: relative;"
+                   [ngStyle]="{
+                     'align-self': msg.sender === 'sent' ? 'flex-end' : 'flex-start',
+                     'background': msg.sender === 'sent' ? 'var(--primary-color)' : '#fff',
+                     'color': msg.sender === 'sent' ? '#fff' : 'var(--text-color)',
+                     'border-radius': msg.sender === 'sent' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                     'box-shadow': '0 2px 8px rgba(0,0,0,0.05)',
+                     'border': msg.sender === 'received' ? '1px solid var(--border-color)' : 'none'
+                   }">
+                <p style="margin: 0; font-size: 0.95rem; line-height: 1.4;">{{ msg.text }}</p>
+                <span style="display: block; font-size: 0.7rem; margin-top: 6px; text-align: right; opacity: 0.8;">{{ msg.time }}</span>
+              </div>
+              <p *ngIf="mensagensChat().length === 0" style="text-align: center; color: var(--text-muted); margin-top: 20px;">Envie uma mensagem para iniciar o atendimento.</p>
+            </div>
+
+            <div style="padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; align-items: center;">
+              <input type="text" placeholder="Digite sua mensagem..." 
+                     [(ngModel)]="novaMensagemStr" (keyup.enter)="enviarMensagem()"
+                     style="flex: 1; border: 1px solid var(--border-color); border-radius: 30px; padding: 14px 20px; font-size: 1rem; outline: none; font-family: inherit;">
+              <button (click)="enviarMensagem()" 
+                      style="width: 48px; height: 48px; border-radius: 50%; background: var(--primary-color); color: #fff; border: none; font-size: 1.2rem; cursor: pointer; transition: 0.3s ease;">
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </div>
+          </ng-container>
+
+          <ng-template #noChat>
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); font-size: 1.1rem; font-weight: 600;">
+              <p>Selecione um paciente para abrir o chat</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </section>
+
+    <!-- INFORMAÇÕES -->
+    <section class="content" id="informacoes" *ngIf="activeSection() === 'informacoes'">
+      <h2>Editar minhas Informações</h2>
+      <p class="em-construcao">Área de configurações em desenvolvimento.</p>
+    </section>
+
+  </main>
+</div>

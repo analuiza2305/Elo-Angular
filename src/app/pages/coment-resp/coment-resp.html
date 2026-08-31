@@ -1,0 +1,67 @@
+<app-header tipo="mae"></app-header>
+
+<main class="forum-container">
+    
+    @if (post()) {
+        <button class="btn-voltar-coment" (click)="voltarAoForum()">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+
+        <!-- Card do Post Principal -->
+        <div class="coment-card-principal">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <img [src]="post().autorFotoFinal" class="coment-avatar">
+                <div>
+                    <strong class="coment-autor-nome">{{ post().autorNomeFinal }}</strong>
+                    <span class="coment-data">{{ post().dataFormatada }}</span>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="coment-titulo-post">{{ post().titulo }}</h2>
+                <p class="coment-conteudo-texto">{{ post().conteudo }}</p>
+            </div>
+
+            <div style="margin-top: 24px; display: flex; align-items: center; gap: 6px; color: #6C4BBF; font-weight: 600;">
+                <i class="fa-solid fa-heart" style="color: #e63946;"></i>
+                <span>{{ post().likes || 0 }}</span>
+            </div>
+        </div>
+
+        <h3 style="color: var(--primary-color-dark, #4B2C82); font-size: 1.2rem; margin-bottom: 16px; font-weight: 700;">Respostas</h3>
+
+        @for (coment of comentarios(); track coment.id) {
+            <div class="coment-resposta-card">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                    <img [src]="coment.autorFotoFinal" class="coment-avatar">
+                    <div>
+                        <strong class="coment-autor-nome">{{ coment.autorNomeFinal }}</strong>
+                        <span class="coment-data">{{ coment.dataFormatada }}</span>
+                    </div>
+                </div>
+                <p class="coment-conteudo-texto" style="padding-left: 48px;">{{ coment.conteudo }}</p>
+            </div>
+        } @empty {
+            <p style="color: var(--text-color2, #7B6AAE); font-size: 0.95rem; margin-bottom: 24px;">Ainda não há respostas para esta publicação. Aguardando retorno da nossa rede de especialistas.</p>
+        }
+
+        @if (isProfissional()) {
+            <div class="coment-box-especialista">
+                <h4 style="color: var(--primary-color-dark, #4B2C82); margin-bottom: 12px; font-size: 1rem;">Responder como Especialista</h4>
+                <textarea class="coment-textarea" [(ngModel)]="novoComentario" rows="3" placeholder="Escreva sua orientação profissional ou acolhimento..."></textarea>
+                <div style="display: flex; justify-content: flex-end; margin-top: 12px;">
+                    <button class="coment-btn-enviar" (click)="enviarComentario()">Enviar Resposta</button>
+                </div>
+            </div>
+        } @else {
+            <div class="coment-aviso-nao-prof">
+                <p>Este espaço de resposta é reservado para profissionais da rede (psicólogos e advogados).</p>
+            </div>
+        }
+    } @else {
+        <div class="loader" style="margin: 60px auto;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    }
+
+</main>
+
+<app-footer></app-footer>

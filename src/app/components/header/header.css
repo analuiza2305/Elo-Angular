@@ -1,0 +1,495 @@
+/* Isso transforma a tag invisível <app-header> em um bloco que o navegador entende */
+:host {
+  display: block;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 3000;
+}
+/* =========================================
+   1. ESTRUTURA BASE DO HEADER
+========================================= */
+.header {
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px); 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.header-content { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    height: 80px; 
+    gap: 16px; 
+}
+
+/* =========================================
+   2. LOGO E NAVEGAÇÃO DESKTOP
+========================================= */
+.logo { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    font-family: var(--font-heading); 
+    font-weight: 700; 
+    font-size: 1.5rem; 
+    color: var(--text-dark); 
+    text-decoration: none; 
+    transition: var(--transition); 
+}
+
+.logo:hover { 
+    color: var(--primary-color); 
+}
+
+.logo-icon { 
+    height: 40px; 
+    width: auto; 
+    object-fit: contain; 
+}
+
+/* O segredo para os links ficarem lado a lado no PC */
+.nav-links {
+    display: flex;
+    align-items: center;
+}
+
+.nav-links a { 
+    text-decoration: none; 
+    color: var(--text-muted); 
+    margin: 0 16px; 
+    font-weight: 500; 
+    transition: var(--transition); 
+    position: relative; 
+    padding-bottom: 4px; 
+}
+
+.nav-links a:hover { 
+    color: var(--primary-color); 
+}
+
+/* Efeito da barrinha animada no hover */
+.nav-links a::after {
+    content: ''; 
+    position: absolute; 
+    left: 0; 
+    bottom: 0; 
+    width: 0; 
+    height: 2px; 
+    background-color: var(--primary-color);
+    transition: width 0.3s ease-in-out; 
+    border-radius: 2px; 
+}
+
+.nav-links a:hover::after { 
+    width: 100%; 
+}
+
+/* =========================================
+   3. BOTÕES E AÇÕES DIREITAS
+========================================= */
+/* O segredo para os botões e ícones ficarem agrupados */
+.header-actions { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+}
+
+.btn-icon { 
+    width: 44px; height: 44px; border-radius: 50%; 
+    background-color: var(--white); border: none; 
+    display: inline-flex; align-items: center; justify-content: center; 
+    color: var(--primary-dark); font-size: 1.25rem; cursor: pointer; 
+    box-shadow: 0 4px 12px rgba(89, 74, 125, 0.15); 
+    transition: var(--transition); flex-shrink: 0; 
+}
+.btn-icon:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 16px rgba(89, 74, 125, 0.25); 
+    color: var(--primary-color); 
+}
+
+.btn-language { 
+    display: inline-flex; align-items: center; justify-content: center; 
+    background-color: var(--white); border: 1px solid var(--border-color); 
+    border-radius: 8px; padding: 8px 12px; cursor: pointer; 
+    transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); 
+    height: 44px; min-width: 44px; flex-shrink: 0; 
+}
+.btn-language:hover { 
+    background-color: var(--surface-muted); 
+    border-color: var(--primary-light); 
+}
+.flag-icon { width: 20px; height: auto; border-radius: 2px; object-fit: cover; }
+
+.btn { 
+    padding: 12px 24px; border-radius: 50px; border: none; font-weight: 600; 
+    cursor: pointer; font-family: var(--font-body); transition: var(--transition); 
+    text-decoration: none; display: inline-flex; align-items: center; 
+    justify-content: center; height: 44px; 
+}
+.btn-primary { 
+    background-color: var(--primary-color); color: var(--white); 
+    transition: transform 0.2s ease, box-shadow 0.2s ease; 
+}
+.btn-primary:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2); 
+}
+
+/* =========================================
+   4. CAIXAS FLUTUANTES (DROPDOWNS)
+========================================= */
+/* Menu de Login Suspenso */
+.login-dropdown-wrapper { 
+    position: relative; 
+    display: inline-block; 
+}
+.login-dropdown-menu { 
+    position: absolute; top: calc(100% + 10px); right: 0; 
+    background-color: var(--white); width: 260px; border-radius: 16px; 
+    box-shadow: 0 10px 30px rgba(89, 74, 125, 0.15); 
+    border: 1px solid rgba(132, 113, 177, 0.15); padding: 8px; 
+    opacity: 0; visibility: hidden; transform: translateY(10px); 
+    transition: all 0.3s ease; z-index: 1000; 
+}
+.login-dropdown-wrapper.active .login-dropdown-menu { 
+    opacity: 1; visibility: visible; transform: translateY(0); 
+}
+
+.dropdown-item { 
+    display: flex; align-items: center; gap: 12px; padding: 12px 16px; 
+    text-decoration: none; color: var(--text-dark); border-radius: 10px; 
+    transition: background-color 0.2s ease; font-size: 0.95rem; font-weight: 500; 
+}
+.dropdown-item:hover { background-color: var(--bg-soft); color: var(--primary-color); }
+.dropdown-simple-icon { font-size: 1.2rem; color: var(--text-muted); }
+.dropdown-item:hover .dropdown-simple-icon { color: var(--primary-color); }
+.dropdown-arrow { margin-left: auto; font-size: 1rem; opacity: 0; transform: translateX(-5px); transition: all 0.2s ease; }
+.dropdown-item:hover .dropdown-arrow { opacity: 1; transform: translateX(0); }
+
+/* Menus de Idioma e Acessibilidade */
+#language-menu, #accessibility-menu { 
+    position: absolute; top: 55px; right: 0; background: var(--white); 
+    border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+    list-style: none; padding: 10px 0; z-index: 9999; border: 1px solid #eee; 
+}
+#language-menu { width: 150px; }
+#accessibility-menu { width: 280px; }
+#language-menu.hidden, #accessibility-menu.hidden { display: none; }
+#language-menu li, #accessibility-menu li { 
+    padding: 12px 20px; cursor: pointer; display: flex; align-items: center; 
+    gap: 12px; font-size: 14px; color: var(--text-dark); transition: 0.2s ease;
+}
+#language-menu li:hover, #accessibility-menu li:hover { 
+    background: var(--bg-soft); color: var(--primary-color); 
+}
+
+/* =========================================
+   5. MODO ESCURO (DARK THEME)
+========================================= */
+body[data-theme="dark"] .header { background: var(--bg-color); border-bottom: 1px solid rgba(255, 255, 255, 0.08); box-shadow: none; }
+body[data-theme="dark"] .btn-icon, body[data-theme="dark"] .btn-language { background: var(--surface-elevated); color: var(--text-dark); border-color: var(--border-color); box-shadow: var(--shadow); }
+body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:hover { background: var(--surface-muted); color: var(--primary-color); }
+
+/* =========================================
+   6. RESPONSIVIDADE (MOBILE E TABLET)
+========================================= */
+.menu-toggle {
+    display: none; align-items: center; justify-content: center; width: 44px; height: 44px;
+    border: none; border-radius: 50%; background: var(--white); color: var(--primary-dark);
+    box-shadow: 0 4px 12px rgba(89, 74, 125, 0.15); cursor: pointer; transition: var(--transition);
+}
+.menu-toggle:hover { transform: translateY(-2px); color: var(--primary-color); }
+
+/* Esconde as ferramentas de celular quando no PC */
+@media (min-width: 769px) {
+    .mobile-menu-actions { 
+        display: none !important; 
+    }
+}
+
+/* Transforma o visual inteiro para Celular/Tablet */
+@media (max-width: 768px) {
+    .menu-toggle { display: flex; }
+    
+    .nav-links {
+        display: none; /* Fica oculto até o click do Angular acionar a classe .active */
+        position: absolute; top: 80px; left: 16px; right: 16px;
+        background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(16px);
+        border-radius: 20px; padding: 24px; box-shadow: 0 20px 40px rgba(89, 74, 125, 0.15);
+        border: 1px solid rgba(132, 113, 177, 0.15);
+        flex-direction: column; gap: 12px; z-index: 1000;
+    }
+    
+    .nav-links.active { display: flex; }
+
+    .header-actions { 
+        display: none; /* Esconde os botões e ícones do canto direito na tela pequena */
+    }
+    
+    .mobile-menu-actions { 
+        display: flex; flex-direction: column; gap: 8px; margin-top: 8px; 
+        padding-top: 16px; border-top: 1px solid rgba(132, 113, 177, 0.14); 
+    }
+    
+    .mobile-menu-item { 
+        display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; 
+        border: none; border-radius: 10px; background: transparent; color: var(--text-dark); 
+        text-align: left; font: inherit; cursor: pointer; transition: 0.2s ease; 
+    }
+    .mobile-menu-item:hover { background: var(--bg-soft); color: var(--primary-color); }
+    .mobile-menu-item i { font-size: 1.1rem; }
+}
+
+/* =========================================================
+   HEADER DA ÁREA ADMINISTRATIVA
+   ========================================================= */
+
+.admin-header {
+  background: var(--card-bg, #ffffff);
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--border-light, #e5e1ee);
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 3000;
+}
+
+.admin-header .header-content {
+  width: 100%;
+  max-width: 1400px;
+  height: 52px;
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.admin-menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--muted-bg, #f0ebf7);
+  color: var(--secondary-color, #6c4bbf);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.admin-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.admin-logo-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.admin-header .header-logo-icon {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.admin-header .header-logo-text {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--primary-color-dark, #594a7d);
+}
+
+.admin-header .area-badge {
+  background: var(--muted-bg, #f0ebf7);
+  color: var(--secondary-color, #6c4bbf);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.admin-header .header-icons {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-header .icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: var(--muted-bg, #f0ebf7);
+  color: var(--secondary-color, #6c4bbf);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.admin-header .header-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #ffffff;
+  border: 2px solid var(--border-light, #e5e1ee);
+  padding: 2px;
+}
+
+.admin-header .icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: var(--muted-bg);
+  color: var(--secondary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.admin-header .icon-btn:hover {
+  background: var(--hover-bg);
+  transform: translateY(-1px);
+}
+
+.admin-header .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+
+.admin-header .menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--muted-bg);
+  color: var(--secondary-color);
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.admin-header .menu-toggle:hover {
+  background: var(--hover-bg);
+}
+
+/* =========================================================
+   ADMIN — MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  .admin-header {
+    padding: 12px 16px;
+  }
+
+  .admin-menu-toggle {
+    display: flex;
+  }
+
+  .admin-header .header-content {
+    min-height: 56px;
+  }
+
+  .admin-header .header-logo-text {
+    font-size: 1.05rem;
+  }
+
+  .admin-header .header-icons {
+    gap: 8px;
+  }
+
+  .admin-header .header-avatar {
+    display: none;
+  }
+}
+/* Estilo do Menu de Acessibilidade Dropdown com Animação */
+#accessibility-menu {
+  position: absolute;
+  top: 60px; /* Ajuste conforme a altura do seu header */
+  right: 0;
+  background: #FCFCFF;
+  border: 1px solid rgba(132, 113, 177, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 12px 35px rgba(75, 44, 130, 0.12);
+  width: 260px;
+  padding: 12px 0;
+  list-style: none;
+  z-index: 1000;
+  
+  max-height: 80vh; 
+  overflow-y: auto;
+
+  /* A MÁGICA DA ANIMAÇÃO AQUI */
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  transform-origin: top right; /* Faz o menu "nascer" a partir do botão */
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); /* Curva suave estilo Apple/Soft UI */
+}
+
+/* Substituindo o display: none brusco pela ocultação suave */
+#accessibility-menu.hidden {
+  display: block !important; /* Força a anulação do display:none se estiver global */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px) scale(0.95); /* Sobe um pouquinho e encolhe 5% */
+  pointer-events: none; /* Impede cliques fantasmas enquanto estiver invisível */
+}
+
+/* Estilo individual de cada item */
+#accessibility-menu li {
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #443A66;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+#accessibility-menu li i {
+  color: #4B2C82;
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+#accessibility-menu li:hover {
+  background-color: #F4ECFF;
+  color: #2D1E4E;
+}

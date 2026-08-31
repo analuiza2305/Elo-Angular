@@ -1,0 +1,302 @@
+<app-header tipo="mae"></app-header>
+    <main class="home-sections">
+        
+        <section class="hero-section-nova">
+            <div class="hero-conteudo">
+                <div class="hero-badge">
+                    <span>Bem-vinda de volta, <span>{{ heroUserName() }}</span>!</span>
+                </div>
+                
+                <h1 class="hero-titulo">Você não precisa ser perfeita para ser <span class="destaque">uma mãe incrível</span>.</h1>
+                <p class="hero-subtitulo">Um espaço seguro para conversar, aprender e receber apoio de outras mães — sem julgamento, no seu ritmo.</p>
+                
+                <div class="hero-botoes">
+                    <a routerLink="/forum" class="botao-roxo">Explorar comunidade <i class="fa-solid fa-arrow-right"></i></a>
+                    <a routerLink="/artigos" class="botao-branco">Ver artigos</a>
+                </div>
+            </div>
+
+            <div class="hero-imagem-container">
+                <img src="./img/img-home-mae.png" alt="Mãe com bebê no colo" class="hero-img-ilustracao">
+                
+                <div class="card-flutuante">
+                    <div class="card-icone">
+                        <i class="fa-solid fa-user-group"></i>
+                    </div>
+                    <div class="card-texto">
+                        <span class="card-label">Agora</span>
+                        <span class="card-valor">+2.4k mães online</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="quick-menu-section">
+            <div class="quick-menu-container">
+                <a routerLink="/forum" class="quick-menu-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <span>Fórum</span>
+                </a>
+                
+                <a routerLink="/chat" class="quick-menu-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span>Chats</span>
+                </a>
+                
+                <a routerLink="/consultoria" class="quick-menu-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/>
+                        <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/>
+                        <circle cx="20" cy="10" r="2"/>
+                    </svg>
+                    <span>Consultorias</span>
+                </a>
+                
+                <a routerLink="/eventos" class="quick-menu-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <path d="M10.5 15.5a2.121 2.121 0 0 1 3 0l.5.5.5-.5a2.121 2.121 0 0 1 3 3L14 22l-3.5-3.5a2.121 2.121 0 0 1 0-3z"/>
+                    </svg>
+                    <span>Eventos</span>
+                </a>
+                
+                <a routerLink="/artigos" class="quick-menu-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+                        <path d="M18 14h-8"/>
+                        <path d="M15 18h-5"/>
+                        <path d="M10 6h8v4h-8V6Z"/>
+                    </svg>
+                    <span>Artigos</span>
+                </a>
+
+                <!-- Novo Botão: Agenda -->
+                <a routerLink="/agenda-mae" class="quick-menu-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <path d="m9 16 2 2 4-4"/>
+                    </svg>
+                    <span>Agenda</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>Do fórum</h3>
+                <a class="ver-mais" routerLink="/forum">Ver mais</a>
+            </div>
+            <div class="cards-grid">
+                @if (isLoading()) {
+                    <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                }
+                @for (post of ultimosPosts(); track post.id) {
+                    <a [routerLink]="['/comentResp']" [queryParams]="{ postId: post.id }" class="forum-card-novo com-brilho">
+                        <div class="fc-header">
+                            <img [src]="post.autorFotoFinal" [alt]="post.autorNomeFinal" class="fc-avatar">
+                            <div class="fc-user-info">
+                                <strong class="fc-nome">{{ post.autorNomeFinal }}</strong>
+                                <span class="fc-dot">•</span>
+                                <span class="fc-data">{{ post.dataFormatada }}</span>
+                            </div>
+                        </div>
+                        <div class="fc-body">
+                            <h4 class="fc-titulo">{{ post.titulo }}</h4>
+                            <p class="fc-texto">{{ post.conteudo | slice:0:110 }}...</p>
+                        </div>
+                        <div class="fc-footer">
+                            <div class="fc-like" [class.liked]="post.jaCurtiu" (click)="toggleLike(post, $event)">
+                                <i [ngClass]="post.jaCurtiu ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
+                                <span>Curtir</span>
+                            </div>
+                            @if (post.respondido) {
+                                <span class="badge-respondido"><i class="fa-solid fa-check-circle"></i> Respondido por especialista</span>
+                            } @else {
+                                <span class="badge-aguardando"><i class="fa-regular fa-clock"></i> Aguardando especialista</span>
+                            }
+                        </div>
+                    </a>
+                }
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>Artigos</h3>
+                <a class="ver-mais" routerLink="/artigos">Ver mais</a>
+            </div>
+            
+            <!-- Carrossel de Artigos -->
+            <div class="carrossel-wrapper">
+                <button class="seta-carrossel prev"><i class="fa-solid fa-chevron-left"></i></button>
+                
+                <div id="artigos-home" class="artigos-carrossel-track">
+                    @if (isLoading()) {
+                        <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    }
+                    @for (artigo of ultimosArtigos(); track artigo.id) {
+                        <a [routerLink]="['/artigo_ind']" [queryParams]="{ id: artigo.id }" class="artigo-card-novo com-brilho">
+                            <div class="ac-img-wrapper">
+                                <img [src]="getImg(artigo.img)" [alt]="artigo.titulo" class="ac-cover">
+                                <span class="ac-tag">{{ artigo.categoria || 'Maternidade' }}</span>
+                                <div class="ac-bookmark" [class.saved]="artigo.salvo" (click)="toggleSalvarArtigo(artigo, $event)">
+                                    <i [ngClass]="artigo.salvo ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'"></i>
+                                </div>
+                            </div>
+                            <div class="ac-body">
+                                <span class="ac-time"><i class="fa-regular fa-clock"></i> {{ artigo.tempoLeitura || '5 min' }} de leitura</span>
+                                <h4 class="ac-title">{{ artigo.titulo }}</h4>
+                                <p class="ac-excerpt">{{ artigo.resumo || 'Dicas e reflexões essenciais...' | slice:0:75 }}...</p>
+                                <div class="ac-footer">
+                                    <span class="ac-author">{{ artigo.autorNome || 'Equipe EloMaterno' }}</span>
+                                    <span class="ac-ler">Ler <i class="fa-solid fa-arrow-right"></i></span>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+                
+                <button class="seta-carrossel next"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>Eventos</h3>
+                <a class="ver-mais" routerLink="/eventos">Ver eventos</a>
+            </div>
+            <div class="cards-grid eventos-grid-horizontal">
+                @if (isLoading()) {
+                    <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                }
+                @for (ev of ultimosEventos(); track ev.id) {
+                    <div class="ticket-card com-brilho" style="cursor:pointer" (click)="openEventModal(ev)">
+                        <div class="tc-img-box">
+                            <img [src]="ev.capa || './img/default-event.png'" alt="Capa do evento">
+                        </div>
+                        <div class="tc-content">
+                            <span class="tc-date">{{ ev.dataFormatada }} • {{ ev.horaFormatada }}</span>
+                            <h4 class="tc-title">{{ ev.titulo }}</h4>
+                            <span class="tc-local"><i class="fa-solid fa-location-dot"></i> {{ ev.local || 'Online' }}</span>
+                        </div>
+                        <div class="tc-arrow">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+
+        @if (selectedEvent()) {
+        <div class="modal" style="background: rgba(0,0,0,0.6);" (click)="closeEventModal()">
+            <div class="modal-content" style="padding: 0; max-width: 500px; overflow: hidden;" (click)="$event.stopPropagation()">
+                <span class="close" style="z-index: 10; color: white; background: rgba(0,0,0,0.3); border-radius: 50%; width: 30px; height: 30px; text-align: center; line-height: 28px;" (click)="closeEventModal()">&times;</span>
+                
+                @if (selectedEvent().capa) {
+                    <img [src]="selectedEvent().capa" style="width: 100%; height: 200px; object-fit: cover; display: block;" [alt]="selectedEvent().titulo">
+                }
+                
+                <div style="padding: 24px;">
+                    <h2 style="margin: 0 0 10px 0; color: #3E2A72;">{{ selectedEvent().titulo || 'Evento' }}</h2>
+                    <p style="color: #6C4BBF; font-weight: bold; font-size: 14px; margin-bottom: 16px;">
+                        <i class="fa-solid fa-location-dot"></i> {{ selectedEvent().local || 'Online' }} • {{ selectedEvent().dataFormatada }} às {{ selectedEvent().horaFormatada }}
+                    </p>
+                    <div style="color: #555; line-height: 1.6; margin-bottom: 24px;" [innerHTML]="selectedEvent().descricao"></div>
+                    
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button type="button" style="padding: 10px 16px; background: #eee; color: #555; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;" (click)="closeEventModal()">Fechar</button>
+                        
+                        @if (!currentUser()) {
+                            <button type="button" style="padding: 10px 16px; background: #6C4BBF; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;" (click)="infoModal.set({title: 'Login', message: 'Você precisa logar.'})">Logar para Inscrever</button>
+                        } @else if (isUserInscrito(selectedEvent().id)) {
+                            <button type="button" style="padding: 10px 16px; background: #d9534f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;" (click)="cancelarInscricao(selectedEvent())">Cancelar Inscrição</button>
+                        } @else {
+                            <button type="button" style="padding: 10px 16px; background: #6C4BBF; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;" (click)="inscrever(selectedEvent())">Inscrever-se</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (infoModal()) {
+        <div class="modal">
+            <div class="modal-content" style="text-align: center;">
+                <h2 style="color: #3E2A72; margin-top: 10px;">{{ infoModal()?.title }}</h2>
+                <p>{{ infoModal()?.message }}</p>
+                <button type="button" style="margin-top: 10px; width: 100%;" (click)="infoModal.set(null)">OK</button>
+            </div>
+        </div>
+    }
+
+    @if (confirmModal()) {
+        <div class="modal">
+            <div class="modal-content" style="text-align: center;">
+                <h2 style="color: #d9534f; margin-top: 10px;">{{ confirmModal()?.title }}</h2>
+                <p>{{ confirmModal()?.message }}</p>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" style="flex: 1; background: #eee; color: #333;" (click)="confirmModal.set(null)">Não, Voltar</button>
+                    <button type="button" style="flex: 1; background: #d9534f;" (click)="confirmModal()?.action()">Sim, Cancelar</button>
+                </div>
+            </div>
+        </div>
+    }
+
+        <!-- Seção de Consultorias Corrigida -->
+        <section class="section">
+            <div class="section-header">
+                <h3>Consultorias</h3>
+                <a class="ver-mais" routerLink="/consultoria">Agendar</a>
+            </div>
+            <div class="banner-consultoria">
+                <div class="banner-content">
+                    <h2>Apoio especializado quando <span>você</span> mais precisa.</h2>
+                    <p>Nossas consultorias oferecem acolhimento profissional em diversas áreas para te ajudar a tomar decisões com segurança e confiança.</p>
+                    <a routerLink="/consultoria" class="btn-agendar">
+                        <i class="ph ph-calendar-blank"></i> Agendar consulta
+                    </a>
+                </div>
+                <div class="banner-image">
+                    <img src="./img/banner-consultoria-mae.png" alt="Acolhimento profissional">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    @if (showWelcomeModal()) {
+        <div class="modal">
+            <div class="modal-content">
+                <span class="close" (click)="closeModal()">&times;</span>
+                <h2>Complete seu perfil</h2>
+                <p>Para uma melhor experiência, preencha as informações adicionais:</p>
+                <form (submit)="saveProfile()">
+                    <label for="cidade">Cidade:</label>
+                    <input type="text" id="cidade" [(ngModel)]="perfilForm.cidade" name="cidade" placeholder="Ex: São Paulo">
+
+                    <label for="emprego">Emprego:</label>
+                    <input type="text" id="emprego" [(ngModel)]="perfilForm.emprego" name="emprego" placeholder="Ex: Atendente">
+
+                    <label for="filhos">Número de filhos:</label>
+                    <input type="text" id="filhos" [(ngModel)]="perfilForm.filhos" name="filhos" placeholder="Ex: 2">
+
+                    <label for="telefone">Telefone:</label>
+                    <input type="text" id="telefone" [(ngModel)]="perfilForm.telefone" name="telefone" required placeholder="Ex: (11) 99999-9999">
+
+                    <button type="submit">Salvar e Continuar</button>
+                </form>
+            </div>
+        </div>
+    }
