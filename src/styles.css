@@ -6387,6 +6387,23 @@ body[data-theme="dark"] {
     --shadow-accent-soft: rgba(0, 0, 0, 0.3);
     --hover-bg: #1b2336;
     --white: #080b14; /* Inversão do branco estrutural */
+
+    /* -------------------------------------------------------
+       Segundo sistema de variáveis (usado pelos painéis com
+       sidebar "vidro": home-adv, home-psi, home-parc). Esse
+       conjunto nunca tinha ganhado uma versão escura, por isso
+       a sidebar continuava com o efeito de vidro branco mesmo
+       com o resto da página escuro.
+       ------------------------------------------------------- */
+    --bg-gradient: linear-gradient(135deg, #080b14 0%, #141a26 100%);
+    --glass-bg: rgba(20, 26, 38, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.10);
+    --card-bg-border: rgba(255, 255, 255, 0.10);
+    --menu-btn-hover: rgba(157, 143, 231, 0.14);
+    --menu-btn-active: #3a3159;
+    --shadow-soft: 0 12px 40px rgba(0, 0, 0, 0.45);
+    --botaoconsultoria: #9d8fe7;
+    --patient: #171b2d;
 }
 
 /* Força a aplicação global do modo escuro nos elementos base */
@@ -10653,6 +10670,10 @@ header.header {
   z-index: 100;
 }
 
+body[data-theme="dark"] header.header {
+  background: rgba(20, 26, 38, 0.7);
+}
+
 header h1 {
   font-size: 24px;
   color: var(--accent-color);
@@ -10761,12 +10782,20 @@ header h1 {
   transform: translateX(4px);
 }
 
+body[data-theme="dark"] .menu-btn:hover:not(.active) {
+  background: rgba(157, 143, 231, 0.14);
+}
+
 .last-activities {
   background: rgba(255, 255, 255, 0.5);
   padding: 20px;
   border-radius: 20px;
   margin-top: 16px;
   border: 1px solid var(--glass-border);
+}
+
+body[data-theme="dark"] .last-activities {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .last-activities h3 {
@@ -11241,6 +11270,11 @@ header h1 {
   box-shadow: 0 4px 15px rgba(89, 74, 125, 0.05);
   border: 1px solid rgba(132, 113, 177, 0.15);
   overflow: hidden;
+}
+
+body[data-theme="dark"] .chat-wrapper {
+  background: #141a26;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .chat-sidebar {
