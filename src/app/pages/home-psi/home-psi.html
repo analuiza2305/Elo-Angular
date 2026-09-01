@@ -28,7 +28,7 @@
       <div id="reading-mask-overlay"><div class="highlight-window"></div></div>
 
       <div class="theme-toggle" id="theme-toggle" (click)="toggleTheme()">
-        <i class="fas fa-moon" aria-label="Alternar tema claro e escuro"></i>
+        <i class="fas" [class.fa-moon]="!isDarkMode()" [class.fa-sun]="isDarkMode()" aria-label="Alternar tema claro e escuro"></i>
       </div>
 
       <button id="infoBtn" class="info-btn" (click)="abrirInformacoes()">
@@ -189,7 +189,7 @@
     <!-- ARTIGOS E CONTEÚDOS (CARROSSEL) -->
     <!-- ============================================================ -->
     <section class="content" id="artigos" *ngIf="activeSection() === 'artigos'">
-      
+
      <!-- Cabeçalho -->
       <div class="artigos-header-top">
           <div class="artigos-title-box">
@@ -207,7 +207,7 @@
               <button class="cat-btn"><i class="fa-solid fa-lightbulb"></i> Dicas</button>
               <button class="cat-btn"><i class="fa-regular fa-newspaper"></i> Posts</button>
           </div>
-          
+
           <button class="btn-sort">
               <i class="fa-solid fa-sliders"></i> Mais recentes <i class="fa-solid fa-chevron-down" style="margin-left: 8px; font-size: 0.8em;"></i>
           </button>
@@ -216,9 +216,9 @@
       <div class="artigos-carousel-psi">
         <a [routerLink]="['/artigo_ind']" [queryParams]="{ id: artigo.id }" class="artigo-card-novo" *ngFor="let artigo of artigos()">
             <div class="ac-img-wrapper">
-                <img [src]="artigo.capa || artigo.imagem || artigo.img || './img/artigos/1.jpg'" 
+                <img [src]="artigo.capa || artigo.imagem || artigo.img || './img/artigos/1.jpg'"
                      (error)="artigo.capa = './img/artigos/1.jpg'; artigo.imagem = null; artigo.img = null"
-                     [alt]="artigo.titulo" 
+                     [alt]="artigo.titulo"
                      class="ac-cover">
                 <!-- A cor da tag muda dinamicamente de acordo com a sua imagem -->
                 <span class="ac-tag" [ngStyle]="{'color': artigo.categoria === 'Finanças' ? '#059669' : (artigo.categoria === 'Maternidade' ? '#e11d48' : 'var(--primary-dark)')}">
@@ -228,7 +228,7 @@
                     <i class="fa-regular fa-bookmark"></i>
                 </div>
             </div>
-            
+
             <div class="ac-body">
                 <span class="ac-time"><i class="fa-regular fa-clock"></i> {{ artigo.tempoLeitura || '5 min' }} de leitura</span>
                 <h4 class="ac-title">{{ artigo.titulo }}</h4>
@@ -257,7 +257,7 @@
         <div class="consulta-card" *ngFor="let consulta of consultasFiltradas()" style="width: 100%; max-width: 100%;">
           <div class="consulta-header">
             <h3>{{ consulta.nome }}</h3>
-            <span class="badge" 
+            <span class="badge"
                   [class.badge-pendente]="consulta.status === 'Pendente'"
                   [class.badge-aceito]="consulta.status === 'Agendada'"
                   [class.badge-realizado]="consulta.status === 'Realizada'"
@@ -278,7 +278,7 @@
             <button class="btn-detalhes" *ngIf="consulta.status !== 'Pendente'" (click)="abrirChatComMae(consulta.maeId)">Abrir Chat</button>
           </div>
         </div>
-        
+
         <p *ngIf="consultasFiltradas().length === 0" style="text-align: center; color: var(--text-color2); margin-top: 40px;">
           Nenhuma consulta encontrada nesta categoria.
         </p>
@@ -326,14 +326,14 @@
     <!-- CHATS -->
     <section class="content" id="chats" *ngIf="activeSection() === 'chats'">
       <div style="display: flex; height: calc(100vh - 160px); background: #fff; border-radius: 20px; box-shadow: var(--shadow-soft); overflow: hidden; border: 1px solid var(--border-color);">
-        
+
         <!-- Sidebar -->
         <div style="width: 300px; background: #fdfcff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column;">
           <div style="padding: 20px; border-bottom: 1px solid var(--border-color);">
             <h3 style="margin: 0; color: var(--primary-dark); font-size: 16px;">Usuários</h3>
           </div>
           <div style="flex: 1; overflow-y: auto;">
-            <div *ngFor="let user of chatUsers()" 
+            <div *ngFor="let user of chatUsers()"
                  style="display: flex; align-items: center; gap: 12px; padding: 16px 20px; cursor: pointer; border-bottom: 1px solid rgba(132, 113, 177, 0.1);"
                  [style.background]="chatSelecionado()?.id === user.id ? '#fff' : 'transparent'"
                  [style.border-left]="chatSelecionado()?.id === user.id ? '4px solid var(--primary-color)' : '4px solid transparent'"
@@ -359,7 +359,7 @@
             </div>
 
             <div style="flex: 1; padding: 24px; overflow-y: auto; background: #faf8ff; display: flex; flex-direction: column; gap: 16px;">
-              <div *ngFor="let msg of mensagensChat()" 
+              <div *ngFor="let msg of mensagensChat()"
                    style="max-width: 65%; padding: 12px 16px; position: relative;"
                    [ngStyle]="{
                      'align-self': msg.sender === 'sent' ? 'flex-end' : 'flex-start',
@@ -376,10 +376,10 @@
             </div>
 
             <div style="padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; align-items: center;">
-              <input type="text" placeholder="Digite sua mensagem..." 
+              <input type="text" placeholder="Digite sua mensagem..."
                      [(ngModel)]="novaMensagemStr" (keyup.enter)="enviarMensagem()"
                      style="flex: 1; border: 1px solid var(--border-color); border-radius: 30px; padding: 14px 20px; font-size: 1rem; outline: none; font-family: inherit;">
-              <button (click)="enviarMensagem()" 
+              <button (click)="enviarMensagem()"
                       style="width: 48px; height: 48px; border-radius: 50%; background: var(--primary-color); color: #fff; border: none; font-size: 1.2rem; cursor: pointer; transition: 0.3s ease;">
                 <i class="fa-solid fa-paper-plane"></i>
               </button>

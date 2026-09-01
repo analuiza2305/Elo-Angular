@@ -1,15 +1,19 @@
 <main class="login-container">
-    <div class="login-box fade-in visible"> 
+    <div class="login-box fade-in visible">
         <div class="auth-top-actions">
+            <button type="button" class="icon-btn back-btn" routerLink="/" title="Voltar para a página inicial" aria-label="Voltar para a página inicial">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+
             <button type="button" class="icon-btn theme-toggle" (click)="alternarTema()" title="Alternar modo escuro">
                 <i class="fa-solid fa-moon"></i>
             </button>
-            
+
             <div class="accessibility-selector">
                 <button type="button" class="icon-btn" id="accessibility-toggle" (click)="toggleAccessibilityMenu($event)" title="Opções de acessibilidade">
                     <i class="fa-solid fa-universal-access"></i>
                 </button>
-                
+
                 <ul id="accessibility-menu" [class.hidden]="!isAccessibilityOpen()">
                     <li (click)="aumentarFonte()"><i class="fa-solid fa-plus-circle"></i> Aumentar Fonte</li>
                     <li (click)="diminuirFonte()"><i class="fa-solid fa-minus-circle"></i> Diminuir Fonte</li>

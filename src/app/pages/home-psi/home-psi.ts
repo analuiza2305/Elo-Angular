@@ -44,6 +44,7 @@ export class HomePsi implements OnInit, OnDestroy {
   readonly activeSection = signal<SecaoHomePsi>('dashboard');
   readonly sidebarOpen = signal(false);
   readonly accessibilityMenuOpen = signal(false);
+  readonly isDarkMode = signal(false);
 
   readonly nomeCompleto = signal('Psicólogo(a)');
   readonly primeiroNome = computed(() => this.nomeCompleto().split(' ')[0]);
@@ -63,12 +64,12 @@ export class HomePsi implements OnInit, OnDestroy {
   // DADOS E LISTAS DO BANCO DE DADOS
   abaConsultas = signal<'Pendentes' | 'Agendadas' | 'Realizadas' | 'Negadas'>('Pendentes');
   todasConsultas = signal<any[]>([]);
-  
+
   // Computa a lista de consultas baseada na aba ativa
   consultasFiltradas = computed(() => {
     const aba = this.abaConsultas();
-    const statusDesejado = aba === 'Pendentes' ? 'Pendente' : 
-                           aba === 'Agendadas' ? 'Agendada' : 
+    const statusDesejado = aba === 'Pendentes' ? 'Pendente' :
+                           aba === 'Agendadas' ? 'Agendada' :
                            aba === 'Realizadas' ? 'Realizada' : 'Negada';
     return this.todasConsultas().filter(c => c.status === statusDesejado);
   });
@@ -76,7 +77,7 @@ export class HomePsi implements OnInit, OnDestroy {
   artigos = signal<any[]>([]);
   forumPosts = signal<any[]>([]);
   pacientes = signal<any[]>([]);
-  
+
   // Chat
   chatUsers = signal<any[]>([]);
   chatSelecionado = signal<any>(null);
@@ -126,10 +127,19 @@ export class HomePsi implements OnInit, OnDestroy {
   }
 
   // ==========================================================
-  // INICIALIZAÇÃO FIREBASE 
+  // INICIALIZAÇÃO FIREBASE
   // ==========================================================
   ngOnInit(): void {
     this.activeSection.set(this.lerUltimaSecaoSalva());
+
+    // Modo escuro: lê a preferência salva e aplica no <body> via
+    // data-theme, que é o atributo que TODO o CSS de tema escuro do site
+    // espera (o mesmo mecanismo usado no header.ts e no home-parc.ts).
+    if (isPlatformBrowser(this.platformId)) {
+      const temaSalvo = localStorage.getItem('theme');
+      this.isDarkMode.set(temaSalvo === 'dark');
+      document.body.setAttribute('data-theme', this.isDarkMode() ? 'dark' : 'light');
+    }
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -140,7 +150,7 @@ export class HomePsi implements OnInit, OnDestroy {
         await this.carregarAgendaEClientes(user.uid);
         await this.carregarArtigos();
         await this.carregarForum();
-        
+
         this.carregandoStats.set(false);
         this.carregandoConsultasHoje.set(false);
       } else {
@@ -193,9 +203,9 @@ export class HomePsi implements OnInit, OnDestroy {
     try {
       const q = query(collection(db, 'consultas'), where('profissionalId', '==', uid));
       const snap = await getDocs(q);
-      
+
       this.sessoesAgendadas.set(snap.size);
-      
+
       const todas: any[] = [];
       const consultasHojeTemp: ConsultaHojeView[] = [];
       const dataHoje = new Date().toLocaleDateString('pt-BR');
@@ -240,7 +250,7 @@ export class HomePsi implements OnInit, OnDestroy {
 
       const listaPacientes = Array.from(pacientesMap.values());
       this.pacientes.set(listaPacientes);
-      
+
       // Cria a lista do chat com base nos pacientes que você atende
       this.chatUsers.set(listaPacientes.map((p: any) => ({
           id: p.id,
@@ -413,7 +423,12 @@ export class HomePsi implements OnInit, OnDestroy {
   alternarLeituraVoz(): void { } alternarMascaraLeitura(): void { } alternarTextoDestacado(): void { }
   alternarAltoContraste(): void { } aumentarEspacamentoLinhas(): void { } diminuirEspacamentoLinhas(): void { }
   redefinirAcessibilidade(): void { }
-  toggleTheme(): void { if (isPlatformBrowser(this.platformId)) document.body.classList.toggle('dark-theme'); }
+  toggleTheme(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    this.isDarkMode.update(v => !v);
+    document.body.setAttribute('data-theme', this.isDarkMode() ? 'dark' : 'light');
+    localStorage.setItem('theme', this.isDarkMode() ? 'dark' : 'light');
+  }
   logout(): void { this.router.navigateByUrl('/login-profissional'); }
   abrirTrocaAvatar(): void { }
 
@@ -437,13 +452,13 @@ export class HomePsi implements OnInit, OnDestroy {
   }
 
   mesAnterior(): void {
-    if (this.currentMonth() === 0) { this.currentMonth.set(11); this.currentYear.update((y) => y - 1); } 
+    if (this.currentMonth() === 0) { this.currentMonth.set(11); this.currentYear.update((y) => y - 1); }
     else { this.currentMonth.update((m) => m - 1); }
     this.diasComDisponibilidade.set(new Set());
   }
 
   mesSeguinte(): void {
-    if (this.currentMonth() === 11) { this.currentMonth.set(0); this.currentYear.update((y) => y + 1); } 
+    if (this.currentMonth() === 11) { this.currentMonth.set(0); this.currentYear.update((y) => y + 1); }
     else { this.currentMonth.update((m) => m + 1); }
     this.diasComDisponibilidade.set(new Set());
   }

@@ -1,5 +1,5 @@
-import { Component, OnInit, signal, computed, inject, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, computed, inject, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { auth, db } from '../../core/firebase';
@@ -16,21 +16,23 @@ import { collection, query, where, getDocs, doc, getDoc, updateDoc } from 'fireb
 })
 export class HomeAdv implements OnInit {
   private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
 
   isLoading = signal<boolean>(true);
+  isDarkMode = signal<boolean>(false);
   activeSection = signal<string>('dashboard');
-  
+
   advogadoAtual = signal<any>(null);
   nomeExibicao = computed(() => {
     const nome = this.advogadoAtual()?.nome || 'Advogado(a)';
-    return nome.split(' ')[0]; 
+    return nome.split(' ')[0];
   });
   avatarUrl = computed(() => this.advogadoAtual()?.avatar || './img/avatar_usuario.png');
 
   // Controle de Consultas
   consultas = signal<any[]>([]);
   abaConsultasStatus = signal<string>('pendente');
-  
+
   consultasHoje = computed(() => {
     const hojeStr = new Date().toLocaleDateString('pt-BR');
     return this.consultas().filter(c => c.status === 'aceito' && this.formatarData(c.Datahora) === hojeStr);
@@ -59,12 +61,12 @@ export class HomeAdv implements OnInit {
   // =========================================
   mesAtualOff = signal<number>(new Date().getMonth());
   anoAtualOff = signal<number>(new Date().getFullYear());
-  
+
   nomeMesAtual = computed(() => {
     const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     return meses[this.mesAtualOff()];
   });
-  
+
   anoAtual = computed(() => this.anoAtualOff());
 
   diasCalendario = computed(() => {
@@ -79,12 +81,12 @@ export class HomeAdv implements OnInit {
     const agendados = (adv?.agendados || []).map((t: any) => t.toDate ? t.toDate() : new Date(t));
 
     for (let i = 0; i < primeiroDiaMes; i++) dias.push({ valor: null, hoje: false, temConsulta: false, passado: false });
-    
+
     for (let d = 1; d <= qtdDiasMes; d++) {
       const dataAtual = new Date(this.anoAtualOff(), this.mesAtualOff(), d);
       const isHoje = dataAtual.getTime() === hoje.getTime();
       const isPassado = dataAtual < hoje;
-      
+
       const temDisp = disponibilidades.some((dt: Date) => dt.toDateString() === dataAtual.toDateString());
       const temAgend = agendados.some((dt: Date) => dt.toDateString() === dataAtual.toDateString());
 
@@ -101,8 +103,17 @@ export class HomeAdv implements OnInit {
   artigos = signal<any[]>([]);
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     const lastSection = localStorage.getItem('homeadv_lastSection') || 'dashboard';
     this.activeSection.set(lastSection);
+
+    // Modo escuro: mesma convenção usada no resto do site (atributo
+    // data-theme no <body> + localStorage). Antes o botão "Modo Escuro"
+    // dessa página nem tinha um (click) associado a ele.
+    const temaSalvo = localStorage.getItem('theme');
+    this.isDarkMode.set(temaSalvo === 'dark');
+    document.body.setAttribute('data-theme', this.isDarkMode() ? 'dark' : 'light');
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -135,10 +146,10 @@ export class HomeAdv implements OnInit {
     try {
       const q = query(collection(db, 'Consultas'), where('Advogado', '==', uid));
       const snap = await getDocs(q);
-      
+
       const maeUids = [...new Set(snap.docs.filter(d => d.data()['Mae']).map(d => d.data()['Mae']))];
       const maeSnaps = await Promise.all(maeUids.map(id => getDoc(doc(db, 'usuarios', id))));
-      
+
       const maeMap = Object.fromEntries(
         maeSnaps.filter(s => s.exists()).map(s => [s.id, { id: s.id, ...s.data() }])
       );
@@ -194,7 +205,7 @@ export class HomeAdv implements OnInit {
   async atualizarStatusConsulta(id: string, novoStatus: string) {
     try {
       await updateDoc(doc(db, 'Consultas', id), { status: novoStatus });
-      this.consultas.update(lista => 
+      this.consultas.update(lista =>
         lista.map(c => c.id === id ? { ...c, status: novoStatus } : c)
       );
     } catch (err) {
@@ -221,9 +232,9 @@ export class HomeAdv implements OnInit {
     const adv = this.advogadoAtual();
     const disp = (adv?.disponibilidade || []).map((t: any) => t.toDate ? t.toDate() : new Date(t));
     const agend = (adv?.agendados || []).map((t: any) => t.toDate ? t.toDate() : new Date(t));
-    
+
     const horasOcupadas = new Set<string>();
-    
+
     [...disp, ...agend].forEach((d: Date) => {
       if (d.toDateString() === dataClicada.toDateString()) {
         horasOcupadas.add(`${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`);
@@ -231,7 +242,7 @@ export class HomeAdv implements OnInit {
     });
 
     const horariosPadrao = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
-    
+
     const slots = horariosPadrao.map(h => ({
       hora: h,
       status: horasOcupadas.has(h) ? 'ocupado' : 'livre',
@@ -244,7 +255,7 @@ export class HomeAdv implements OnInit {
 
   toggleHorario(h: any) {
     if (h.status === 'ocupado') return;
-    this.horariosDoDia.update(slots => 
+    this.horariosDoDia.update(slots =>
       slots.map(slot => slot.hora === h.hora ? { ...slot, selecionado: !slot.selecionado } : slot)
     );
   }
@@ -267,7 +278,7 @@ export class HomeAdv implements OnInit {
     try {
       const advRef = doc(db, 'advogados', this.advogadoAtual().id);
       const antigos = this.advogadoAtual().disponibilidade || [];
-      
+
       await updateDoc(advRef, {
         disponibilidade: [...antigos, ...novosTimestamps]
       });
@@ -311,5 +322,12 @@ export class HomeAdv implements OnInit {
   async logout() {
     await auth.signOut();
     this.router.navigate(['/login-profissional']);
+  }
+
+  toggleTheme(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    this.isDarkMode.update(v => !v);
+    document.body.setAttribute('data-theme', this.isDarkMode() ? 'dark' : 'light');
+    localStorage.setItem('theme', this.isDarkMode() ? 'dark' : 'light');
   }
 }
