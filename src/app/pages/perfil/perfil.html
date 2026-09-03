@@ -62,6 +62,14 @@
       </div>
     </div>
 
+    <div class="card card-perigo">
+      <h3><i class="fa fa-triangle-exclamation"></i> Encerrar conta:</h3>
+      <p>Isso apaga sua conta e seus dados de perfil permanentemente. Essa ação não pode ser desfeita.</p>
+      <button type="button" class="btn-apagar-conta" (click)="abrirModalApagarConta()">
+        <i class="fa fa-trash"></i> Apagar minha conta
+      </button>
+    </div>
+
   }
 
 </div>
@@ -172,6 +180,32 @@
 
       <button id="salvarAvatarBtn" (click)="salvarAvatarCriado()">Salvar avatar</button>
     </div>
+</div>
+
+<div class="modals" [class.show]="showModalApagarConta()" id="modal-apagar-conta">
+  <div class="modals-content">
+    <h3>Apagar sua conta?</h3>
+    <p class="aviso-apagar-conta">
+      Essa ação é permanente. Seus dados de perfil serão apagados e você
+      não vai conseguir entrar de novo com essa conta.
+    </p>
+
+    @if (!ehContaGoogle()) {
+      <label for="senhaConfirmacao">Digite sua senha para confirmar:</label>
+      <input type="password" [(ngModel)]="senhaConfirmacao" name="senhaConfirmacao" placeholder="Sua senha">
+    }
+
+    @if (erroApagarConta()) {
+      <p class="erro-apagar-conta">{{ erroApagarConta() }}</p>
+    }
+
+    <div class="modals-actions">
+      <button type="button" (click)="showModalApagarConta.set(false)" [disabled]="apagandoConta()">Cancelar</button>
+      <button type="button" class="btn-confirmar-apagar" (click)="confirmarApagarConta()" [disabled]="apagandoConta()">
+        {{ apagandoConta() ? 'Apagando...' : 'Sim, apagar' }}
+      </button>
+    </div>
+  </div>
 </div>
 
 <app-footer></app-footer>

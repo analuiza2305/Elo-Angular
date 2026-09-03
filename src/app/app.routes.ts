@@ -3,7 +3,8 @@ import { Routes } from '@angular/router';
 import { LandingPageComponent } from './pages/landing-page/landing-page';
 import { Login } from './pages/login/login';
 import { LoginProfissionalComponent } from './pages/login-profissional/login-profissional';
-import { Cadastro } from './pages/cadastro/cadastro';                          
+import { Cadastro } from './pages/cadastro/cadastro';
+import { VerificarEmail } from './pages/verificar-email/verificar-email';                          
 import { CadastroProfissional } from './pages/cadastro-profissional/cadastro-profissional'; 
 import { HomeAdv } from './pages/home-adv/home-adv';
 import { HomePsi } from './pages/home-psi/home-psi';
@@ -31,7 +32,8 @@ export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'login', component: Login },
   { path: 'login-profissional', component: LoginProfissionalComponent },
-  { path: 'cadastro', component: Cadastro },                            
+  { path: 'cadastro', component: Cadastro },
+  { path: 'verificar-email', component: VerificarEmail },                            
   { path: 'cadastro-profissional', component: CadastroProfissional }, 
   { path: 'home-adv', component: HomeAdv },
   { path: 'home-psi', component: HomePsi },

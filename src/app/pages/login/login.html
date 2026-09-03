@@ -1,7 +1,7 @@
 <main class="login-container">
     <div class="login-box fade-in visible">
         <div class="auth-top-actions">
-            <button type="button" class="icon-btn back-btn" routerLink="/" title="Voltar para a página inicial" aria-label="Voltar para a página inicial">
+            <button type="button" class="icon-btn back-to-home-btn" routerLink="/" title="Voltar para a página inicial" aria-label="Voltar para a página inicial">
                 <i class="fa-solid fa-arrow-left"></i>
             </button>
 
@@ -35,6 +35,14 @@
 
         <h2>Faça seu login</h2>
         <p class="subtexto">Sua rede de acolhimento e suporte já começou!</p>
+
+        @if (emailVerificadoAgora()) {
+          <div class="custom-alert-box custom-success-box">
+            <i class="fa fa-circle-check"></i>
+            <span>E-mail confirmado! Agora é só entrar com seu e-mail e senha.</span>
+            <button type="button" (click)="emailVerificadoAgora.set(false)">&times;</button>
+          </div>
+        }
 
         <app-auth-form acao="login" publico="mae" [permitirGoogle]="true"></app-auth-form>
 

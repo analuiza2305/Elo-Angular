@@ -5,8 +5,15 @@ import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../components/header/header';
 import { FooterComponent } from '../../components/footer/footer';
 import { auth, db } from '../../core/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, updateDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import {
+  onAuthStateChanged,
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  reauthenticateWithPopup,
+  GoogleAuthProvider,
+} from 'firebase/auth';
+import { doc, getDoc, updateDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
 @Component({
   selector: 'app-perfil',
@@ -27,6 +34,16 @@ export class Perfil implements OnInit {
   showModalEditar = signal<boolean>(false);
   showModalAvatar = signal<boolean>(false);
   showModalCriador = signal<boolean>(false);
+  showModalApagarConta = signal<boolean>(false);
+
+  senhaConfirmacao = '';
+  apagandoConta = signal<boolean>(false);
+  erroApagarConta = signal('');
+
+  ehContaGoogle = computed(() => {
+    const user = this.currentUser();
+    return !!user?.providerData?.some((p: any) => p.providerId === 'google.com');
+  });
 
   editForm = signal({ nome: '', cidade: '', emprego: '', filhos: '' });
 
@@ -172,6 +189,55 @@ export class Perfil implements OnInit {
     } catch (err) {
       console.error("Erro ao salvar avatar criado:", err);
       alert("Erro ao salvar avatar.");
+    }
+  }
+
+  abrirModalApagarConta() {
+    this.senhaConfirmacao = '';
+    this.erroApagarConta.set('');
+    this.showModalApagarConta.set(true);
+  }
+
+  /**
+   * Apaga a conta da mãe (Firebase Auth + doc em usuarios/{uid}).
+   * O Firebase exige "login recente" pra deletar uma conta, então
+   * reautenticamos primeiro (com senha, ou com o Google se foi assim
+   * que ela entrou) antes de confirmar a exclusão.
+   */
+  async confirmarApagarConta() {
+    const user = this.currentUser();
+    if (!user) return;
+
+    this.erroApagarConta.set('');
+    this.apagandoConta.set(true);
+    try {
+      if (this.ehContaGoogle()) {
+        await reauthenticateWithPopup(user, new GoogleAuthProvider());
+      } else {
+        if (!this.senhaConfirmacao.trim()) {
+          this.erroApagarConta.set('Digite sua senha para confirmar.');
+          this.apagandoConta.set(false);
+          return;
+        }
+        const credential = EmailAuthProvider.credential(user.email, this.senhaConfirmacao);
+        await reauthenticateWithCredential(user, credential);
+      }
+
+      await deleteDoc(doc(db, 'usuarios', user.uid));
+      await deleteUser(user);
+
+      this.showModalApagarConta.set(false);
+      this.router.navigate(['/']);
+    } catch (err: any) {
+      if (err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential') {
+        this.erroApagarConta.set('Senha incorreta.');
+      } else if (err?.code === 'auth/too-many-requests') {
+        this.erroApagarConta.set('Muitas tentativas. Aguarde um pouco e tente de novo.');
+      } else {
+        this.erroApagarConta.set('Não foi possível apagar a conta agora. Tente novamente.');
+      }
+    } finally {
+      this.apagandoConta.set(false);
     }
   }
 }

@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth';
 import { collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs, limit } from 'firebase/firestore';
 import { auth, db } from '../../core/firebase';
+import { EmailVerificationService } from '../../core/services/email-verification.service';
 
 @Component({
   selector: 'app-auth-form',
@@ -43,7 +44,10 @@ export class AuthFormComponent {
   razaoSocialCarregando = signal(false);
   private razaoSocialEncontrada = '';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private emailVerificationService: EmailVerificationService,
+  ) {}
 
   /** Gera o caminho de um avatar aleatório (1.png a 19.png) para o tipo de profissional. */
   private gerarAvatarAleatorio(tipoDocumento: string): string {
@@ -232,10 +236,18 @@ export class AuthFormComponent {
         // por isso toda mãe recém-cadastrada ia parar na home do parceiro).
         if (this.publico === 'mae') {
           await setDoc(doc(db, 'usuarios', uid), {
-            nome: this.nome, email: this.email, telefone: '', tipo: 'mae', avatar: null,
+            nome: this.nome, email: this.email, telefone: '', tipo: 'mae', avatar: null, emailVerificado: false,
             extras: { login_load: { mae: true, parceiro: false, advogado: false, psicologo: false }, consult_load: false, termos_load: false, fonte_number: 1, dark_mode: false, espacamento_number: 1, filtro_daltonismo: 'Filtros_daltonismo', leitura_voz: false, letras_destaque: false, mascara_leitura: false }
           });
-          this.router.navigate(['/home-mae']);
+
+          // Antes o cadastro ia direto pra /home-mae. Agora a mãe precisa
+          // confirmar o e-mail com um código antes de conseguir entrar.
+          try {
+            await this.emailVerificationService.gerarEEnviarCodigo(uid, this.email, this.nome);
+          } catch (e) {
+            console.warn('Falha ao enviar e-mail de verificação:', e);
+          }
+          this.router.navigate(['/verificar-email']);
           this.loading.set(false);
           return;
         }
@@ -279,6 +291,23 @@ export class AuthFormComponent {
 
       } else if (this.publico === 'mae') {
         const cred = await signInWithEmailAndPassword(auth, this.email, this.senha);
+
+        // Bloqueia o login de mães que ainda não confirmaram o e-mail
+        // (cadastros feitos antes dessa verificação existir não têm o
+        // campo emailVerificado — nesse caso liberamos o login normal).
+        const userSnap = await getDoc(doc(db, 'usuarios', cred.user.uid));
+        const dadosUsuario = userSnap.exists() ? userSnap.data() : null;
+        if (dadosUsuario && dadosUsuario['emailVerificado'] === false) {
+          try {
+            await this.emailVerificationService.gerarEEnviarCodigo(cred.user.uid, this.email, dadosUsuario['nome'] || '');
+          } catch (e) {
+            console.warn('Falha ao reenviar e-mail de verificação:', e);
+          }
+          this.router.navigate(['/verificar-email']);
+          this.loading.set(false);
+          return;
+        }
+
         const rota = await this.determinarRotaAposLogin(cred.user.uid, '');
         this.router.navigate([rota]);
         

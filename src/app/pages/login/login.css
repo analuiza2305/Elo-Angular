@@ -240,3 +240,50 @@ body[data-theme="dark"] .auth-top-actions .icon-btn:hover {
     background: #1b2336 !important;
     color: #ffffff !important;
 }
+
+/* Aviso de "e-mail confirmado" ao voltar de /verificar-email */
+.custom-alert-box {
+    background-color: #fdf2f2;
+    border: 1px solid #f8d7da;
+    color: #842029;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    text-align: left;
+}
+
+.custom-alert-box i {
+    color: #dc3545;
+    font-size: 1.1rem;
+}
+
+.custom-alert-box span {
+    flex: 1;
+}
+
+.custom-alert-box button {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    color: #842029;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.custom-success-box {
+    background-color: #f0f9f1;
+    border-color: #c9e6cc;
+    color: #235a29;
+}
+
+.custom-success-box i {
+    color: #2e8b39;
+}
+
+.custom-success-box button {
+    color: #235a29;
+}

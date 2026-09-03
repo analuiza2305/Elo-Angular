@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthFormComponent } from '../../components/auth-form/auth-form';
 
 @Component({
@@ -12,6 +12,7 @@ import { AuthFormComponent } from '../../components/auth-form/auth-form';
 })
 export class Login implements OnInit {
   isAccessibilityOpen = signal<boolean>(false);
+  emailVerificadoAgora = signal<boolean>(false);
   private speechUtterance: SpeechSynthesisUtterance | null = null;
   private daltonismoIndex = 0;
   private readonly daltonismoClasses = [
@@ -21,9 +22,16 @@ export class Login implements OnInit {
     'colorblind-Acromatopsia'
   ];
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit(): void {
+    if (this.route.snapshot.queryParamMap.get('emailVerificado') === '1') {
+      this.emailVerificadoAgora.set(true);
+    }
+
     if (isPlatformBrowser(this.platformId)) {
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme) {
