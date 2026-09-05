@@ -1,12 +1,5 @@
 # 💜 Elomaterno
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Elomaterno-Acolher%20%7C%20Conectar%20%7C%20Fortalecer-6B4BB0?style=for-the-badge"/>
-</p>
-
-<p align="center">
-  <strong>Conectando, acolhendo e fortalecendo mães solo.</strong>
-</p>
 
 <p align="center">
   🌷 Acolhimento • 🤝 Conexão • 🧠 Apoio • 💬 Comunicação
@@ -20,38 +13,26 @@ O **Elomaterno** é uma plataforma digital criada para oferecer uma **rede de ap
 
 A plataforma busca utilizar a tecnologia como ferramenta de **conexão, suporte e fortalecimento social e emocional**.
 
----
 
-## ✨ Funcionalidades
+## 🎯 Objetivos
 
-- 🔐 **Autenticação** com Firebase Authentication
-- 📅 **Agendamento de consultas**
-- 📋 **Minhas Consultas**
-  - Agendadas
-  - Realizadas
-  - Canceladas
-- ❌ **Cancelamento de consultas**
-- 👩‍⚕️ **Detalhes dos profissionais**
-- 💬 **Chat** entre mãe e profissional
-- ⚡ **Atualização em tempo real** com Firebase Firestore
+- Criar uma rede de apoio para mães solo  
+- Promover acolhimento e empatia por meio da tecnologia  
+- Facilitar o acesso à informação e orientação  
+- Incentivar a troca de experiências entre usuárias  
+- Fortalecer o empoderamento feminino  
 
 ---
 
-## 🖥️ Preview
+## 👥 Integrantes
 
-> Algumas telas da plataforma:
-
-<p align="center">
-  <img src="docs/screenshots/home.png" width="800">
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/consultas.png" width="800">
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/chat.png" width="800">
-</p>
+| Integrante | Função |
+|---|---|
+| 👩‍💻 **Ana Luiza Bertarelli** | Analista de Sistemas / Back-end |
+| 👩‍💻 **Emily Rodrigues** | Scrum Master / Front-end |
+| 👨‍💻 **João Victor Inácio** | Banco de Dados |
+| 👩‍💻 **Michelly Moreira** | Front-end |
+| 👩‍💻 **Samyra Alves** | Product Owner / Full-Stack |
 
 ---
 
