@@ -1,0 +1,854 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: #FBFBFE;
+    color: #333333;
+}
+
+.eventos-container {
+    max-width: 1320px !important;
+    margin: 40px auto;
+    padding: 0 32px;
+}
+
+/* 1. HERO BANNER COM IMAGEM DE FUNDO E TEXTOS */
+.eventos-hero-banner {
+    width: 100%;
+    min-height: 230px;
+    background-image: url('/img/hero-evento.png');
+    background-size: cover;
+    background-position: center right;
+    background-repeat: no-repeat;
+    border-radius: 32px;
+    padding: 40px 50px;
+    margin-bottom: 35px;
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(132, 113, 177, 0.12);
+    box-shadow: 0 12px 35px rgba(115, 93, 163, 0.04);
+}
+
+.hero-content {
+    max-width: 600px;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(6px);
+    padding: 6px 16px;
+    border-radius: 50px;
+    color: #4B2C82;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    border: 1px solid rgba(132, 113, 177, 0.1);
+    box-shadow: 0 4px 10px rgba(124, 105, 169, 0.04);
+}
+
+.hero-content h1 {
+    color: #2D1E4E;
+    font-size: 2.3rem;
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 10px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.hero-content p {
+    color: #554D6B;
+    font-size: 1.05rem;
+    line-height: 1.5;
+}
+
+/* 2. BARRA DE FILTROS (PÍLULAS) */
+.eventos-filtros-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    background: #FFFFFF;
+    padding: 12px 20px;
+    border-radius: 24px;
+    border: 1px solid rgba(132, 113, 177, 0.1);
+    box-shadow: 0 6px 20px rgba(115, 93, 163, 0.03);
+}
+
+.filtros-pulas {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+}
+
+.filtro-btn {
+    background: transparent;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #554D6B;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+}
+
+.filtro-btn:hover {
+    background: rgba(124, 105, 169, 0.08);
+    color: #4B2C82;
+}
+
+.filtro-btn.active {
+    background: #4B2C82;
+    color: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(75, 44, 130, 0.22);
+}
+
+.ordenacao-dropdown-wrapper {
+    position: relative;
+}
+
+.btn-ordenar {
+    background: transparent;
+    border: 1px solid rgba(132, 113, 177, 0.2);
+    padding: 10px 18px;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #4B2C82;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+.btn-ordenar:hover {
+    background: rgba(124, 105, 169, 0.06);
+}
+
+.dropdown-menu-ordenacao {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #FFFFFF;
+    border-radius: 18px;
+    box-shadow: 0 12px 30px rgba(75, 44, 130, 0.12);
+    border: 1px solid rgba(132, 113, 177, 0.15);
+    list-style: none;
+    padding: 8px;
+    width: 200px;
+    z-index: 99;
+}
+
+.dropdown-menu-ordenacao li {
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #554D6B;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+.dropdown-menu-ordenacao li:hover {
+    background: #F4ECFF;
+    color: #4B2C82;
+}
+
+/* 3. GRID E CARDS DE EVENTOS */
+.eventos-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 30px !important;
+    align-items: stretch;
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.evento-card {
+    background-color: #FCFCFF;
+    border-radius: 24px;
+    text-align: left;
+    box-shadow: 0 10px 30px rgba(100, 82, 145, 0.05);
+    border: 1px solid rgba(132, 113, 177, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.evento-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 40px rgba(89, 58, 143, 0.09);
+}
+
+.evento-cover-container {
+    width: 100%;
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+}
+
+.evento-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.evento-card:hover .evento-cover {
+    transform: scale(1.03);
+}
+
+.categoria-badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    padding: 6px 14px;
+    border-radius: 50px;
+    color: #4B2C82;
+    font-size: 0.75rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.calendar-date-box {
+    position: absolute;
+    bottom: -15px;
+    right: 20px;
+    background: #FFFFFF;
+    width: 58px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(75, 44, 130, 0.12);
+    border: 1px solid rgba(132, 113, 177, 0.15);
+    z-index: 2;
+}
+
+.cal-dia {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #2D1E4E;
+    line-height: 1;
+}
+
+.cal-mes {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #7B6AAE;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+}
+
+.evento-body {
+    padding: 24px;
+    padding-top: 28px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.evento-titulo {
+    font-size: 1.2rem;
+    color: #2D1E4E;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.35;
+    font-family: 'Poppins', sans-serif;
+}
+
+.evento-meta {
+    color: #7B6AAE;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.evento-descricao {
+    color: #554D6B;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.evento-acoes {
+    margin-top: auto;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-inscrever {
+    flex: 1;
+    background: #F4ECFF;
+    color: #4B2C82;
+    border: 1px solid rgba(132, 113, 177, 0.2);
+    border-radius: 14px;
+    padding: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.btn-inscrever:hover {
+    background: #EADFFB;
+}
+
+.btn-inscrever.inscrito {
+    background: #EAF9F1;
+    color: #10B981;
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.btn-icone-acao {
+    width: 45px;
+    height: 45px;
+    border-radius: 14px;
+    background: #F8F9FA;
+    border: 1px solid rgba(132, 113, 177, 0.15);
+    color: #554D6B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-icone-acao:hover {
+    background: #F4ECFF;
+    color: #4B2C82;
+}
+
+/* 4. MODAIS REFINADOS (CORREÇÃO DA IMAGEM E BOTÕES) */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(45, 35, 75, 0.45);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal-content {
+    background: #FCFCFF;
+    color: #333333;
+    padding: 35px;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 32px;
+    box-shadow: 0 24px 60px rgba(62, 38, 110, 0.2);
+    border: 1px solid rgba(132, 113, 177, 0.12);
+    position: relative;
+    overflow: hidden; /* Garante que elementos filhos respeitem o arredondamento */
+}
+
+/* Correção da imagem do modal para não estourar e ficar com cantos arredondados */
+.modal-cover {
+    width: calc(100% + 70px);
+    margin: -35px -35px 25px -35px;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 32px 32px 0 0;
+    border-bottom: 1px solid rgba(132, 113, 177, 0.1);
+}
+
+.modal-titulo {
+    color: #2D1E4E;
+    font-size: 1.5rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.modal-meta-box {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    color: #7B6AAE;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.modal-descricao {
+    line-height: 1.65;
+    color: #554D6B;
+    font-size: 0.98ln;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.modal-acoes {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+/* Botão de Cancelar Inscrição estilizado Soft UI */
+.btn-cancelar {
+    background: linear-gradient(135deg, #d9534f 0%, #c9302c 100%);
+    color: #ffffff;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(217, 83, 79, 0.25);
+    transition: all 0.2s ease;
+}
+
+.btn-cancelar:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+}
+
+.close-modal {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    font-size: 20px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #4B2C82;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease;
+}
+
+.close-modal:hover {
+    transform: scale(1.1);
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media (max-width: 1050px) {
+    .eventos-hero-banner { padding: 30px; background-position: center; }
+    .eventos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+
+@media (max-width: 750px) {
+    .eventos-grid { grid-template-columns: 1fr !important; }
+    .eventos-filtros-bar { flex-direction: column; gap: 15px; align-items: stretch; }
+}
+/* ==========================================
+   RESPONSIVIDADE (MEDIA QUERIES)
+   ========================================== */
+
+   @media (max-width: 1050px) {
+    .eventos-hero-banner { 
+        padding: 30px; 
+        background-position: center; 
+    }
+    .eventos-grid { 
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important; 
+    }
+}
+
+@media (max-width: 750px) {
+    .eventos-container {
+        padding: 0 16px;
+    }
+    .eventos-grid { 
+        grid-template-columns: 1fr !important; 
+    }
+    .eventos-filtros-bar { 
+        flex-direction: column; 
+        gap: 15px; 
+        align-items: stretch; 
+    }
+    .filtros-pulas {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+    .eventos-hero-banner {
+        min-height: 180px;
+        padding: 24px;
+        background-position: right center;
+    }
+    .hero-content h1 {
+        font-size: 1.8rem;
+    }
+}
+
+/* ==========================================
+   MODO ESCURO (DARK MODE)
+   ========================================== */
+
+body.dark-theme,
+[data-theme="dark"] body {
+    background-color: #121019;
+    color: #E2DFEC;
+}
+
+body.dark-theme .eventos-hero-banner,
+[data-theme="dark"] .eventos-hero-banner {
+    border-color: rgba(132, 113, 177, 0.2);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+    filter: brightness(0.9);
+}
+
+body.dark-theme .hero-badge,
+[data-theme="dark"] .hero-badge {
+    background: rgba(30, 24, 45, 0.85);
+    color: #D2C2FF;
+    border-color: rgba(132, 113, 177, 0.3);
+}
+
+body.dark-theme .hero-content h1,
+[data-theme="dark"] .hero-content h1 {
+    color: #F4ECFF;
+}
+
+body.dark-theme .hero-content p,
+[data-theme="dark"] .hero-content p {
+    color: #C4BCD4;
+}
+
+body.dark-theme .eventos-filtros-bar,
+[data-theme="dark"] .eventos-filtros-bar {
+    background: #1B1726;
+    border-color: rgba(132, 113, 177, 0.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-theme .filtro-btn,
+[data-theme="dark"] .filtro-btn {
+    color: #C4BCD4;
+}
+
+body.dark-theme .filtro-btn:hover,
+[data-theme="dark"] .filtro-btn:hover {
+    background: rgba(132, 113, 177, 0.15);
+    color: #D2C2FF;
+}
+
+body.dark-theme .filtro-btn.active,
+[data-theme="dark"] .filtro-btn.active {
+    background: #7B6AAE;
+    color: #FFFFFF;
+}
+
+body.dark-theme .btn-ordenar,
+[data-theme="dark"] .btn-ordenar {
+    border-color: rgba(132, 113, 177, 0.3);
+    color: #D2C2FF;
+}
+
+body.dark-theme .btn-ordenar:hover,
+[data-theme="dark"] .btn-ordenar:hover {
+    background: rgba(132, 113, 177, 0.15);
+}
+
+body.dark-theme .dropdown-menu-ordenacao,
+[data-theme="dark"] .dropdown-menu-ordenacao {
+    background: #1B1726;
+    border-color: rgba(132, 113, 177, 0.25);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-theme .dropdown-menu-ordenacao li,
+[data-theme="dark"] .dropdown-menu-ordenacao li {
+    color: #C4BCD4;
+}
+
+body.dark-theme .dropdown-menu-ordenacao li:hover,
+[data-theme="dark"] .dropdown-menu-ordenacao li:hover {
+    background: rgba(132, 113, 177, 0.2);
+    color: #D2C2FF;
+}
+
+body.dark-theme .evento-card,
+[data-theme="dark"] .evento-card {
+    background-color: #1B1726;
+    border-color: rgba(132, 113, 177, 0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-theme .categoria-badge,
+[data-theme="dark"] .categoria-badge {
+    background: rgba(27, 23, 38, 0.85);
+    color: #D2C2FF;
+    border: 1px solid rgba(132, 113, 177, 0.2);
+}
+
+body.dark-theme .calendar-date-box,
+[data-theme="dark"] .calendar-date-box {
+    background: #252033;
+    border-color: rgba(132, 113, 177, 0.25);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .cal-dia,
+[data-theme="dark"] .cal-dia {
+    color: #F4ECFF;
+}
+
+body.dark-theme .cal-mes,
+[data-theme="dark"] .cal-mes {
+    color: #B8A9E0;
+}
+
+body.dark-theme .evento-titulo,
+[data-theme="dark"] .evento-titulo {
+    color: #F4ECFF;
+}
+
+body.dark-theme .evento-meta,
+[data-theme="dark"] .evento-meta {
+    color: #B8A9E0;
+}
+
+body.dark-theme .evento-descricao,
+[data-theme="dark"] .evento-descricao {
+    color: #C4BCD4;
+}
+
+body.dark-theme .btn-inscrever,
+[data-theme="dark"] .btn-inscrever {
+    background: #2B233D;
+    color: #D2C2FF;
+    border-color: rgba(132, 113, 177, 0.25);
+}
+
+body.dark-theme .btn-inscrever:hover,
+[data-theme="dark"] .btn-inscrever:hover {
+    background: #382D4F;
+}
+
+body.dark-theme .btn-inscrever.inscrito,
+[data-theme="dark"] .btn-inscrever.inscrito {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+body.dark-theme .btn-icone-acao,
+[data-theme="dark"] .btn-icone-acao {
+    background: #252033;
+    border-color: rgba(132, 113, 177, 0.25);
+    color: #C4BCD4;
+}
+
+body.dark-theme .btn-icone-acao:hover,
+[data-theme="dark"] .btn-icone-acao:hover {
+    background: #382D4F;
+    color: #D2C2FF;
+}
+
+body.dark-theme .modal-content,
+[data-theme="dark"] .modal-content {
+    background: #1B1726;
+    border-color: rgba(132, 113, 177, 0.2);
+    color: #E2DFEC;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-theme .modal-titulo,
+[data-theme="dark"] .modal-titulo {
+    color: #F4ECFF;
+}
+
+body.dark-theme .modal-meta-box,
+[data-theme="dark"] .modal-meta-box {
+    color: #B8A9E0;
+}
+
+body.dark-theme .modal-descricao,
+[data-theme="dark"] .modal-descricao {
+    color: #C4BCD4;
+}
+
+body.dark-theme .close-modal,
+[data-theme="dark"] .close-modal {
+    background: rgba(37, 32, 51, 0.9);
+    color: #D2C2FF;
+}
+
+body.dark-theme .estado-vazio,
+[data-theme="dark"] .estado-vazio {
+    background-color: #1B1726;
+    border-color: rgba(132, 113, 177, 0.2);
+}
+
+body.dark-theme .estado-vazio h3,
+[data-theme="dark"] .estado-vazio h3 {
+    color: #F4ECFF;
+}
+
+body.dark-theme .estado-vazio p,
+[data-theme="dark"] .estado-vazio p {
+    color: #C4BCD4;
+}
+
+/* ==========================================
+   ESTADO VAZIO / AVISO REFINADO (SOFT UI)
+   ========================================== */
+
+   .estado-vazio {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #FCFCFF;
+    border: 2px dashed rgba(132, 113, 177, 0.2);
+    border-radius: 32px;
+    padding: 60px 30px;
+    text-align: center;
+    margin: 20px 0;
+    box-shadow: 0 10px 30px rgba(100, 82, 145, 0.03);
+}
+
+.vazio-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    background: #F4ECFF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4B2C82;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 20px rgba(124, 105, 169, 0.08);
+    border: 1px solid rgba(132, 113, 177, 0.15);
+}
+
+.estado-vazio h3 {
+    color: #2D1E4E;
+    font-size: 1.35rem;
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+}
+
+.estado-vazio p {
+    color: #554D6B;
+    font-size: 1rem;
+    max-width: 450px;
+    line-height: 1.6;
+}
+/* Caixa principal do modal: SEM PADDING para a imagem colar */
+.event-modal-full {
+    padding: 0 !important; 
+    overflow: hidden; 
+    position: relative; /* Essencial para o botão X flutuar */
+    max-width: 550px !important;
+    border-radius: 24px !important;
+    background: #ffffff;
+}
+
+/* Imagem esticada na horizontal */
+.modal-img-full {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Botão X Flutuante */
+.close-btn-float {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #3E2A72;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    z-index: 10;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: transform 0.2s ease;
+}
+
+.close-btn-float:hover {
+    transform: scale(1.1);
+}
+
+/* Container do texto que devolve o padding */
+.modal-body-text {
+    padding: 32px 24px;
+    text-align: center;
+}
+
+/* Centraliza os botões no modal novo */
+.modal-body-text .modal-acoes {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+/* Botão Vermelho de Cancelar */
+.btn-cancelar-red {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(217, 83, 79, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-cancelar-red:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(217, 83, 79, 0.4);
+}

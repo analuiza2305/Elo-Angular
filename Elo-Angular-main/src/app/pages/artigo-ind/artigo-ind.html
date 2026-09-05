@@ -1,0 +1,68 @@
+<app-header tipo="mae"></app-header>
+
+<main class="artigo-wrapper">
+    
+    <div class="breadcrumb-acoes">
+        <a routerLink="/artigos" class="link-voltar">
+            <i class="fa-solid fa-arrow-left"></i> Voltar para artigos
+        </a>
+        
+        @if (!isLoading() && artigo()) {
+            <button class="btn-favoritar" (click)="toggleFavorito()">
+                @if (isFavorito()) {
+                    <i class="fa-solid fa-bookmark" style="color: #4B2C82;"></i> Salvo nos Favoritos
+                } @else {
+                    <i class="fa-regular fa-bookmark"></i> Salvar Artigo
+                }
+            </button>
+        }       
+    </div>
+
+    @if (isLoading()) {
+        <div class="loading-container" style="padding: 100px 0; text-align: center;">
+            <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        </div>
+    } @else if (errorMessage()) {
+        <div class="estado-vazio">
+            <div class="vazio-icon-wrapper"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h3>Ops! Algo deu errado</h3>
+            <p>{{ errorMessage() }}</p>
+            <a routerLink="/artigos" class="btn-externo" style="margin-top: 15px;">Voltar aos Artigos</a>
+        </div>
+    } @else {
+        <article class="artigo-card com-brilho">
+            
+            <div class="artigo-header-meta">
+                <span class="categoria-badge">{{ artigo()?.categoria || 'Legislativo' }}</span>
+                <span class="data-badge"><i class="fa-regular fa-calendar"></i> {{ artigo()?.dataString }}</span>
+            </div>
+
+            <h1 id="artigo-titulo">{{ artigo()?.titulo }}</h1>
+            
+            <p class="resumo" id="artigo-resumo">{{ artigo()?.resumo || artigo()?.conteudo }}</p>
+            
+            @if (artigo()?.link) {
+                <div class="link-externo-box">
+                    <a id="artigo-link" class="btn-externo" [href]="artigo()?.link" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-solid fa-external-link-alt"></i> Confira o artigo completo na fonte externa
+                    </a>
+                </div>
+            }
+            
+            @if (artigo()?.img) {
+                <div class="artigo-img-container">
+                    <img id="artigo-img" [src]="artigo()?.img" [alt]="artigo()?.titulo" class="artigo-img">
+                    <div class="icone-circulo-badge">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                </div>
+            }
+
+            <div class="artigo-footer-info">
+                <span><i class="fa-solid fa-book-open"></i> Fonte: <strong>{{ artigo()?.fonte || 'ELOMATERNO' }}</strong></span>
+            </div>
+        </article>
+    }
+</main>
+
+<app-footer></app-footer>

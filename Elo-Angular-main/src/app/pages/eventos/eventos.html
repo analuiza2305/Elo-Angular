@@ -1,0 +1,180 @@
+<app-header tipo="mae"></app-header>
+
+<main class="eventos-container">
+    
+    <!-- 1. HERO COM IMAGEM DE FUNDO E TEXTOS -->
+    <section class="eventos-hero-banner">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fa-regular fa-calendar-days"></i> Calendário da Comunidade
+            </div>
+            <h1>Eventos para você</h1>
+            <p>Participe de palestras, encontros e atividades da comunidade. Inscreva-se e veja no calendário.</p>
+        </div>
+    </section>
+
+    <!-- 2. BARRA DE FILTROS COM DOIS DROPDOWNS -->
+    <div class="eventos-filtros-bar">
+        <!-- Filtros em pílulas (Visíveis no Computador) -->
+        <div class="filtros-pulas desktop-only-filtros">
+            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'Todos'" (click)="filtrarCategoria('Todos')">
+                <i class="fa-solid fa-calendar-days"></i> Todos
+            </button>
+            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'palestras'" (click)="filtrarCategoria('palestras')">
+                <i class="fa-solid fa-microphone"></i> Palestras
+            </button>
+            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'oficinas'" (click)="filtrarCategoria('oficinas')">
+                <i class="fa-solid fa-cookie"></i> Oficinas
+            </button>
+            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'encontros'" (click)="filtrarCategoria('encontros')">
+                <i class="fa-solid fa-users"></i> Encontros
+            </button>
+            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'atividades'" (click)="filtrarCategoria('atividades')">
+                <i class="fa-solid fa-heart"></i> Atividades
+            </button>
+        </div>
+
+        <!-- Dropdown de Categorias exclusivo para Celular -->
+        <div class="ordenacao-dropdown-wrapper mobile-only-categorias">
+            <button class="btn-ordenar" (click)="toggleDropdownCategoria($event)">
+                <i class="fa-solid fa-filter"></i> Categoria: {{ categoriaSelecionada() | titlecase }} <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
+            </button>
+            
+            <ul class="dropdown-menu-ordenacao" [class.hidden]="!isDropdownCatOpen()">
+                <li (click)="filtrarCategoria('Todos')"><i class="fa-solid fa-calendar-days"></i> Todos</li>
+                <li (click)="filtrarCategoria('palestras')"><i class="fa-solid fa-microphone"></i> Palestras</li>
+                <li (click)="filtrarCategoria('oficinas')"><i class="fa-solid fa-cookie"></i> Oficinas</li>
+                <li (click)="filtrarCategoria('encontros')"><i class="fa-solid fa-users"></i> Encontros</li>
+                <li (click)="filtrarCategoria('atividades')"><i class="fa-solid fa-heart"></i> Atividades</li>
+            </ul>
+        </div>
+
+        <!-- Dropdown de Ordenação -->
+        <div class="ordenacao-dropdown-wrapper">
+            <button class="btn-ordenar" (click)="toggleDropdownOrdenacao($event)">
+                <i class="fa-solid fa-sliders"></i> {{ textoOrdenacao() }} <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
+            </button>
+            
+            <ul class="dropdown-menu-ordenacao" [class.hidden]="!isDropdownOpen()">
+                <li (click)="ordenarEventos('recentes')"><i class="fa-solid fa-arrow-down-wide-short"></i> Mais recentes</li>
+                <li (click)="ordenarEventos('antigos')"><i class="fa-solid fa-arrow-up-short-wide"></i> Mais antigos</li>
+                <li (click)="ordenarEventos('alfabetica')"><i class="fa-solid fa-font"></i> Ordem alfabética</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 3. GRID DE EVENTOS FILTRADOS -->
+    @if (isLoading()) {
+        <div class="loading-consultas" style="padding: 80px 0; text-align: center;">
+            <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        </div>
+    } @else {
+        <div class="eventos-grid">
+            @for (evento of eventosFiltrados(); track evento.id) {
+                <div class="evento-card">
+                    @if (evento.capa) {
+                        <div class="evento-cover-container">
+                            <img [src]="evento.capa" [alt]="evento.titulo" class="evento-cover">
+                            
+                            <!-- Categoria Dinâmica no Canto Superior Esquerdo -->
+                            <span class="categoria-badge">
+                                <i class="fa-solid fa-bookmark"></i> {{ evento.categoria || 'Evento' }}
+                            </span>
+                            <!-- Bloco de Data Flutuante -->
+                            <div class="calendar-date-box">
+                                <span class="cal-dia">{{ evento.dia || '23' }}</span>
+                                <span class="cal-mes">{{ evento.mes || 'JUN' }}</span>
+                            </div>
+                        </div>
+                    }
+                    <div class="evento-body">
+                        <h3 class="evento-titulo">{{ evento.titulo || 'Evento' }}</h3>
+                        <span class="evento-meta">
+                            <i class="fa-regular fa-clock"></i> {{ evento.dataFormatada || 'Data a definir' }}
+                        </span>
+                        <p class="evento-descricao">{{ evento.descricao }}</p>
+                        
+                        <div class="evento-acoes">
+                            @if (isInscrito(evento.id)) {
+                                <button class="btn-inscrever inscrito" (click)="abrirDetalhes(evento)">
+                                    <i class="fa-solid fa-check"></i> Você está inscrita!
+                                </button>
+                            } @else {
+                                <button class="btn-inscrever" (click)="abrirDetalhes(evento)">
+                                    Mais informações
+                                </button>
+                            }
+                            <!-- Botão Compartilhar unificado em todos os cards -->
+                            <button class="btn-icone-acao" (click)="compartilharEvento(evento)" title="Compartilhar evento">
+                                <i class="fa-solid fa-share-nodes"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            } @empty {
+                <div class="estado-vazio">
+                    <div class="vazio-icon-wrapper">
+                        <i class="fa-regular fa-calendar-xmark"></i>
+                    </div>
+                    <h3>Nenhum evento encontrado nesta categoria</h3>
+                    <p>Tente selecionar outro filtro para ver os encontros disponíveis.</p>
+                </div>
+            }
+        </div>
+    }
+
+</main>
+
+<!-- MODAL DE DETALHES -->
+@if (showModalDetalhes()) {
+    <div class="modal" style="display: flex;" (click)="fecharModais()">
+        <div class="modal-content modal-evento event-modal-full" (click)="$event.stopPropagation()">
+            <button class="close-btn-float" (click)="fecharModais()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            @if (eventoSelecionado()?.capa) {
+                <img [src]="eventoSelecionado().capa" [alt]="eventoSelecionado().titulo" class="modal-img-full">
+            }
+            <div class="modal-body-text">
+                <h2 class="modal-titulo">{{ eventoSelecionado()?.titulo }}</h2>
+                
+                <div class="modal-meta-box">
+                    <span><i class="fa-solid fa-location-dot"></i> {{ eventoSelecionado()?.local || 'Online / Presencial' }}</span>
+                    <span>•</span>
+                    <span><i class="fa-regular fa-calendar"></i> {{ eventoSelecionado()?.dataFormatada }}</span>
+                </div>
+                
+                <p class="modal-descricao" [innerHTML]="eventoSelecionado()?.descricao"></p>
+                
+                <div class="modal-acoes">
+                    @if (isInscrito(eventoSelecionado()?.id)) {
+                        <button class="btn-cancelar-red" (click)="cancelarInscricao()">Cancelar Inscrição</button>
+                    } @else {
+                        <button class="btn-inscrever" (click)="inscrever()">Quero me Inscrever</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- MODAL DE AVISO / CONFIRMAÇÃO -->
+@if (showModalAviso()) {
+    <div class="modal" style="display: flex;" (click)="fecharModais()">
+        <div class="modal-content modal-aviso-box" (click)="$event.stopPropagation()">
+            <h2 class="modal-titulo" style="margin-bottom: 12px;">{{ avisoInfo().titulo }}</h2>
+            <p class="modal-descricao" style="margin-bottom: 24px;">{{ avisoInfo().mensagem }}</p>
+            
+            @if (avisoInfo().isConfirm) {
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <button class="btn-cancelar" style="background: rgba(157, 143, 231, 0.2); color: inherit;" (click)="fecharModais()">Não, Voltar</button>
+                    <button class="btn-cancelar-red" (click)="avisoInfo().acao()">Sim, Confirmar</button>
+                </div>
+            } @else {
+                <button class="btn-inscrever" style="width: 100%;" (click)="fecharModais()">OK</button>
+            }
+        </div>
+    </div>
+}
+
+<app-footer></app-footer>

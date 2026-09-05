@@ -1,0 +1,81 @@
+<app-header tipo="mae"></app-header>
+
+<main class="chat-wrapper">
+  <!-- COLUNA ESQUERDA: LISTA DE CONTATOS -->
+  <aside class="chat-sidebar">
+    <div class="sidebar-header">Profissionais Vinculados</div>
+    <ul id="userList" class="user-list">
+      @for (usuario of usuariosLista(); track usuario.uid) {
+        <li (click)="openChatWith(usuario.uid, { nome: usuario.nome, avatar: usuario.avatar })">
+          <img [src]="usuario.avatar" [alt]="usuario.nome">
+          <div class="user-meta">
+            <span class="user-name">{{ usuario.nome }}</span>
+            <span class="last-message">{{ usuario.lastMessage || 'Toque para conversar' }}</span>
+          </div>
+          @if (usuario.unreadCount > 0) {
+            <span class="badge">{{ usuario.unreadCount }}</span>
+          }
+        </li>
+      } @empty {
+        <p style="padding: 15px; text-align: center; color: #7B6AAE;">Nenhum profissional vinculado encontrado.</p>
+      }
+    </ul>
+  </aside>
+
+  <!-- COLUNA DIREITA: JANELA DE MENSAGENS -->
+  <section class="chat-main" [class.active]="isMobileChatActive()">
+    <header class="chat-header" id="chatHeader">
+      <button class="back-btn" [class.hidden]="!isMobileChatActive()" (click)="voltarParaLista()">
+        <i class="fa fa-arrow-left"></i>
+      </button>
+      
+      @if (chatAtivoInfo()) {
+        <img [src]="chatAtivoInfo()?.avatar" class="chat-avatar" alt="Avatar do profissional">
+        <div class="chat-header-info">
+          <h2 class="chat-title">{{ chatAtivoInfo()?.nome }}</h2>
+          <span class="chat-status"><i class="fa-solid fa-circle"></i> Online</span>
+        </div>
+      } @else {
+        <span class="chat-title" id="chatTitle" style="font-size: 1.1rem; color: #7B6AAE;">Selecione um profissional para iniciar</span>
+      }
+    </header>
+
+    <div id="messages" class="chat-messages">
+      @for (msg of mensagens(); track msg.id) {
+        <div class="message" [class.sent]="msg.mine" [class.received]="!msg.mine">
+          @if (msg.audio) {
+            <div class="audio-message">
+              <audio controls [src]="msg.audio" style="max-width: 220px; height: 36px;"></audio>
+            </div>
+          } @else {
+            <div class="msg-text">{{ msg.texto }}</div>
+          }
+          <div class="msg-time">{{ msg.hora }}</div>
+        </div>
+      } @empty {
+        <div style="margin: auto; text-align: center; color: #7B6AAE; opacity: 0.7;">
+          <p>Nenhuma mensagem trocada ainda.</p>
+        </div>
+      }
+    </div>
+
+    <!-- FORMULÁRIO DE ENVIO -->
+    <form id="messageForm" class="chat-input" [class.hidden]="!currentChatId()" (ngSubmit)="enviarMensagem($event)">
+      <button type="button" id="voiceBtn" class="voice-btn" [class.recording]="isRecording()" (click)="toggleGravacaoAudio()">
+        <i class="fa fa-microphone"></i>
+      </button>
+
+      <input 
+        type="text" 
+        id="messageInput" 
+        [(ngModel)]="textoMensagem" 
+        name="textoMensagem" 
+        placeholder="Digite sua mensagem..." 
+        autocomplete="off"
+        required
+      >
+
+      <button type="submit"><i class="fa fa-paper-plane"></i></button>
+    </form>
+  </section>
+</main>

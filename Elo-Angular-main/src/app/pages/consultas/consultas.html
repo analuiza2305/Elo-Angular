@@ -1,0 +1,114 @@
+<app-header tipo="mae"></app-header>
+
+<main class="consultas-container" style="max-width: 1000px; margin: 40px auto; padding: 0 16px;">
+    <div class="tabs">
+        <button class="tab" [class.ativo]="abaAtiva() === 'agendadas'" (click)="mudarAba('agendadas')">Agendadas</button>
+        <button class="tab" [class.ativo]="abaAtiva() === 'realizadas'" (click)="mudarAba('realizadas')">Realizadas</button>
+        <button class="tab" [class.ativo]="abaAtiva() === 'canceladas'" (click)="mudarAba('canceladas')">Canceladas</button>
+    </div>
+
+    @if (abaAtiva() === 'agendadas') {
+        <div class="conteudo-tab ativo" id="agendadas">
+            @if (consultasAgendadas().length > 0) {
+                <div class="fazer-outros-wrapper" style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-bottom: 15px;">
+                    <a routerLink="/consultas-lista-psi" class="fazer-outros-link">
+                        <button type="button" class="fazer-outros-btn">Fazer outros agendamentos</button>
+                    </a>
+                </div>
+
+                @for (c of consultasAgendadas(); track c.id) {
+                    <div class="consulta-card">
+                        <div class="consulta-profissional">
+                            <img [src]="c.profissionalFoto" class="consulta-foto-prof" alt="Foto profissional">
+                            <h3>Consulta{{ c.profissionalNome ? ' com ' + c.profissionalNome : '' }}</h3>
+                        </div>
+                        <div class="consulta-header">
+                            <h3 style="font-size: 1rem; color: #4B2C82;">{{ c.dataFormatada }}</h3>
+                            <span [innerHTML]="gerarBadge(c.status)"></span>
+                        </div>
+                        <p><strong>Motivo:</strong> {{ c.Motivo || "—" }}</p>
+                        <div style="display: flex; gap: 8px; margin-top: 12px;">
+                            @if (c.profissionalId) {
+                                <button class="btn-detalhes" (click)="abrirDetalhesProfissional(c.profissionalId, c.tipoProf)">Detalhes do profissional</button>
+                                <button class="btn-chat" (click)="abrirChat(c.profissionalId, c.tipoProf)">Abrir chat</button>
+                            }
+                        </div>
+                    </div>
+                }
+            } @else {
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px 0;">
+                    <img src="./img/consultas-ilustracao.png" class="consulta-img" alt="Ilustração">
+                    <h2>Você não tem consultas agendadas</h2>
+                    <p>Estamos aqui para te ajudar, agende uma consulta para manter em dia o bem-estar.</p>
+                    <a routerLink="/consultas-lista-psi">
+                        <button class="agendar-btn" style="margin-top: 20px;">Agendar consulta</button>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+
+    @if (abaAtiva() === 'realizadas') {
+        <div class="conteudo-tab ativo" id="realizadas">
+            @if (consultasRealizadas().length > 0) {
+                @for (c of consultasRealizadas(); track c.id) {
+                    <div class="consulta-card">
+                        <div class="consulta-profissional">
+                            <img [src]="c.profissionalFoto" class="consulta-foto-prof" alt="Foto profissional">
+                            <h3>Consulta{{ c.profissionalNome ? ' com ' + c.profissionalNome : '' }}</h3>
+                        </div>
+                        <div class="consulta-header">
+                            <h3 style="font-size: 1rem; color: #4B2C82;">{{ c.dataFormatada }}</h3>
+                            <span [innerHTML]="gerarBadge(c.status)"></span>
+                        </div>
+                        <p><strong>Motivo:</strong> {{ c.Motivo || "—" }}</p>
+                    </div>
+                }
+            } @else {
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px 0;">
+                    <h2>Você ainda não realizou nenhuma consulta</h2>
+                </div>
+            }
+        </div>
+    }
+
+    @if (abaAtiva() === 'canceladas') {
+        <div class="conteudo-tab ativo" id="canceladas">
+            @if (consultasCanceladas().length > 0) {
+                @for (c of consultasCanceladas(); track c.id) {
+                    <div class="consulta-card">
+                        <div class="consulta-profissional">
+                            <img [src]="c.profissionalFoto" class="consulta-foto-prof" alt="Foto profissional">
+                            <h3>Consulta{{ c.profissionalNome ? ' com ' + c.profissionalNome : '' }}</h3>
+                        </div>
+                        <div class="consulta-header">
+                            <h3 style="font-size: 1rem; color: #4B2C82;">{{ c.dataFormatada }}</h3>
+                            <span [innerHTML]="gerarBadge(c.status)"></span>
+                        </div>
+                        <p><strong>Motivo:</strong> {{ c.Motivo || "—" }}</p>
+                    </div>
+                }
+            } @else {
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px 0;">
+                    <h2>Você não possui consultas canceladas</h2>
+                </div>
+            }
+        </div>
+    }
+</main>
+
+@if (showModalProf()) {
+    <div class="modal" style="display: flex;">
+        <div class="modal-content detalhes-psi-modal" style="position: relative;">
+            <button class="close-modal" title="Fechar" (click)="fecharModalProf()">&times;</button>
+            <img [src]="profissionalSelecionado().foto" class="psi-foto-modal" alt="Foto profissional">
+            <h2>{{ profissionalSelecionado().nome }}</h2>
+            <p>{{ profissionalSelecionado().email }}</p>
+            <p>{{ profissionalSelecionado().registro }}</p>
+            <p>{{ profissionalSelecionado().atuacao }}</p>
+            <p>{{ profissionalSelecionado().especializacoes }}</p>
+        </div>
+    </div>
+}
+
+<app-footer></app-footer>

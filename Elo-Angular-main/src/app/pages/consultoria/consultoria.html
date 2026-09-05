@@ -1,0 +1,42 @@
+<app-header tipo="mae"></app-header>
+
+<main class="consultoria-section">
+    <div class="consultoria-card">
+        <div class="consultoria-image">
+            <img src="./img/Imagem-Consultorias.jpg" alt="Sessões de Consultoria EloMaterno">
+        </div>
+        
+        <div class="consultoria-text">
+            <h2>Sessões rápidas de escuta com<br>psicólogas voluntárias</h2>
+            <div class="consultoria-buttons">
+                <!-- Botão alterado para chamar a função de navegação programática -->
+                <button class="agendar-btn" (click)="irParaConsultas()">Agendar Consultoria</button>
+                <button class="funciona-btn" (click)="abrirModal()">Como Funciona</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Soft UI "Como Funciona" -->
+    @if (showModal()) {
+        <div class="modal-overlay" style="display: flex;">
+            <div class="modal-content">
+                <span class="close-modal" (click)="fecharModal()">&times;</span>
+                <h2>Como Funciona a Consultoria</h2>
+                <p>
+                    A consultoria EloMaterno é um espaço aconchegante e seguro para mães e responsáveis que buscam apoio emocional e acolhimento.
+                    Nossas psicólogas voluntárias oferecem escuta ativa, empatia e orientação breve em encontros online humanizados.
+                </p>
+                <p>
+                    As sessões duram em torno de 30 minutos e podem ser agendadas de forma simples através do botão <strong>"Agendar Consultoria"</strong>.
+                    Após a marcação, você receberá o link e todas as orientações necessárias.
+                </p>
+                <p>
+                    Nosso propósito é fortalecer o elo familiar e construir uma rede de apoio sólida.
+                    Lembramos que a consultoria é um valioso primeiro passo de cuidado, não substituindo processos psicoterápicos contínuos.
+                </p>
+            </div>
+        </div>
+    }
+</main>
+
+<app-footer></app-footer>

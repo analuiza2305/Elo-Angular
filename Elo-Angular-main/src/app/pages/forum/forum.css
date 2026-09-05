@@ -1,0 +1,264 @@
+/* =========================================
+   FÓRUM
+   O visual dos cards (forum-card-novo, fc-*),
+   dos badges (badge-respondido/aguardando) e do
+   modal já vem pronto do styles.css global —
+   é o mesmo usado no home-mãe. Aqui ficam só as
+   coisas exclusivas desta página.
+========================================= */
+
+/* =========================================
+   PAINEL DE PESQUISA E FILTROS
+========================================= */
+.forum-header-moderno {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(88, 62, 142, 0.06);
+  margin-bottom: 30px;
+}
+
+.forum-search-moderno {
+  display: flex;
+  align-items: center;
+  background: #F4F0FC;
+  border-radius: 50px;
+  padding: 8px 16px;
+  gap: 12px;
+}
+
+.forum-search-moderno i {
+  color: var(--primary-color);
+  font-size: 18px;
+}
+
+.forum-search-moderno input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 15px;
+  color: var(--primary-color-dark);
+}
+
+.forum-filtros {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+  scrollbar-width: none;
+}
+
+.forum-filtros::-webkit-scrollbar {
+  display: none;
+}
+
+.filtro-btn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1.5px solid #EAE5F5;
+  background: transparent;
+  color: var(--primary-color-dark);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.filtro-btn:hover {
+  border-color: var(--secondary-color);
+  color: var(--secondary-color);
+}
+
+.filtro-btn.ativo {
+  background: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: white;
+}
+
+#posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.no-posts {
+  text-align: center;
+  color: var(--text-muted);
+  margin-top: 40px;
+}
+
+/* =========================================
+   BOTÃO FLUTUANTE "NOVA PUBLICAÇÃO"
+========================================= */
+.botao-nova {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 24px;
+  font-size: 16px;
+  background-color: var(--accent-color);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  z-index: 1000;
+  overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+.botao-nova::before {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  background: rgba(255, 255, 255, 0.07);
+  transition: top 0.6s ease;
+  z-index: 0;
+  border-radius: 50%;
+}
+
+.botao-nova:hover::before {
+  top: -50%;
+}
+
+.botao-nova:hover {
+  background-color: #3e2f69;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .botao-nova { display: none; }
+}
+
+/* =========================================
+   FORMULÁRIO DOS MODAIS (nova publicação /
+   confirmar exclusão) — o overlay e a caixa
+   já vêm do .modal / .modal-content globais
+========================================= */
+.modal-content h3 {
+  margin-top: 0;
+  color: var(--accent-color);
+}
+
+.modal-content label {
+  display: block;
+  margin: 0.5rem 0 0.2rem;
+  font-weight: bold;
+}
+
+.modal-content input,
+.modal-content textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--card-bg);
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  resize: vertical;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.modal-actions button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-actions button[type="button"] {
+  background: white;
+}
+
+.modal-actions button[type="submit"] {
+  background: var(--accent-color);
+  color: white;
+}
+
+/* Botão "Excluir" dentro do post */
+.delete-btn.action-btn {
+  padding: 6px 14px;
+  background-color: #f8d7da;
+  color: #842029;
+  border: none;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.delete-btn.action-btn:hover {
+  background-color: #f5c2c7;
+}
+
+/* =========================================
+   CHECKBOX "POSTAR COMO ANÔNIMO"
+========================================= */
+#anonimo-checkbox {
+  display: none;
+}
+
+#anonimo-checkbox + span {
+  position: relative;
+  padding-left: 30px;
+  cursor: pointer;
+  font-weight: normal;
+  font-size: 14px;
+  color: var(--text-color);
+  user-select: none;
+}
+
+#anonimo-checkbox + span::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--accent-color);
+  border-radius: 6px;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+#anonimo-checkbox:checked + span::before {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+#anonimo-checkbox:checked + span::after {
+  content: "✔";
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #fff;
+}
+
+#anonimo-checkbox + span:hover::before {
+  box-shadow: 0 0 0 3px rgba(88, 62, 142, 0.2);
+}
+
+label[for="anonimo-checkbox"] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.5rem;
+  font-weight: normal;
+  cursor: pointer;
+}
