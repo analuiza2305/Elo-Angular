@@ -1145,10 +1145,107 @@ body[data-theme="dark"] .status-pill.inactive {
 .avatars { display: flex; }
 .avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--white); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 600; font-family: var(--font-body); color: var(--primary-dark); }
 
-.mockup-wrapper.devices-composition { position: relative; width: 100%; max-width: 720px; margin: 0 auto; padding-right: 6%; z-index: 10; }
-.device-laptop { width: 100%; height: auto; display: block; position: relative; top: -30px; z-index: 1; filter: drop-shadow(0 25px 50px rgba(89, 74, 125, 0.15)); animation: floatDevice 8s ease-in-out infinite; }
-.device-phone { position: absolute; width: 42%; bottom: -6%; right: 0; z-index: 5; filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.25)); animation: floatDevice 6s ease-in-out infinite; animation-delay: 2s; }
+/* =========================================
+   3. HERO SECTION - MOCKUPS
+========================================= */
+.mockup-wrapper.devices-composition { 
+    position: relative; 
+    width: 100%; 
+    max-width: 900px; /* Notebook grande no PC */
+    margin: 0 auto; 
+    z-index: 10; 
+}
 
+/* Mockup do Notebook */
+.device-laptop { 
+    width: 100%; /* Ocupa todo o container de 900px no PC */
+    height: auto; 
+    display: block; 
+    position: relative; 
+    top: -30px; 
+    z-index: 1; 
+    filter: drop-shadow(0 25px 50px rgba(89, 74, 125, 0.15)); 
+    animation: floatDevice 8s ease-in-out infinite; 
+}
+
+/* Mockup do Celular */
+.device-phone { 
+    position: absolute; 
+    width: 60%; /* Proporção ideal para o desktop (menor que o anterior) */
+    bottom: -18%; /* Vaza a base do notebook */
+    right: -10%; /* Vaza a lateral do notebook sutilmente */
+    z-index: 5; 
+    filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.25)); 
+    animation: floatDevice 6s ease-in-out infinite; 
+    animation-delay: 2s; 
+}
+
+@keyframes floatDevice {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0px); }
+}
+
+/* =========================================
+   RESPONSIVIDADE DOS MOCKUPS
+========================================= */
+@media (max-width: 1050px) {
+    .mockup-wrapper.devices-composition {
+        max-width: 800px;
+    }
+    .device-phone {
+        width: 28%;
+        bottom: -12%;
+    }
+}
+
+@media (max-width: 992px) {
+    .mockup-wrapper.devices-composition {
+        max-width: 650px;
+    }
+    .device-phone {
+        width: 32%;
+        right: -4%;
+        bottom: -10%;
+    }
+}
+
+@media (max-width: 768px) {
+    .mockup-wrapper.devices-composition {
+        max-width: 100%;
+        margin-top: 30px;
+        margin-bottom: 60px; /* Mais margem embaixo para o celular vazar */
+    }
+    
+    .device-laptop {
+        width: 95%; /* Dá espaço na direita para o celular no mobile */
+        margin-left: -5%;
+        top: 0;
+    }
+
+    .device-phone {
+        width: 40%; /* Aumenta o celular para ficar legível no mobile */
+        right: -2%;
+        bottom: -20%;
+    }
+}
+
+@media (max-width: 480px) {
+    .mockup-wrapper.devices-composition {
+        margin-bottom: 40px; 
+    }
+    
+    .device-laptop {
+        width: 100%;
+        margin-left: -10%;
+    }
+
+    .device-phone {
+        width: 45%; /* Celular bem proeminente nas telas mais apertadas */
+        right: -8%;
+        bottom: -15%;
+    }
+}
 @keyframes floatDevice {
     0% { transform: translateY(0px); }
     50% { transform: translateY(-4px); }
