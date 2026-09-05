@@ -1,116 +1,61 @@
 # 💜 Elomaterno
 
-### Conectando, acolhendo e fortalecendo mães solo.
-
 <p align="center">
-  <strong>Uma plataforma digital de apoio, acolhimento e conexão para mães solo.</strong>
+  <img src="https://img.shields.io/badge/Elomaterno-Acolher%20%7C%20Conectar%20%7C%20Fortalecer-6B4BB0?style=for-the-badge"/>
 </p>
 
 <p align="center">
-  🌸 Acolhimento • 🤝 Conexão • 🧠 Saúde emocional • ⚖️ Orientação • 💬 Comunidade
+  <strong>Conectando, acolhendo e fortalecendo mães solo.</strong>
+</p>
+
+<p align="center">
+  🌷 Acolhimento • 🤝 Conexão • 🧠 Apoio • 💬 Comunicação
 </p>
 
 ---
 
-## 🌷 Sobre o Projeto
+## 🌷 Sobre o projeto
 
-O **Elomaterno** é uma plataforma desenvolvida com o propósito de criar uma **rede de apoio digital para mães solo**, promovendo acolhimento, informação, orientação e conexão.
+O **Elomaterno** é uma plataforma digital criada para oferecer uma **rede de apoio para mães solo**, facilitando o acesso a acolhimento, informação, orientação e profissionais especializados.
 
-A plataforma oferece um ambiente seguro e acessível onde mães solo podem:
-
-- 🧠 Encontrar suporte emocional;
-- 📅 Agendar consultas com profissionais especializados;
-- 💬 Conversar diretamente com profissionais;
-- 📋 Acompanhar seu histórico de atendimentos;
-- 🤝 Compartilhar experiências e fortalecer sua rede de apoio.
-
-Mais do que um sistema, o Elomaterno busca utilizar a tecnologia como uma ferramenta de **transformação social, acolhimento e fortalecimento da autonomia feminina**.
-
----
-
-## 🎯 Objetivos
-
-O projeto foi desenvolvido com os seguintes objetivos:
-
-- 💜 Criar uma rede de apoio para mães solo;
-- 🌷 Promover acolhimento e empatia por meio da tecnologia;
-- 📚 Facilitar o acesso à informação e orientação;
-- 🧠 Conectar mães solo a psicólogos(as);
-- ⚖️ Facilitar o acesso a advogados(as);
-- 💬 Incentivar a troca de experiências entre usuárias;
-- 🌱 Contribuir para o fortalecimento social e emocional das mães solo;
-- ✨ Promover o empoderamento feminino.
+A plataforma busca utilizar a tecnologia como ferramenta de **conexão, suporte e fortalecimento social e emocional**.
 
 ---
 
 ## ✨ Funcionalidades
 
-### 🔐 Autenticação
-
-- Cadastro e login de usuárias;
-- Autenticação utilizando **Firebase Authentication**;
-- Login com conta Google.
-
-### 📅 Agendamento de Consultas
-
-- Agendamento de consultas com profissionais;
-- Seleção de data e horário;
-- Registro do motivo da consulta;
-- Organização das consultas da usuária.
-
-### 📋 Minhas Consultas
-
-As consultas são organizadas de forma simples e intuitiva em três categorias:
-
-| Aba | Descrição |
-|---|---|
-| 📅 **Agendadas** | Consultas futuras que ainda serão realizadas |
-| ✅ **Realizadas** | Consultas que já aconteceram |
-| ❌ **Canceladas** | Consultas que foram canceladas |
-
-### ❌ Cancelamento de Consultas
-
-- Cancelamento de consultas agendadas;
-- Registro opcional do motivo do cancelamento;
-- Atualização do status da consulta.
-
-### 👩‍⚕️ Detalhes do Profissional
-
-A usuária pode visualizar informações do profissional responsável pela consulta, como:
-
-- Nome;
-- Profissão;
-- Registro profissional;
-- Área de atuação;
-- Especializações.
-
-### 💬 Chat
-
-- Comunicação direta entre mãe e profissional;
-- Chat relacionado ao atendimento;
-- Troca de mensagens de forma simples e acessível.
-
-### ⚡ Atualização em Tempo Real
-
-Os dados das consultas são atualizados em tempo real utilizando o **Firebase Firestore**, proporcionando uma experiência mais dinâmica e consistente.
+- 🔐 **Autenticação** com Firebase Authentication
+- 📅 **Agendamento de consultas**
+- 📋 **Minhas Consultas**
+  - Agendadas
+  - Realizadas
+  - Canceladas
+- ❌ **Cancelamento de consultas**
+- 👩‍⚕️ **Detalhes dos profissionais**
+- 💬 **Chat** entre mãe e profissional
+- ⚡ **Atualização em tempo real** com Firebase Firestore
 
 ---
 
-## 🖥️ Interface
+## 🖥️ Preview
 
-A interface do Elomaterno foi pensada para ser:
+> Algumas telas da plataforma:
 
-- 🌷 Acolhedora;
-- 💜 Intuitiva;
-- ♿ Acessível;
-- 📱 Responsiva;
-- ✨ Simples de utilizar.
+<p align="center">
+  <img src="docs/screenshots/home.png" width="800">
+</p>
 
-O design utiliza uma identidade visual baseada em tons suaves de roxo e lilás, transmitindo uma sensação de **acolhimento, confiança e tranquilidade**.
+<p align="center">
+  <img src="docs/screenshots/consultas.png" width="800">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/chat.png" width="800">
+</p>
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Tecnologias
 
 ### 🎨 Front-end
 
@@ -121,51 +66,30 @@ O design utiliza uma identidade visual baseada em tons suaves de roxo e lilás, 
   <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white"/>
 </p>
 
-- Angular
-- Standalone Components
-- TypeScript
-- HTML5
-- CSS3
-
-### 🔥 Backend / Infraestrutura
+### 🔥 Backend / Banco de Dados
 
 <p>
   <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black"/>
+  <img src="https://img.shields.io/badge/Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black"/>
 </p>
 
-O projeto utiliza o **Firebase** como infraestrutura principal.
-
-### 🔐 Autenticação
-
 - Firebase Authentication
-- Login com Google
-
-### 🗄️ Banco de Dados
-
 - Firebase Firestore
-- Atualização de dados em tempo real utilizando `onSnapshot`
+- `onSnapshot` para atualização em tempo real
 
 ---
 
-## 🏗️ Estrutura do Projeto
+## 🚀 Como executar
 
-O projeto utiliza a arquitetura baseada em **Angular Standalone Components**, buscando manter a aplicação organizada e modular.
+```bash
+# Clone o repositório
+git clone URL_DO_REPOSITORIO
 
-```text
-Elomaterno/
-│
-├── src/
-│   ├── app/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── models/
-│   │   └── ...
-│   │
-│   ├── assets/
-│   └── ...
-│
-├── angular.json
-├── package.json
-├── tsconfig.json
-└── README.md
+# Entre na pasta
+cd elomaterno
+
+# Instale as dependências
+npm install
+
+# Execute o projeto
+ng serve
