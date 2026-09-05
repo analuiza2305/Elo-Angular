@@ -5,8 +5,8 @@ import { HeaderComponent } from '../../components/header/header';
 import { FooterComponent } from '../../components/footer/footer';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { 
-  doc, getDoc, getDocs, collection, query, where, onSnapshot 
+import {
+  doc, getDoc, getDocs, collection, query, where, onSnapshot, updateDoc, serverTimestamp
 } from 'firebase/firestore';
 
 @Component({
@@ -33,6 +33,12 @@ export class ConsultasComponent implements OnInit {
   // Modal do Profissional
   showModalProf = signal<boolean>(false);
   profissionalSelecionado = signal<any>(null);
+
+  // Modal de Cancelamento
+  showModalCancelar = signal<boolean>(false);
+  consultaParaCancelar = signal<any>(null);
+  motivoCancelamento = signal<string>('');
+  isCancelando = signal<boolean>(false);
 
   ngOnInit() {
     onAuthStateChanged(auth, async (user) => {
@@ -170,5 +176,47 @@ export class ConsultasComponent implements OnInit {
 
   abrirChat(uid: string, tipo: string) {
     this.router.navigate(['/chat'], { queryParams: { uid, tipo } });
+  }
+
+  // ==============================
+  // CANCELAMENTO DE CONSULTA
+  // ==============================
+
+  abrirModalCancelar(consulta: any) {
+    this.consultaParaCancelar.set(consulta);
+    this.motivoCancelamento.set('');
+    this.showModalCancelar.set(true);
+  }
+
+  fecharModalCancelar() {
+    if (this.isCancelando()) return;
+    this.showModalCancelar.set(false);
+    this.consultaParaCancelar.set(null);
+    this.motivoCancelamento.set('');
+  }
+
+  async confirmarCancelamento() {
+    const consulta = this.consultaParaCancelar();
+    if (!consulta || this.isCancelando()) return;
+
+    this.isCancelando.set(true);
+    try {
+      const consultaRef = doc(db, "Consultas", consulta.id);
+      await updateDoc(consultaRef, {
+        status: "negado",
+        motivoCancelamento: this.motivoCancelamento().trim() || null,
+        canceladoEm: serverTimestamp(),
+        canceladoPor: "mae"
+      });
+
+      this.showModalCancelar.set(false);
+      this.consultaParaCancelar.set(null);
+      this.motivoCancelamento.set('');
+    } catch (err) {
+      console.error("Erro ao cancelar consulta:", err);
+      alert("Não foi possível cancelar a consulta. Tente novamente.");
+    } finally {
+      this.isCancelando.set(false);
+    }
   }
 }

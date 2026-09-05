@@ -1,501 +1,1772 @@
+/* =========================================================
+   ELOMATERNO — CONSULTAS
+   ========================================================= */
+
 body {
-    font-family: 'Nunito', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+  font-family: 'Nunito', sans-serif;
+  background-color: #fbf9ff;
+  margin: 0;
 }
 
 .consultas-container {
-    text-align: center;
-    padding: 40px 20px;
-    animation: fadeSlideDown 0.6s ease-out forwards;
-}
-.tabs {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    border-bottom: 1px solid var(--border-light);
-    margin-bottom: 30px;
+  max-width: 1100px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 40px auto;
+  padding: 0 24px;
 }
 
 
-.tab {
-    flex: 1;
-    min-width: 80px;
-    max-width: 200px;
-    text-align: center;
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
 
-    background: none;
-    border: none;
-    padding: 11px 10px;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-color-light);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.3s ease;
+.consultas-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  text-align: left;
 }
 
-.tab.ativo {
-    color: var(--accent-color);
-    border-bottom: 3px solid var(--accent-color);
+.titulos h1 {
+  font-size: 2.2rem;
+  color: #2d1e4e;
+  margin: 0 0 8px 0;
+  font-weight: 800;
 }
 
-.conteudo-tab {
-    display: none;
-    animation: fadeSlideDown 0.4s ease-out forwards;
-}
-
-.conteudo-tab.ativo {
-    display: grid;
-}
-#agendadas.ativo,
-#realizadas.ativo,
-#canceladas.ativo {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-}
-
-/* Tablet */
-@media (max-width: 1100px) {
-    #agendadas.ativo,
-    #realizadas.ativo,
-    #canceladas.ativo {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* Celular */
-@media (max-width: 700px) {
-    #agendadas.ativo,
-    #realizadas.ativo,
-    #canceladas.ativo {
-        grid-template-columns: 1fr;
-    }
-}
-.consulta-img {
-    width: 320px;
-    max-width: 80%;
-    margin: 20px auto;
-    display: block;
-}
-
-h2 {
-    font-size: 20px;
-    color: var(--text-color);
-    margin-top: 20px;
-}
-
-p {
-    font-size: 15px;
-    margin-top: 8px;
-    line-height: 1.6;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;  
-}
-
-.agendar-btn {
-    background-color: var(--botaoconsultoria);
-    color: var(--text-on-primary);
-    border: none;
-    border-radius: 10px;
-    padding: 14px 32px;
-    font-size: 16px;
-    margin-top: 25px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.agendar-btn:hover {
-    background-color: var(--primary-color-dark);
-    transform: translateY(-2px);
-}
-
-.agendar-btn a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-@media (max-width: 768px) {
-    .tabs {
-        gap: 25px;
-    }
-
-    h2 {
-        font-size: 18px;
-    }
-
-    p {
-        font-size: 14px;
-    }
-}
-
-.consulta-profissional {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-.consulta-foto-prof {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--accent-color);
-}
-
-.consulta-profissional h3 {
-    margin: 0;
-}
-
-.consulta-card {
-   background: linear-gradient(
-         135deg,
-         #e7e3f6d4 20%,
-         var(--bg-color)100%
-    );
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 18px;
-    text-align: left;
-    box-shadow: 0 2px 6px rgba(63, 22, 109, 0.185);
-}
-.consulta-card:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 18px #341b6541;;
-
+.titulos p {
+  color: #715b9e;
+  margin: 0;
+  font-size: 1.05rem;
 }
 
 
-.consulta-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.badge {
-    padding: 8px 16px;
-    border-radius: 11px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #fff;
-}
-
-.badge-pendente {
-    background: #ecd394;
-    color: #4a3f20;
-}
-
-.badge-aceito {
-    background: #706af0;
-}
-
-
-.btn-psi {
-    margin-top: 12px;
-    padding: 10px 14px;
-    border: none;
-    background: var(--accent-color);
-    color: #fff;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.btn-chat {
-    margin-top: 12px;
-    padding: 10px 14px;
-    border: none;
-    background: var(--accent-color);
-    color: #fff;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.btn-psi:hover,
-.btn-chat:hover {
-    transform: translateY(-1px);
-} 
-
-.consulta-card p {
-    margin: 6px 0px 20px;
-    color: #21133ed7;
-}
-
-
-.modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal.hidden {
-    display: none;
-}
-
-
-.psi-foto-modal {
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin: 10px auto;
-}
-
-.close-modal {
-    position: absolute;
-    background: var(--text-color);
-    border: none;
-    padding: 6px 10px;
-    border-radius: 50%;
-    cursor: pointer;
-    right: 10px;
-    top: 10px;
-}
-
-.loading-consultas {
-    width: 100%;
-    padding: 40px 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#agendadas .avatar-loader-container {
-    width: 90px !important;
-    height: 90px !important;
-    border-radius: 100%;
-    overflow: hidden;
-}
-
-#agendadas .avatar-loader-container img {
-    border-radius: 100%;
-}
-
-#agendadas .loader {
-    border-radius: 100%;
-}
-
-
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    backdrop-filter: blur(2px);
-}
-
-.modal.hidden {
-    display: none !important;
-}
-
-.modal-content {
-    background: var(--card-bg);
-    color: var(--text-color);
-    padding: 25px;
-    width: 90%;
-    max-width: 450px;
-    border-radius: 18px;
-    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.25);
-    animation: fadeInScale 0.3s ease;
-    text-align: center;
-}
-
-.close-modal {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    background: none;
-    border: none;
-    font-size: 28px;
-    cursor: pointer;
-    color: var(--text-color);
-}
-
-
-@keyframes fadeInScale {
-    from {
-        opacity: 0;
-        transform: scale(0.85);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-
-.psi-foto-modal {
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 15px;
-}
-
-
-.btn-detalhes {
-    background: linear-gradient(160deg, #482c81 0%,  #806cae 100%);
-    color: white;
-    border: none;
-    padding: 6px 11px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: 0.25s ease;
-}
-
-.btn-detalhes:hover {
-    background: linear-gradient(160deg,  #806cae,#462b7d );
-    transform: translateY(-1px);
-}
-
-.btn-chat {
-    background:  #d4bff941;
-    color: var(--text-color);
-    padding: 10px 16px;
-    border-radius: 10px;
-    border: 1px solid var(--border-light);
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: 0.25s ease;
-}
-
-
-.btn-chat:hover {
-    background-color:  #53318e23;
-   
-    transform: translateY(-2px);
-}
-
-
-.fazer-outros-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-top: 0px;
-    grid-column: 1 / -1;
-    
-    margin-bottom: 15px;
-}
+/* =========================================================
+   BOTÃO — FAZER OUTROS AGENDAMENTOS
+   ========================================================= */
 
 .fazer-outros-link {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 .fazer-outros-btn {
-    background: linear-gradient(160deg, #482c81 0%,  #806cae 100%);
-    color: #f9f3ff;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    box-shadow: 0 10px 28px rgba(62, 42, 114, 0.16);
-    transition: transform 180ms ease, box-shadow 180ms ease;
+  background: #5b3d99;
+  color: #ffffff !important;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(91, 61, 153, 0.2);
+  transition: all 0.2s ease;
+}
+
+.fazer-outros-btn i {
+  color: #ffffff !important;
 }
 
 .fazer-outros-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 14px 38px rgba(78, 49, 128, 0.322);
-     background: linear-gradient(160deg,  #806cae,#462b7d );
+  background: #4a2b82;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(91, 61, 153, 0.3);
 }
 
 
-@media (max-width: 480px) {
-    .fazer-outros-btn {
-        width: 92%;
-        padding: 12px;
-    }
+/* =========================================================
+   ABAS
+   ========================================================= */
+
+.consultas-container .tabs {
+  display: flex !important;
+  width: 100% !important;
+
+  background: #ffffff !important;
+
+  border-radius: 12px !important;
+
+  border: 1px solid #eee8fa !important;
+
+  box-shadow:
+    0 4px 15px rgba(91, 61, 153, 0.05) !important;
+
+  margin-bottom: 40px !important;
+
+  padding: 0 !important;
+
+  overflow: hidden !important;
 }
-/* Cards CONSULTA */
+
+
+/* =========================================================
+   CADA ABA
+   ========================================================= */
+
+.consultas-container .tabs > .consulta-tab-btn {
+  position: relative !important;
+
+  flex: 1 1 0 !important;
+
+  width: 33.3333% !important;
+
+  min-width: 0 !important;
+
+  height: 64px !important;
+
+  box-sizing: border-box !important;
+
+  display: flex !important;
+
+  align-items: center !important;
+
+  justify-content: center !important;
+
+  gap: 10px !important;
+
+  padding: 0 !important;
+
+  background: #ffffff !important;
+
+  border: none !important;
+
+  border-bottom: 3px solid transparent !important;
+
+  color: #8b79b1 !important;
+
+  font-family: inherit !important;
+
+  font-size: 1rem !important;
+
+  font-weight: 700 !important;
+
+  cursor: pointer !important;
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease !important;
+}
+
+
+/* =========================================================
+   ÍCONE DAS ABAS
+   ========================================================= */
+
+.consultas-container .consulta-tab-btn i {
+  font-size: 1.15rem !important;
+
+  color: #8b79b1 !important;
+
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease !important;
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+.consultas-container
+.tabs
+.consulta-tab-btn:hover {
+
+  background: #faf8ff !important;
+
+  color: #5b3d99 !important;
+}
+
+
+.consultas-container
+.tabs
+.consulta-tab-btn:hover i {
+
+  color: #5b3d99 !important;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   ABA ATIVA
+   ========================================================= */
+
+.consultas-container
+.tabs
+.consulta-tab-btn.ativo {
+
+  background: #f3edff !important;
+
+  color: #5b3d99 !important;
+
+  border-bottom: 3px solid #b7a4dd !important;
+
+  font-weight: 800 !important;
+}
+
+
+/* =========================================================
+   ÍCONE DA ABA ATIVA
+   ========================================================= */
+
+.consultas-container
+.tabs
+.consulta-tab-btn.ativo i {
+
+  color: #5b3d99 !important;
+
+  transform: scale(1.08);
+}
+
+
+/* =========================================================
+   INDICADOR SUPERIOR DA ABA ATIVA
+   ========================================================= */
+
+.consultas-container
+.tabs
+.consulta-tab-btn.ativo::before {
+
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+
+  left: 50%;
+
+  width: 32px;
+
+  height: 3px;
+
+  transform: translateX(-50%);
+
+  background: #5b3d99;
+
+  border-radius: 0 0 6px 6px;
+}
+
+
+/* =========================================================
+   INDICADOR INFERIOR
+   ========================================================= */
+
+.consultas-container
+.tabs
+.consulta-tab-btn::after {
+
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+
+  bottom: 0;
+
+  width: 0;
+
+  height: 3px;
+
+  transform: translateX(-50%);
+
+  background: #5b3d99;
+
+  border-radius: 6px 6px 0 0;
+
+  transition: width 0.25s ease;
+}
+
+
+.consultas-container
+.tabs
+.consulta-tab-btn.ativo::after {
+
+  width: 100%;
+}
+
+
+/* =========================================================
+   CONTEÚDO / GRID
+   ========================================================= */
+
+.conteudo-tab {
+  display: none;
+}
+
 .conteudo-tab.ativo {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-    align-items: start;
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 24px;
+
+  align-items: start;
+
+  animation:
+    slideFadeIn
+    0.4s
+    cubic-bezier(0.16, 1, 0.3, 1)
+    forwards;
 }
 
+
+@keyframes slideFadeIn {
+
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+
+/* =========================================================
+   CARD DA CONSULTA
+   ========================================================= */
 
 .consulta-card {
-    width: 100%;
-    margin-bottom: 0;
-    box-sizing: border-box;
+  width: 100%;
+
+  min-height: 0;
+
+  padding: 28px !important;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #eee8fa;
+
+  border-top: 4px solid #e4d3ff;
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 8px 30px rgba(91, 61, 153, 0.07);
+
+  display: flex;
+
+  flex-direction: column;
 }
-/* Badge Padrão (caso já tenha, pode complementar com estas) */
+
+
+/* =========================================================
+   CABEÇALHO DO PROFISSIONAL
+   ========================================================= */
+
+.consulta-card-header {
+  width: 100%;
+
+  display: flex !important;
+
+  flex-direction: row !important;
+
+  align-items: center !important;
+
+  justify-content: space-between !important;
+
+  gap: 16px;
+
+  padding: 0 0 14px 0;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   PROFISSIONAL
+   ========================================================= */
+
+.consulta-profissional {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-start;
+
+  gap: 15px;
+
+  min-width: 0;
+
+  flex: 1;
+}
+
+
+/* =========================================================
+   FOTO
+   ========================================================= */
+
+.consulta-foto-prof {
+  width: 58px;
+
+  height: 58px;
+
+  min-width: 58px;
+
+  min-height: 58px;
+
+  object-fit: cover;
+
+  border-radius: 50%;
+
+  border: 3px solid #e5d5ff;
+
+  background: #f7f3ff;
+
+  box-shadow:
+    0 0 0 5px #faf8ff;
+
+  display: block;
+}
+
+
+/* =========================================================
+   NOME E PROFISSÃO
+   ========================================================= */
+
+.consulta-profissional-info {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  justify-content: center;
+}
+
+.consulta-profissional-info h3 {
+  margin: 0 0 4px 0;
+
+  color: #2d1e4e;
+
+  font-size: 1.08rem;
+
+  font-weight: 800;
+
+  line-height: 1.2;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.consulta-tipo-prof {
+  margin: 0;
+
+  color: #8068b5;
+
+  font-size: 0.78rem;
+
+  font-weight: 800;
+
+  line-height: 1.2;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.03em;
+
+  text-align: left;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.consulta-card-header > span {
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+}
+
 .badge {
-    padding: 8px 16px;
-    border-radius: 11px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #fff;
-    display: inline-block;
-    text-align: center;
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 32px;
+
+  padding: 0 15px;
+
+  border-radius: 20px;
+
+  font-size: 0.72rem;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+
+  box-sizing: border-box;
 }
 
-/* Pendente (Amarelo suave) */
 .badge-pendente {
-    background: #ecd394;
-    color: #4a3f20;
+  background: #ffe58a;
+
+  color: #96500b;
 }
 
-/* Aceito / Agendada (Roxo da marca) */
-.badge-aceito {
-    background: #706af0;
-    color: #fff;
+
+/* =========================================================
+   LINHA
+   ========================================================= */
+
+.consulta-divider {
+  width: 100%;
+
+  height: 1px;
+
+  margin: 6px 0 0;
+
+  background: #eee8fa;
 }
 
-/* Realizada (Verde suave e acolhedor) */
-.badge-realizado {
-    background: #d4edda;
-    color: #155724;
+
+/* =========================================================
+   INFORMAÇÕES
+   ========================================================= */
+
+.consulta-info-row {
+  width: 100% !important;
+
+  display: flex !important;
+
+  flex-direction: row !important;
+
+  align-items: center !important;
+
+  justify-content: flex-start !important;
+
+  gap: 16px !important;
+
+  padding: 16px 0 !important;
+
+  margin: 0 !important;
+
+  box-sizing: border-box !important;
+
+  border-bottom: 1px solid #eee8fa !important;
 }
 
-/* Negada / Cancelada (Vermelho suave) */
-.badge-negado {
-    background: #f8d7da;
-    color: #721c24;
+
+/* =========================================================
+   ÍCONES GRANDES
+   ========================================================= */
+
+.consulta-info-icon {
+  width: 56px !important;
+
+  height: 56px !important;
+
+  min-width: 56px !important;
+
+  min-height: 56px !important;
+
+  flex: 0 0 56px !important;
+
+  display: flex !important;
+
+  align-items: center !important;
+
+  justify-content: center !important;
+
+  border-radius: 14px !important;
+
+  background: #f0eafb !important;
+
+  color: #60459a !important;
+
+  box-sizing: border-box !important;
 }
-/* =========================================
-   TRAVA E RESPONSIVIDADE DO AVATAR NO MODAL - CONSULTAS.CSS
-========================================= */
+
+.consulta-info-icon i {
+  display: block !important;
+
+  margin: 0 !important;
+
+  font-size: 1.35rem !important;
+
+  line-height: 1 !important;
+}
+
+
+/* =========================================================
+   TEXTO DAS INFORMAÇÕES
+   ========================================================= */
+
+.consulta-info-text {
+  flex: 1 1 auto !important;
+
+  min-width: 0 !important;
+
+  display: flex !important;
+
+  flex-direction: column !important;
+
+  align-items: flex-start !important;
+
+  justify-content: center !important;
+
+  gap: 5px !important;
+
+  text-align: left !important;
+}
+
+.consulta-info-label {
+  display: block !important;
+
+  width: auto !important;
+
+  margin: 0 !important;
+
+  color: #8b79b1 !important;
+
+  font-size: 0.72rem !important;
+
+  font-weight: 800 !important;
+
+  line-height: 1.2 !important;
+
+  text-align: left !important;
+
+  text-transform: uppercase !important;
+
+  letter-spacing: 0.04em !important;
+}
+
+.consulta-info-value {
+  display: block !important;
+
+  width: auto !important;
+
+  margin: 0 !important;
+
+  color: #302052 !important;
+
+  font-size: 0.98rem !important;
+
+  font-weight: 800 !important;
+
+  line-height: 1.4 !important;
+
+  text-align: left !important;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   BOTÕES
+   ========================================================= */
+
+.consulta-acoes {
+  width: 100%;
+
+  display: flex;
+
+  gap: 14px;
+
+  padding-top: 18px;
+
+  box-sizing: border-box;
+}
+
+.btn-detalhes,
+.btn-chat {
+  flex: 1;
+
+  min-height: 52px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  padding: 10px 14px;
+
+  border-radius: 12px;
+
+  font-family: inherit;
+
+  font-weight: 700;
+
+  font-size: 0.92rem;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   BOTÃO DETALHES
+   ========================================================= */
+
+.btn-detalhes {
+  background: #5b3d99;
+
+  color: #ffffff;
+
+  border: none;
+}
+
+.btn-detalhes:hover {
+  background: #4a2b82;
+
+  transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   BOTÃO CHAT
+   ========================================================= */
+
+.btn-chat {
+  background: #ffffff;
+
+  color: #5b3d99;
+
+  border: 1px solid #d1c4e9;
+}
+
+.btn-chat:hover {
+  background: #f8f6ff;
+
+  border-color: #5b3d99;
+
+  transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   ÍCONES DOS BOTÕES
+   ========================================================= */
+
+.btn-detalhes i,
+.btn-chat i {
+  font-size: 1rem;
+}
+
+
+/* =========================================================
+   CANCELAR CONSULTA
+   ========================================================= */
+
+.consulta-area-secundaria {
+  width: 100%;
+
+  margin-top: 14px;
+
+  padding-top: 14px;
+
+  border-top: 1px solid #f4f0fc;
+
+  text-align: center;
+
+  box-sizing: border-box;
+}
+
+.btn-cancelar-consulta {
+  background: none;
+
+  border: none;
+
+  color: #9c8bc4;
+
+  font-size: 0.88rem;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 6px 12px;
+
+  border-radius: 8px;
+
+  transition: all 0.2s ease;
+}
+
+.btn-cancelar-consulta i {
+  font-size: 0.95rem;
+}
+
+.btn-cancelar-consulta:hover {
+  background: #fee2e2;
+
+  color: #b91c1c;
+}
+
+
+/* =========================================================
+   ESTADO VAZIO
+   ========================================================= */
+
+.estado-vazio {
+  grid-column: 1 / -1;
+
+  text-align: center;
+
+  padding: 60px 20px;
+
+  background: #ffffff;
+
+  border-radius: 16px;
+
+  border: 1px dashed #d1c4e9;
+}
+
+.estado-vazio h2 {
+  color: #2d1e4e;
+
+  font-size: 1.4rem;
+}
+
+.estado-vazio p {
+  color: #715b9e;
+}
+
+
+/* =========================================================
+   MODAIS
+   ========================================================= */
+
+.modal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(45, 30, 78, 0.42);
+
+  backdrop-filter: blur(8px);
+
+  -webkit-backdrop-filter: blur(8px);
+
+  animation: modalFadeIn 0.22s ease-out;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   MODAL CONTENT
+   ========================================================= */
+
+.modal-content {
+  position: relative;
+
+  width: min(100%, 520px);
+
+  max-height: calc(100vh - 48px);
+
+  overflow-y: auto;
+
+  background: #ffffff;
+
+  border: 1px solid #eee8fa;
+
+  border-radius: 24px;
+
+  padding: 32px;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 25px 70px rgba(45, 30, 78, 0.18),
+    0 8px 25px rgba(91, 61, 153, 0.08);
+
+  animation:
+    modalScaleIn
+    0.25s
+    cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+/* =========================================================
+   BARRA DECORATIVA DO MODAL
+   ========================================================= */
+
+.modal-content::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+
+  left: 32px;
+
+  right: 32px;
+
+  height: 4px;
+
+  background: linear-gradient(
+    90deg,
+    #5b3d99,
+    #8b6bd1
+  );
+
+  border-radius: 0 0 10px 10px;
+}
+
+
+/* =========================================================
+   FECHAR MODAL
+   ========================================================= */
+
+.close-modal {
+  position: absolute;
+
+  top: 20px;
+
+  right: 20px;
+
+  width: 38px;
+
+  height: 38px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid #eee8fa;
+
+  border-radius: 50%;
+
+  background: #faf8ff;
+
+  color: #715b9e;
+
+  font-size: 22px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.close-modal:hover {
+  background: #f0e9fc;
+
+  color: #4a2b82;
+
+  transform: rotate(90deg);
+}
+
+
+/* =========================================================
+   MODAL PROFISSIONAL
+   ========================================================= */
+
+.detalhes-psi-modal {
+  text-align: left;
+
+  padding: 38px;
+}
+
+.detalhes-psi-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+
+  padding-bottom: 24px;
+
+  margin-bottom: 24px;
+
+  border-bottom: 1px solid #eee8fa;
+}
 
 .psi-foto-modal {
-    width: 90px !important;
-    height: 90px !important;
-    min-width: 90px !important;
-    min-height: 90px !important;
-    max-width: 90px !important;
-    max-height: 90px !important;
-    border-radius: 50% !important;
-    object-fit: cover !important;
-    margin: 10px auto 15px auto !important;
-    display: block !important;
+  width: 82px;
+
+  height: 82px;
+
+  flex-shrink: 0;
+
+  object-fit: cover;
+
+  border-radius: 50%;
+
+  border: 3px solid #e7dbff;
+
+  background: #f6f1ff;
+
+  box-shadow:
+    0 0 0 6px #faf8ff;
 }
 
-@media (max-width: 480px) {
-    .psi-foto-modal {
-        width: 80px !important;
-        height: 80px !important;
-        min-width: 80px !important;
-        min-height: 80px !important;
-        max-width: 80px !important;
-        max-height: 80px !important;
-    }
+.detalhes-psi-header-info {
+  min-width: 0;
+}
+
+.detalhes-psi-header-info h2 {
+  margin: 0 0 5px;
+
+  color: #2d1e4e;
+
+  font-size: 1.45rem;
+
+  font-weight: 800;
+
+  line-height: 1.2;
+}
+
+.detalhes-psi-header-info span {
+  display: inline-block;
+
+  color: #7c5fc4;
+
+  font-size: 0.82rem;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.04em;
+}
+
+
+/* =========================================================
+   INFORMAÇÕES DO PROFISSIONAL
+   ========================================================= */
+
+.detalhes-psi-info {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.detalhes-psi-item {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 14px;
+
+  padding: 14px 16px;
+
+  background: #faf8ff;
+
+  border: 1px solid #f0eafb;
+
+  border-radius: 14px;
+}
+
+.detalhes-psi-item-icon {
+  width: 38px;
+
+  height: 38px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 11px;
+
+  background: #f0e9fc;
+
+  color: #6b4bb0;
+
+  font-size: 1rem;
+}
+
+.detalhes-psi-item-content {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.detalhes-psi-item-label {
+  color: #a599c9;
+
+  font-size: 0.70rem;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+}
+
+.detalhes-psi-item-value {
+  margin: 0;
+
+  color: #34245a;
+
+  font-size: 0.94rem;
+
+  font-weight: 700;
+
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   ESPECIALIZAÇÕES
+   ========================================================= */
+
+.detalhes-psi-especializacoes {
+  margin-top: 22px;
+}
+
+.detalhes-psi-especializacoes-title {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 10px;
+
+  color: #2d1e4e;
+
+  font-size: 0.85rem;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.03em;
+}
+
+.detalhes-psi-especializacoes-title i {
+  color: #7c5fc4;
+}
+
+.detalhes-psi-especializacoes-text {
+  margin: 0;
+
+  padding: 15px 16px;
+
+  background: #faf8ff;
+
+  border: 1px solid #f0eafb;
+
+  border-radius: 14px;
+
+  color: #715b9e;
+
+  font-size: 0.92rem;
+
+  line-height: 1.55;
+}
+
+
+/* =========================================================
+   MODAL CANCELAR CONSULTA
+   ========================================================= */
+
+.modal-cancelar-content {
+  width: min(100%, 540px);
+
+  text-align: left;
+
+  padding: 34px;
+}
+
+
+/* =========================================================
+   CABEÇALHO CANCELAR
+   ========================================================= */
+
+.modal-cancelar-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 15px;
+
+  margin-bottom: 22px;
+
+  padding-right: 40px;
+}
+
+.modal-cancelar-icon {
+  width: 48px;
+
+  height: 48px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: #fff1f1;
+
+  color: #dc2626;
+
+  font-size: 1.15rem;
+}
+
+.modal-cancelar-header-texto {
+  min-width: 0;
+}
+
+.modal-cancelar-header-texto h2 {
+  margin: 0 0 5px;
+
+  color: #2d1e4e;
+
+  font-size: 1.30rem;
+
+  font-weight: 800;
+
+  line-height: 1.25;
+}
+
+.modal-cancelar-subtitulo {
+  margin: 0;
+
+  color: #9c8bc4;
+
+  font-size: 0.84rem;
+
+  font-weight: 700;
+
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   AVISO
+   ========================================================= */
+
+.modal-cancelar-aviso {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 11px;
+
+  margin-bottom: 24px;
+
+  padding: 14px 16px;
+
+  background: #fff8ed;
+
+  border: 1px solid #fed7aa;
+
+  border-radius: 14px;
+
+  color: #9a3412;
+
+  font-size: 0.84rem;
+
+  line-height: 1.5;
+}
+
+.modal-cancelar-aviso i {
+  flex-shrink: 0;
+
+  margin-top: 2px;
+
+  color: #ea580c;
+}
+
+
+/* =========================================================
+   FORMULÁRIO
+   ========================================================= */
+
+.modal-cancelar-form label {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 9px;
+
+  color: #2d1e4e;
+
+  font-size: 0.86rem;
+
+  font-weight: 800;
+}
+
+.modal-cancelar-tag-opcional {
+  padding: 3px 9px;
+
+  border-radius: 20px;
+
+  background: #f1edf9;
+
+  color: #9c8bc4;
+
+  font-size: 0.66rem;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.03em;
+}
+
+.modal-cancelar-content textarea {
+  display: block;
+
+  width: 100%;
+
+  min-height: 105px;
+
+  box-sizing: border-box;
+
+  padding: 14px 15px;
+
+  border: 1px solid #ddd3ef;
+
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  color: #2d1e4e;
+
+  font-family: inherit;
+
+  font-size: 0.92rem;
+
+  line-height: 1.5;
+
+  resize: vertical;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.modal-cancelar-content textarea::placeholder {
+  color: #b4a8cc;
+}
+
+.modal-cancelar-content textarea:hover {
+  border-color: #cbbbe6;
+}
+
+.modal-cancelar-content textarea:focus {
+  outline: none;
+
+  border-color: #7c5fc4;
+
+  box-shadow:
+    0 0 0 4px rgba(124, 95, 196, 0.10);
+}
+
+
+/* =========================================================
+   DIVISOR DO MODAL
+   ========================================================= */
+
+.modal-cancelar-divisor {
+  height: 1px;
+
+  margin: 25px 0 20px;
+
+  border: 0;
+
+  background: #eee8fa;
+}
+
+
+/* =========================================================
+   AÇÕES DO MODAL
+   ========================================================= */
+
+.modal-cancelar-acoes {
+  display: grid;
+
+  grid-template-columns: 1fr 1.35fr;
+
+  gap: 12px;
+}
+
+.btn-voltar,
+.btn-confirmar-cancelamento {
+  min-height: 48px;
+
+  padding: 12px 18px;
+
+  border-radius: 13px;
+
+  font-family: inherit;
+
+  font-size: 0.90rem;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-voltar {
+  background: #ffffff;
+
+  color: #5b3d99;
+
+  border: 1px solid #d8cdec;
+}
+
+.btn-voltar:hover {
+  background: #faf8ff;
+
+  border-color: #bca9dd;
+
+  transform: translateY(-1px);
+}
+
+.btn-confirmar-cancelamento {
+  background: #dc2626;
+
+  color: #ffffff;
+
+  border: none;
+
+  box-shadow:
+    0 5px 15px rgba(220, 38, 38, 0.18);
+}
+
+.btn-confirmar-cancelamento:hover {
+  background: #b91c1c;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 7px 20px rgba(220, 38, 38, 0.24);
+}
+
+.btn-confirmar-cancelamento:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+
+/* =========================================================
+   ANIMAÇÕES DOS MODAIS
+   ========================================================= */
+
+@keyframes modalFadeIn {
+
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+
+}
+
+@keyframes modalScaleIn {
+
+  from {
+    opacity: 0;
+
+    transform:
+      scale(0.96)
+      translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      scale(1)
+      translateY(0);
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVO — TABLET
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  .conteudo-tab.ativo {
+    grid-template-columns: 1fr;
+  }
+
+
+  .consultas-header-top {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 20px;
+  }
+
+
+  .fazer-outros-btn {
+    width: 100%;
+
+    justify-content: center;
+  }
+
+
+  .consultas-container .tabs {
+    flex-direction: column !important;
+  }
+
+
+  .consultas-container
+  .tabs
+  > .consulta-tab-btn {
+
+    width: 100% !important;
+
+    height: 56px !important;
+
+    font-size: 0.95rem !important;
+  }
+
+
+  .consultas-container
+  .tabs
+  .consulta-tab-btn.ativo::before {
+
+    width: 32px;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVO — CELULAR
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+  .consultas-container {
+    padding: 0 16px;
+
+    margin: 24px auto;
+  }
+
+
+  .titulos h1 {
+    font-size: 1.8rem;
+  }
+
+
+  .titulos p {
+    font-size: 0.95rem;
+  }
+
+
+  .consulta-card {
+    padding: 22px !important;
+  }
+
+
+  .consulta-card-header {
+    gap: 10px;
+
+    padding-bottom: 12px;
+  }
+
+
+  .consulta-foto-prof {
+    width: 52px;
+
+    height: 52px;
+
+    min-width: 52px;
+
+    min-height: 52px;
+  }
+
+
+  .consulta-profissional {
+    gap: 12px;
+  }
+
+
+  .consulta-profissional-info h3 {
+    font-size: 1rem;
+  }
+
+
+  .consulta-tipo-prof {
+    font-size: 0.70rem;
+  }
+
+
+  .consulta-info-row {
+    gap: 12px !important;
+
+    padding: 14px 0 !important;
+  }
+
+
+  .consulta-info-icon {
+    width: 50px !important;
+
+    height: 50px !important;
+
+    min-width: 50px !important;
+
+    min-height: 50px !important;
+
+    flex-basis: 50px !important;
+  }
+
+
+  .consulta-info-value {
+    font-size: 0.90rem !important;
+  }
+
+
+  .consulta-info-label {
+    font-size: 0.68rem !important;
+  }
+
+
+  .consulta-acoes {
+    flex-direction: column;
+  }
+
+
+  .modal {
+    padding: 16px;
+  }
+
+
+  .modal-content {
+    max-height: calc(100vh - 32px);
+
+    padding: 26px 22px;
+
+    border-radius: 20px;
+  }
+
+
+  .modal-content::before {
+    left: 22px;
+
+    right: 22px;
+  }
+
+
+  .close-modal {
+    top: 15px;
+
+    right: 15px;
+
+    width: 34px;
+
+    height: 34px;
+
+    font-size: 19px;
+  }
+
+
+  .detalhes-psi-modal {
+    padding: 28px 22px;
+  }
+
+
+  .detalhes-psi-header {
+    gap: 14px;
+  }
+
+
+  .psi-foto-modal {
+    width: 68px;
+
+    height: 68px;
+  }
+
+
+  .detalhes-psi-header-info h2 {
+    font-size: 1.20rem;
+  }
+
+
+  .modal-cancelar-content {
+    padding: 28px 22px;
+  }
+
+
+  .modal-cancelar-acoes {
+    grid-template-columns: 1fr;
+  }
+
+
+  .btn-confirmar-cancelamento {
+    order: -1;
+  }
+
 }

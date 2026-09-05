@@ -36,6 +36,8 @@ export class Perfil implements OnInit {
   showModalCriador = signal<boolean>(false);
   showModalApagarConta = signal<boolean>(false);
 
+  mensagemSucessoAvatar = signal<string>('');
+
   senhaConfirmacao = '';
   apagandoConta = signal<boolean>(false);
   erroApagarConta = signal('');
@@ -50,18 +52,49 @@ export class Perfil implements OnInit {
   avatarSelecionado = signal<string | null>(null);
   avataresDisponiveis = Array.from({length: 33}, (_, i) => `./img/mamaesemfundo/${i + 1}.png`);
 
-  // Limites específicos baseados na quantidade real de arquivos nas pastas do projeto
+// Limites específicos baseados na quantidade real de arquivos nas pastas do projeto
   indiceBase = signal<number>(1);
-  maxBases = 5; // Ajuste se houver mais bases
+  maxBases = 8; // Você tem 8 bases
 
   indiceCamisa = signal<number>(1);
-  maxCamisas = 15; // Quantidade total de camisas disponíveis na pasta
+  maxCamisas = 15; // Troque de 1 para 15 (ou o total exato de camisas na pasta)
 
   indiceSobrancelha = signal<number>(1);
-  maxSobrancelhas = 10; // Quantidade total de sobrancelhas disponíveis na pasta
+  maxSobrancelhas = 10; // Troque de 1 para 10 (ou o total exato de sobrancelhas)
 
   indiceCabelo = signal<number>(1);
-  maxCabelos = 15; // Quantidade total de cabelos disponíveis na pasta
+  maxCabelos = 11; // Ajustado para 11 cabelos
+
+  // Sinais de Cor para Camisa e Sobrancelha
+  corCamisa = signal<string>('#ff8888'); 
+  corSobrancelha = signal<string>('#4a2b18');
+
+  // Filtros dinâmicos que aplicam a cor na imagem
+  filtroCamisa = computed(() => this.gerarFiltroCss(this.corCamisa()));
+  filtroSobrancelha = computed(() => this.gerarFiltroCss(this.corSobrancelha()));
+
+  // Função matemática para converter cor HEX em filtro CSS (hue-rotate)
+  gerarFiltroCss(hex: string): string {
+    if (!hex) return 'none';
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return `hue-rotate(${h * 360}deg) saturate(${1 + s}) brightness(${0.9 + l / 2})`;
+  }
 
   avatarCamadas = computed(() => {
     const b = this.indiceBase();
@@ -154,7 +187,10 @@ export class Perfil implements OnInit {
       const userRef = doc(db, 'usuarios', this.currentUser().uid);
       await updateDoc(userRef, { avatar: this.avatarSelecionado() });
       this.userData.set({ ...this.userData(), avatar: this.avatarSelecionado(), fotoURL: this.avatarSelecionado() });
+      
       this.showModalAvatar.set(false);
+      window.location.reload(); // Atualiza a página imediatamente
+      
     } catch (err) {
       alert("Erro ao salvar avatar.");
     }
@@ -177,21 +213,69 @@ export class Perfil implements OnInit {
     }
   }
 
-  async salvarAvatarCriado() {
+ async salvarAvatarCriado() {
     try {
-      const avatarEscolhido = this.avatarCamadas().base;
+      const canvas = document.createElement('canvas');
+      canvas.width = 250;
+      canvas.height = 250;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) return;
+
+      // Adicionamos os filtros diretamente nas camadas correspondentes
+      const layers = [
+        { id: 'cabelotras', filter: 'none' },
+        { id: 'base', filter: 'none' },
+        { id: 'camisa', filter: this.filtroCamisa() },
+        { id: 'sobrancelha', filter: this.filtroSobrancelha() },
+        { id: 'cabelo', filter: 'none' },
+        { id: 'boca', filter: 'none' },
+        { id: 'olhos', filter: 'none' },
+        { id: 'orelha', filter: 'none' }
+      ];
+
+      for (const layer of layers) {
+        const img = document.getElementById(layer.id) as HTMLImageElement;
+        if (img) {
+          await new Promise<void>((resolve) => {
+            if (img.complete) resolve();
+            else {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            }
+          });
+          
+          if (img.naturalWidth > 0) {
+            ctx.filter = layer.filter; // Aplica a cor escolhida
+            ctx.drawImage(img, 0, 0, 250, 250);
+            ctx.filter = 'none'; // Reseta para a próxima camada
+          }
+        }
+      }
+
+      // ... (mantenha a parte de cima do código do canvas igual)
+
+      const avatarFinalBase64 = canvas.toDataURL('image/png');
       const userRef = doc(db, 'usuarios', this.currentUser().uid);
-      await updateDoc(userRef, { avatar: avatarEscolhido });
+      await updateDoc(userRef, { avatar: avatarFinalBase64 });
       
-      this.userData.set({ ...this.userData(), avatar: avatarEscolhido, fotoURL: avatarEscolhido });
-      this.showModalCriador.set(false);
-      alert("Avatar criado e salvo com sucesso!");
+      this.userData.set({ ...this.userData(), avatar: avatarFinalBase64, fotoURL: avatarFinalBase64 });
+      
+     // Exibe a mensagem de sucesso
+      this.mensagemSucessoAvatar.set('Avatar atualizado com sucesso!');
+      
+      // Aguarda 2 segundos, limpa a mensagem, fecha o modal e atualiza o Header
+      setTimeout(() => {
+        this.mensagemSucessoAvatar.set('');
+        this.showModalCriador.set(false);
+        window.location.reload(); // Atualiza a página para o Header puxar a foto nova
+      }, 2000);
+      
     } catch (err) {
-      console.error("Erro ao salvar avatar criado:", err);
+      console.error("Erro ao salvar avatar:", err);
       alert("Erro ao salvar avatar.");
     }
   }
-
   abrirModalApagarConta() {
     this.senhaConfirmacao = '';
     this.erroApagarConta.set('');

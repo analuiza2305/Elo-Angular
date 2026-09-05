@@ -22,7 +22,7 @@ import { ArtigoInd } from './pages/artigo-ind/artigo-ind';
 import { Eventos } from './pages/eventos/eventos';
 import { Consultoria } from './pages/consultoria/consultoria';
 import { ConsultasComponent } from './pages/consultas/consultas';
-import { Chat } from './pages/chat/chat';
+import { ConsultaListaPsiComponent } from './pages/consulta-lista-psi/consulta-lista-psi';import { Chat } from './pages/chat/chat';
 import { Perfil } from './pages/perfil/perfil';
 
 // Importando a nova página de Agenda da Mãe
@@ -41,6 +41,7 @@ export const routes: Routes = [
   { path: 'home-parc', component: HomeParc },
   { path: 'admin', component: Adm, canActivate: [adminGuard] },
   { path: 'profissionais', component: ProfissionalComponent },
+  
 
   // Rotas da comunidade e consultas:
   { path: 'forum', component: ForumComponent },
@@ -51,7 +52,7 @@ export const routes: Routes = [
   { path: 'eventos', component: Eventos },
   { path: 'consultoria', component: Consultoria },
   { path: 'consultas', component: ConsultasComponent },
-  { path: 'agenda-mae', component: AgendaMae }, // Rota mapeada
+  { path: 'consultas-lista-psi', component: ConsultaListaPsiComponent },  { path: 'agenda-mae', component: AgendaMae }, // Rota mapeada
   { path: 'chat', component: Chat },
   { path: 'perfil', component: Perfil },
   
