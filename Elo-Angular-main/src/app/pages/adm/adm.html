@@ -16,116 +16,367 @@
 <main class="main-container">
   <aside class="sidebar" id="adminSidebar" [class.active]="sidebarAberta">
     <div class="sidebar-group-label">Gerenciar</div>
-    <button class="menu-btn" [class.active]="abaAtiva === 'dashboard'" (click)="mudarAba('dashboard')">
-      <i class="fa-solid fa-chart-line"></i>
-      <span>Painel Geral</span>
+
+    <button class="menu-btn" [class.active]="abaAtiva === 'home'" (click)="mudarAba('home')">
+      <i class="fa-solid fa-grip"></i>
+      <span>Home</span>
     </button>
     <button class="menu-btn" [class.active]="abaAtiva === 'usuarios'" (click)="mudarAba('usuarios')">
       <i class="fa-solid fa-users"></i>
       <span>Usuários</span>
     </button>
-    <button class="menu-btn" [class.active]="abaAtiva === 'autorizacoes'" (click)="mudarAba('autorizacoes')">
-      <i class="fa-solid fa-user-check"></i>
-      <span>Autorizações</span>
+    
+    <button class="menu-btn" [class.active]="abaAtiva === 'forum'" (click)="mudarAba('forum')">
+      <i class="fa-regular fa-comments"></i>
+      <span>Fórum</span>
     </button>
+    <button class="menu-btn" [class.active]="abaAtiva === 'profissionais'" (click)="mudarAba('profissionais')">
+      <i class="fa-solid fa-user-doctor"></i>
+      <span>Profissionais</span>
+    </button>
+    <button class="menu-btn" [class.active]="abaAtiva === 'parceiros'" (click)="mudarAba('parceiros')">
+      <i class="fa-solid fa-handshake"></i>
+      <span>Parceiros</span>
+    </button>
+    <button class="menu-btn" [class.active]="abaAtiva === 'creditos'" (click)="mudarAba('creditos')">
+      <i class="fa-solid fa-coins"></i>
+      <span>Créditos</span>
+    </button>
+    <button class="menu-btn" [class.active]="abaAtiva === 'relatorios'" (click)="mudarAba('relatorios')">
+      <i class="fa-solid fa-chart-pie"></i>
+      <span>Relatórios</span>
+    </button>
+    <button class="menu-btn" [class.active]="abaAtiva === 'eventos'" (click)="mudarAba('eventos')">
+      <i class="fa-solid fa-calendar-days"></i>
+      <span>Eventos</span>
+    </button>
+    <button class="menu-btn" [class.active]="abaAtiva === 'configuracoes'" (click)="mudarAba('configuracoes')">
+      <i class="fa-solid fa-gear"></i>
+      <span>Configurações</span>
+    </button>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-profile-card">
+      <img [src]="adminAvatar" alt="Avatar do administrador" class="sidebar-profile-avatar">
+      <div class="sidebar-profile-info">
+        <strong>{{ adminNome }}</strong>
+        <span>Administradora</span>
+      </div>
+    </div>
   </aside>
 
-  <!-- DASHBOARD -->
-  <!-- Usando [class.hidden] em vez de *ngIf para não destruir o Canvas -->
-  <section class="content" id="dashboard" [class.hidden]="abaAtiva !== 'dashboard'">
+  <!-- HOME -->
+  <!-- Usando [class.hidden] em vez de *ngIf para não destruir o Canvas do gráfico -->
+  <section class="content" id="home" [class.hidden]="abaAtiva !== 'home'">
     <div class="admin-hero">
-      <span class="hero-badge">ÁREA ADMINISTRATIVA</span>
-      <h1>Visão Geral do Sistema</h1>
-      <p>Acompanhe em tempo real os profissionais ativos na plataforma e a distribuição de usuários do EloMaterno.</p>
+      <span class="hero-badge">ÁREA DO ADMINISTRADOR</span>
+      <h1>Olá, {{ adminPrimeiroNome }}!</h1>
+      <p>Aqui está o panorama de acolhimento do EloMaterno hoje.</p>
     </div>
 
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-brain"></i></div>
+        <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-user-group"></i></div>
         <div class="stat-info">
-          <!-- Binding Angular das variáveis numéricas -->
-          <span class="stat-number">{{ psicologosAtivos }}</span>
-          <span class="stat-label">Psicólogos Ativos</span>
+          <span class="stat-label">Mães na rede</span>
+          <span class="stat-number">{{ maesNaRede }}</span>
+          <span class="stat-trend up">↑ {{ maesNaRedeVariacao }}% este mês</span>
         </div>
       </div>
+
       <div class="stat-card">
-        <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-scale-balanced"></i></div>
+        <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-briefcase"></i></div>
         <div class="stat-info">
-          <span class="stat-number">{{ advogadosAtivos }}</span>
-          <span class="stat-label">Advogados Ativos</span>
+          <span class="stat-label">Profissionais ativos</span>
+          <span class="stat-number">{{ profissionaisAtivos }}</span>
+          <span class="stat-trend neutral">{{ solicitacoes.length }} aguardando aprovação</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-coral"><i class="fa-solid fa-heart"></i></div>
+        <div class="stat-info">
+          <span class="stat-label">Atendimentos realizados</span>
+          <span class="stat-number">{{ atendimentosRealizados }}</span>
+          <span class="stat-trend up">↑ {{ atendimentosVariacao }}% este mês</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-teal"><i class="fa-solid fa-sack-dollar"></i></div>
+        <div class="stat-info">
+          <span class="stat-label">Créditos movimentados</span>
+          <span class="stat-number">R$ {{ creditosMovimentados | number:'1.0-0':'pt-BR' }}</span>
+          <span class="stat-trend neutral">em equivalente</span>
         </div>
       </div>
     </div>
 
     <div class="dashboard-columns">
       <div class="dash-panel chart-card">
-        <h3>Uso por Categoria</h3>
-        <canvas id="usageChart"></canvas>
+        <h3>Atividade da rede</h3>
+        <canvas id="atividadeChart"></canvas>
       </div>
 
-      <div class="dash-panel chart-card">
-        <h3>Distribuição de Usuários</h3>
-        <canvas id="pieChart"></canvas>
+      <div class="dash-panel activity-card">
+        <div class="activity-card-header">
+          <h3>Atividade recente</h3>
+          <button type="button" class="ver-mais-btn" (click)="mudarAba('usuarios')">Ver mais</button>
+        </div>
+
+        <div class="activity-list">
+          <!-- Repetição Angular para o feed de atividades -->
+          <div class="activity-item" *ngFor="let a of atividadesRecentes">
+            <div class="activity-icon" [ngClass]="a.corIcone">
+              <i [class]="a.icone"></i>
+            </div>
+            <div class="activity-texto">
+              <strong>{{ a.titulo }}</strong>
+              <span>{{ a.descricao }}</span>
+            </div>
+          </div>
+
+          @if (atividadesRecentes.length === 0) {
+            <p class="activity-empty">Nenhuma atividade recente por enquanto.</p>
+          }
+        </div>
       </div>
     </div>
   </section>
 
 
   <!-- USUÁRIOS -->
+  <!-- MÃES (antiga aba "Usuários") -->
   <section class="content" id="usuarios" [class.hidden]="abaAtiva !== 'usuarios'">
-   <h2 class="page-title">Usuários do Sistema</h2>
-  <p class="page-subtitle">Consulte e gerencie mães, psicólogos e advogados cadastrados na plataforma.</p>
+    <h2 class="page-title">Mães <p class="page-subtitle">Consulte e gerencie as mães cadastradas na plataforma.</p></h2>
 
-    <div class="dash-panel user-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Função</th>
-            <th>Email / Documento</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Estrutura de repetição Angular (*ngFor) -->
-          <tr *ngFor="let user of usuarios">
-            <td>{{ user.nome }}</td>
-            <td>{{ user.colLabel }}</td>
-            <td>{{ user.emailOrDoc }}</td>
-            <td>
-              <span class="status" [ngClass]="user.status === 'aprovado' ? 'ativo' : user.status">
-                {{ user.status }}
-              </span>
-            </td>
-            <td>
-              <button class="remove-btn" (click)="removerUsuario(user.id, user.colName)">Remover</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+    <div class="maes-toolbar">
+      <div class="mae-search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="text"
+          placeholder="Buscar por nome ou email..."
+          [(ngModel)]="termoBuscaMae">
+      </div>
 
-
-  <!-- AUTORIZAÇÕES -->
-  <section class="content" id="autorizacoes" [class.hidden]="abaAtiva !== 'autorizacoes'">
-    <h2 class="page-title">Solicitações de Profissionais</h2>
-    <p class="page-subtitle">Analise e aprove os cadastros pendentes de psicólogos e advogados.</p>
-
-    <div class="request-list">
-      <!-- Repetição Angular para as solicitações -->
-      <div class="request-card" *ngFor="let req of solicitacoes">
-        <div>
-          <strong>{{ req.nome }}</strong>
-          <p>{{ req.colTipo === 'psicologo' ? 'Psicólogo(a) | CRP: ' + req.registro : 'Advogado(a) | OAB: ' + req.registro }}</p>
-          <p>Status: <span class="status pendente">{{ req.status }}</span></p>
-        </div>
-        <div class="actions">
-          <button class="approve-btn" (click)="aprovar(req.id, req.colTipo)">Aprovar</button>
-          <button class="deny-btn" (click)="recusar(req.id, req.colTipo)">Recusar</button>
-        </div>
+      <div class="mae-filtro-status">
+        <button
+          type="button"
+          [class.active]="filtroStatusMae === 'todas'"
+          (click)="filtrarStatusMae('todas')">
+          Todas
+        </button>
+        <button
+          type="button"
+          [class.active]="filtroStatusMae === 'ativas'"
+          (click)="filtrarStatusMae('ativas')">
+          Ativas
+        </button>
+        <button
+          type="button"
+          [class.active]="filtroStatusMae === 'inativas'"
+          (click)="filtrarStatusMae('inativas')">
+          Inativas
+        </button>
       </div>
     </div>
+
+    <div class="maes-layout" [class.perfil-aberto]="maeSelecionada">
+
+      <div class="dash-panel user-table maes-table-panel">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Data de Cadastro</th>
+              <th>Status</th>
+              <th>Créditos</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let mae of maesFiltradas">
+              <td>
+                <div class="mae-nome-cel">
+                  <img [src]="mae.avatar" alt="" class="mae-avatar-mini">
+                  <span>{{ mae.nome }}</span>
+                </div>
+              </td>
+              <td>{{ mae.email }}</td>
+              <td>{{ formatarData(mae.criadoEm) }}</td>
+              <td>
+                <span class="status" [ngClass]="mae.status === 'ativo' ? 'ativo' : 'inativo'">
+                  {{ mae.status === 'ativo' ? 'Ativo' : 'Inativo' }}
+                </span>
+              </td>
+              <td>
+                <span class="mae-creditos">
+                  <span class="mae-creditos-dot"></span>
+                  {{ mae.creditos }}
+                </span>
+              </td>
+              <td>
+                <div class="mae-acoes">
+                  <button class="link-btn link-btn-roxo" (click)="abrirPerfilMae(mae)">Ver perfil</button>
+                  <button class="link-btn link-btn-vermelho" (click)="alternarStatusMae(mae)">
+                    {{ mae.status === 'ativo' ? 'Suspender' : 'Reativar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        @if (maesFiltradas.length === 0) {
+          <p class="activity-empty">Nenhuma mãe encontrada com esse filtro.</p>
+        }
+      </div>
+
+      <!-- PERFIL DA MÃE -->
+      @if (maeSelecionada) {
+        <aside class="dash-panel mae-perfil-panel">
+          <div class="mae-perfil-header">
+            <div>
+              <h3>Perfil da mãe</h3>
+              <p class="mae-perfil-subtitulo">Revise as informações do perfil da mãe</p>
+            </div>
+            <button type="button" class="mae-fechar-btn" (click)="fecharPerfilMae()" aria-label="Fechar perfil">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div class="mae-perfil-topo">
+            <img [src]="maeSelecionada.avatar" alt="" class="mae-perfil-avatar">
+            <div class="mae-perfil-topo-info">
+              <strong>{{ maeSelecionada.nome }}</strong>
+              <span>{{ maeSelecionada.email }}</span>
+              <span class="mae-perfil-local">
+                {{ formatarData(maeSelecionada.criadoEm) }}
+                @if (maeSelecionada.cidade) {
+                  &nbsp;·&nbsp;{{ maeSelecionada.cidade }}{{ maeSelecionada.uf ? ' - ' + maeSelecionada.uf : '' }}
+                }
+              </span>
+              <span class="status" [ngClass]="maeSelecionada.status === 'ativo' ? 'ativo' : 'inativo'">
+                {{ maeSelecionada.status === 'ativo' ? 'Ativo' : 'Inativo' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="mae-perfil-secao">
+            <h4>Informações da mãe</h4>
+            <div class="mae-perfil-grid">
+              <div class="mae-perfil-campo">
+                <span class="mae-campo-label">Nome completo</span>
+                <span class="mae-campo-valor">{{ maeSelecionada.nome }}</span>
+              </div>
+              <div class="mae-perfil-campo">
+                <span class="mae-campo-label">Data de Nascimento</span>
+                <span class="mae-campo-valor">
+                  @if (maeSelecionada.dataNascimento) {
+                    {{ formatarDataNascimento(maeSelecionada.dataNascimento) }} ({{ calcularIdade(maeSelecionada.dataNascimento) }} anos)
+                  } @else {
+                    Não informado
+                  }
+                </span>
+              </div>
+              <div class="mae-perfil-campo">
+                <span class="mae-campo-label">Email</span>
+                <span class="mae-campo-valor">{{ maeSelecionada.email }}</span>
+              </div>
+              <div class="mae-perfil-campo">
+                <span class="mae-campo-label">Endereço</span>
+                <span class="mae-campo-valor">{{ maeSelecionada.endereco || 'Não informado' }}</span>
+              </div>
+              <div class="mae-perfil-campo">
+                <span class="mae-campo-label">Telefone</span>
+                <span class="mae-campo-valor">{{ maeSelecionada.telefone || 'Não informado' }}</span>
+              </div>
+              <div class="mae-perfil-campo">
+                <span class="mae-campo-label">Filhos</span>
+                <span class="mae-campo-valor">{{ maeSelecionada.filhos || 'Não informado' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mae-perfil-cards">
+            <div class="mae-mini-card">
+              <span class="mae-mini-card-titulo">Avaliação geral</span>
+              @if (maeAvaliacoes.length > 0) {
+                <div class="mae-estrelas">
+                  <i class="fa-solid fa-star" *ngFor="let cheia of estrelas(maeAvaliacaoMedia)" [class.vazia]="!cheia"></i>
+                </div>
+                <span class="mae-mini-card-numero">{{ maeAvaliacaoMedia }}</span>
+                <span class="mae-mini-card-legenda">Com base em {{ maeAvaliacoes.length }} avaliaç{{ maeAvaliacoes.length === 1 ? 'ão' : 'ões' }}</span>
+              } @else {
+                <span class="mae-mini-card-numero">—</span>
+                <span class="mae-mini-card-legenda">Ainda sem avaliações</span>
+              }
+            </div>
+
+            <div class="mae-mini-card">
+              <span class="mae-mini-card-titulo">Total de interações</span>
+              <i class="fa-regular fa-comment-dots mae-mini-card-icone"></i>
+              <span class="mae-mini-card-numero">{{ maeTotalInteracoes }}</span>
+              <span class="mae-mini-card-legenda">Comentários no fórum</span>
+            </div>
+          </div>
+
+          <div class="mae-perfil-secao">
+            <div class="mae-secao-header">
+              <h4>Histórico de avaliações</h4>
+              @if (maeAvaliacoes.length > 0) {
+                <button type="button" class="ver-mais-btn">Ver todas</button>
+              }
+            </div>
+
+            <div class="mae-avaliacoes-lista">
+              <div class="mae-avaliacao-card" *ngFor="let av of maeAvaliacoes">
+                <div class="mae-avaliacao-avatar">
+                  <i class="fa-solid fa-user-doctor"></i>
+                </div>
+                <div class="mae-avaliacao-conteudo">
+                  <div class="mae-avaliacao-topo">
+                    <strong>{{ av.profissionalNome }} - {{ av.especialidade }}</strong>
+                    <span class="mae-avaliacao-nota">
+                      <i class="fa-solid fa-star"></i> {{ av.nota | number:'1.1-1' }}
+                    </span>
+                  </div>
+                  <span class="mae-avaliacao-registro">{{ av.registro }}</span>
+                  <p>{{ av.comentario }}</p>
+                </div>
+              </div>
+
+              @if (maeAvaliacoes.length === 0 && !maePerfilCarregando) {
+                <p class="activity-empty">Ainda não há avaliações registradas para esta mãe.</p>
+              }
+
+              @if (maePerfilCarregando) {
+                <p class="activity-empty">Carregando avaliações...</p>
+              }
+            </div>
+          </div>
+        </aside>
+      }
+    </div>
   </section>
+
+
+
+
+
+  <!-- ABAS AINDA EM CONSTRUÇÃO -->
+  @for (aba of abasEmConstrucao; track aba.chave) {
+    <section class="content" [id]="aba.chave" [class.hidden]="abaAtiva !== aba.chave">
+      <h2 class="page-title">{{ aba.titulo }}</h2>
+      <p class="page-subtitle">{{ aba.subtitulo }}</p>
+
+      <div class="dash-panel em-construcao">
+        <i class="fa-solid fa-screwdriver-wrench"></i>
+        <h3>Em construção</h3>
+        <p>Esta área do painel ainda está sendo desenvolvida pela equipe. Em breve, novidades por aqui!</p>
+      </div>
+    </section>
+  }
 </main>
