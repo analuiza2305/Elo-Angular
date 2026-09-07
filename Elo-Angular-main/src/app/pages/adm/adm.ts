@@ -12,6 +12,7 @@ import {
   deleteDoc,
   doc,
   onSnapshot,
+  serverTimestamp,
   Unsubscribe
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -75,6 +76,11 @@ interface MaeData {
   endereco: string;
   telefone: string;
   filhos: string;
+  motivoSuspensao?: string;
+  observacoesSuspensao?: string;
+  suspensoEm?: any;
+  observacoesReativacao?: string;
+  reativadoEm?: any;
 }
 
 /**
@@ -96,6 +102,172 @@ interface AbaEmConstrucao {
   chave: string;
   titulo: string;
   subtitulo: string;
+}
+
+/** Configuração de custo em créditos de uma ação da plataforma (sub-página "Créditos"). */
+interface AcaoCredito {
+  id: string;
+  icone: string;
+  nome: string;
+  descricao: string;
+  valor: number;
+  valorPadrao: number;
+  ativo: boolean;
+}
+
+/** Fatia do gráfico de distribuição de uso de créditos (sub-página "Créditos"). */
+interface DistribuicaoCredito {
+  nome: string;
+  percentual: number;
+  cor: string;
+}
+
+/** Item da lista "Configurações gerais" (sub-página "Créditos"). */
+interface ConfiguracaoGeralCredito {
+  id: string;
+  icone: string;
+  label: string;
+  tipo: 'valor' | 'toggle';
+  valor?: string;
+  ativo?: boolean;
+}
+
+/** Item da lista "Últimas transações" (sub-página "Créditos"). */
+interface TransacaoCredito {
+  id: string;
+  icone: string;
+  nome: string;
+  data: string;
+  hora: string;
+  tipo: 'debito' | 'credito';
+}
+
+/**
+ * Dados da sub-aba "Aprovação" (dentro de "Parceiros").
+ *
+ * TODO: ainda não existe uma coleção `solicitacoesProfissionais` no Firestore
+ * pra esse fluxo de aprovação. Estrutura montada aqui só pra a tela existir;
+ * assim que o backend tiver o cadastro/aprovação de profissionais, troca os
+ * dados de exemplo por um onSnapshot de verdade, igual ao de `maes`.
+ */
+interface SolicitacaoProfissional {
+  id: string;
+  nome: string;
+  categoria: string;
+  registro: string;
+  avatar: string;
+  cadastro: string;
+  documentacaoCompleta: boolean;
+  status: 'em_analise' | 'pendencia' | 'aprovado';
+  ultimaAnalise: { data: string; admin: string } | null;
+  observacoes: string;
+  detalhes: {
+    dataNascimento: string;
+    idade: number;
+    email: string;
+    telefone: string;
+    endereco: string;
+    especialidade: string;
+    perfilPublico: { label: string; ok: boolean }[];
+  };
+}
+
+/** Avaliação feita por uma mãe sobre um profissional já aprovado (sub-aba "Profissionais"). */
+interface AvaliacaoProfissionalLista {
+  id: string;
+  autorNome: string;
+  autorTipo: string;
+  nota: number;
+  comentario: string;
+}
+
+/**
+ * Dados da sub-aba "Profissionais" (listagem completa dos profissionais já
+ * aprovados na plataforma, dentro de "Parceiros").
+ *
+ * TODO: ainda não existe uma coleção com essas métricas (consultas,
+ * conteúdos, engajamento, satisfação, avaliações) no Firestore. Estrutura
+ * montada aqui só pra a tela existir; assim que o backend expuser esses
+ * dados (provavelmente `profissionais` + subcoleções de consultas/avaliações),
+ * troca os dados de exemplo por um onSnapshot de verdade, igual ao de `maes`.
+ */
+interface ProfissionalLista {
+  id: string;
+  nome: string;
+  nomeCompleto: string;
+  categoria: string;
+  registro: string;
+  avatar: string;
+  status: 'ativo' | 'inativo';
+  novo: boolean;
+  consultas: number;
+  conteudos: number;
+  engajamento: number;
+  satisfacao: number;
+  ultimoAcesso: string;
+  detalhes: {
+    dataNascimento: string;
+    idade: number;
+    email: string;
+    telefone: string;
+    endereco: string;
+    profissao: string;
+  };
+  totalConsultas: number;
+  avaliacoes: AvaliacaoProfissionalLista[];
+  advertencias: number;
+  ultimaAdvertencia?: { motivo: string; dias: number; observacoes: string; data: string } | null;
+  motivoSuspensao?: string;
+  observacoesSuspensao?: string;
+  suspensoEm?: string;
+}
+
+/** Avaliação feita por uma mãe sobre uma empresa parceira (sub-aba "Parceiros"). */
+interface AvaliacaoParceiroLista {
+  id: string;
+  autorNome: string;
+  autorTipo: string;
+  nota: number;
+  comentario: string;
+}
+
+/**
+ * Dados da sub-aba "Parceiros" (listagem completa das empresas parceiras já
+ * aprovadas na plataforma, dentro de "Parceiros"). Espelha `ProfissionalLista`.
+ *
+ * TODO: ainda não existe uma coleção com essas métricas (eventos, artigos,
+ * engajamento, satisfação, avaliações) no Firestore. Estrutura montada aqui
+ * só pra a tela existir; assim que o backend expuser esses dados, troca os
+ * dados de exemplo por um onSnapshot de verdade, igual ao de `maes`.
+ */
+interface ParceiroEmpresaLista {
+  id: string;
+  nome: string;
+  nomeCompleto: string;
+  categoria: string;
+  cnpj: string;
+  avatar: string;
+  status: 'ativo' | 'inativo';
+  novo: boolean;
+  eventos: number;
+  artigos: number;
+  engajamento: number;
+  satisfacao: number;
+  ultimoAcesso: string;
+  detalhes: {
+    email: string;
+    telefone: string;
+    endereco: string;
+    cnpj: string;
+    segmento: string;
+  };
+  totalInteracoes: number;
+  avaliacoes: AvaliacaoParceiroLista[];
+  advertencias: number;
+  ultimaAdvertencia?: { motivo: string; dias: number; observacoes: string; data: string } | null;
+  motivoSuspensao?: string;
+  observacoesSuspensao?: string;
+  suspensoEm?: string;
 }
 
 @Component({
@@ -135,13 +307,974 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   // Abas do novo menu que ainda não têm tela própria implementada
   abasEmConstrucao: AbaEmConstrucao[] = [
     { chave: 'forum', titulo: 'Fórum', subtitulo: 'Modere as discussões e publicações da comunidade.' },
-    { chave: 'profissionais', titulo: 'Profissionais', subtitulo: 'Gerencie o cadastro completo de psicólogos e advogados.' },
-    { chave: 'parceiros', titulo: 'Parceiros', subtitulo: 'Acompanhe as empresas e instituições parceiras da rede.' },
-    { chave: 'creditos', titulo: 'Créditos', subtitulo: 'Controle a movimentação de créditos Elo na plataforma.' },
+    { chave: 'moderacao', titulo: 'Moderação', subtitulo: 'Modere o conteúdo publicado na plataforma.' },
     { chave: 'relatorios', titulo: 'Relatórios', subtitulo: 'Extraia relatórios detalhados sobre o uso da plataforma.' },
-    { chave: 'eventos', titulo: 'Eventos', subtitulo: 'Organize e divulgue eventos para a rede EloMaterno.' },
     { chave: 'configuracoes', titulo: 'Configurações', subtitulo: 'Ajuste as preferências gerais do painel administrativo.' },
   ];
+
+  // --- Aba "Parceiros" (sub-abas: Aprovação / Profissionais / Parceiros) ---
+  parceirosSubAba: 'aprovacao' | 'profissionais' | 'parceiros' = 'aprovacao';
+
+  // --- Sub-página "Créditos" (dados de exemplo, sem coleção no Firestore ainda) ---
+  saldoPlataformaCreditos: number = 1248500;
+  creditosEmCirculacao: number = 1248500;
+  usuariosAtivosCreditos: number = 8642;
+  transacoesNoMesCreditos: number = 12384;
+  avaliacaoMediaCreditos: number = 4.6;
+
+  /** TODO: abrirá o modal de adicionar créditos (próxima etapa da tela). */
+  abrirModalAdicionarCreditos(): void {
+  }
+
+  creditosTabAtiva: 'valores' = 'valores';
+
+  mudarCreditosTab(tab: 'valores'): void {
+    this.creditosTabAtiva = tab;
+  }
+
+  // TODO: ainda não existe uma coleção `configuracoesCreditos` no Firestore.
+  // Dados de exemplo aqui só pra montar a tela; assim que o backend tiver
+  // essa configuração, troca por um onSnapshot/updateDoc de verdade.
+  acoesCreditos: AcaoCredito[] = [
+    { id: '1', icone: 'fa-book-open', nome: 'Ler artigo', descricao: 'Créditos necessários para realizar a leitura do artigo', valor: 50, valorPadrao: 50, ativo: true },
+    { id: '2', icone: 'fa-calendar-check', nome: 'Agendar consulta', descricao: 'Créditos necessários para agendar uma consulta com profissional', valor: 200, valorPadrao: 200, ativo: true },
+    { id: '3', icone: 'fa-comments', nome: 'Publicar no fórum', descricao: 'Créditos necessários para criar uma nova publicação no fórum', valor: 30, valorPadrao: 30, ativo: true },
+    { id: '4', icone: 'fa-comment-dots', nome: 'Comentar no fórum', descricao: 'Créditos necessários para comentar em uma publicação', valor: 10, valorPadrao: 10, ativo: true },
+    { id: '5', icone: 'fa-star', nome: 'Avaliar profissional', descricao: 'Créditos necessários para avaliar um profissional após consulta', valor: 5, valorPadrao: 5, ativo: true },
+    { id: '6', icone: 'fa-graduation-cap', nome: 'Concluir curso', descricao: 'Créditos necessários para se inscrever em um curso da plataforma', valor: 150, valorPadrao: 150, ativo: true },
+    { id: '7', icone: 'fa-share-nodes', nome: 'Compartilhar artigo', descricao: 'Créditos necessários para compartilhar um artigo com outra mãe', valor: 15, valorPadrao: 15, ativo: false },
+    { id: '8', icone: 'fa-message', nome: 'Enviar mensagem no chat', descricao: 'Créditos necessários para iniciar uma conversa no chat', valor: 20, valorPadrao: 20, ativo: true },
+    { id: '9', icone: 'fa-id-card', nome: 'Completar perfil', descricao: 'Créditos de bônus liberados ao completar 100% do perfil', valor: 50, valorPadrao: 50, ativo: true },
+  ];
+
+  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
+  restaurarPadraoCreditos(): void {
+    this.acoesCreditos.forEach(acao => {
+      acao.valor = acao.valorPadrao;
+    });
+  }
+
+  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
+  alternarAtivoCredito(acao: AcaoCredito): void {
+    acao.ativo = !acao.ativo;
+  }
+
+  // TODO: ainda não existe uma coleção com o histórico real de uso de
+  // créditos por categoria no Firestore. Distribuição de exemplo só pra
+  // montar o gráfico; assim que o backend expuser essas métricas (ex.: uma
+  // agregação por tipo de ação), troca os valores por dados reais.
+  distribuicaoCreditos: DistribuicaoCredito[] = [
+    { nome: 'Leitura de artigos', percentual: 34, cor: '#5b3f91' },
+    { nome: 'Consultas agendadas', percentual: 26, cor: '#8e65bf' },
+    { nome: 'Fórum', percentual: 18, cor: '#b79ce0' },
+    { nome: 'Cursos', percentual: 14, cor: '#d8c8f0' },
+    { nome: 'Outras ações', percentual: 8, cor: '#efe7fa' },
+  ];
+
+  private creditosDonutChart: any = null;
+
+  /** Desenha (ou atualiza) o donut de distribuição de uso de créditos. */
+  private atualizarGraficoDistribuicaoCreditos(): void {
+    const ctx = document.getElementById('creditosDonutChart') as HTMLCanvasElement;
+
+    if (!ctx) {
+      return;
+    }
+
+    const labels = this.distribuicaoCreditos.map(d => d.nome);
+    const valores = this.distribuicaoCreditos.map(d => d.percentual);
+    const cores = this.distribuicaoCreditos.map(d => d.cor);
+
+    if (this.creditosDonutChart) {
+      this.creditosDonutChart.data.labels = labels;
+      this.creditosDonutChart.data.datasets[0].data = valores;
+      this.creditosDonutChart.data.datasets[0].backgroundColor = cores;
+      this.creditosDonutChart.update();
+      return;
+    }
+
+    this.creditosDonutChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          data: valores,
+          backgroundColor: cores,
+          borderWidth: 0,
+        }],
+      },
+      options: {
+        responsive: true,
+        cutout: '72%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (item: any) => ` ${item.label}: ${item.raw}%`,
+            },
+          },
+        },
+      },
+    });
+  }
+
+  // TODO: ainda não existe uma coleção `configuracoesCreditos` no Firestore
+  // pra essas configurações gerais. Dados de exemplo aqui só pra montar a
+  // tela; assim que o backend tiver essa configuração, troca por leitura e
+  // updateDoc de verdade.
+  configuracoesGeraisCreditos: ConfiguracaoGeralCredito[] = [
+    { id: 'moeda', icone: 'fa-sack-dollar', label: 'Créditos da plataforma', tipo: 'valor', valor: 'Real (R$)' },
+    { id: 'validade', icone: 'fa-calendar-days', label: 'Validade dos créditos', tipo: 'valor', valor: '15 dias' },
+    { id: 'compras', icone: 'fa-cart-shopping', label: 'Permitir compras de créditos', tipo: 'toggle', ativo: true },
+    { id: 'transferencia', icone: 'fa-people-arrows', label: 'Permitir transferência entre usuários', tipo: 'toggle', ativo: true },
+    { id: 'boasVindas', icone: 'fa-gift', label: 'Créditos de boas-vindas', tipo: 'valor', valor: '50 créditos' },
+  ];
+
+  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
+  alternarConfiguracaoGeralCredito(item: ConfiguracaoGeralCredito): void {
+    if (item.tipo === 'toggle') {
+      item.ativo = !item.ativo;
+    }
+  }
+
+  /**
+   * TODO: abrirá um modal de edição pro item (troca de moeda, validade em
+   * dias, valor de boas-vindas). Por enquanto só um placeholder — ainda não
+   * existe coleção no Firestore pra persistir essas configurações.
+   */
+  editarConfiguracaoGeralCredito(item: ConfiguracaoGeralCredito): void {
+    if (item.tipo !== 'valor') {
+      return;
+    }
+  }
+
+  // TODO: ainda não existe uma coleção `transacoesCreditos` no Firestore.
+  // Dados de exemplo aqui só pra montar a tela; assim que o backend tiver
+  // o histórico real de transações, troca por um onSnapshot ordenado por
+  // data, igual ao que já existe pra `maes`.
+  ultimasTransacoesCreditos: TransacaoCredito[] = [
+    { id: 't1', icone: 'fa-book-open', nome: 'Ler artigo', data: '02/09/2026', hora: '14:35', tipo: 'debito' },
+    { id: 't2', icone: 'fa-book-open', nome: 'Ler artigo', data: '02/09/2026', hora: '14:35', tipo: 'debito' },
+    { id: 't3', icone: 'fa-book-open', nome: 'Ler artigo', data: '02/09/2026', hora: '14:35', tipo: 'debito' },
+    { id: 't4', icone: 'fa-book-open', nome: 'Ler artigo', data: '02/09/2026', hora: '14:35', tipo: 'debito' },
+    { id: 't5', icone: 'fa-book-open', nome: 'Ler artigo', data: '02/09/2026', hora: '14:35', tipo: 'debito' },
+  ];
+
+  // TODO: ainda não existe uma coleção `solicitacoesProfissionais` no Firestore.
+  // Dados de exemplo aqui só pra montar a tela; assim que o backend tiver
+  // o fluxo de cadastro/aprovação de profissionais, troca isso por um
+  // onSnapshot igual ao que já existe pra `maes`.
+  solicitacoesProfissionais: SolicitacaoProfissional[] = [
+    {
+      id: '1',
+      nome: 'Dra. Michelly',
+      categoria: 'Psicóloga',
+      registro: 'CRP 0614523',
+      avatar: '',
+      cadastro: '05/09/2026',
+      documentacaoCompleta: true,
+      status: 'em_analise',
+      ultimaAnalise: null,
+      observacoes: '',
+      detalhes: {
+        dataNascimento: '16/05/1990',
+        idade: 36,
+        email: 'michelly.psi@gmail.com',
+        telefone: '(11) 98159-0183',
+        endereco: 'São Paulo - SP',
+        especialidade: 'Psicologia perinatal',
+        perfilPublico: [
+          { label: 'Foto de perfil', ok: true },
+          { label: 'Documento de identidade', ok: false },
+          { label: 'Registro profissional (CRP)', ok: true },
+          { label: 'Comprovante de residência', ok: false },
+          { label: 'Certificado de especialização', ok: true },
+          { label: 'Currículo', ok: false },
+          { label: 'Termo de responsabilidade', ok: true },
+        ],
+      },
+    },
+    {
+      id: '2',
+      nome: 'Dra. Michelly',
+      categoria: 'Psicóloga',
+      registro: 'CRP 0614523',
+      avatar: '',
+      cadastro: '05/09/2026',
+      documentacaoCompleta: true,
+      status: 'pendencia',
+      ultimaAnalise: { data: '05/09/2026', admin: 'Ana Admin' },
+      observacoes: '',
+      detalhes: {
+        dataNascimento: '16/05/1990',
+        idade: 36,
+        email: 'michelly.psi@gmail.com',
+        telefone: '(11) 98159-0183',
+        endereco: 'São Paulo - SP',
+        especialidade: 'Psicologia perinatal',
+        perfilPublico: [
+          { label: 'Foto de perfil', ok: true },
+          { label: 'Documento de identidade', ok: false },
+          { label: 'Registro profissional (CRP)', ok: true },
+          { label: 'Comprovante de residência', ok: false },
+          { label: 'Certificado de especialização', ok: true },
+          { label: 'Currículo', ok: false },
+          { label: 'Termo de responsabilidade', ok: true },
+        ],
+      },
+    },
+    {
+      id: '3',
+      nome: 'Dra. Michelly',
+      categoria: 'Psicóloga',
+      registro: 'CRP 0614523',
+      avatar: '',
+      cadastro: '05/09/2026',
+      documentacaoCompleta: true,
+      status: 'aprovado',
+      ultimaAnalise: { data: '05/09/2026', admin: 'Ana Admin' },
+      observacoes: '',
+      detalhes: {
+        dataNascimento: '16/05/1990',
+        idade: 36,
+        email: 'michelly.psi@gmail.com',
+        telefone: '(11) 98159-0183',
+        endereco: 'São Paulo - SP',
+        especialidade: 'Psicologia perinatal',
+        perfilPublico: [
+          { label: 'Foto de perfil', ok: true },
+          { label: 'Documento de identidade', ok: true },
+          { label: 'Registro profissional (CRP)', ok: true },
+          { label: 'Comprovante de residência', ok: true },
+          { label: 'Certificado de especialização', ok: true },
+          { label: 'Currículo', ok: true },
+          { label: 'Termo de responsabilidade', ok: true },
+        ],
+      },
+    },
+  ];
+
+  // parceirosLista (empresas parceiras) definida mais abaixo, junto com o resto da sub-aba "Parceiros".
+
+  termoBuscaAprovacao: string = '';
+  filtroStatusAprovacao: 'todos' | 'em_analise' | 'pendencia' | 'aprovado' = 'todos';
+  profissionalSelecionado: SolicitacaoProfissional | null = null;
+
+  get profissionaisStats() {
+    return {
+      total: this.solicitacoesProfissionais.length,
+      aprovados: this.contarPorStatusAprovacao('aprovado'),
+      emAnalise: this.contarPorStatusAprovacao('em_analise'),
+      pendencias: this.contarPorStatusAprovacao('pendencia'),
+      novos: this.solicitacoesProfissionais.filter(s => s.cadastro === '05/09/2026').length,
+    };
+  }
+
+  get solicitacoesFiltradas(): SolicitacaoProfissional[] {
+    const termo = this.termoBuscaAprovacao.trim().toLowerCase();
+
+    return this.solicitacoesProfissionais.filter(sol => {
+      const bateTermo =
+        !termo ||
+        sol.nome.toLowerCase().includes(termo) ||
+        sol.registro.toLowerCase().includes(termo);
+
+      const bateStatus =
+        this.filtroStatusAprovacao === 'todos' || sol.status === this.filtroStatusAprovacao;
+
+      return bateTermo && bateStatus;
+    });
+  }
+
+  contarPorStatusAprovacao(status: 'em_analise' | 'pendencia' | 'aprovado'): number {
+    return this.solicitacoesProfissionais.filter(s => s.status === status).length;
+  }
+
+  mudarSubAbaParceiros(sub: 'aprovacao' | 'profissionais' | 'parceiros'): void {
+    this.parceirosSubAba = sub;
+    this.profissionalSelecionado = null;
+  }
+
+  filtrarStatusAprovacao(status: 'todos' | 'em_analise' | 'pendencia' | 'aprovado'): void {
+    this.filtroStatusAprovacao = status;
+  }
+
+  classeStatusAprovacao(status: string): string {
+    if (status === 'aprovado') return 'ativo';
+    if (status === 'pendencia') return 'recusado';
+    return 'pendente'; // em_analise
+  }
+
+  rotuloStatusAprovacao(status: string): string {
+    if (status === 'aprovado') return 'Aprovado';
+    if (status === 'pendencia') return 'Pendência';
+    return 'Em análise';
+  }
+
+  abrirDetalheProfissional(sol: SolicitacaoProfissional): void {
+    this.profissionalSelecionado = sol;
+  }
+
+  fecharDetalheProfissional(): void {
+    this.profissionalSelecionado = null;
+  }
+
+  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
+  aprovarProfissional(sol: SolicitacaoProfissional): void {
+    sol.status = 'aprovado';
+    sol.ultimaAnalise = { data: this.formatarDataHoje(), admin: this.adminNome };
+  }
+
+  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
+  recusarProfissional(sol: SolicitacaoProfissional): void {
+    sol.status = 'pendencia';
+    sol.ultimaAnalise = { data: this.formatarDataHoje(), admin: this.adminNome };
+  }
+
+  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
+  salvarObservacaoProfissional(sol: SolicitacaoProfissional): void {
+    // Observação já está bindada via ngModel; aqui é só onde entraria o updateDoc futuramente.
+  }
+
+  private formatarDataHoje(): string {
+    const hoje = new Date();
+    return hoje.toLocaleDateString('pt-BR');
+  }
+
+  // TODO: ainda não existe uma coleção com essas métricas no Firestore.
+  // Dados de exemplo aqui só pra montar a tela (sub-aba "Profissionais");
+  // assim que o backend tiver esse dado, troca por um onSnapshot de verdade.
+  profissionaisLista: ProfissionalLista[] = [
+    {
+      id: '1',
+      nome: 'Dra. Michelly',
+      nomeCompleto: 'Michelly Souza Andrade',
+      categoria: 'Psicóloga',
+      registro: 'CRP 0614523',
+      avatar: '',
+      status: 'ativo',
+      novo: true,
+      consultas: 38,
+      conteudos: 38,
+      engajamento: 38,
+      satisfacao: 4.6,
+      ultimoAcesso: 'Hoje',
+      detalhes: {
+        dataNascimento: '16/05/1990',
+        idade: 36,
+        email: 'michelly.psi@gmail.com',
+        telefone: '(11) 98159-0183',
+        endereco: 'São Paulo - SP',
+        profissao: 'Psicóloga',
+      },
+      totalConsultas: 38,
+      avaliacoes: [
+        { id: '1', autorNome: 'Ana Luiza - Mãe solo', autorTipo: 'Mãe solo', nota: 5, comentario: 'Meio biruta mas deu para aguentar' },
+        { id: '2', autorNome: 'Ana Luiza - Mãe solo', autorTipo: 'Mãe solo', nota: 5, comentario: 'Meio biruta mas deu para aguentar' },
+      ],
+      advertencias: 0,
+      ultimaAdvertencia: null,
+    },
+    {
+      id: '2',
+      nome: 'Dra. Michelly',
+      nomeCompleto: 'Michelly Souza Andrade',
+      categoria: 'Psicóloga',
+      registro: 'CRP 0614523',
+      avatar: '',
+      status: 'ativo',
+      novo: true,
+      consultas: 38,
+      conteudos: 38,
+      engajamento: 38,
+      satisfacao: 4.6,
+      ultimoAcesso: 'Hoje',
+      detalhes: {
+        dataNascimento: '16/05/1990',
+        idade: 36,
+        email: 'michelly.psi@gmail.com',
+        telefone: '(11) 98159-0183',
+        endereco: 'São Paulo - SP',
+        profissao: 'Psicóloga',
+      },
+      totalConsultas: 38,
+      avaliacoes: [
+        { id: '1', autorNome: 'Ana Luiza - Mãe solo', autorTipo: 'Mãe solo', nota: 5, comentario: 'Meio biruta mas deu para aguentar' },
+        { id: '2', autorNome: 'Ana Luiza - Mãe solo', autorTipo: 'Mãe solo', nota: 5, comentario: 'Meio biruta mas deu para aguentar' },
+      ],
+      advertencias: 1,
+      ultimaAdvertencia: { motivo: 'uso_inadequado', dias: 3, observacoes: '', data: '01/09/2026' },
+    },
+    {
+      id: '3',
+      nome: 'Emily Rodrigues',
+      nomeCompleto: 'Emily Zica Rodrigues',
+      categoria: 'Advogada',
+      registro: 'OAB/SP 412.908',
+      avatar: '',
+      status: 'ativo',
+      novo: false,
+      consultas: 12,
+      conteudos: 9,
+      engajamento: 41,
+      satisfacao: 4.5,
+      ultimoAcesso: 'Hoje',
+      detalhes: {
+        dataNascimento: '16/05/2008',
+        idade: 18,
+        email: 'rodriguesemily1605@gmail.com',
+        telefone: '(11) 98159-0183',
+        endereco: 'São Paulo - SP',
+        profissao: 'Advogada',
+      },
+      totalConsultas: 12,
+      avaliacoes: [
+        { id: '1', autorNome: 'Ana Luiza - Mãe solo', autorTipo: 'Mãe solo', nota: 5, comentario: 'Meio biruta mas deu para aguentar' },
+        { id: '2', autorNome: 'Ana Luiza - Mãe solo', autorTipo: 'Mãe solo', nota: 5, comentario: 'Meio biruta mas deu para aguentar' },
+      ],
+      advertencias: 0,
+      ultimaAdvertencia: null,
+    },
+    {
+      id: '4',
+      nome: 'Dra. Michelly',
+      nomeCompleto: 'Michelly Souza Andrade',
+      categoria: 'Psicóloga',
+      registro: 'CRP 0614523',
+      avatar: '',
+      status: 'inativo',
+      novo: false,
+      consultas: 38,
+      conteudos: 38,
+      engajamento: 38,
+      satisfacao: 4.6,
+      ultimoAcesso: '2 dias atrás',
+      detalhes: {
+        dataNascimento: '16/05/1990',
+        idade: 36,
+        email: 'michelly.psi@gmail.com',
+        telefone: '(11) 98159-0183',
+        endereco: 'São Paulo - SP',
+        profissao: 'Psicóloga',
+      },
+      totalConsultas: 38,
+      avaliacoes: [
+        { id: '1', autorNome: 'Ana Luiza - Mãe solo', autorTipo: 'Mãe solo', nota: 5, comentario: 'Meio biruta mas deu para aguentar' },
+      ],
+      advertencias: 3,
+      ultimaAdvertencia: { motivo: 'inatividade', dias: 7, observacoes: '', data: '03/09/2026' },
+      motivoSuspensao: 'inatividade',
+      observacoesSuspensao: '',
+      suspensoEm: '03/09/2026',
+    },
+  ];
+
+  termoBuscaProfissionaisLista: string = '';
+  filtroStatusProfissionaisLista: 'todos' | 'ativos' | 'inativos' | 'novos' = 'todos';
+  profissionalListaSelecionado: ProfissionalLista | null = null;
+
+  /** Lista de profissionais (sub-aba "Profissionais") já filtrada pela busca e pelo status/segmento selecionado. */
+  get profissionaisListaFiltrados(): ProfissionalLista[] {
+    const termo = this.termoBuscaProfissionaisLista.trim().toLowerCase();
+
+    return this.profissionaisLista.filter(prof => {
+      const bateTermo =
+        !termo ||
+        prof.nome.toLowerCase().includes(termo) ||
+        prof.registro.toLowerCase().includes(termo);
+
+      const bateFiltro =
+        this.filtroStatusProfissionaisLista === 'todos' ||
+        (this.filtroStatusProfissionaisLista === 'ativos' && prof.status === 'ativo') ||
+        (this.filtroStatusProfissionaisLista === 'inativos' && prof.status === 'inativo') ||
+        (this.filtroStatusProfissionaisLista === 'novos' && prof.novo);
+
+      return bateTermo && bateFiltro;
+    });
+  }
+
+  contarProfissionaisLista(filtro: 'ativos' | 'inativos' | 'novos'): number {
+    if (filtro === 'ativos') return this.profissionaisLista.filter(p => p.status === 'ativo').length;
+    if (filtro === 'inativos') return this.profissionaisLista.filter(p => p.status === 'inativo').length;
+    return this.profissionaisLista.filter(p => p.novo).length;
+  }
+
+  filtrarProfissionaisLista(filtro: 'todos' | 'ativos' | 'inativos' | 'novos'): void {
+    this.filtroStatusProfissionaisLista = filtro;
+  }
+
+  /** Média (0 a 5) das avaliações do profissional selecionado na listagem. */
+  get profissionalListaAvaliacaoMedia(): number {
+    const avaliacoes = this.profissionalListaSelecionado?.avaliacoes ?? [];
+    if (!avaliacoes.length) {
+      return 0;
+    }
+    const soma = avaliacoes.reduce((acc, a) => acc + (Number(a.nota) || 0), 0);
+    return Math.round((soma / avaliacoes.length) * 10) / 10;
+  }
+
+  abrirPerfilProfissionalLista(prof: ProfissionalLista): void {
+    this.profissionalListaSelecionado = prof;
+  }
+
+  fecharPerfilProfissionalLista(): void {
+    this.profissionalListaSelecionado = null;
+  }
+
+  // --- Modal "Advertir conta" (profissional) ---
+  profissionalParaAdvertir: ProfissionalLista | null = null;
+  motivoAdvertencia: string = '';
+  diasSuspensaoAdvertencia: number = 3;
+  observacoesAdvertencia: string = '';
+  advertindoConta: boolean = false;
+  erroAdvertencia: string = '';
+
+  readonly diasSuspensaoOpcoes: number[] = [1, 3, 5, 7, 14, 30];
+
+  advertirProfissionalLista(prof: ProfissionalLista): void {
+    this.profissionalParaAdvertir = prof;
+    this.motivoAdvertencia = '';
+    this.diasSuspensaoAdvertencia = 3;
+    this.observacoesAdvertencia = '';
+    this.erroAdvertencia = '';
+  }
+
+  fecharModalAdvertencia(): void {
+    if (this.advertindoConta) {
+      return;
+    }
+    this.profissionalParaAdvertir = null;
+    this.motivoAdvertencia = '';
+    this.observacoesAdvertencia = '';
+    this.erroAdvertencia = '';
+  }
+
+  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
+  async confirmarAdvertencia(): Promise<void> {
+    const prof = this.profissionalParaAdvertir;
+    if (!prof) {
+      return;
+    }
+
+    if (!this.motivoAdvertencia) {
+      this.erroAdvertencia = 'Selecione um motivo para a advertência.';
+      return;
+    }
+
+    this.advertindoConta = true;
+    this.erroAdvertencia = '';
+
+    const observacoes = this.observacoesAdvertencia.trim();
+
+    try {
+      prof.advertencias = (prof.advertencias || 0) + 1;
+      prof.ultimaAdvertencia = {
+        motivo: this.motivoAdvertencia,
+        dias: this.diasSuspensaoAdvertencia,
+        observacoes,
+        data: this.formatarDataHoje(),
+      };
+
+      // Regra do design: na 3ª advertência, a conta é suspensa automaticamente.
+      if (prof.advertencias >= 3) {
+        prof.status = 'inativo';
+        prof.motivoSuspensao = this.motivoAdvertencia;
+        prof.observacoesSuspensao = observacoes;
+        prof.suspensoEm = this.formatarDataHoje();
+      }
+
+      if (this.profissionalListaSelecionado?.id === prof.id) {
+        this.profissionalListaSelecionado = { ...prof };
+      }
+
+      this.profissionalParaAdvertir = null;
+      this.motivoAdvertencia = '';
+      this.observacoesAdvertencia = '';
+    } catch (error) {
+      console.error('Erro ao advertir profissional:', error);
+      this.erroAdvertencia = 'Não foi possível advertir a conta agora. Tente novamente.';
+    } finally {
+      this.advertindoConta = false;
+    }
+  }
+
+  // --- Modal "Suspender conta" (profissional) ---
+  profissionalParaSuspender: ProfissionalLista | null = null;
+  motivoSuspensaoProfissional: string = '';
+  observacoesSuspensaoProfissional: string = '';
+  suspendendoContaProfissional: boolean = false;
+  erroSuspensaoProfissional: string = '';
+
+  suspenderProfissionalLista(prof: ProfissionalLista): void {
+    this.profissionalParaSuspender = prof;
+    this.motivoSuspensaoProfissional = '';
+    this.observacoesSuspensaoProfissional = '';
+    this.erroSuspensaoProfissional = '';
+  }
+
+  fecharModalSuspensaoProfissional(): void {
+    if (this.suspendendoContaProfissional) {
+      return;
+    }
+    this.profissionalParaSuspender = null;
+    this.motivoSuspensaoProfissional = '';
+    this.observacoesSuspensaoProfissional = '';
+    this.erroSuspensaoProfissional = '';
+  }
+
+  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
+  async confirmarSuspensaoProfissional(): Promise<void> {
+    const prof = this.profissionalParaSuspender;
+    if (!prof) {
+      return;
+    }
+
+    if (!this.motivoSuspensaoProfissional) {
+      this.erroSuspensaoProfissional = 'Selecione um motivo para a suspensão.';
+      return;
+    }
+
+    this.suspendendoContaProfissional = true;
+    this.erroSuspensaoProfissional = '';
+
+    const observacoes = this.observacoesSuspensaoProfissional.trim();
+
+    try {
+      prof.status = 'inativo';
+      prof.motivoSuspensao = this.motivoSuspensaoProfissional;
+      prof.observacoesSuspensao = observacoes;
+      prof.suspensoEm = this.formatarDataHoje();
+
+      if (this.profissionalListaSelecionado?.id === prof.id) {
+        this.profissionalListaSelecionado = { ...prof };
+      }
+
+      this.profissionalParaSuspender = null;
+      this.motivoSuspensaoProfissional = '';
+      this.observacoesSuspensaoProfissional = '';
+    } catch (error) {
+      console.error('Erro ao suspender profissional:', error);
+      this.erroSuspensaoProfissional = 'Não foi possível suspender a conta agora. Tente novamente.';
+    } finally {
+      this.suspendendoContaProfissional = false;
+    }
+  }
+
+  // ==========================================================================
+  // SUB-ABA "PARCEIROS" (empresas parceiras) — espelha a sub-aba "Profissionais"
+  // ==========================================================================
+
+  // TODO: ainda não existe uma coleção `parceiros` (empresas) no Firestore.
+  // Dados de exemplo aqui só pra montar a tela; assim que o backend tiver
+  // esse dado, troca por um onSnapshot de verdade.
+  parceirosLista: ParceiroEmpresaLista[] = [
+    {
+      id: '1',
+      nome: 'Enxoval da Nina',
+      nomeCompleto: 'Enxoval da Nina Comércio de Bebês Ltda',
+      categoria: 'Loja de enxoval',
+      cnpj: '12.345.678/0001-90',
+      avatar: '',
+      status: 'ativo',
+      novo: true,
+      eventos: 6,
+      artigos: 14,
+      engajamento: 52,
+      satisfacao: 4.7,
+      ultimoAcesso: 'Hoje',
+      detalhes: {
+        email: 'contato@enxovaldanina.com.br',
+        telefone: '(11) 97654-3210',
+        endereco: 'São Paulo - SP',
+        cnpj: '12.345.678/0001-90',
+        segmento: 'Loja de enxoval',
+      },
+      totalInteracoes: 14,
+      avaliacoes: [
+        { id: '1', autorNome: 'Ana Luiza - Mãe solo', autorTipo: 'Mãe solo', nota: 5, comentario: 'Ótimo atendimento e preços justos' },
+        { id: '2', autorNome: 'Carla Menezes - Mãe solo', autorTipo: 'Mãe solo', nota: 4, comentario: 'Entrega demorou um pouco' },
+      ],
+      advertencias: 0,
+      ultimaAdvertencia: null,
+    },
+    {
+      id: '2',
+      nome: 'Clínica Pequeno Passo',
+      nomeCompleto: 'Clínica Pediátrica Pequeno Passo Ltda',
+      categoria: 'Clínica pediátrica',
+      cnpj: '23.456.789/0001-01',
+      avatar: '',
+      status: 'ativo',
+      novo: true,
+      eventos: 3,
+      artigos: 9,
+      engajamento: 38,
+      satisfacao: 4.6,
+      ultimoAcesso: 'Hoje',
+      detalhes: {
+        email: 'contato@pequenopasso.com.br',
+        telefone: '(11) 98765-4321',
+        endereco: 'São Paulo - SP',
+        cnpj: '23.456.789/0001-01',
+        segmento: 'Clínica pediátrica',
+      },
+      totalInteracoes: 9,
+      avaliacoes: [
+        { id: '1', autorNome: 'Ana Luiza - Mãe solo', autorTipo: 'Mãe solo', nota: 5, comentario: 'Equipe muito atenciosa com as crianças' },
+      ],
+      advertencias: 1,
+      ultimaAdvertencia: { motivo: 'conteudo_improprio', dias: 3, observacoes: '', data: '01/09/2026' },
+    },
+    {
+      id: '3',
+      nome: 'Cursos Mamãe Ativa',
+      nomeCompleto: 'Mamãe Ativa Cursos e Treinamentos EIRELI',
+      categoria: 'Curso online',
+      cnpj: '34.567.890/0001-12',
+      avatar: '',
+      status: 'ativo',
+      novo: false,
+      eventos: 10,
+      artigos: 22,
+      engajamento: 61,
+      satisfacao: 4.8,
+      ultimoAcesso: 'Ontem',
+      detalhes: {
+        email: 'contato@mamaeativa.com.br',
+        telefone: '(11) 91234-5678',
+        endereco: 'São Paulo - SP',
+        cnpj: '34.567.890/0001-12',
+        segmento: 'Curso online',
+      },
+      totalInteracoes: 22,
+      avaliacoes: [
+        { id: '1', autorNome: 'Ana Luiza - Mãe solo', autorTipo: 'Mãe solo', nota: 5, comentario: 'Cursos excelentes e bem didáticos' },
+        { id: '2', autorNome: 'Carla Menezes - Mãe solo', autorTipo: 'Mãe solo', nota: 5, comentario: 'Recomendo demais' },
+      ],
+      advertencias: 0,
+      ultimaAdvertencia: null,
+    },
+    {
+      id: '4',
+      nome: 'Enxoval da Nina',
+      nomeCompleto: 'Enxoval da Nina Comércio de Bebês Ltda',
+      categoria: 'Loja de enxoval',
+      cnpj: '12.345.678/0001-90',
+      avatar: '',
+      status: 'inativo',
+      novo: false,
+      eventos: 6,
+      artigos: 14,
+      engajamento: 52,
+      satisfacao: 4.7,
+      ultimoAcesso: '5 dias atrás',
+      detalhes: {
+        email: 'contato@enxovaldanina.com.br',
+        telefone: '(11) 97654-3210',
+        endereco: 'São Paulo - SP',
+        cnpj: '12.345.678/0001-90',
+        segmento: 'Loja de enxoval',
+      },
+      totalInteracoes: 14,
+      avaliacoes: [
+        { id: '1', autorNome: 'Ana Luiza - Mãe solo', autorTipo: 'Mãe solo', nota: 3, comentario: 'Demorou pra responder no fórum' },
+      ],
+      advertencias: 3,
+      ultimaAdvertencia: { motivo: 'inatividade', dias: 7, observacoes: '', data: '03/09/2026' },
+      motivoSuspensao: 'inatividade',
+      observacoesSuspensao: '',
+      suspensoEm: '03/09/2026',
+    },
+  ];
+
+  termoBuscaParceirosLista: string = '';
+  filtroStatusParceirosLista: 'todos' | 'ativos' | 'inativos' | 'novos' = 'todos';
+  parceiroListaSelecionado: ParceiroEmpresaLista | null = null;
+
+  /** Lista de parceiros (sub-aba "Parceiros") já filtrada pela busca e pelo status selecionado. */
+  get parceirosListaFiltrados(): ParceiroEmpresaLista[] {
+    const termo = this.termoBuscaParceirosLista.trim().toLowerCase();
+
+    return this.parceirosLista.filter(parc => {
+      const bateTermo =
+        !termo ||
+        parc.nome.toLowerCase().includes(termo) ||
+        parc.cnpj.toLowerCase().includes(termo);
+
+      const bateFiltro =
+        this.filtroStatusParceirosLista === 'todos' ||
+        (this.filtroStatusParceirosLista === 'ativos' && parc.status === 'ativo') ||
+        (this.filtroStatusParceirosLista === 'inativos' && parc.status === 'inativo') ||
+        (this.filtroStatusParceirosLista === 'novos' && parc.novo);
+
+      return bateTermo && bateFiltro;
+    });
+  }
+
+  contarParceirosLista(filtro: 'ativos' | 'inativos' | 'novos'): number {
+    if (filtro === 'ativos') return this.parceirosLista.filter(p => p.status === 'ativo').length;
+    if (filtro === 'inativos') return this.parceirosLista.filter(p => p.status === 'inativo').length;
+    return this.parceirosLista.filter(p => p.novo).length;
+  }
+
+  filtrarParceirosLista(filtro: 'todos' | 'ativos' | 'inativos' | 'novos'): void {
+    this.filtroStatusParceirosLista = filtro;
+  }
+
+  /** Média (0 a 5) das avaliações do parceiro selecionado na listagem. */
+  get parceiroListaAvaliacaoMedia(): number {
+    const avaliacoes = this.parceiroListaSelecionado?.avaliacoes ?? [];
+    if (!avaliacoes.length) {
+      return 0;
+    }
+    const soma = avaliacoes.reduce((acc, a) => acc + (Number(a.nota) || 0), 0);
+    return Math.round((soma / avaliacoes.length) * 10) / 10;
+  }
+
+  abrirPerfilParceiroLista(parc: ParceiroEmpresaLista): void {
+    this.parceiroListaSelecionado = parc;
+  }
+
+  fecharPerfilParceiroLista(): void {
+    this.parceiroListaSelecionado = null;
+  }
+
+  // --- Modal "Advertir conta" (parceiro) ---
+  parceiroParaAdvertir: ParceiroEmpresaLista | null = null;
+  motivoAdvertenciaParceiro: string = '';
+  diasSuspensaoAdvertenciaParceiro: number = 3;
+  observacoesAdvertenciaParceiro: string = '';
+  advertindoContaParceiro: boolean = false;
+  erroAdvertenciaParceiro: string = '';
+
+  advertirParceiroLista(parc: ParceiroEmpresaLista): void {
+    this.parceiroParaAdvertir = parc;
+    this.motivoAdvertenciaParceiro = '';
+    this.diasSuspensaoAdvertenciaParceiro = 3;
+    this.observacoesAdvertenciaParceiro = '';
+    this.erroAdvertenciaParceiro = '';
+  }
+
+  fecharModalAdvertenciaParceiro(): void {
+    if (this.advertindoContaParceiro) {
+      return;
+    }
+    this.parceiroParaAdvertir = null;
+    this.motivoAdvertenciaParceiro = '';
+    this.observacoesAdvertenciaParceiro = '';
+    this.erroAdvertenciaParceiro = '';
+  }
+
+  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
+  async confirmarAdvertenciaParceiro(): Promise<void> {
+    const parc = this.parceiroParaAdvertir;
+    if (!parc) {
+      return;
+    }
+
+    if (!this.motivoAdvertenciaParceiro) {
+      this.erroAdvertenciaParceiro = 'Selecione um motivo para a advertência.';
+      return;
+    }
+
+    this.advertindoContaParceiro = true;
+    this.erroAdvertenciaParceiro = '';
+
+    const observacoes = this.observacoesAdvertenciaParceiro.trim();
+
+    try {
+      parc.advertencias = (parc.advertencias || 0) + 1;
+      parc.ultimaAdvertencia = {
+        motivo: this.motivoAdvertenciaParceiro,
+        dias: this.diasSuspensaoAdvertenciaParceiro,
+        observacoes,
+        data: this.formatarDataHoje(),
+      };
+
+      // Regra do design: na 3ª advertência, a conta é suspensa automaticamente.
+      if (parc.advertencias >= 3) {
+        parc.status = 'inativo';
+        parc.motivoSuspensao = this.motivoAdvertenciaParceiro;
+        parc.observacoesSuspensao = observacoes;
+        parc.suspensoEm = this.formatarDataHoje();
+      }
+
+      if (this.parceiroListaSelecionado?.id === parc.id) {
+        this.parceiroListaSelecionado = { ...parc };
+      }
+
+      this.parceiroParaAdvertir = null;
+      this.motivoAdvertenciaParceiro = '';
+      this.observacoesAdvertenciaParceiro = '';
+    } catch (error) {
+      console.error('Erro ao advertir parceiro:', error);
+      this.erroAdvertenciaParceiro = 'Não foi possível advertir a conta agora. Tente novamente.';
+    } finally {
+      this.advertindoContaParceiro = false;
+    }
+  }
+
+  // --- Modal "Suspender conta" (parceiro) ---
+  parceiroParaSuspender: ParceiroEmpresaLista | null = null;
+  motivoSuspensaoParceiro: string = '';
+  observacoesSuspensaoParceiro: string = '';
+  suspendendoContaParceiro: boolean = false;
+  erroSuspensaoParceiro: string = '';
+
+  suspenderParceiroLista(parc: ParceiroEmpresaLista): void {
+    this.parceiroParaSuspender = parc;
+    this.motivoSuspensaoParceiro = '';
+    this.observacoesSuspensaoParceiro = '';
+    this.erroSuspensaoParceiro = '';
+  }
+
+  fecharModalSuspensaoParceiro(): void {
+    if (this.suspendendoContaParceiro) {
+      return;
+    }
+    this.parceiroParaSuspender = null;
+    this.motivoSuspensaoParceiro = '';
+    this.observacoesSuspensaoParceiro = '';
+    this.erroSuspensaoParceiro = '';
+  }
+
+  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
+  async confirmarSuspensaoParceiro(): Promise<void> {
+    const parc = this.parceiroParaSuspender;
+    if (!parc) {
+      return;
+    }
+
+    if (!this.motivoSuspensaoParceiro) {
+      this.erroSuspensaoParceiro = 'Selecione um motivo para a suspensão.';
+      return;
+    }
+
+    this.suspendendoContaParceiro = true;
+    this.erroSuspensaoParceiro = '';
+
+    const observacoes = this.observacoesSuspensaoParceiro.trim();
+
+    try {
+      parc.status = 'inativo';
+      parc.motivoSuspensao = this.motivoSuspensaoParceiro;
+      parc.observacoesSuspensao = observacoes;
+      parc.suspensoEm = this.formatarDataHoje();
+
+      if (this.parceiroListaSelecionado?.id === parc.id) {
+        this.parceiroListaSelecionado = { ...parc };
+      }
+
+      this.parceiroParaSuspender = null;
+      this.motivoSuspensaoParceiro = '';
+      this.observacoesSuspensaoParceiro = '';
+    } catch (error) {
+      console.error('Erro ao suspender parceiro:', error);
+      this.erroSuspensaoParceiro = 'Não foi possível suspender a conta agora. Tente novamente.';
+    } finally {
+      this.suspendendoContaParceiro = false;
+    }
+  }
 
   solicitacoes: ProfissionalData[] = [];
   usuarios: UsuarioData[] = [];
@@ -155,6 +1288,31 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   maePerfilCarregando: boolean = false;
   maeTotalInteracoes: number = 0;
   maeAvaliacoes: AvaliacaoMae[] = [];
+
+  // --- Modal "Suspender conta" ---
+  maeParaSuspender: MaeData | null = null;
+  motivoSuspensao: string = '';
+  observacoesSuspensao: string = '';
+  suspendendoConta: boolean = false;
+  erroSuspensao: string = '';
+
+  readonly motivosSuspensao: { valor: string; texto: string }[] = [
+    { valor: 'uso_inadequado', texto: 'Uso inadequado da plataforma' },
+    { valor: 'conteudo_improprio', texto: 'Conteúdo impróprio' },
+    { valor: 'denuncia', texto: 'Denúncia de outros usuários' },
+    { valor: 'inatividade', texto: 'Inatividade prolongada' },
+    { valor: 'outro', texto: 'Outro' },
+  ];
+
+  // --- Modal "Reativar conta" ---
+  maeParaReativar: MaeData | null = null;
+  observacoesReativacao: string = '';
+  reativandoConta: boolean = false;
+  erroReativacao: string = '';
+
+  // --- Paginação da tabela de mães ---
+  paginaMaeAtual: number = 1;
+  itensPorPaginaMae: number = 8;
 
   get profissionaisAtivos(): number {
     return this.psicologosAtivos + this.advogadosAtivos;
@@ -183,6 +1341,38 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  /** Total de páginas para a lista filtrada de mães. */
+  get totalPaginasMae(): number {
+    return Math.max(1, Math.ceil(this.maesFiltradas.length / this.itensPorPaginaMae));
+  }
+
+  /** Fatia da lista filtrada correspondente à página atual. */
+  get maesPaginadas(): MaeData[] {
+    if (this.paginaMaeAtual > this.totalPaginasMae) {
+      this.paginaMaeAtual = this.totalPaginasMae;
+    }
+    const inicio = (this.paginaMaeAtual - 1) * this.itensPorPaginaMae;
+    return this.maesFiltradas.slice(inicio, inicio + this.itensPorPaginaMae);
+  }
+
+  irParaPaginaMae(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginasMae) {
+      return;
+    }
+    this.paginaMaeAtual = pagina;
+  }
+
+  /** Gera as iniciais do nome para usar como avatar quando não há foto. */
+  iniciaisNome(nome: string): string {
+    if (!nome) {
+      return '?';
+    }
+    const partes = nome.trim().split(/\s+/);
+    const primeira = partes[0]?.[0] || '';
+    const ultima = partes.length > 1 ? partes[partes.length - 1][0] : '';
+    return (primeira + ultima).toUpperCase();
+  }
+
   /** Média (0 a 5) das avaliações carregadas para a mãe selecionada. */
   get maeAvaliacaoMedia(): number {
     if (!this.maeAvaliacoes.length) {
@@ -202,6 +1392,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.atualizarDashboard();
+    this.atualizarGraficoDistribuicaoCreditos();
   }
 
   ngOnDestroy(): void {
@@ -209,6 +1400,10 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
 
     if (this.atividadeChart) {
       this.atividadeChart.destroy();
+    }
+
+    if (this.creditosDonutChart) {
+      this.creditosDonutChart.destroy();
     }
   }
 
@@ -689,7 +1884,7 @@ async carregarUsuarios(): Promise<void> {
           id: docSnap.id,
           nome: data['nome'] || 'Sem nome',
           email: data['email'] || '-',
-          avatar: data['avatar'] || data['fotoURL'] || './img/account_icon.png',
+          avatar: data['avatar'] || data['fotoURL'] || '',
           status: data['status'] || 'ativo',
           criadoEm: data['criadoEm'] || null,
           creditos: data['creditos'] ?? 0,
@@ -708,6 +1903,11 @@ async carregarUsuarios(): Promise<void> {
 
   filtrarStatusMae(filtro: 'todas' | 'ativas' | 'inativas'): void {
     this.filtroStatusMae = filtro;
+    this.paginaMaeAtual = 1;
+  }
+
+  onBuscaMaeChange(): void {
+    this.paginaMaeAtual = 1;
   }
 
   /** Abre o painel "Perfil da mãe" e busca os dados complementares (interações/avaliações). */
@@ -742,27 +1942,111 @@ async carregarUsuarios(): Promise<void> {
     this.maeSelecionada = null;
   }
 
-  /** Suspende ou reativa a mãe (persistido em usuarios/{id}.status). */
-  async alternarStatusMae(mae: MaeData): Promise<void> {
-    const novoStatus = mae.status === 'ativo' ? 'inativo' : 'ativo';
-    const acao = novoStatus === 'inativo' ? 'suspender' : 'reativar';
+  /** Suspende ou reativa a mãe (persistido em usuarios/{id}.status). Mantido como fallback interno. */
+  private async atualizarStatusMae(mae: MaeData, novoStatus: 'ativo' | 'inativo', extras: Record<string, any> = {}): Promise<void> {
+    await updateDoc(doc(db, 'usuarios', mae.id), { status: novoStatus, ...extras });
+    mae.status = novoStatus;
+    if (this.maeSelecionada?.id === mae.id) {
+      this.maeSelecionada = { ...this.maeSelecionada, status: novoStatus, ...extras };
+    }
+  }
 
-    const confirmar = window.confirm(`Tem certeza que deseja ${acao} ${mae.nome}?`);
-    if (!confirmar) {
+  /** Abre o modal "Suspender conta" para a mãe selecionada na tabela. */
+  abrirModalSuspensao(mae: MaeData): void {
+    this.maeParaSuspender = mae;
+    this.motivoSuspensao = '';
+    this.observacoesSuspensao = '';
+    this.erroSuspensao = '';
+  }
+
+  /** Fecha o modal "Suspender conta" sem alterar nada (ignorado enquanto salva). */
+  fecharModalSuspensao(): void {
+    if (this.suspendendoConta) {
+      return;
+    }
+    this.maeParaSuspender = null;
+    this.motivoSuspensao = '';
+    this.observacoesSuspensao = '';
+    this.erroSuspensao = '';
+  }
+
+  /** Confirma a suspensão: valida o motivo e persiste em usuarios/{id}. */
+  async confirmarSuspensao(): Promise<void> {
+    const mae = this.maeParaSuspender;
+    if (!mae) {
       return;
     }
 
+    if (!this.motivoSuspensao) {
+      this.erroSuspensao = 'Selecione um motivo para a suspensão.';
+      return;
+    }
+
+    this.suspendendoConta = true;
+    this.erroSuspensao = '';
+
+    const observacoes = this.observacoesSuspensao.trim();
+
     try {
-      await updateDoc(doc(db, 'usuarios', mae.id), { status: novoStatus });
+      await this.atualizarStatusMae(mae, 'inativo', {
+        motivoSuspensao: this.motivoSuspensao,
+        observacoesSuspensao: observacoes,
+        suspensoEm: serverTimestamp(),
+      });
 
-      mae.status = novoStatus;
-
-      if (this.maeSelecionada?.id === mae.id) {
-        this.maeSelecionada = { ...this.maeSelecionada, status: novoStatus };
-      }
+      this.maeParaSuspender = null;
+      this.motivoSuspensao = '';
+      this.observacoesSuspensao = '';
     } catch (error) {
-      console.error('Erro ao atualizar status da mãe:', error);
-      alert('Não foi possível atualizar o status agora. Tente novamente.');
+      console.error('Erro ao suspender mãe:', error);
+      this.erroSuspensao = 'Não foi possível suspender a conta agora. Tente novamente.';
+    } finally {
+      this.suspendendoConta = false;
+    }
+  }
+
+  /** Abre o modal "Reativar conta" para a mãe selecionada na tabela. */
+  abrirModalReativacao(mae: MaeData): void {
+    this.maeParaReativar = mae;
+    this.observacoesReativacao = '';
+    this.erroReativacao = '';
+  }
+
+  /** Fecha o modal "Reativar conta" sem alterar nada (ignorado enquanto salva). */
+  fecharModalReativacao(): void {
+    if (this.reativandoConta) {
+      return;
+    }
+    this.maeParaReativar = null;
+    this.observacoesReativacao = '';
+    this.erroReativacao = '';
+  }
+
+  /** Confirma a reativação: persiste em usuarios/{id}. */
+  async confirmarReativacao(): Promise<void> {
+    const mae = this.maeParaReativar;
+    if (!mae) {
+      return;
+    }
+
+    this.reativandoConta = true;
+    this.erroReativacao = '';
+
+    const observacoes = this.observacoesReativacao.trim();
+
+    try {
+      await this.atualizarStatusMae(mae, 'ativo', {
+        observacoesReativacao: observacoes,
+        reativadoEm: serverTimestamp(),
+      });
+
+      this.maeParaReativar = null;
+      this.observacoesReativacao = '';
+    } catch (error) {
+      console.error('Erro ao reativar mãe:', error);
+      this.erroReativacao = 'Não foi possível reativar a conta agora. Tente novamente.';
+    } finally {
+      this.reativandoConta = false;
     }
   }
 

@@ -135,6 +135,7 @@ body[data-theme="dark"] {
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+button, input, select, textarea { font-family: inherit; }
 body { font-family: var(--font-body); background-color: var(--bg-color); color: var(--text-dark); line-height: 1.6; overflow-x: hidden; transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease; }
 .container {
     width: 100%;
@@ -4738,7 +4739,7 @@ body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:h
 
 @font-face {
     font-family: 'Nunito';
-    src: url("/assets/docs/Nunito.ttf") format("truetype");
+    src: url("/fonts/Nunito.ttf") format("truetype");
 }
 
 body {
