@@ -1,13 +1,10 @@
 # 💜 Elomaterno
 
 
-<p align="center">
-  🌷 Acolhimento • 🤝 Conexão • 🧠 Apoio • 💬 Comunicação
-</p>
 
 ---
 
-## 🌷 Sobre o projeto
+## Sobre o projeto
 
 O **Elomaterno** é uma plataforma digital criada para oferecer uma **rede de apoio para mães solo**, facilitando o acesso a acolhimento, informação, orientação e profissionais especializados.
 
