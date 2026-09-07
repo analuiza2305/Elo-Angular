@@ -30,7 +30,7 @@ export class AuthFormComponent {
   email = '';
   senha = '';
   senha2 = '';
-  tipoDocumento = ''; 
+  tipoDocumento = '';
   numeroDocumento = '';
   termos = false;
 
@@ -219,7 +219,7 @@ export class AuthFormComponent {
           authEmail = `${this.tipoDocumento}_${this.normalizarDocumento(this.numeroDocumento)}@elomaterno.profissional`;
           const colecao = this.tipoDocumento === 'oab' ? 'advogados' : this.tipoDocumento === 'crp' ? 'psicologos' : 'parceiros';
           const campoDoc = this.tipoDocumento === 'oab' ? 'oab' : this.tipoDocumento === 'crp' ? 'crp' : 'cnpj';
-          
+
           const existentes = await getDocs(query(collection(db, colecao), where(campoDoc, '==', this.numeroDocumento)));
           if (!existentes.empty) {
             this.errorMessage.set(`Já existe um cadastro com esse ${this.getDocumentoLabel()}.`);
@@ -310,11 +310,11 @@ export class AuthFormComponent {
 
         const rota = await this.determinarRotaAposLogin(cred.user.uid, '');
         this.router.navigate([rota]);
-        
+
       } else {
         const authEmailNovo = `${this.tipoDocumento}_${this.normalizarDocumento(this.numeroDocumento)}@elomaterno.profissional`;
         let cred: UserCredential;
-        
+
         try {
           cred = await signInWithEmailAndPassword(auth, authEmailNovo, this.senha);
         } catch (erroMetodoNovo: any) {

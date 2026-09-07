@@ -254,6 +254,147 @@ body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:h
     .mobile-menu-item i { font-size: 1.1rem; }
 }
 
+
+/* =========================================
+   HEADER — PAINEL DO ADMINISTRADOR
+   (classes próprias, isoladas do resto do header)
+========================================= */
+.adm-header {
+  width: 100%;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-light);
+  font-family: 'Nunito', sans-serif;
+}
+
+.adm-header-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.adm-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.adm-sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--muted-bg);
+  color: var(--primary-color-dark);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.adm-sidebar-toggle:hover {
+  background: var(--menu-btn-hover, var(--muted-bg));
+}
+
+.adm-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.adm-logo img {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+.adm-logo span {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--primary-color-dark);
+}
+
+.adm-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.adm-search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--muted-bg);
+  border-radius: 999px;
+  padding: 0 16px;
+  height: 40px;
+  width: 240px;
+  transition: width 0.2s ease;
+}
+
+.adm-search-box i {
+  color: var(--muted-accent);
+  font-size: 0.8rem;
+}
+
+.adm-search-box input {
+  border: none;
+  outline: none;
+  background: transparent;
+  flex: 1;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text-color);
+}
+
+.adm-search-box input::placeholder {
+  color: var(--muted-accent);
+}
+
+.adm-icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: none;
+  background: var(--muted-bg);
+  color: var(--primary-color-dark);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.adm-icon-btn:hover {
+  transform: translateY(-2px);
+  background: var(--menu-btn-hover, var(--muted-bg));
+}
+
+@media (max-width: 768px) {
+  .adm-header-container {
+    padding: 12px 16px;
+  }
+
+  .adm-sidebar-toggle {
+    display: flex;
+  }
+
+  .adm-search-box {
+    display: none;
+  }
+}
+
 /* =========================================================
    HEADER DA ÁREA ADMINISTRATIVA
    ========================================================= */
@@ -442,6 +583,7 @@ body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:h
     display: none;
   }
 }
+
 /* Estilo do Menu de Acessibilidade Dropdown com Animação */
 #accessibility-menu {
   position: absolute;

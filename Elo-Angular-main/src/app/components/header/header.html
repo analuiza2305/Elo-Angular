@@ -126,6 +126,61 @@
   </header>
 }
 
+
+<!-- 2. PAINEL DO ADMINISTRADOR -->
+@else if (tipo === 'adm') {
+  <header class="adm-header">
+    <div class="adm-header-container">
+      <div class="adm-header-left">
+        <!-- Só aparece no mobile, controla a sidebar do admin -->
+        <button type="button" class="adm-sidebar-toggle" aria-label="Abrir menu" (click)="toggleMenuAdm()">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <a routerLink="/admin" class="adm-logo" aria-label="Ir para o painel do administrador">
+          <img src="./img/logo_icon.png" alt="Ícone EloMaterno">
+          <span>elomaterno</span>
+        </a>
+      </div>
+
+      <div class="adm-header-right">
+        <div class="adm-search-box">
+          <i class="fa-solid fa-search"></i>
+          <input type="text" placeholder="Buscar no painel...">
+        </div>
+
+        <button type="button" class="adm-icon-btn" title="Alternar tema" aria-label="Alternar tema" (click)="toggleTheme()">
+          <i class="fa-solid" [class.fa-moon]="!isDarkMode" [class.fa-sun]="isDarkMode"></i>
+        </button>
+
+        <div class="accessibility-selector">
+          <button type="button" class="adm-icon-btn" aria-label="Opções de acessibilidade" (click)="toggleAccMenu($event)">
+            <i class="fa fa-universal-access"></i>
+          </button>
+          <ul id="accessibility-menu" [class.hidden]="!isAccMenuOpen" (click)="$event.stopPropagation()">
+            <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
+            <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
+            <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
+            <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
+            <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
+            <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
+            <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
+            <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
+            <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
+            <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+          </ul>
+        </div>
+
+        <button type="button" class="adm-icon-btn" title="Notificações" aria-label="Notificações">
+          <i class="fa-solid fa-bell"></i>
+          <!-- TODO: ligar a um serviço real de notificações -->
+        </button>
+      </div>
+    </div>
+  </header>
+} 
+
+
 <!-- 2. HOME MÃE LOGADA -->
 @else if (tipo === 'mae') {
   <header class="top-header">
