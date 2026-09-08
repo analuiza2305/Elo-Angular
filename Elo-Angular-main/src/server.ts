@@ -1,3 +1,5 @@
+import './polyfills.server';
+
 import { AngularAppEngine, createRequestHandler } from '@angular/ssr';
 import { getAllowedHosts, getContext, getTrustProxyHeaders } from '@netlify/angular-runtime/app-engine.js';
 
