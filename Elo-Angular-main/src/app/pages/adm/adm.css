@@ -2336,3 +2336,225 @@ chat mandou fazer isso só colar*/
   background: rgba(63, 178, 143, 0.14);
   color: #2f9e6e;
 }
+
+/* =========================================================
+   ABA "FÓRUM" — moderação dos posts reais
+   ========================================================= */
+
+.forum-search-box {
+  width: 90%;
+  margin-bottom: 16px;
+}
+
+.forum-filtro-cards {
+  width: 90%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.forum-filtro-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--card-bg);
+  border: 2px solid transparent;
+  border-radius: var(--radius-card);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.forum-filtro-card:hover {
+  transform: translateY(-2px);
+}
+
+.forum-filtro-card.active {
+  border-color: var(--secondary-color);
+}
+
+.forum-filtro-icone {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  color: #ffffff;
+}
+
+.forum-filtro-icone.icone-neutro  { background: var(--secondary-color); }
+.forum-filtro-icone.icone-laranja { background: #e08a3c; }
+.forum-filtro-icone.icone-perigo  { background: #b23b3b; }
+.forum-filtro-icone.icone-alerta  { background: #d9a441; }
+
+.forum-filtro-texto {
+  display: flex;
+  flex-direction: column;
+}
+
+.forum-filtro-texto strong {
+  color: var(--primary-color-dark);
+  font-size: 0.92rem;
+}
+
+.forum-filtro-texto small {
+  color: var(--text-color2);
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+/* ---- lista de posts ---- */
+
+.forum-post-lista {
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 24px;
+}
+
+.forum-post-vazio {
+  color: var(--text-color2);
+  text-align: center;
+  padding: 24px;
+}
+
+.forum-post-card {
+  width: 100%;
+}
+
+.forum-post-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.forum-post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--muted-bg);
+}
+
+.forum-post-autor {
+  display: flex;
+  flex-direction: column;
+  margin-right: auto;
+}
+
+.forum-post-autor strong {
+  color: var(--primary-color-dark);
+  font-size: 0.92rem;
+}
+
+.forum-post-autor small {
+  color: var(--text-color2);
+  font-size: 0.76rem;
+}
+
+.forum-post-conteudo {
+  color: var(--text-color);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+
+.forum-post-motivo {
+  font-size: 0.85rem;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 4px;
+}
+
+.forum-post-motivo strong {
+  font-weight: 800;
+  margin-right: 4px;
+}
+
+.forum-post-motivo.motivo-perigo {
+  background: #ffd0cf;
+  color: #8a1f1f;
+}
+
+.forum-post-motivo.motivo-alerta {
+  background: #ffe8a1;
+  color: #8a6d00;
+}
+
+.forum-btn-advertir,
+.forum-btn-remover {
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  color: #fff;
+  border: none;
+}
+
+.forum-btn-advertir {
+  background: #d9a441;
+}
+
+.forum-btn-remover {
+  background: #e0524f;
+}
+
+.forum-btn-advertir:hover,
+.forum-btn-remover:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* ---- badges de status do post ---- */
+
+.forum-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.forum-badge.badge-perigo {
+  background: #ffd0cf;
+  color: #8a1f1f;
+}
+
+.forum-badge.badge-alerta {
+  background: #ffe8a1;
+  color: #8a6d00;
+}
+
+.forum-badge.badge-laranja {
+  background: #ffdcb8;
+  color: #8a4d00;
+}
+
+/* ---- preview do post dentro dos modais de advertência/remoção ---- */
+
+.forum-modal-preview {
+  box-shadow: none;
+  border: 1px solid var(--parc-border);
+  margin-bottom: 20px;
+  padding: 16px 18px;
+}
+
+@media (max-width: 768px) {
+  .forum-search-box,
+  .forum-filtro-cards,
+  .forum-post-lista {
+    width: 100%;
+  }
+}

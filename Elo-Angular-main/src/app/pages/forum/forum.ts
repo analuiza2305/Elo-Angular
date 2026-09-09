@@ -6,8 +6,8 @@ import { HeaderComponent } from '../../components/header/header';
 import { FooterComponent } from '../../components/footer/footer';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { 
-  collection, query, orderBy, limit, getDocs, doc, getDoc, addDoc, serverTimestamp, updateDoc, deleteDoc, setDoc, increment, getCountFromServer 
+import {
+  collection, query, orderBy, limit, getDocs, doc, getDoc, addDoc, serverTimestamp, updateDoc, deleteDoc, setDoc, increment, getCountFromServer
 } from 'firebase/firestore';
 
 @Component({
@@ -84,14 +84,14 @@ export class ForumComponent implements OnInit {
         return;
       }
       const user = this.currentUser();
-      
+
       const postsList = await Promise.all(snapshot.docs.map(async (docSnap) => {
         const p = docSnap.data();
         const postId = docSnap.id;
-                 
+
         let autorNome = p['autorNome'] || 'Usuária';
         let autorFoto = p['autorFoto'] || './img/account_icon.png';
-                 
+
         if (p['autorId'] && p['autorId'] !== 'anonimo') {
           try {
             const userSnap = await getDoc(doc(db, 'usuarios', p['autorId']));
@@ -134,7 +134,11 @@ export class ForumComponent implements OnInit {
           totalComentarios
         };
       }));
-      this.posts.set(postsList);
+
+      // Esconde do fórum público os posts removidos pela moderação do admin
+      const postsVisiveis = postsList.filter((p: any) => !p.moderacao?.removido);
+
+      this.posts.set(postsVisiveis);
     } catch (err) {
       console.error('Erro ao carregar posts:', err);
     } finally {
@@ -147,18 +151,18 @@ export class ForumComponent implements OnInit {
     this.showNewPostModal.set(true);
   }
 
-  fecharModalNovoPost() { 
-    this.showNewPostModal.set(false); 
+  fecharModalNovoPost() {
+    this.showNewPostModal.set(false);
   }
 
   async criarPostagem() {
     const user = this.currentUser();
     if (!user || !this.novoPostForm.titulo.trim() || !this.novoPostForm.conteudo.trim()) return;
-    
+
     let autorId = user.uid;
     let autorNome = user.displayName || 'Usuária';
     let autorFoto = './img/account_icon.png';
-    
+
     if (this.novoPostForm.anonimo) {
       autorId = 'anonimo';
       autorNome = 'Anônimo';

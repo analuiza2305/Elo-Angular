@@ -8,6 +8,7 @@ import {
   getCountFromServer,
   query,
   where,
+  orderBy,
   updateDoc,
   deleteDoc,
   doc,
@@ -103,6 +104,37 @@ interface AbaEmConstrucao {
   titulo: string;
   subtitulo: string;
 }
+
+/**
+ * Moderação aplicada a um post do fórum pelo admin. Fica salva dentro do
+ * próprio documento em `posts/{id}` (campo `moderacao`), então o fórum
+ * público (src/app/pages/forum/forum.ts) consegue ler e esconder os posts
+ * removidos sem precisar de nenhuma coleção nova.
+ */
+interface PostModeracao {
+  advertido?: boolean;
+  motivoAdvertencia?: string;
+  observacoesAdvertencia?: string;
+  dataAdvertencia?: any;
+  denuncias?: number;
+  removido?: boolean;
+  motivoRemocao?: string;
+  dataRemocao?: any;
+}
+
+/** Post real da coleção `posts` (a mesma usada no fórum público), visto pelo admin. */
+interface PostForum {
+  id: string;
+  titulo: string;
+  conteudo: string;
+  autorNome: string;
+  autorFoto: string;
+  categoria: string;
+  dataFormatada: string;
+  moderacao?: PostModeracao;
+}
+
+type FiltroPostsForum = 'todos' | 'denunciados' | 'removidos' | 'advertidos';
 
 /** Configuração de custo em créditos de uma ação da plataforma (sub-página "Créditos"). */
 interface AcaoCredito {
@@ -306,7 +338,6 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
 
   // Abas do novo menu que ainda não têm tela própria implementada
   abasEmConstrucao: AbaEmConstrucao[] = [
-    { chave: 'forum', titulo: 'Fórum', subtitulo: 'Modere as discussões e publicações da comunidade.' },
     { chave: 'moderacao', titulo: 'Moderação', subtitulo: 'Modere o conteúdo publicado na plataforma.' },
     { chave: 'relatorios', titulo: 'Relatórios', subtitulo: 'Extraia relatórios detalhados sobre o uso da plataforma.' },
     { chave: 'configuracoes', titulo: 'Configurações', subtitulo: 'Ajuste as preferências gerais do painel administrativo.' },
@@ -1388,6 +1419,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.escutarMudancas();
     this.escutarAdminLogado();
+    this.carregarPostsForum();
   }
 
   ngAfterViewInit(): void {
@@ -2105,5 +2137,221 @@ async carregarUsuarios(): Promise<void> {
   estrelas(nota: number): boolean[] {
     const arredondado = Math.round(nota || 0);
     return Array.from({ length: 5 }, (_, i) => i < arredondado);
+  }
+
+  // ==========================================================================
+  // ABA "FÓRUM" — moderação dos posts reais da coleção `posts`
+  // (mesma coleção que src/app/pages/forum/forum.ts usa no fórum público)
+  // ==========================================================================
+
+  postsForum: PostForum[] = [];
+  carregandoPostsForum: boolean = true;
+  buscaPostsForum: string = '';
+  filtroPostsForum: FiltroPostsForum = 'todos';
+
+  readonly motivosAdvertenciaPost: string[] = [
+    'Divulgação de conteúdo (spam)',
+    'Conteúdo impróprio',
+    'Discurso de ódio ou preconceito',
+    'Assédio ou ameaça',
+    'Informação falsa (desinformação)',
+    'Outro'
+  ];
+
+  /** Escuta em tempo real a coleção 'posts' — os posts que aparecem aqui são os reais do fórum. */
+  carregarPostsForum(): void {
+    this.carregandoPostsForum = true;
+
+    const q = query(collection(db, 'posts'), orderBy('data', 'desc'));
+
+    const unsub = onSnapshot(
+      q,
+      (snapshot) => {
+        this.postsForum = snapshot.docs.map((docSnap) => {
+          const p = docSnap.data() as any;
+
+          return {
+            id: docSnap.id,
+            titulo: p['titulo'] || '',
+            conteudo: p['conteudo'] || '',
+            autorNome: p['autorNome'] || 'Usuária',
+            autorFoto: p['autorFoto'] || './img/account_icon.png',
+            categoria: p['categoria'] || '',
+            dataFormatada: p['data']?.toDate
+              ? p['data'].toDate().toLocaleString('pt-BR')
+              : 'Agora',
+            moderacao: p['moderacao'] || {}
+          } as PostForum;
+        });
+
+        this.carregandoPostsForum = false;
+      },
+      (erro) => {
+        console.error('Erro ao carregar posts do fórum:', erro);
+        this.carregandoPostsForum = false;
+      }
+    );
+
+    this.unsubscribes.push(unsub);
+  }
+
+  get contagemPostsForum() {
+    const posts = this.postsForum;
+
+    return {
+      todos: posts.length,
+      denunciados: posts.filter(
+        p => (p.moderacao?.denuncias || 0) > 0 && !p.moderacao?.removido
+      ).length,
+      removidos: posts.filter(p => !!p.moderacao?.removido).length,
+      advertidos: posts.filter(
+        p => !!p.moderacao?.advertido && !p.moderacao?.removido
+      ).length
+    };
+  }
+
+  get postsFiltradosForum(): PostForum[] {
+    const termo = this.buscaPostsForum.toLowerCase().trim();
+
+    return this.postsForum.filter((p) => {
+      const matchBusca =
+        !termo ||
+        p.titulo?.toLowerCase().includes(termo) ||
+        p.conteudo?.toLowerCase().includes(termo) ||
+        p.autorNome?.toLowerCase().includes(termo);
+
+      if (!matchBusca) {
+        return false;
+      }
+
+      switch (this.filtroPostsForum) {
+        case 'denunciados':
+          return (p.moderacao?.denuncias || 0) > 0 && !p.moderacao?.removido;
+        case 'removidos':
+          return !!p.moderacao?.removido;
+        case 'advertidos':
+          return !!p.moderacao?.advertido && !p.moderacao?.removido;
+        default:
+          return true;
+      }
+    });
+  }
+
+  filtrarPostsForum(filtro: FiltroPostsForum): void {
+    this.filtroPostsForum = filtro;
+  }
+
+  // --- Modal "Aplicar advertência" (post do fórum) ---
+  postParaAdvertir: PostForum | null = null;
+  motivoAdvertenciaPost: string = '';
+  observacoesAdvertenciaPost: string = '';
+  advertindoPost: boolean = false;
+  erroAdvertenciaPost: string = '';
+
+  abrirModalAdvertirPost(post: PostForum): void {
+    this.postParaAdvertir = post;
+    this.motivoAdvertenciaPost = '';
+    this.observacoesAdvertenciaPost = '';
+    this.erroAdvertenciaPost = '';
+  }
+
+  fecharModalAdvertirPost(): void {
+    if (this.advertindoPost) {
+      return;
+    }
+    this.postParaAdvertir = null;
+    this.motivoAdvertenciaPost = '';
+    this.observacoesAdvertenciaPost = '';
+    this.erroAdvertenciaPost = '';
+  }
+
+  async confirmarAdvertenciaPost(): Promise<void> {
+    const post = this.postParaAdvertir;
+    if (!post) {
+      return;
+    }
+
+    if (!this.motivoAdvertenciaPost) {
+      this.erroAdvertenciaPost = 'Selecione um motivo para a advertência.';
+      return;
+    }
+
+    this.advertindoPost = true;
+    this.erroAdvertenciaPost = '';
+
+    try {
+      await updateDoc(doc(db, 'posts', post.id), {
+        'moderacao.advertido': true,
+        'moderacao.motivoAdvertencia': this.motivoAdvertenciaPost,
+        'moderacao.observacoesAdvertencia': this.observacoesAdvertenciaPost.trim(),
+        'moderacao.dataAdvertencia': serverTimestamp()
+      });
+
+      this.postParaAdvertir = null;
+      this.motivoAdvertenciaPost = '';
+      this.observacoesAdvertenciaPost = '';
+    } catch (error) {
+      console.error('Erro ao aplicar advertência no post:', error);
+      this.erroAdvertenciaPost = 'Não foi possível aplicar a advertência agora. Tente novamente.';
+    } finally {
+      this.advertindoPost = false;
+    }
+  }
+
+  // --- Modal "Remover post" (fórum) ---
+  postParaRemover: PostForum | null = null;
+  motivoRemocaoPost: string = '';
+  removendoPost: boolean = false;
+  erroRemocaoPost: string = '';
+
+  abrirModalRemoverPost(post: PostForum): void {
+    this.postParaRemover = post;
+    this.motivoRemocaoPost = '';
+    this.erroRemocaoPost = '';
+  }
+
+  fecharModalRemoverPost(): void {
+    if (this.removendoPost) {
+      return;
+    }
+    this.postParaRemover = null;
+    this.motivoRemocaoPost = '';
+    this.erroRemocaoPost = '';
+  }
+
+  /**
+   * Remoção lógica (soft delete): o post some do fórum público — ver o
+   * filtro em forum.ts — mas continua salvo com o motivo, pra ficar no
+   * histórico de moderação (igual ao protótipo do Figma).
+   */
+  async confirmarRemocaoPost(): Promise<void> {
+    const post = this.postParaRemover;
+    if (!post) {
+      return;
+    }
+
+    if (!this.motivoRemocaoPost.trim()) {
+      this.erroRemocaoPost = 'Descreva o motivo da remoção.';
+      return;
+    }
+
+    this.removendoPost = true;
+    this.erroRemocaoPost = '';
+
+    try {
+      await updateDoc(doc(db, 'posts', post.id), {
+        'moderacao.removido': true,
+        'moderacao.motivoRemocao': this.motivoRemocaoPost.trim(),
+        'moderacao.dataRemocao': serverTimestamp()
+      });
+
+      this.postParaRemover = null;
+      this.motivoRemocaoPost = '';
+    } catch (error) {
+      console.error('Erro ao remover post:', error);
+      this.erroRemocaoPost = 'Não foi possível remover o post agora. Tente novamente.';
+    } finally {
+      this.removendoPost = false;
+    }
   }
 }

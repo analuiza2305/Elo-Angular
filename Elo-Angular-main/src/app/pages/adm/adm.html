@@ -1717,6 +1717,119 @@
   </section>
 
 
+  <!-- FÓRUM (MODERAÇÃO DOS POSTS REAIS) -->
+  <section class="content" id="forum" [class.hidden]="abaAtiva !== 'forum'">
+    <h2 class="page-title">Moderação do Fórum</h2>
+    <p class="page-subtitle">Acompanhe as publicações reais do fórum e aplique advertências ou remova conteúdos que violem as diretrizes da comunidade.</p>
+
+    <div class="mae-search-box forum-search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input
+        type="text"
+        placeholder="Pesquisar no fórum..."
+        [(ngModel)]="buscaPostsForum">
+    </div>
+
+    <div class="forum-filtro-cards">
+      <button
+        type="button"
+        class="forum-filtro-card"
+        [class.active]="filtroPostsForum === 'todos'"
+        (click)="filtrarPostsForum('todos')">
+        <span class="forum-filtro-icone icone-neutro"><i class="fa-solid fa-comments"></i></span>
+        <span class="forum-filtro-texto">
+          <strong>Todos os posts</strong>
+          <small>{{ contagemPostsForum.todos }} posts...</small>
+        </span>
+      </button>
+
+      <button
+        type="button"
+        class="forum-filtro-card"
+        [class.active]="filtroPostsForum === 'denunciados'"
+        (click)="filtrarPostsForum('denunciados')">
+        <span class="forum-filtro-icone icone-laranja"><i class="fa-solid fa-circle-exclamation"></i></span>
+        <span class="forum-filtro-texto">
+          <strong>Posts denunciados</strong>
+          <small>{{ contagemPostsForum.denunciados }} posts...</small>
+        </span>
+      </button>
+
+      <button
+        type="button"
+        class="forum-filtro-card"
+        [class.active]="filtroPostsForum === 'removidos'"
+        (click)="filtrarPostsForum('removidos')">
+        <span class="forum-filtro-icone icone-perigo"><i class="fa-solid fa-circle-xmark"></i></span>
+        <span class="forum-filtro-texto">
+          <strong>Posts removidos</strong>
+          <small>{{ contagemPostsForum.removidos }} posts...</small>
+        </span>
+      </button>
+
+      <button
+        type="button"
+        class="forum-filtro-card"
+        [class.active]="filtroPostsForum === 'advertidos'"
+        (click)="filtrarPostsForum('advertidos')">
+        <span class="forum-filtro-icone icone-alerta"><i class="fa-solid fa-triangle-exclamation"></i></span>
+        <span class="forum-filtro-texto">
+          <strong>Posts advertidos</strong>
+          <small>{{ contagemPostsForum.advertidos }} posts...</small>
+        </span>
+      </button>
+    </div>
+
+    <div class="forum-post-lista">
+      @if (carregandoPostsForum) {
+        <p class="forum-post-vazio">Carregando posts do fórum...</p>
+      } @else if (postsFiltradosForum.length === 0) {
+        <p class="forum-post-vazio">Nenhum post encontrado nesse filtro.</p>
+      }
+
+      @for (post of postsFiltradosForum; track post.id) {
+        <div class="dash-panel forum-post-card">
+          <div class="forum-post-cabecalho">
+            <img [src]="post.autorFoto" class="forum-post-avatar" alt="">
+
+            <div class="forum-post-autor">
+              <strong>{{ post.autorNome }}</strong>
+              <small>{{ post.dataFormatada }}</small>
+            </div>
+
+            @if (post.moderacao?.removido) {
+              <span class="forum-badge badge-perigo">Removido <i class="fa-solid fa-circle-xmark"></i></span>
+            } @else if (post.moderacao?.advertido) {
+              <span class="forum-badge badge-alerta">Advertido <i class="fa-solid fa-triangle-exclamation"></i></span>
+            } @else if ((post.moderacao?.denuncias || 0) > 0) {
+              <span class="forum-badge badge-laranja">Denunciado <i class="fa-solid fa-circle-info"></i></span>
+            }
+          </div>
+
+          <p class="forum-post-conteudo">"{{ post.conteudo }}"</p>
+
+          @if (post.moderacao?.removido) {
+            <div class="forum-post-motivo motivo-perigo">
+              <strong>Motivo da remoção:</strong> {{ post.moderacao?.motivoRemocao }}
+            </div>
+          } @else if (post.moderacao?.advertido) {
+            <div class="forum-post-motivo motivo-alerta">
+              <strong>Motivo da advertência:</strong> {{ post.moderacao?.motivoAdvertencia }}
+            </div>
+          }
+
+          @if (!post.moderacao?.removido) {
+            <div class="actions">
+              <button type="button" class="forum-btn-advertir" (click)="abrirModalAdvertirPost(post)">Advertência</button>
+              <button type="button" class="forum-btn-remover" (click)="abrirModalRemoverPost(post)">Remover Post</button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+
   <!-- ABAS AINDA EM CONSTRUÇÃO -->
   @for (aba of abasEmConstrucao; track aba.chave) {
     <section class="content" [id]="aba.chave" [class.hidden]="abaAtiva !== aba.chave">
@@ -1731,3 +1844,121 @@
     </section>
   }
 </main>
+
+
+<!-- MODAL: APLICAR ADVERTÊNCIA (post do fórum) -->
+@if (postParaAdvertir) {
+  <div class="suspender-overlay" (click)="fecharModalAdvertirPost()">
+    <div class="suspender-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="suspender-fechar-btn" (click)="fecharModalAdvertirPost()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="suspender-cabecalho">
+        <span class="suspender-icone suspender-icone-alerta"><i class="fa-solid fa-triangle-exclamation"></i></span>
+        <div class="suspender-cabecalho-texto">
+          <h3>Aplicar Advertência!</h3>
+          <p>Ao aplicar uma advertência a ação será registrada no histórico do post.</p>
+        </div>
+      </div>
+
+      <div class="dash-panel forum-post-card forum-modal-preview">
+        <div class="forum-post-cabecalho">
+          <img [src]="postParaAdvertir.autorFoto" class="forum-post-avatar" alt="">
+          <div class="forum-post-autor">
+            <strong>{{ postParaAdvertir.autorNome }}</strong>
+            <small>{{ postParaAdvertir.dataFormatada }}</small>
+          </div>
+          <span class="forum-badge badge-alerta">Post a ser advertido <i class="fa-solid fa-triangle-exclamation"></i></span>
+        </div>
+        <p class="forum-post-conteudo">"{{ postParaAdvertir.conteudo }}"</p>
+      </div>
+
+      <div class="suspender-campo">
+        <label for="motivoAdvertenciaPost">Motivo</label>
+        <select id="motivoAdvertenciaPost" [(ngModel)]="motivoAdvertenciaPost">
+          <option value="" disabled>Selecione o motivo</option>
+          <option *ngFor="let motivo of motivosAdvertenciaPost" [value]="motivo">{{ motivo }}</option>
+        </select>
+      </div>
+
+      <div class="suspender-campo">
+        <label for="observacoesAdvertenciaPost">Descreva o motivo</label>
+        <textarea
+          id="observacoesAdvertenciaPost"
+          rows="3"
+          [(ngModel)]="observacoesAdvertenciaPost"
+          placeholder="Comente sobre a advertência..."></textarea>
+      </div>
+
+      @if (erroAdvertenciaPost) {
+        <p class="suspender-erro">{{ erroAdvertenciaPost }}</p>
+      }
+
+      <div class="suspender-acoes">
+        <button type="button" class="suspender-btn-cancelar" [disabled]="advertindoPost" (click)="fecharModalAdvertirPost()">
+          Cancelar
+        </button>
+        <button type="button" class="suspender-btn-confirmar" [disabled]="advertindoPost" (click)="confirmarAdvertenciaPost()">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          {{ advertindoPost ? 'Aplicando...' : 'Aplicar advertência' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+
+<!-- MODAL: REMOVER POST (fórum) -->
+@if (postParaRemover) {
+  <div class="suspender-overlay" (click)="fecharModalRemoverPost()">
+    <div class="suspender-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="suspender-fechar-btn" (click)="fecharModalRemoverPost()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="suspender-cabecalho">
+        <span class="suspender-icone"><i class="fa-solid fa-circle-xmark"></i></span>
+        <div class="suspender-cabecalho-texto">
+          <h3>Deletar post!</h3>
+          <p>Ao deletar um post, ele deixa de aparecer no fórum público. Esta ação fica registrada no histórico de moderação.</p>
+        </div>
+      </div>
+
+      <div class="dash-panel forum-post-card forum-modal-preview">
+        <div class="forum-post-cabecalho">
+          <img [src]="postParaRemover.autorFoto" class="forum-post-avatar" alt="">
+          <div class="forum-post-autor">
+            <strong>{{ postParaRemover.autorNome }}</strong>
+            <small>{{ postParaRemover.dataFormatada }}</small>
+          </div>
+          <span class="forum-badge badge-perigo">Post a ser deletado <i class="fa-solid fa-xmark"></i></span>
+        </div>
+        <p class="forum-post-conteudo">"{{ postParaRemover.conteudo }}"</p>
+      </div>
+
+      <div class="suspender-campo">
+        <label for="motivoRemocaoPost">Descreva o motivo</label>
+        <textarea
+          id="motivoRemocaoPost"
+          rows="3"
+          [(ngModel)]="motivoRemocaoPost"
+          placeholder="Descreva o motivo de deletar o post..."></textarea>
+      </div>
+
+      @if (erroRemocaoPost) {
+        <p class="suspender-erro">{{ erroRemocaoPost }}</p>
+      }
+
+      <div class="suspender-acoes">
+        <button type="button" class="suspender-btn-cancelar" [disabled]="removendoPost" (click)="fecharModalRemoverPost()">
+          Cancelar
+        </button>
+        <button type="button" class="suspender-btn-confirmar" [disabled]="removendoPost" (click)="confirmarRemocaoPost()">
+          <i class="fa-solid fa-circle-xmark"></i>
+          {{ removendoPost ? 'Deletando...' : 'Deletar post' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
