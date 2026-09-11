@@ -1,0 +1,344 @@
+<!-- 1. LANDING PAGE E PROFISSIONAL -->
+@if (tipo === 'landing' || tipo === 'profissional') {
+  <header class="header">
+    <div class="container header-content">
+      <a routerLink="/" class="logo" aria-label="Ir para a página inicial">
+        <img src="./img/logo_icon.png" alt="Ícone EloMaterno" class="logo-icon">
+        elomaterno
+      </a>
+
+      <div class="mobile-backdrop" [class.active]="isMobileMenuOpen" (click)="toggleMobileMenu()"></div>
+
+      <nav class="nav-links" id="nav-menu" [class.active]="isMobileMenuOpen">
+          <div class="mobile-nav-header">
+            <span class="mobile-nav-title">Navegação</span>
+            <button type="button" class="btn-close-mobile" (click)="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+
+          <!-- O Angular decide quais links mostrar baseado na página atual -->
+          @if (currentLanding === 'mae') {
+              <a href="/#consultorias" (click)="toggleMobileMenu()" data-i18n="nav_consultorias">Consultorias</a>
+              <a href="/#como-funciona" (click)="toggleMobileMenu()" data-i18n="nav_como_funciona">Como funciona</a>
+              <a routerLink="/profissionais" (click)="toggleMobileMenu()" class="link-destaque" data-i18n="nav_profissional">Sou Profissional</a>
+          } @else {
+              <a href="/profissionais#como-funciona" (click)="toggleMobileMenu()" data-i18n="nav_como_funciona">Como funciona</a>
+              <a href="/profissionais#a-plataforma" (click)="toggleMobileMenu()" data-i18n="nav_a_plataforma">A Plataforma</a>
+              <a routerLink="/" (click)="toggleMobileMenu()" class="link-destaque" data-i18n="nav_sou_mae">Sou Mãe</a>
+          }
+
+          <div class="mobile-accessibility-section">
+            <span class="mobile-section-label">Ajustes e Acessibilidade</span>
+            
+            <button type="button" class="mobile-acc-btn" (click)="toggleTheme()">
+              <i class="fa-solid" [class.fa-moon]="!isDarkMode" [class.fa-sun]="isDarkMode"></i>
+              <span>{{ isDarkMode ? 'Modo Claro' : 'Modo Escuro' }}</span>
+            </button>
+
+            <button type="button" class="mobile-acc-btn" (click)="toggleAccMenu($event)">
+              <i class="fa-solid fa-universal-access"></i>
+              <span>Opções de Acessibilidade</span>
+            </button>
+
+            @if (isAccMenuOpen) {
+              <ul class="mobile-acc-sublist">
+                <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
+                <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
+                <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
+                <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
+                <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
+                <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
+                <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
+                <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
+                <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
+                <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+              </ul>
+            }
+          </div>
+
+          <div class="mobile-menu-actions">
+            <a routerLink="/login" (click)="toggleMobileMenu()" class="mobile-menu-item"><i class="fa-solid fa-user"></i> <span data-i18n="login_mae">Acesso para Mães</span></a>
+            <a routerLink="/login-profissional" (click)="toggleMobileMenu()" class="mobile-menu-item"><i class="fa-solid fa-building"></i> <span data-i18n="login_parceiro">Acesso Parceiros</span></a>
+          </div>
+      </nav>
+
+      <div class="header-actions">
+          <div class="language-selector">
+            <button type="button" class="btn-language" aria-label="Mudar idioma" (click)="toggleLangMenu($event)">
+              <img [src]="currentFlagUrl()" alt="Idioma atual" class="flag-icon">
+            </button>
+            <ul id="language-menu" [class.hidden]="!isLangMenuOpen" (click)="$event.stopPropagation()">
+              <li (click)="selecionarIdioma('pt')"><img src="https://flagcdn.com/w20/br.png" class="flag-icon"> Português</li>
+              <li (click)="selecionarIdioma('en')"><img src="https://flagcdn.com/w20/us.png" class="flag-icon"> English</li>
+              <li (click)="selecionarIdioma('es')"><img src="https://flagcdn.com/w20/es.png" class="flag-icon"> Español</li>
+            </ul>
+          </div>
+
+          <div class="accessibility-selector">
+            <button type="button" class="btn-icon" aria-label="Opções de acessibilidade" (click)="toggleAccMenu($event)">
+              <i class="fa fa-universal-access"></i>
+            </button>
+            <ul id="accessibility-menu" [class.hidden]="!isAccMenuOpen" (click)="$event.stopPropagation()">
+              <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
+              <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
+              <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
+              <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
+              <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
+              <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
+              <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
+              <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
+              <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
+              <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+            </ul>
+          </div>
+
+          <button type="button" class="btn-icon" aria-label="Alternar tema" (click)="toggleTheme()">
+            <i class="fa" [class.fa-moon]="!isDarkMode" [class.fa-sun]="isDarkMode"></i>
+          </button>
+
+          @if (currentLanding === 'mae') {
+            <div class="login-dropdown-wrapper" [class.active]="isLoginDropdownOpen">
+              <button type="button" class="btn btn-primary" (click)="toggleLoginDropdown($event)">
+                <span data-i18n="hero_access">Acessar plataforma</span> 
+                <i class="fa-solid fa-chevron-down" style="font-size: 0.85rem; margin-left: 6px;"></i>
+              </button>
+              <div class="login-dropdown-menu">
+                <a routerLink="/login" class="dropdown-item">
+                  <i class="fa-solid fa-user dropdown-simple-icon"></i>
+                  <span data-i18n="login_mae">Acesso para Mães</span>
+                  <i class="fa-solid fa-chevron-right dropdown-arrow"></i>
+                </a>
+                <a routerLink="/login-profissional" class="dropdown-item">
+                  <i class="fa-solid fa-building dropdown-simple-icon"></i>
+                  <span data-i18n="login_parceiro">Acesso para Parceiros</span>
+                  <i class="fa-solid fa-chevron-right dropdown-arrow"></i>
+                </a>
+              </div>
+            </div>
+          } @else {
+            <a routerLink="/login-profissional" class="btn btn-primary">Acesso Parceiros</a>
+          }
+      </div>
+
+      <button class="menu-toggle" aria-label="Abrir menu" (click)="toggleMobileMenu()">
+        <i class="fa" [class.fa-bars]="!isMobileMenuOpen" [class.fa-xmark]="isMobileMenuOpen"></i>
+      </button>
+    </div>
+  </header>
+}
+
+
+<!-- 2. PAINEL DO ADMINISTRADOR -->
+@else if (tipo === 'adm') {
+  <header class="adm-header">
+    <div class="adm-header-container">
+      <div class="adm-header-left">
+        <!-- Só aparece no mobile, controla a sidebar do admin -->
+        <button type="button" class="adm-sidebar-toggle" aria-label="Abrir menu" (click)="toggleMenuAdm()">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <a routerLink="/admin" class="adm-logo" aria-label="Ir para o painel do administrador">
+          <img src="./img/logo_icon.png" alt="Ícone EloMaterno">
+          <span>elomaterno</span>
+        </a>
+      </div>
+
+      <div class="adm-header-right">
+        <div class="adm-search-box">
+          <i class="fa-solid fa-search"></i>
+          <input type="text" placeholder="Buscar no painel...">
+        </div>
+
+        <button type="button" class="adm-icon-btn" title="Alternar tema" aria-label="Alternar tema" (click)="toggleTheme()">
+          <i class="fa-solid" [class.fa-moon]="!isDarkMode" [class.fa-sun]="isDarkMode"></i>
+        </button>
+
+        <div class="accessibility-selector">
+          <button type="button" class="adm-icon-btn" aria-label="Opções de acessibilidade" (click)="toggleAccMenu($event)">
+            <i class="fa fa-universal-access"></i>
+          </button>
+          <ul id="accessibility-menu" [class.hidden]="!isAccMenuOpen" (click)="$event.stopPropagation()">
+            <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
+            <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
+            <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
+            <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
+            <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
+            <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
+            <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
+            <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
+            <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
+            <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+          </ul>
+        </div>
+
+        <button type="button" class="adm-icon-btn" title="Notificações" aria-label="Notificações">
+          <i class="fa-solid fa-bell"></i>
+          <!-- TODO: ligar a um serviço real de notificações -->
+        </button>
+      </div>
+    </div>
+  </header>
+} 
+
+
+<!-- 2. HOME MÃE LOGADA -->
+@else if (tipo === 'mae') {
+  <header class="top-header">
+      <div class="header-container">
+          <!-- ESQUERDA: Logo + Navegação Desktop (sem ícones no PC) -->
+          <div class="left-section">
+              <a routerLink="/home-mae" class="logo-area">
+                  <img src="./img/logo_icon.png" class="icon" alt="Ícone EloMaterno">
+                  <span class="company-name">elomaterno</span>
+              </a>
+
+              <!-- Navegação clássica Desktop -->
+              <nav class="header-nav desktop-nav">
+                  <a routerLink="/home-mae" routerLinkActive="ativo" class="nav-item">Início</a>
+                  <a routerLink="/forum" routerLinkActive="ativo" class="nav-item">Fórum</a>
+                  <a routerLink="/consultoria" routerLinkActive="ativo" class="nav-item">Consultorias</a>
+                  <a routerLink="/agenda-mae" routerLinkActive="ativo" class="nav-item">Agenda</a>
+                  <a routerLink="/eventos" routerLinkActive="ativo" class="nav-item">Eventos</a>
+                  <a routerLink="/artigos" routerLinkActive="ativo" class="nav-item">Artigos</a>
+              </nav>
+          </div>
+
+          <!-- DIREITA DESKTOP: Pesquisa, Chat, Acessibilidade, Tema, Perfil -->
+          <div class="right-section desktop-right">
+              <div class="search-box">
+                  <i class="fa fa-search icon-search-left"></i>
+                  <input type="text" placeholder="Pesquisar na comunidade...">
+              </div>
+
+              <a routerLink="/chat" class="header-icon-btn" title="Mensagens"><i class="fa-regular fa-comment"></i></a>
+              
+              <div class="accessibility-selector">
+                <button type="button" (click)="$event.stopPropagation(); toggleMenu()" aria-label="Opções de acessibilidade" class="header-icon-btn">
+                    <i class="fa fa-universal-access" aria-hidden="true"></i>
+                </button>
+                
+                <ul id="accessibility-menu" [class.hidden]="!menuAberto()" (click)="$event.stopPropagation()">
+                    <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
+                    <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
+                    <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
+                    <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
+                    <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
+                    <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
+                    <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
+                    <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
+                    <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
+                    <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+                </ul>
+              </div>
+
+              <button type="button" class="theme-toggle header-icon-btn" (click)="toggleTheme()">
+                <i class="fas" [ngClass]="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+              </button>
+              
+              <div class="user-profile-section">
+                  <button type="button" (click)="toggleUserDropdown($event)" class="user-dropdown-btn" [class.aberto]="isUserDropdownOpen">
+                      <img [src]="userAvatar()" alt="Avatar">
+                      <span class="user-name">{{ userName() }}</span>
+                      <i class="fa-solid fa-chevron-down arrow-icon"></i>
+                  </button>
+                  @if (isUserDropdownOpen) {
+                  <div class="user-dropdown-menu">
+                      <a routerLink="/perfil" class="dropdown-item"><i class="fa-regular fa-user"></i> Meu Perfil</a>
+                      <div class="dropdown-item text-danger" (click)="logout()" style="cursor:pointer;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair da conta</div>
+                  </div>
+                  }
+              </div>
+          </div>
+
+          <!-- BOTÃO HAMBÚRGUER (APENAS NO MOBILE) -->
+          <button class="menu-toggle" aria-label="Abrir menu" (click)="toggleMobileMenu()">
+            <i class="fa" [class.fa-bars]="!isMobileMenuOpen" [class.fa-xmark]="isMobileMenuOpen"></i>
+          </button>
+
+          <!-- BACKDROP MOBILE -->
+          <div class="mobile-backdrop" [class.active]="isMobileMenuOpen" (click)="toggleMobileMenu()"></div>
+
+          <!-- GAVETA LATERAL EXCLUSIVA DO MOBILE -->
+          <nav class="mobile-drawer" [class.active]="isMobileMenuOpen">
+              <div class="mobile-nav-header">
+                <span class="mobile-nav-title">Menu EloMaterno</span>
+                <button type="button" class="btn-close-mobile" (click)="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+
+              <!-- Card de Perfil no topo do menu mobile -->
+              <div class="mobile-profile-card">
+                  <img [src]="userAvatar()" alt="Avatar do usuário">
+                  <div class="mobile-profile-info">
+                      <strong>{{ userName() }}</strong>
+                      <span>Mãe Conectada</span>
+                  </div>
+              </div>
+
+              <!-- Links de Navegação Mobile -->
+              <div class="mobile-links-grid">
+                  <a routerLink="/home-mae" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
+                      <i class="fa-solid fa-house"></i> Início
+                  </a>
+                  <a routerLink="/forum" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
+                      <i class="fa-solid fa-users"></i> Fórum
+                  </a>
+                  <a routerLink="/consultoria" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
+                      <i class="fa-solid fa-heart-pulse"></i> Consultorias
+                  </a>
+                  <a routerLink="/agenda-mae" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
+                      <i class="fa-solid fa-calendar-days"></i> Agenda
+                  </a>
+                  <a routerLink="/eventos" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
+                      <i class="fa-solid fa-bullhorn"></i> Eventos
+                  </a>
+                  <a routerLink="/artigos" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
+                      <i class="fa-solid fa-book-open"></i> Artigos
+                  </a>
+                  <a routerLink="/chat" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link mobile-link-chat">
+                      <i class="fa-solid fa-comment-dots"></i> Minhas Mensagens
+                  </a>
+                  <a routerLink="/perfil" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
+                      <i class="fa-solid fa-user-gear"></i> Meu Perfil
+                  </a>
+              </div>
+
+              <!-- Seção de Acessibilidade e Tema no Mobile -->
+              <div class="mobile-accessibility-section">
+                <span class="mobile-section-label">Acessibilidade e Tema</span>
+
+                <button type="button" class="mobile-acc-btn" (click)="toggleTheme()">
+                  <i class="fa-solid" [class.fa-moon]="!isDarkMode" [class.fa-sun]="isDarkMode"></i>
+                  <span>{{ isDarkMode ? 'Modo Claro' : 'Modo Escuro' }}</span>
+                </button>
+
+                <button type="button" class="mobile-acc-btn" (click)="toggleMenu()">
+                  <i class="fa-solid fa-universal-access"></i>
+                  <span>Opções de Acessibilidade</span>
+                </button>
+
+                @if (menuAberto()) {
+                  <ul class="mobile-acc-sublist">
+                    <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
+                    <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
+                    <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
+                    <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
+                    <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
+                    <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
+                    <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
+                    <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
+                    <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
+                    <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+                  </ul>
+                }
+              </div>
+
+              <!-- Botão Sair no Mobile -->
+              <div class="mobile-logout-box">
+                  <button type="button" class="btn-mobile-logout" (click)="logout()">
+                      <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair da conta
+                  </button>
+              </div>
+          </nav>
+      </div>
+  </header>
+}

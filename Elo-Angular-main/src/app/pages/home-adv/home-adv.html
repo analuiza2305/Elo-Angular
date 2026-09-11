@@ -1,0 +1,422 @@
+<header class="header">
+  <h1 id="boasVindas">Bem-vindo(a), Dr(a). {{ nomeExibicao() }}</h1>
+  
+  <div class="right-section">
+    <button class="icon-btn" aria-label="Acessibilidade">
+      <i class="fa fa-universal-access"></i>
+    </button>
+    <button class="icon-btn" aria-label="Modo Escuro">
+      <i class="fa fa-moon"></i>
+    </button>
+    <button class="icon-btn" aria-label="Informações">
+      <i class="fa-solid fa-circle-info"></i>
+    </button>
+    <button class="icon-btn" (click)="logout()" aria-label="Sair">
+      <i class="fa-solid fa-right-from-bracket"></i>
+    </button>
+    <button class="avatar-btn">
+      <img [src]="avatarUrl()" alt="Avatar do Advogado">
+    </button>
+  </div>
+</header>
+
+<main class="main-container">
+  <!-- SIDEBAR FLUTUANTE (Vidro) -->
+  <aside class="sidebar">
+    <button class="menu-btn" [class.active]="activeSection() === 'dashboard'" (click)="selecionarSecao('dashboard')">
+      <i class="fa-solid fa-chart-line"></i><span>Painel de controle</span>
+    </button>
+    <button class="menu-btn" [class.active]="activeSection() === 'agenda'" (click)="selecionarSecao('agenda')">
+      <i class="fa-solid fa-calendar-days"></i><span>Agenda</span>
+    </button>
+    <button class="menu-btn" [class.active]="activeSection() === 'artigos'" (click)="selecionarSecao('artigos')">
+      <i class="fa-solid fa-newspaper"></i><span>Artigos</span>
+    </button>
+    <button class="menu-btn" [class.active]="activeSection() === 'consultas'" (click)="selecionarSecao('consultas')">
+      <i class="fa-solid fa-hands-helping"></i><span>Consultas</span>
+    </button>
+    <button class="menu-btn" [class.active]="activeSection() === 'forum'" (click)="selecionarSecao('forum')">
+      <i class="fa-solid fa-comments"></i><span>Fórum</span>
+    </button>
+    <button class="menu-btn" [class.active]="activeSection() === 'pacientes'" (click)="selecionarSecao('pacientes')">
+      <i class="fa-solid fa-user-group"></i><span>Pacientes</span>
+    </button>
+    <button class="menu-btn" [class.active]="activeSection() === 'chats'" (click)="selecionarSecao('chats')">
+      <i class="fa-solid fa-message"></i><span>Chats</span>
+    </button>
+
+    <div class="last-activities">
+      <h3>Últimas Atividades</h3>
+      <ul>
+        <li>Nenhuma atividade encontrada.</li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- ÁREA DE CONTEÚDO DINÂMICO -->
+  <div class="content">
+    @if (isLoading()) {
+      <div class="loader" style="margin-top: 100px;">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+    } @else {
+
+      <!-- 1. DASHBOARD -->
+      @if (activeSection() === 'dashboard') {
+        <div class="welcome-hero" (mousemove)="onHeroMouseMove($event)">
+          <div class="hero-content">
+            <span class="hero-badge">Área do Profissional</span>
+            <h2>Olá, Dr(a). {{ nomeExibicao() }}!</h2>
+            <p>Seu espaço de gestão jurídica está pronto. Acompanhe seus prazos, gerencie suas consultas e ofereça o melhor suporte aos seus pacientes.</p>
+          </div>
+          <!-- Efeito luminoso do fundo (Mesh Gradient) -->
+          <div class="hero-glow shape-1"></div>
+          <div class="hero-glow shape-2"></div>
+          <div class="hero-glow shape-3"></div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fa-solid fa-calendar-day"></i></div>
+            <div class="stat-info">
+              <span class="stat-value">{{ consultasHoje().length }}</span>
+              <span class="stat-label">Consultas para hoje</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+            <div class="stat-info">
+              <span class="stat-value">{{ sessoesAgendadas() }}</span>
+              <span class="stat-label">Sessões agendadas</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title-row">
+          <h3>Consultas de Hoje</h3>
+          <button class="btn-ver-agenda" (click)="selecionarSecao('agenda')">Ver agenda completa &rarr;</button>
+        </div>
+
+        <div class="dashboard-appointments-box">
+          @if (consultasHoje().length === 0) {
+            <div class="empty-state-box">
+              <i class="fa-solid fa-handshake-angle" style="font-size: 2rem; color: var(--accent-color); margin-bottom: 12px; opacity: 0.7;"></i>
+              <p>Nenhuma consulta hoje.</p>
+            </div>
+          } @else {
+            @for (c of consultasHoje(); track c.id) {
+              <div style="width:100%; border-bottom: 1px solid #eee; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <strong>{{ c.maeInfo?.nome || 'Paciente' }}</strong>
+                  <p style="margin:0; font-size:0.9rem; color:#666;">{{ formatarHora(c.Datahora) }}</p>
+                </div>
+                <button class="contact-btn" style="width:auto; margin:0;" (click)="abrirChat(c.maeInfo?.id)">Entrar em contato</button>
+              </div>
+            }
+          }
+        </div>
+      }
+
+      <!-- 2. CALENDÁRIO / AGENDA -->
+      @if (activeSection() === 'agenda') {
+        <div id="calendario" class="calendario-wrapper">
+          <div class="calendar-container">
+            <div class="calendar-header">
+              <button (click)="alterarMes(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+              <h3>{{ nomeMesAtual() }} {{ anoAtual() }}</h3>
+              <button (click)="alterarMes(1)"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <div class="calendar-days">
+              <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
+            </div>
+            <div class="calendar-dates">
+              @for (dia of diasCalendario(); track $index) {
+                <div class="date" 
+                     [class.empty]="!dia.valor" 
+                     [class.today]="dia.hoje" 
+                     [class.has-event]="dia.temConsulta"
+                     [class.date-past]="dia.passado"
+                     (click)="abrirModalDisponibilidade(dia.valor, dia.passado)">
+                  {{ dia.valor }}
+                </div>
+              }
+            </div>
+          </div>
+          
+          <div class="events-container">
+            <h3>Consultas Agendadas</h3>
+            <div class="event-list">
+              @if (sessoesAgendadas() === 0) {
+                <p class="empty-state">Nenhuma consulta agendada.</p>
+              } @else {
+                @for (c of consultas(); track c.id) {
+                  @if (c.status === 'aceito') {
+                    <div class="event">
+                      <div class="event-title">
+                        <span>{{ c.maeInfo?.nome || 'Paciente' }}</span>
+                      </div>
+                      <div class="meta">{{ formatarData(c.Datahora) }} às {{ formatarHora(c.Datahora) }}</div>
+                    </div>
+                  }
+                }
+              }
+            </div>
+          </div>
+        </div>
+      }
+     <!-- 3. ARTIGOS -->
+      @if (activeSection() === 'artigos') {
+        <div class="artigos-hero-banner">
+          <div class="hero-content">
+            <span class="hero-badge"><i class="fa-solid fa-book-open"></i> Conhecimento que transforma</span>
+            <h1>Artigos EloMaterno</h1>
+            <p>Informações jurídicas, dicas e muito conhecimento para facilitar o seu dia a dia.</p>
+          </div>
+        </div>
+
+        <div class="artigos-filtros-bar">
+          <div class="filtros-pulas">
+            <button class="filtro-btn active">Todos</button>
+            <button class="filtro-btn"><i class="fa-solid fa-scale-balanced"></i> Legislativos</button>
+            <button class="filtro-btn"><i class="fa-solid fa-graduation-cap"></i> Educacionais</button>
+            <button class="filtro-btn"><i class="fa-solid fa-lightbulb"></i> Dicas</button>
+            <button class="filtro-btn"><i class="fa-regular fa-newspaper"></i> Posts</button>
+          </div>
+          <div class="ordenacao-dropdown-wrapper">
+            <button class="btn-ordenar"><i class="fa-solid fa-sliders"></i> Mais recentes <i class="fa-solid fa-chevron-down"></i></button>
+          </div>
+        </div>
+
+        <div class="artigos-grid">
+          @if (artigos().length === 0) {
+            <p style="color:var(--text-color2); grid-column: 1 / -1; text-align: center;">Nenhum artigo publicado ainda.</p>
+          } @else {
+            @for (art of artigos(); track art.id) {
+              <a href="#" class="artigo-card-novo">
+                <div class="ac-img-wrapper">
+                  <img [src]="art.img || './img/account_icon.png'" class="ac-cover" alt="Capa">
+                  <span class="ac-tag">{{ art.categoria || 'Conteúdo' }}</span>
+                  <div class="ac-bookmark"><i class="fa-regular fa-bookmark"></i></div>
+                </div>
+                <div class="ac-body">
+                  <span class="ac-time"><i class="fa-regular fa-calendar"></i> 26 de set.</span>
+                  <h3 class="ac-title">{{ art.titulo }}</h3>
+                  <p class="ac-excerpt">{{ art.descricao || 'Sem descrição informada para este conteúdo.' }}</p>
+                  <div class="ac-footer">
+                    <span class="ac-author"><i class="fa-solid fa-book-open"></i> ELOMATERNO</span>
+                    <span class="ac-ler">Ler &rarr;</span>
+                  </div>
+                </div>
+              </a>
+            }
+          }
+        </div>
+      }
+
+    <!-- 4. CONSULTAS TABS -->
+      @if (activeSection() === 'consultas') {
+        <div class="consultas-container">
+          <div class="tabs">
+            <button class="tab" [class.ativo]="abaConsultasStatus() === 'pendente'" (click)="setAbaConsultas('pendente')">Pendentes</button>
+            <button class="tab" [class.ativo]="abaConsultasStatus() === 'aceito'" (click)="setAbaConsultas('aceito')">Agendadas</button>
+            <button class="tab" [class.ativo]="abaConsultasStatus() === 'realizado'" (click)="setAbaConsultas('realizado')">Realizadas</button>
+            <button class="tab" [class.ativo]="abaConsultasStatus() === 'negado'" (click)="setAbaConsultas('negado')">Negadas</button>
+          </div>
+          
+          <h2 style="color: var(--accent-color); font-weight:800; margin-bottom: 24px; text-align: left;">Minhas Consultas</h2>
+          
+          <div class="conteudo-tab ativo">
+            @if (consultasFiltradas().length === 0) {
+              <div style="grid-column: 1 / -1; text-align: center; padding: 40px 0;">
+                <p style="color:#666; font-style:italic;">Nenhuma consulta nesta categoria.</p>
+              </div>
+            } @else {
+              @for (c of consultasFiltradas(); track c.id) {
+                <div class="consulta-card">
+                  
+                  <div class="consulta-profissional">
+                    <img [src]="c.maeInfo?.avatar || './img/avatar_usuario.png'" class="consulta-foto-prof" alt="Foto do paciente">
+                    <h3>{{ c.maeInfo?.nome || 'Paciente' }}</h3>
+                  </div>
+                  
+                  <div class="consulta-header">
+                    <h3 style="font-size: 1rem; color: #4B2C82; margin: 0;">{{ formatarData(c.Datahora) }} - {{ formatarHora(c.Datahora) }}</h3>
+                    <span class="badge" [ngClass]="{
+                        'badge-pendente': c.status === 'pendente',
+                        'badge-aceito': c.status === 'aceito',
+                        'badge-realizado': c.status === 'realizado',
+                        'badge-negado': c.status === 'negado'
+                    }">{{ c.status }}</span>
+                  </div>
+                  
+                  <p><strong>Motivo:</strong> {{ c.Motivo || c.motivo || 'Não informado' }}</p>
+                  
+                  <div style="display: flex; gap: 8px; margin-top: auto;">
+                    @if (c.status === 'pendente') {
+                      <button class="btn-detalhes" style="flex:1" (click)="atualizarStatusConsulta(c.id, 'aceito')">Aceitar</button>
+                      <button class="btn-chat" style="flex:1; border-color: #d9534f; color: #d9534f; background: transparent;" (click)="atualizarStatusConsulta(c.id, 'negado')">Recusar</button>
+                    }
+                    @if (c.status === 'aceito') {
+                      <button class="btn-detalhes" style="flex:1" (click)="atualizarStatusConsulta(c.id, 'realizado')">Finalizar</button>
+                      <button class="btn-chat" style="flex:1" (click)="abrirChat(c.maeInfo)">Chat</button>
+                    }
+                    <button class="btn-chat" style="flex:1" (click)="abrirDetalhes(c)">Detalhes</button>
+                  </div>
+
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+      <!-- 5. FÓRUM -->
+      @if (activeSection() === 'forum') {
+        <div class="forum-search">
+          <input type="text" placeholder="Pesquisar no fórum...">
+          <button class="add-for-btn" title="Novo Post">+</button>
+        </div>
+        <div id="posts-list">
+           <div class="post-card com-brilho">
+             <div class="post-meta">
+               <img src="./img/avatar_usuario.png" class="author-avatar">
+               <div>
+                 <strong>samy mamae</strong>
+                 <p style="font-size:12px; margin:0; color:#888;">20/08/2026</p>
+               </div>
+             </div>
+             <h3 style="color:var(--primary-dark); margin-bottom:10px;">oioi teste</h3>
+             <p style="color:#555;">teste</p>
+           </div>
+        </div>
+      }
+
+      <!-- 6. PACIENTES -->
+      @if (activeSection() === 'pacientes') {
+        <h2 style="color: var(--accent-color); font-weight:800; margin-bottom: 24px;">Histórico de Pacientes</h2>
+        <div class="patients-grid">
+          @if (pacientesUnicos().length === 0) {
+            <p style="color:#666;">Nenhum paciente vinculado.</p>
+          } @else {
+            @for (p of pacientesUnicos(); track p.id) {
+              <div class="patient-card">
+                <div class="patient-header">
+                  <img [src]="p.avatar || './img/avatar_usuario.png'" class="patient-avatar">
+                  <div>
+                    <h3 class="patient-name">{{ p.nome }}</h3>
+                    <span class="chip">Paciente</span>
+                  </div>
+                </div>
+                <div class="patient-body">
+                  <p class="patient-notes">Nenhuma anotação adicional.</p>
+                  <p class="patient-last">
+                    <strong>Última consulta:</strong>
+                    <span class="last-value">{{ formatarData(p.ultimaData) }}</span>
+                  </p>
+                  <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="contact-btn" style="background:var(--muted-bg); color:var(--primary-dark);">Ver Perfil</button>
+                    <button class="contact-btn" (click)="abrirChat(p)">Abrir chat</button>
+                  </div>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      }
+
+      <!-- 7. CHATS -->
+      @if (activeSection() === 'chats') {
+        <div class="chat-wrapper">
+          <aside class="chat-sidebar">
+            <div class="sidebar-header">Pacientes Vinculados</div>
+            @for (p of pacientesUnicos(); track p.id) {
+              <div class="chat-user-card" (click)="abrirChat(p)">
+                <img [src]="p.avatar || './img/avatar_usuario.png'">
+                <div>
+                  <strong style="color:var(--primary-dark);">{{ p.nome }}</strong>
+                  <p style="margin:0; font-size:12px; color:#888;">Clique para abrir</p>
+                </div>
+              </div>
+            }
+          </aside>
+          <section class="chat-main">
+            @if (chatAtivo()) {
+              <div class="chat-header">
+                <img [src]="chatAtivo()?.avatar || './img/avatar_usuario.png'" class="chat-avatar">
+                <h3 class="chat-title">{{ chatAtivo()?.nome }}</h3>
+              </div>
+              <div class="chat-messages">
+                <div class="msg msg-recebida">Olá Doutora, tenho uma dúvida.</div>
+                <div class="msg msg-enviada">Bom dia! Como posso ajudar?</div>
+              </div>
+              <div class="chat-input">
+                <button><i class="fa fa-microphone"></i></button>
+                <input type="text" placeholder="Digite sua mensagem...">
+                <button style="border-radius:8px;"><i class="fa fa-paper-plane"></i></button>
+              </div>
+            } @else {
+              <div style="flex:1; display:flex; align-items:center; justify-content:center; color:#999; font-weight:bold;">
+                Selecione um usuário para iniciar
+              </div>
+            }
+          </section>
+        </div>
+      }
+
+    }
+  </div>
+</main>
+
+<!-- MODAL DE DETALHES DE CONSULTA -->
+@if (showModalDetalhes()) {
+  <div class="modal">
+    <div class="modal-content detalhes-consulta-card">
+      <span class="close" (click)="showModalDetalhes.set(false)">&times;</span>
+      <div class="detalhes-header">
+        <img [src]="consultaSelecionada()?.maeInfo?.avatar || './img/avatar_usuario.png'">
+        <div>
+          <h2 style="margin:0; color:var(--accent-color);">{{ consultaSelecionada()?.maeInfo?.nome || 'Paciente' }}</h2>
+          <p style="margin:0; font-size:0.9rem;">Tel: {{ consultaSelecionada()?.maeInfo?.telefone || 'Não informado' }}</p>
+        </div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <p><strong>Motivo:</strong> {{ consultaSelecionada()?.Motivo || consultaSelecionada()?.motivo || 'Não informado' }}</p>
+        <p><strong>Data:</strong> {{ formatarData(consultaSelecionada()?.Datahora) }}</p>
+        <p><strong>Horário:</strong> {{ formatarHora(consultaSelecionada()?.Datahora) }}</p>
+        <p><strong>Status:</strong> <span style="text-transform: capitalize;">{{ consultaSelecionada()?.status }}</span></p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-aceitar" style="padding:10px 20px; border:none; border-radius:12px; background:var(--primary-color); color:#fff; font-weight:bold; cursor:pointer;" (click)="showModalDetalhes.set(false)">Fechar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL DE DISPONIBILIDADE DA AGENDA -->
+@if (showModalDisponibilidade()) {
+  <div class="modal">
+    <div class="modal-content detalhes-consulta-card">
+      <span class="close" (click)="showModalDisponibilidade.set(false)">&times;</span>
+      <h3 style="color: var(--primary-dark); margin-bottom: 8px;">Definir Disponibilidade</h3>
+      <p style="font-weight: 600; margin-bottom: 20px; color: var(--text-color);">{{ formatarDataSelecionada() }}</p>
+      
+      <div class="horarios-container">
+        @for (h of horariosDoDia(); track h.hora) {
+          <button 
+            class="horario-btn" 
+            [class.selecionado]="h.selecionado"
+            [class.ocupado]="h.status === 'ocupado'"
+            [disabled]="h.status === 'ocupado'"
+            [title]="h.status === 'ocupado' ? 'Já agendado ou disponível' : ''"
+            (click)="toggleHorario(h)">
+            {{ h.hora }}
+          </button>
+        }
+      </div>
+      
+      <div class="modal-actions" style="margin-top: 32px;">
+        <button class="btn-recusar" style="padding:10px 20px; border-radius:12px; font-weight:bold; cursor:pointer;" (click)="showModalDisponibilidade.set(false)">Cancelar</button>
+        <button class="btn-aceitar" style="padding:10px 20px; border:none; border-radius:12px; background:var(--primary-color); color:#fff; font-weight:bold; cursor:pointer;" (click)="salvarDisponibilidade()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+}

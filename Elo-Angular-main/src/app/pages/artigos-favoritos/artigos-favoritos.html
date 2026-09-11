@@ -1,0 +1,87 @@
+<app-header tipo="mae"></app-header>
+
+<main class="artigos-favoritos-container">
+    
+    <!-- Link de Voltar -->
+    <div class="breadcrumb-voltar">
+        <a routerLink="/artigos" class="link-voltar">
+            <i class="fa-solid fa-arrow-left"></i> Voltar para todos os artigos
+        </a>
+    </div>
+
+    <!-- 1. HERO COM IMAGEM DE FUNDO E TEXTOS -->
+    <section class="artigos-hero-banner" style="background-image: url('/img/hero-artigo-favs.png');">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fa-solid fa-bookmark"></i> Coleção pessoal
+            </div>
+            <h1>Seus Artigos Favoritos</h1>
+            <p>Um espaço dedicado para você guardar, reler e relembrar leituras que transformam o seu dia a dia.</p>
+        </div>
+    </section>
+
+    <!-- 2. GRID DE ARTIGOS FAVORITOS -->
+    @if (isLoading()) {
+        <div class="loading-container" style="padding: 80px 0; text-align: center;">
+            <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        </div>
+    } @else {
+        <div class="artigos-grid">
+            @for (artigo of artigosFavoritos(); track artigo.id) {
+                <div class="artigo-card" (click)="lerArtigo(artigo.id)">
+                    <div class="artigo-cover-container">
+                        @if (artigo.img) {
+                            <img [src]="artigo.img" [alt]="artigo.titulo" class="artigo-cover">
+                        } @else {
+                            <div class="artigo-cover-placeholder">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </div>
+                        }
+                        
+                        <!-- Badge de Categoria no Topo Esquerdo -->
+                        <span class="categoria-badge">
+                            {{ artigo.categoria || 'Legislativo' }}
+                        </span>
+
+                        <!-- Data no Topo Direito -->
+                        <span class="data-badge">
+                            {{ artigo.dataString || '26 de set.' }}
+                        </span>
+
+                        <!-- Botão de Favorito Ativo (Preenchido) no Canto Inferior Direito da Imagem -->
+                        <button class="btn-favorito-ativo" title="Remover dos favoritos" (click)="$event.stopPropagation(); removerFavorito(artigo.id)">
+                            <i class="fa-solid fa-bookmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="artigo-body">
+                        <span class="tag-favorito-card">
+                            <i class="fa-solid fa-bookmark" style="color: #4B2C82;"></i> Favorito
+                        </span>
+                        <h3 class="artigo-titulo">{{ artigo.titulo }}</h3>
+                        <p class="artigo-resumo">{{ artigo.resumo || artigo.conteudo }}</p>
+                        
+                        <div class="artigo-footer">
+                            <span class="ler-mais">Ler artigo completo <i class="fa-solid fa-arrow-right" style="font-size: 0.75rem;"></i></span>
+                            <button class="btn-externo-card" title="Abrir link externo" (click)="$event.stopPropagation(); abrirLink(artigo.link)">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            } @empty {
+                <div class="estado-vazio">
+                    <div class="vazio-icon-wrapper">
+                        <i class="fa-regular fa-bookmark"></i>
+                    </div>
+                    <h3>Você ainda não tem artigos favoritos</h3>
+                    <p>Explore nossa página de artigos e clique no ícone de marcador para salvar suas leituras preferidas aqui.</p>
+                    <a routerLink="/artigos" class="btn-explorar">Explorar Artigos</a>
+                </div>
+            }
+        </div>
+    }
+
+</main>
+
+<app-footer></app-footer>

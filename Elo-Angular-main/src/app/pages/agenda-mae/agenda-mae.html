@@ -1,0 +1,128 @@
+<app-header tipo="mae"></app-header>
+
+<main class="container">
+  <div class="calendar-container">
+    <div class="calendar-header">
+      <button (click)="prevMonth()">&lt;</button>
+      
+      <div class="month-year-select">
+        <h3 class="month-title" style="margin: 0; display: none;">{{ monthNames[currentMonth()] }} {{ currentYear() }}</h3>
+        <select [(ngModel)]="currentMonth" (change)="generateCalendar()">
+          @for (mes of monthNames; track $index) {
+            <option [value]="$index">{{ mes }}</option>
+          }
+        </select>
+        
+        <select [(ngModel)]="currentYear" (change)="generateCalendar()">
+          @for (ano of anosDisponiveis; track ano) {
+            <option [value]="ano">{{ ano }}</option>
+          }
+        </select>
+      </div>
+      
+      <button (click)="nextMonth()">&gt;</button>
+    </div>
+
+    <div class="calendar-days">
+      <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+    </div>
+
+    <div class="calendar-dates">
+      <!-- Dias Vazios -->
+      @for (empty of emptyDays(); track $index) {
+        <div class="empty"></div>
+      }
+
+      <!-- Dias do Mês -->
+      @for (day of calendarDays(); track day.number) {
+        <div 
+          class="date" 
+          [class.today]="day.isToday" 
+          [class.has-event]="day.hasEvent" 
+          [class.past]="day.isPast"
+          [attr.data-tooltip]="day.tooltip ? day.tooltip : null"
+          (click)="openDayModal(day)">
+          
+          <div class="day-number">{{ day.number }}</div>
+          
+          @if (day.hasEvent) {
+            <div class="event-dots" aria-hidden="true">
+              @for (dot of [].constructor(day.dotsCount); track $index) {
+                <span class="dot" [class.past]="day.isPast"></span>
+              }
+              @if (day.hasMore) {
+                <span class="more">+{{ day.eventos.length - 3 }}</span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="events-container">
+    <h3>Meus Eventos</h3>
+    <div class="event-list">
+      @if (futurosEventos().length === 0) {
+        <div class="event">
+          <strong>Nenhum evento futuro</strong>
+          <p>Inscreva-se em eventos ou agende consultorias para que apareçam aqui.</p>
+        </div>
+      }
+
+      @for (ev of futurosEventos(); track ev.id) {
+        <div [ngClass]="ev.type === 'consulta' ? 'consult' : 'event'" 
+             [style.cursor]="ev.type === 'evento' ? 'pointer' : 'default'"
+             (click)="ev.type === 'evento' ? irParaEvento(ev.id) : null">
+          
+          @if (ev.type === 'consulta') {
+            <strong>Consulta{{ ev.profissionalNome ? ' com ' + ev.profissionalNome : '' }}</strong>
+            <p class="meta">{{ formatarData(ev.data) }} • {{ formatarHora(ev.data) }} • {{ ev.status || '' }}</p>
+            <p class="descricao">{{ ev.Motivo || ev.motivo || '' }}</p>
+          } @else {
+            <strong>{{ ev.titulo || ev.title || 'Evento' }}</strong>
+            <p class="meta">{{ formatarData(ev.data) }} • {{ formatarHora(ev.data) }}</p>
+            <p class="descricao">{{ ev.descricao || ev.description || '' }}</p>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</main>
+
+<!-- Modal de Eventos do Dia -->
+@if (selectedDayEvents()) {
+<div class="em-overlay" (click)="closeDayModal()">
+  <div class="em-modal em-modal-list" (click)="$event.stopPropagation()">
+    <div class="em-modal-header">
+      <h2>Eventos do dia</h2>
+      <button class="em-modal-close" aria-label="Fechar" (click)="closeDayModal()">✕</button>
+    </div>
+    
+    <div class="em-modal-body">
+      @for (ev of selectedDayEvents(); track ev.id) {
+        <div class="em-event-item">
+          
+          @if (ev.type === 'consulta') {
+            <div class="ev-info" style="flex:1">
+              <h3>Consulta{{ ev.profissionalNome ? ' com ' + ev.profissionalNome : '' }}</h3>
+              <p class="ev-meta">{{ formatarHora(ev.data) }} • {{ ev.status || '' }}</p>
+              <p class="ev-desc"><strong>Motivo:</strong> {{ ev.Motivo || ev.motivo || '' }}</p>
+            </div>
+          } @else {
+            @if (ev.capa) {
+              <div class="ev-img"><img [src]="ev.capa" [alt]="ev.titulo"></div>
+            }
+            <div class="ev-info">
+              <h3>{{ ev.titulo || ev.title || '' }}</h3>
+              <p class="ev-meta">{{ ev.local || 'Online' }} • {{ formatarHora(ev.data) }}</p>
+              <p class="ev-desc">{{ ev.descricao || ev.description || '' }}</p>
+            </div>
+          }
+          
+        </div>
+      }
+    </div>
+  </div>
+</div>
+}

@@ -1,0 +1,743 @@
+<app-header tipo="mae"></app-header>
+
+<main class="consultas-container">
+
+  <!-- =====================================================
+       CABEÇALHO
+       ===================================================== -->
+
+  <div class="consultas-header-top">
+
+    <div class="titulos">
+      <h1>Minhas consultas</h1>
+
+      <p>
+        Acompanhe suas consultas e converse com os profissionais.
+      </p>
+    </div>
+
+    <a
+      routerLink="/consultas-lista-psi"
+      class="fazer-outros-link"
+    >
+      <button
+        type="button"
+        class="fazer-outros-btn"
+      >
+        <i class="fa-regular fa-calendar-plus"></i>
+
+        Fazer outros agendamentos
+      </button>
+    </a>
+
+  </div>
+
+
+  <!-- =====================================================
+       ABAS
+       ===================================================== -->
+
+  <div class="tabs">
+
+    <button
+      class="consulta-tab-btn"
+      [class.ativo]="abaAtiva() === 'agendadas'"
+      (click)="mudarAba('agendadas')"
+    >
+      <i class="fa-regular fa-calendar"></i>
+
+      Agendadas
+    </button>
+
+
+    <button
+      class="consulta-tab-btn"
+      [class.ativo]="abaAtiva() === 'realizadas'"
+      (click)="mudarAba('realizadas')"
+    >
+      <i class="fa-regular fa-circle-check"></i>
+
+      Realizadas
+    </button>
+
+
+    <button
+      class="consulta-tab-btn"
+      [class.ativo]="abaAtiva() === 'canceladas'"
+      (click)="mudarAba('canceladas')"
+    >
+      <i class="fa-regular fa-circle-xmark"></i>
+
+      Canceladas
+    </button>
+
+  </div>
+
+
+  <!-- =====================================================
+       AGENDADAS
+       ===================================================== -->
+
+  @if (abaAtiva() === 'agendadas') {
+
+    <div
+      class="conteudo-tab ativo"
+      id="agendadas"
+    >
+
+      @if (consultasAgendadas().length > 0) {
+
+        @for (c of consultasAgendadas(); track c.id) {
+
+          <div class="consulta-card">
+
+            <!-- CABEÇALHO DO PROFISSIONAL -->
+
+            <div class="consulta-card-header">
+
+              <div class="consulta-profissional">
+
+                <img
+                  [src]="c.profissionalFoto"
+                  class="consulta-foto-prof"
+                  alt="Foto profissional"
+                >
+
+                <div class="consulta-profissional-info">
+
+                  <h3>
+                    {{ c.profissionalNome || 'Profissional' }}
+                  </h3>
+
+                  <p class="consulta-tipo-prof">
+                    {{
+                      c.tipoProf === 'psicologo'
+                        ? 'Psicólogo(a)'
+                        : 'Advogado(a)'
+                    }}
+                  </p>
+
+                </div>
+
+              </div>
+
+
+              <span
+                [innerHTML]="gerarBadge(c.status)"
+              ></span>
+
+            </div>
+
+
+            <!-- LINHA -->
+
+            <div class="consulta-divider"></div>
+
+
+            <!-- =================================================
+                 DATA E HORA
+                 ================================================= -->
+
+            <div class="consulta-info-row">
+
+              <div class="consulta-info-icon">
+                <i class="fa-regular fa-calendar"></i>
+              </div>
+
+
+              <div class="consulta-info-text">
+
+                <span class="consulta-info-label">
+                  Data e hora
+                </span>
+
+                <p class="consulta-info-value">
+                  {{ c.dataFormatada }}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 MOTIVO
+                 ================================================= -->
+
+            <div class="consulta-info-row">
+
+              <div class="consulta-info-icon">
+                <i class="fa-regular fa-comment-dots"></i>
+              </div>
+
+
+              <div class="consulta-info-text">
+
+                <span class="consulta-info-label">
+                  Motivo da consulta
+                </span>
+
+                <p class="consulta-info-value">
+                  {{ c.Motivo || 'Não informado' }}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 BOTÕES
+                 ================================================= -->
+
+            <div class="consulta-acoes">
+
+              @if (c.profissionalId) {
+
+                <button
+                  class="btn-detalhes"
+                  (click)="abrirDetalhesProfissional(c.profissionalId, c.tipoProf)"
+                >
+                  <i class="fa-regular fa-user"></i>
+
+                  <span>
+                    Detalhes do<br>
+                    profissional
+                  </span>
+                </button>
+
+
+                <button
+                  class="btn-chat"
+                  (click)="abrirChat(c.profissionalId, c.tipoProf)"
+                >
+                  <i class="fa-regular fa-comment"></i>
+
+                  Abrir chat
+                </button>
+
+              }
+
+            </div>
+
+
+            <!-- =================================================
+                 CANCELAR
+                 ================================================= -->
+
+            <div class="consulta-area-secundaria">
+
+              <button
+                class="btn-cancelar-consulta"
+                (click)="abrirModalCancelar(c)"
+              >
+                <i class="fa-regular fa-circle-xmark"></i>
+
+                Cancelar consulta
+              </button>
+
+            </div>
+
+          </div>
+
+        }
+
+      } @else {
+
+        <div class="estado-vazio">
+
+          <h2>
+            Você não tem consultas agendadas
+          </h2>
+
+          <p>
+            Estamos aqui para te ajudar, agende uma consulta
+            para manter em dia o bem-estar.
+          </p>
+
+        </div>
+
+      }
+
+    </div>
+
+  }
+
+
+  <!-- =====================================================
+       REALIZADAS
+       ===================================================== -->
+
+  @if (abaAtiva() === 'realizadas') {
+
+    <div
+      class="conteudo-tab ativo"
+      id="realizadas"
+    >
+
+      @if (consultasRealizadas().length > 0) {
+
+        @for (c of consultasRealizadas(); track c.id) {
+
+          <div class="consulta-card">
+
+            <!-- PROFISSIONAL -->
+
+            <div class="consulta-card-header">
+
+              <div class="consulta-profissional">
+
+                <img
+                  [src]="c.profissionalFoto"
+                  class="consulta-foto-prof"
+                  alt="Foto profissional"
+                >
+
+                <div class="consulta-profissional-info">
+
+                  <h3>
+                    {{ c.profissionalNome || 'Profissional' }}
+                  </h3>
+
+                  <p class="consulta-tipo-prof">
+                    {{
+                      c.tipoProf === 'psicologo'
+                        ? 'Psicólogo(a)'
+                        : 'Advogado(a)'
+                    }}
+                  </p>
+
+                </div>
+
+              </div>
+
+
+              <span
+                [innerHTML]="gerarBadge(c.status)"
+              ></span>
+
+            </div>
+
+
+            <!-- LINHA -->
+
+            <div class="consulta-divider"></div>
+
+
+            <!-- DATA -->
+
+            <div class="consulta-info-row">
+
+              <div class="consulta-info-icon">
+                <i class="fa-regular fa-calendar"></i>
+              </div>
+
+              <div class="consulta-info-text">
+
+                <span class="consulta-info-label">
+                  Data e hora
+                </span>
+
+                <p class="consulta-info-value">
+                  {{ c.dataFormatada }}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <!-- MOTIVO -->
+
+            <div class="consulta-info-row">
+
+              <div class="consulta-info-icon">
+                <i class="fa-regular fa-comment-dots"></i>
+              </div>
+
+              <div class="consulta-info-text">
+
+                <span class="consulta-info-label">
+                  Motivo da consulta
+                </span>
+
+                <p class="consulta-info-value">
+                  {{ c.Motivo || 'Não informado' }}
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        }
+
+      } @else {
+
+        <div class="estado-vazio">
+
+          <h2>
+            Você ainda não realizou nenhuma consulta
+          </h2>
+
+        </div>
+
+      }
+
+    </div>
+
+  }
+
+
+  <!-- =====================================================
+       CANCELADAS
+       ===================================================== -->
+
+  @if (abaAtiva() === 'canceladas') {
+
+    <div
+      class="conteudo-tab ativo"
+      id="canceladas"
+    >
+
+      @if (consultasCanceladas().length > 0) {
+
+        @for (c of consultasCanceladas(); track c.id) {
+
+          <div class="consulta-card">
+
+            <!-- PROFISSIONAL -->
+
+            <div class="consulta-card-header">
+
+              <div class="consulta-profissional">
+
+                <img
+                  [src]="c.profissionalFoto"
+                  class="consulta-foto-prof"
+                  alt="Foto profissional"
+                >
+
+                <div class="consulta-profissional-info">
+
+                  <h3>
+                    {{ c.profissionalNome || 'Profissional' }}
+                  </h3>
+
+                  <p class="consulta-tipo-prof">
+                    {{
+                      c.tipoProf === 'psicologo'
+                        ? 'Psicólogo(a)'
+                        : 'Advogado(a)'
+                    }}
+                  </p>
+
+                </div>
+
+              </div>
+
+
+              <span
+                [innerHTML]="gerarBadge(c.status)"
+              ></span>
+
+            </div>
+
+
+            <!-- LINHA -->
+
+            <div class="consulta-divider"></div>
+
+
+            <!-- DATA -->
+
+            <div class="consulta-info-row">
+
+              <div class="consulta-info-icon">
+                <i class="fa-regular fa-calendar"></i>
+              </div>
+
+              <div class="consulta-info-text">
+
+                <span class="consulta-info-label">
+                  Data e hora
+                </span>
+
+                <p class="consulta-info-value">
+                  {{ c.dataFormatada }}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <!-- MOTIVO -->
+
+            <div class="consulta-info-row">
+
+              <div class="consulta-info-icon">
+                <i class="fa-regular fa-comment-dots"></i>
+              </div>
+
+              <div class="consulta-info-text">
+
+                <span class="consulta-info-label">
+                  Motivo da consulta
+                </span>
+
+                <p class="consulta-info-value">
+                  {{ c.Motivo || 'Não informado' }}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <!-- MOTIVO DO CANCELAMENTO -->
+
+            @if (c.motivoCancelamento) {
+
+              <div class="consulta-info-row">
+
+                <div class="consulta-info-icon">
+                  <i class="fa-regular fa-circle-xmark"></i>
+                </div>
+
+                <div class="consulta-info-text">
+
+                  <span class="consulta-info-label">
+                    Motivo do cancelamento
+                  </span>
+
+                  <p class="consulta-info-value">
+                    {{ c.motivoCancelamento }}
+                  </p>
+
+                </div>
+
+              </div>
+
+            }
+
+          </div>
+
+        }
+
+      } @else {
+
+        <div class="estado-vazio">
+
+          <h2>
+            Você não possui consultas canceladas
+          </h2>
+
+        </div>
+
+      }
+
+    </div>
+
+  }
+
+</main>
+
+
+<!-- =====================================================
+     MODAL PROFISSIONAL
+     ===================================================== -->
+
+@if (showModalProf()) {
+
+  <div
+    class="modal"
+    style="display: flex;"
+  >
+
+    <div
+      class="modal-content detalhes-psi-modal"
+      style="position: relative;"
+    >
+
+      <button
+        class="close-modal"
+        title="Fechar"
+        (click)="fecharModalProf()"
+      >
+        &times;
+      </button>
+
+
+      <img
+        [src]="profissionalSelecionado().foto"
+        class="psi-foto-modal"
+        alt="Foto profissional"
+      >
+
+
+      <h2>
+        {{ profissionalSelecionado().nome }}
+      </h2>
+
+      <p>
+        {{ profissionalSelecionado().email }}
+      </p>
+
+      <p>
+        {{ profissionalSelecionado().registro }}
+      </p>
+
+      <p>
+        {{ profissionalSelecionado().atuacao }}
+      </p>
+
+      <p>
+        {{ profissionalSelecionado().especializacoes }}
+      </p>
+
+    </div>
+
+  </div>
+
+}
+
+
+<!-- =====================================================
+     MODAL CANCELAR CONSULTA
+     ===================================================== -->
+
+@if (showModalCancelar()) {
+
+  <div
+    class="modal"
+    style="display: flex;"
+  >
+
+    <div
+      class="modal-content modal-cancelar-content"
+      style="position: relative;"
+    >
+
+      <button
+        class="close-modal"
+        title="Fechar"
+        (click)="fecharModalCancelar()"
+      >
+        &times;
+      </button>
+
+
+      <!-- CABEÇALHO -->
+
+      <div class="modal-cancelar-header">
+
+        <div class="modal-cancelar-icon">
+
+          <i class="fa-regular fa-circle-xmark"></i>
+
+        </div>
+
+
+        <div class="modal-cancelar-header-texto">
+
+          <h2>
+            Cancelar consulta
+          </h2>
+
+
+          @if (consultaParaCancelar()) {
+
+            <p class="modal-cancelar-subtitulo">
+
+              {{
+                consultaParaCancelar().profissionalNome
+                  ? 'Com ' + consultaParaCancelar().profissionalNome + ' · '
+                  : ''
+              }}
+
+              {{ consultaParaCancelar().dataFormatada }}
+
+            </p>
+
+          }
+
+        </div>
+
+      </div>
+
+
+      <!-- AVISO -->
+
+      <div class="modal-cancelar-aviso">
+
+        <i class="fa-solid fa-triangle-exclamation"></i>
+
+        <span>
+          Essa ação não pode ser desfeita.
+          O profissional será notificado do cancelamento.
+        </span>
+
+      </div>
+
+
+      <!-- FORMULÁRIO -->
+
+      <div class="modal-cancelar-form">
+
+        <label for="motivoCancelamento">
+
+          Motivo do cancelamento
+
+          <span class="modal-cancelar-tag-opcional">
+            Opcional
+          </span>
+
+        </label>
+
+
+        <textarea
+          id="motivoCancelamento"
+          placeholder="Conte um pouco sobre o motivo do cancelamento..."
+          [value]="motivoCancelamento()"
+          (input)="motivoCancelamento.set($any($event.target).value)"
+        ></textarea>
+
+      </div>
+
+
+      <hr class="modal-cancelar-divisor">
+
+
+      <!-- AÇÕES -->
+
+      <div class="modal-cancelar-acoes">
+
+        <button
+          class="btn-voltar"
+          (click)="fecharModalCancelar()"
+        >
+          Voltar
+        </button>
+
+
+        <button
+          class="btn-confirmar-cancelamento"
+          [disabled]="isCancelando()"
+          (click)="confirmarCancelamento()"
+        >
+          {{
+            isCancelando()
+              ? 'Cancelando...'
+              : 'Sim, cancelar consulta'
+          }}
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

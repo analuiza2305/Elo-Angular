@@ -1,0 +1,129 @@
+<app-header tipo="mae"></app-header>
+<main class="forum-container">
+
+    <!-- PAINEL DE PESQUISA E FILTROS RESPONSIVOS -->
+    <div class="forum-header-moderno">
+        <div class="forum-search-moderno">
+            <i class="fa fa-search"></i>
+            <input 
+                type="text" 
+                [(ngModel)]="termoPesquisa" 
+                (input)="termoPesquisa = $event.target.value" 
+                placeholder="Pesquisar no fórum...">
+        </div>
+        
+        <!-- Filtros em pílulas (Visíveis no PC) -->
+        <div class="forum-filtros desktop-only-filtros">
+            <button class="filtro-btn" [class.ativo]="categoriaSelecionada() === 'Todos'" (click)="filtrarPorCategoria('Todos')">Todos</button>
+            <button class="filtro-btn" [class.ativo]="categoriaSelecionada() === 'Desabafos'" (click)="filtrarPorCategoria('Desabafos')">Desabafos</button>
+            <button class="filtro-btn" [class.ativo]="categoriaSelecionada() === 'Dúvidas'" (click)="filtrarPorCategoria('Dúvidas')">Dúvidas</button>
+            <button class="filtro-btn" [class.ativo]="categoriaSelecionada() === 'Dicas'" (click)="filtrarPorCategoria('Dicas')">Dicas</button>
+        </div>
+
+        <!-- Dropdown de Categorias exclusivo para Celular -->
+        <div class="ordenacao-dropdown-wrapper mobile-only-categorias" style="margin-top: 14px;">
+            <button class="btn-ordenar-forum" (click)="toggleDropdownCategoria($event)">
+                <i class="fa-solid fa-filter"></i> Categoria: {{ categoriaSelecionada() }} <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
+            </button>
+            
+            <ul class="dropdown-menu-ordenacao" [class.hidden]="!isDropdownCatOpen()">
+                <li (click)="filtrarPorCategoria('Todos')"><i class="fa-solid fa-table-cells-large"></i> Todos</li>
+                <li (click)="filtrarPorCategoria('Desabafos')"><i class="fa-solid fa-face-smile"></i> Desabafos</li>
+                <li (click)="filtrarPorCategoria('Dúvidas')"><i class="fa-solid fa-circle-question"></i> Dúvidas</li>
+                <li (click)="filtrarPorCategoria('Dicas')"><i class="fa-solid fa-lightbulb"></i> Dicas</li>
+            </ul>
+        </div>
+    </div>
+
+    @if (isLoading()) {
+        <div class="loader" style="margin: 40px auto;"><div class="dot"></div><div class="dot"></div></div>
+    } @else {
+        <div id="posts-list">
+            @for (post of postsFiltrados; track post.id) {
+                <div class="forum-card-novo com-brilho" (click)="irParaDetalhes(post.id)">
+                    
+                    <div class="fc-header">
+                        <img [src]="post.autorFotoFinal" [alt]="post.autorNomeFinal" class="fc-avatar">
+                        <div class="fc-user-info">
+                            <strong class="fc-nome">{{ post.autorNomeFinal }}</strong>
+                            <span class="fc-dot">•</span>
+                            <span class="fc-data">{{ post.dataFormatada }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="fc-body">
+                        <h3 class="fc-titulo">{{ post.titulo }}</h3>
+                        <p class="fc-texto">{{ post.conteudo }}</p>
+                    </div>
+                    
+                    <div class="fc-footer">
+                        <div style="display: flex; gap: 16px; align-items: center;">
+                            <div class="fc-like" [class.liked]="post.jaCurtiu" (click)="toggleLikePost(post, $event)">
+                                <i [ngClass]="post.jaCurtiu ? 'fa-solid fa-heart' : 'fa-regular fa-heart'" style="font-size: 18px;"></i>
+                                <span class="like-count">{{ post.likes || 0 }}</span>
+                            </div>
+                            
+                            <div class="fc-like">
+                                <i class="fa-regular fa-comment" style="font-size: 18px;"></i>
+                                <span class="comment-count">{{ post.totalComentarios || 0 }}</span>
+                            </div>
+
+                            @if (currentUser() && currentUser().uid === post.autorId) {
+                                <button class="delete-btn action-btn" (click)="confirmarExclusao(post.id, $event)">Excluir</button>
+                            }
+                        </div>
+                        
+                        @if (post.respondido) {
+                            <div class="badge-respondido"><i class="fa-solid fa-check"></i> Respondido por especialista</div>
+                        } @else {
+                            <div class="badge-aguardando"><i class="fa-regular fa-clock"></i> Aguardando especialista</div>
+                        }
+                    </div>
+                </div>
+            } @empty {
+                <p class="no-posts" style="text-align: center; color: var(--text-muted); margin-top: 40px;">Nenhuma publicação encontrada.</p>
+            }
+        </div>
+    }
+</main>
+
+<button class="botao-nova" (click)="abrirModalNovoPost()">Nova Publicação</button>
+
+@if (showNewPostModal()) {
+    <div class="modal" style="display: flex; background: rgba(0,0,0,0.5);">
+        <div class="modal-content">
+            <h3>Nova Publicação</h3>
+            <form (submit)="criarPostagem()">
+                <label for="titulo">Título:</label>
+                <input type="text" id="titulo" [(ngModel)]="novoPostForm.titulo" name="titulo" placeholder="Digite o título" required>
+                
+                <label for="conteudo">Conteúdo:</label>
+                <textarea id="conteudo" [(ngModel)]="novoPostForm.conteudo" name="conteudo" rows="4" placeholder="Escreva sua mensagem..." required></textarea>
+                
+                <label for="anonimo-checkbox" style="display: flex; align-items: center; gap: 8px; margin-top: 14px; cursor: pointer;">
+                    <input type="checkbox" id="anonimo-checkbox" [(ngModel)]="novoPostForm.anonimo" name="anonimo">
+                    <span>Postar como anônimo</span>
+                </label>
+
+                <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 16px;">
+                    <button type="button" (click)="fecharModalNovoPost()" style="flex:1; background:#eee; border:none; padding:10px; border-radius:8px; cursor:pointer;">Cancelar</button>
+                    <button type="submit" style="flex:1; background:var(--primary-color); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">Publicar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@if (showConfirmModal()) {
+    <div class="modal" style="display: flex; background: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="text-align: center;">
+            <h3 style="color: #d9534f;">Confirmar Exclusão</h3>
+            <p>Você tem certeza que deseja excluir esta publicação?</p>
+            <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="button" style="flex:1; background:#eee; border:none; padding:10px; border-radius:8px; cursor:pointer;" (click)="showConfirmModal.set(false)">Cancelar</button>
+                <button type="button" style="flex:1; background:#d9534f; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;" (click)="excluirPost()">Excluir</button>
+            </div>
+        </div>
+    </div>
+}
+
