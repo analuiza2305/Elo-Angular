@@ -521,8 +521,19 @@ export class HeaderComponent implements OnInit {
     window.speechSynthesis.speak(fala);
   }
 
-  alternarMascara() {
+alternarMascara() {
     this.mascaraAtiva.update((v: boolean) => !v);
+    const masks = document.querySelectorAll('#reading-mask-overlay');
+    
+    masks.forEach(mask => {
+      if (this.mascaraAtiva()) {
+        mask.classList.remove('hidden');
+        (mask as HTMLElement).style.display = 'block';
+      } else {
+        mask.classList.add('hidden');
+        (mask as HTMLElement).style.display = 'none';
+      }
+    });
   }
 
   alternarNegrito() {
@@ -551,7 +562,7 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  redefinirAcessibilidade() {
+redefinirAcessibilidade() {
     this.tamanhoFonte = 16;
     this.espacamentoLinha = 1.5;
     this.filtroDaltonismoIndex = 0;
@@ -562,17 +573,28 @@ export class HeaderComponent implements OnInit {
     
     this.negritoAtivo.set(false);
     this.altoContrasteAtivo.set(false);
-    this.mascaraAtiva.set(false);
     this.leituraVozAtiva.set(false);
+    
+    // Desativa TODAS as máscaras na redefinição
+    this.mascaraAtiva.set(false);
+    const masks = document.querySelectorAll('#reading-mask-overlay');
+    masks.forEach(mask => {
+      mask.classList.add('hidden');
+      (mask as HTMLElement).style.display = 'none';
+    });
     
     window.speechSynthesis.cancel();
     document.body.classList.remove('acessibilidade-negrito', 'acessibilidade-alto-contraste');
   }
 
-  @HostListener('document:mousemove', ['$event'])
+@HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     if (this.mascaraAtiva()) {
-      this.mouseY.set(event.clientY - 50); 
+      const windows = document.querySelectorAll('.highlight-window');
+      windows.forEach(windowEl => {
+        // Centraliza a faixa transparente no cursor do mouse
+        (windowEl as HTMLElement).style.top = `${event.clientY - 60}px`;
+      });
     }
   }
 
