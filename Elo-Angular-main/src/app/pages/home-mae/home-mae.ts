@@ -230,7 +230,18 @@ export class HomeMaeComponent implements OnInit {
       this.infoModal.set({ title: 'Login necessário', message: 'Você precisa estar logado para se inscrever.' });
       return;
     }
-    const toSave = { id: ev.id, titulo: ev.titulo || '', descricao: ev.descricao || '', date: ev.data ? ev.data.toString() : '' };
+    
+    // Formata a data com precisão e salva a capa e o local para o calendário
+    const dateISO = ev.data instanceof Date ? ev.data.toISOString() : (ev.data ? new Date(ev.data).toISOString() : '');
+    const toSave = { 
+      id: ev.id, 
+      titulo: ev.titulo || '', 
+      descricao: ev.descricao || '', 
+      date: dateISO,
+      capa: ev.capa || '',
+      local: ev.local || ''
+    };
+    
     const novos = [...this.userInscritos(), toSave];
     try {
       await updateDoc(doc(db, 'usuarios', user.uid), { eventosInscritos: novos });

@@ -12909,3 +12909,68 @@ label[for="anonimo-checkbox"] {
   color: #fff;
   font-weight: 900;
 }
+/* =========================================
+   CORREÇÕES RESPONSIVAS - MINHAS CONSULTAS
+========================================= */
+/* 1. Foto do Profissional NUNCA achatar */
+.consulta-foto-prof {
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 60px !important;
+    min-height: 60px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    flex-shrink: 0 !important; /* MÁGICA: Impede o flexbox de amassar a foto */
+}
+
+/* 2. Centralizar o botão de "Fazer outros agendamentos" */
+.fazer-outros-wrapper {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+@media (max-width: 768px) {
+    .fazer-outros-btn {
+        width: 100% !important;
+        max-width: 320px !important;
+        margin: 0 auto !important;
+    }
+}
+
+/* 3. Estilos do Dropdown Mobile (Apenas no celular) */
+.mobile-tabs-dropdown {
+    display: none;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto 24px auto;
+}
+
+.mobile-tabs-dropdown select {
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(132, 113, 177, 0.3);
+    background-color: #F4ECFF;
+    color: #4B2C82;
+    font-weight: 700;
+    font-size: 1rem;
+    font-family: 'Nunito', sans-serif;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    /* Ícone de setinha personalizado para o select */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234B2C82%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px top 50%;
+    background-size: 12px auto;
+}
+
+@media (max-width: 768px) {
+    .tabs {
+        display: none !important; /* Esconde as abas "quebradas" originais no celular */
+    }
+    .mobile-tabs-dropdown {
+        display: block !important; /* Mostra o novo dropdown elegante */
+    }
+}

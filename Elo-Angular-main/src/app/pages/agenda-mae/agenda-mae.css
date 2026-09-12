@@ -371,3 +371,517 @@ body[data-theme="dark"] .calendar-dates .date.has-event::before {
         width: 100% !important;
     }
 }
+/* =========================================
+   ESTRUTURA GERAL SOFT UI
+========================================= */
+.agenda-soft-ui {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  padding: 40px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.calendar-container {
+  flex: 1.5;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  border-radius: 28px;
+  box-shadow: 0 15px 40px rgba(89, 74, 125, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  padding: 35px 40px;
+}
+
+.events-container {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  border-radius: 28px;
+  box-shadow: 0 15px 40px rgba(89, 74, 125, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  padding: 35px;
+}
+
+.events-container h3 {
+  color: #3E2A72;
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 24px;
+  margin-top: 0;
+}
+
+/* =========================================
+   HEADER DO CALENDÁRIO & SELECTS PREMIUM
+========================================= */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.month-year-select {
+  display: flex;
+  gap: 12px;
+}
+
+.month-year-select select {
+  appearance: none;
+  background: #F4ECFF;
+  border: 1px solid rgba(132, 113, 177, 0.2);
+  padding: 10px 35px 10px 20px;
+  border-radius: 50px;
+  color: #4B2C82;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234B2C82%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px top 50%;
+  background-size: 10px auto;
+}
+
+.month-year-select select:hover {
+  background-color: #E9E0FF;
+  border-color: #7C69A9;
+}
+
+.nav-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(132, 113, 177, 0.2);
+  background: #fff;
+  color: #7C69A9;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+  background: #7C69A9;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(124, 105, 169, 0.2);
+}
+
+/* =========================================
+   GRELHA DO CALENDÁRIO E BOLINHAS REDUZIDAS
+========================================= */
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: 800;
+  color: #7B6AAE;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.calendar-dates {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  gap: 16px 8px;
+}
+
+.date-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  height: 46px; /* Altura fixa para não tremer */
+}
+
+/* O Segredo: Reduzindo o Raio da Bolinha */
+.date {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 32px; /* Reduzido de 44px para 32px */
+  height: 32px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #443A66;
+  transition: all 0.2s ease;
+}
+
+.date:hover:not(.past) {
+  background-color: #F4ECFF;
+  color: #4B2C82;
+  transform: scale(1.1);
+}
+
+.date.today {
+  background-color: #4B2C82;
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 6px 15px rgba(75, 44, 130, 0.3);
+}
+
+.date.has-event:not(.today) {
+  background-color: #E9E0FF;
+  color: #4B2C82;
+  font-weight: 800;
+}
+
+.date.past {
+  opacity: 0.35;
+  cursor: not-allowed;
+  font-weight: 400;
+}
+
+/* Pontinhos de eventos embaixo do número */
+.event-dots {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.event-dots .dot {
+  width: 5px;
+  height: 5px;
+  background-color: #7C69A9;
+  border-radius: 50%;
+}
+
+.event-dots .dot.past {
+  background-color: #ccc;
+}
+
+/* =========================================
+   LISTA DE EVENTOS COM CORES DINÂMICAS
+========================================= */
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #7B6AAE;
+  padding: 40px 20px;
+  background: #FCFCFF;
+  border: 2px dashed rgba(132, 113, 177, 0.2);
+  border-radius: 20px;
+}
+
+.empty-state i {
+  font-size: 2.5rem;
+  color: #D1C4E9;
+  margin-bottom: 16px;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(132, 113, 177, 0.1);
+  box-shadow: 0 4px 15px rgba(89, 74, 125, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.event-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(89, 74, 125, 0.08);
+}
+
+.event-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.event-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.event-details strong {
+  color: #2D1E4E;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.event-details .meta {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.event-details .descricao {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 1. Psicólogo (Lilás Suave) */
+.tipo-psi {
+  border-left: 5px solid #a855f7;
+}
+.tipo-psi .event-icon-box {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+}
+.tipo-psi .meta { color: #9333ea; }
+
+/* 2. Advogado (Coral/Laranja) */
+.tipo-adv {
+  border-left: 5px solid #fb923c;
+}
+.tipo-adv .event-icon-box {
+  background-color: #ffedd5;
+  color: #c2410c;
+}
+.tipo-adv .meta { color: #ea580c; }
+
+/* 3. Evento Geral (Azul Celeste) */
+.tipo-evento {
+  border-left: 5px solid #38bdf8;
+}
+.tipo-evento .event-icon-box {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+.tipo-evento .meta { color: #0ea5e9; }
+
+/* 4. Artigos / Outros (Verde Água) */
+.tipo-artigo {
+  border-left: 5px solid #14b8a6;
+}
+.tipo-artigo .event-icon-box {
+  background-color: #ccfbf1;
+  color: #0f766e;
+}
+.tipo-artigo .meta { color: #0d9488; }
+
+/* Fallback Genérico */
+.tipo-default {
+  border-left: 5px solid #94a3b8;
+}
+.tipo-default .event-icon-box {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+.tipo-default .meta { color: #64748b; }
+
+/* =========================================
+   MODAL DO DIA
+========================================= */
+.em-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(45, 30, 78, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.em-modal {
+  background: #ffffff;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 28px;
+  padding: 30px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+.em-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.em-modal-header h2 {
+  margin: 0;
+  color: #3E2A72;
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+
+.em-modal-close {
+  background: #F4ECFF;
+  border: none;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  color: #4B2C82;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.em-modal-close:hover {
+  background: #E9E0FF;
+  transform: scale(1.1);
+}
+
+.em-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* =========================================
+   RESPONSIVIDADE E DARK MODE
+========================================= */
+@media (max-width: 992px) {
+  .agenda-soft-ui {
+    flex-direction: column;
+    padding: 20px 16px;
+  }
+  .calendar-container, .events-container {
+    width: 100%;
+    padding: 24px;
+  }
+}
+
+body[data-theme="dark"] .calendar-container,
+body[data-theme="dark"] .events-container,
+body[data-theme="dark"] .em-modal {
+  background: #141a26;
+  border-color: rgba(255,255,255,0.1);
+}
+
+body[data-theme="dark"] .calendar-header h3,
+body[data-theme="dark"] .events-container h3,
+body[data-theme="dark"] .em-modal-header h2,
+body[data-theme="dark"] .event-details strong {
+  color: #f5f0ff;
+}
+
+body[data-theme="dark"] .event-item {
+  background: #1b2336;
+  border-color: rgba(255,255,255,0.05);
+}
+
+body[data-theme="dark"] .month-year-select select {
+  background-color: #1b2336;
+  color: #f5f0ff;
+  border-color: rgba(255,255,255,0.2);
+}   
+
+/* =========================================
+   TAMANHO DO CÍRCULO REDUZIDO EM ~25%
+========================================= */
+.date-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  height: 38px; /* Ajustado proporcionalmente */
+}
+
+.date {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 26px; /* Reduzido em 25% */
+  height: 26px; /* Reduzido em 25% */
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #443A66;
+  transition: all 0.2s ease;
+}
+
+/* ... mantenha os :hover e .today exatamente como já estavam ... */
+
+/* =========================================
+   CAIXA DE ESTADO VAZIO (IDÊNTICA AO PRINT)
+========================================= */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: transparent; 
+  border: 2px dashed #d1c4e9; /* Pontilhado lilás suave do print */
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-state-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #3E2A72; /* Roxo escuro */
+  font-size: 1.05rem;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #554D6B; /* Lilás acinzentado */
+  max-width: 250px;
+  line-height: 1.5;
+}
+/* ========================================================
+   CORREÇÃO DEFINITIVA DO RAIO DA BOLINHA (SOBREPOSIÇÃO FORÇADA)
+======================================================== */
+.calendar-dates .date {
+  aspect-ratio: 1 / 1 !important;
+  width: 36px !important;
+  height: 36px !important;
+  font-size: 0.85rem !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Reduz o círculo roxo de fundo em 25% */
+.calendar-dates .date::before {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+}
+
+/* Alinha o número exatamente no centro */
+.calendar-dates .date .day-number {
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+
+/* Mantém os pontinhos discretos logo abaixo do número */
+.calendar-dates .date .event-dots {
+  bottom: 2px !important;
+}
+
+.calendar-dates .date .event-dots .dot {
+  width: 4px !important;
+  height: 4px !important;
+}

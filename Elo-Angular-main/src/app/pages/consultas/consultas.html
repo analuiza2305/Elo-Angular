@@ -73,7 +73,16 @@
 
   </div>
 
-
+<!-- =====================================================
+       DROPDOWN MOBILE (Substitui as abas no celular)
+       ===================================================== -->
+  <div class="mobile-tabs-dropdown">
+    <select [value]="abaAtiva()" (change)="mudarAba($any($event.target).value)">
+      <option value="agendadas">Agendadas</option>
+      <option value="realizadas">Realizadas</option>
+      <option value="canceladas">Canceladas</option>
+    </select>
+  </div>
   <!-- =====================================================
        AGENDADAS
        ===================================================== -->

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs, doc } from 'firebase/firestore';
 
 @Component({
   selector: 'app-agenda-mae',
@@ -17,10 +17,8 @@ import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestor
 export class AgendaMae implements OnInit, OnDestroy {
   private router = inject(Router);
 
-  // Estados Globais
   currentUser = signal<any>(null);
   
-  // Datas e Calendário
   currentMonth = signal<number>(new Date().getMonth());
   currentYear = signal<number>(new Date().getFullYear());
   monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
@@ -29,7 +27,6 @@ export class AgendaMae implements OnInit, OnDestroy {
   emptyDays = signal<number[]>([]);
   calendarDays = signal<any[]>([]);
 
-  // Dados Firebase
   inscritosCache = signal<any[]>([]);
   consultasCache = signal<any[]>([]);
   profissionalNameCache = new Map<string, string | null>();
@@ -37,15 +34,12 @@ export class AgendaMae implements OnInit, OnDestroy {
   userUnsubscribe: any = null;
   consultasUnsubscribe: any = null;
 
-  // Modal
   selectedDayEvents = signal<any[] | null>(null);
 
-  // Une eventos e consultas em uma única lista e a ordena
   todosEventos = computed(() => {
     return [...this.inscritosCache(), ...this.consultasCache()];
   });
 
-  // Filtra apenas eventos do dia de hoje em diante para a lista lateral
   futurosEventos = computed(() => {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
@@ -64,7 +58,6 @@ export class AgendaMae implements OnInit, OnDestroy {
         this.router.navigate(['/login']);
       }
     });
-
     this.generateCalendar();
   }
 
@@ -79,16 +72,11 @@ export class AgendaMae implements OnInit, OnDestroy {
     this.generateCalendar();
   }
 
-  // ==========================================
-  // LÓGICA DO CALENDÁRIO
-  // ==========================================
   generateCalendar() {
     const year = Number(this.currentYear());
     const month = Number(this.currentMonth());
-    
     const firstDay = new Date(year, month, 1).getDay();
     const lastDate = new Date(year, month + 1, 0).getDate();
-
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
 
@@ -123,6 +111,16 @@ export class AgendaMae implements OnInit, OnDestroy {
     this.calendarDays.set(days);
   }
 
+  updateMonth(val: any) {
+    this.currentMonth.set(Number(val));
+    this.generateCalendar();
+  }
+
+  updateYear(val: any) {
+    this.currentYear.set(Number(val));
+    this.generateCalendar();
+  }
+
   prevMonth() {
     let m = Number(this.currentMonth()) - 1;
     let y = Number(this.currentYear());
@@ -142,9 +140,7 @@ export class AgendaMae implements OnInit, OnDestroy {
   }
 
   openDayModal(day: any) {
-    if (day.hasEvent) {
-      this.selectedDayEvents.set(day.eventos);
-    }
+    if (day.hasEvent) this.selectedDayEvents.set(day.eventos);
   }
 
   closeDayModal() {
@@ -155,9 +151,6 @@ export class AgendaMae implements OnInit, OnDestroy {
     this.router.navigate(['/eventos'], { queryParams: { evento: id } });
   }
 
-  // ==========================================
-  // UTILITÁRIOS E PARSERS
-  // ==========================================
   formatarData(data: Date | null): string {
     if (!data) return '';
     return data.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -185,40 +178,30 @@ export class AgendaMae implements OnInit, OnDestroy {
     return arr.map(ev => {
       const copy = { ...ev };
       const raw = ev.date ?? ev.data ?? ev.Datahora ?? ev.DataHora ?? ev.Data;
-      let dt = this.parsePossibleDate(raw);
-      copy.data = dt;
+      copy.data = this.parsePossibleDate(raw);
       return copy;
     }).filter(e => e.data instanceof Date && !isNaN(e.data.getTime()));
   }
 
-  // ==========================================
-  // LÓGICA DE DADOS (FIRESTORE)
-  // ==========================================
   async carregarEventosUsuario(uid: string) {
-    // 1. Escuta eventos inscritos salvos no perfil do usuário
-    const userRef = collection(db, 'usuarios');
-    const qUser = query(userRef, where('__name__', '==', uid));
-    
-    this.userUnsubscribe = onSnapshot(qUser, (snap) => {
-      if (snap.empty) return;
-      const data = snap.docs[0].data();
+    const docRef = doc(db, 'usuarios', uid);
+    this.userUnsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (!docSnap.exists()) return;
+      const data = docSnap.data();
       const inscritosRaw = data['eventosInscritos'] || [];
       const eventos = this.normalizeEventosArray(inscritosRaw).map(e => ({ ...e, type: 'evento' }));
       this.inscritosCache.set(eventos);
       this.generateCalendar();
     });
 
-    // 2. Escuta Consultas
     const qConsultas = query(collection(db, 'Consultas'), where('Mae', '==', uid));
     this.consultasUnsubscribe = onSnapshot(qConsultas, async (snapshot) => {
-      
-      // SOLUÇÃO: Adicionado "(d.data() as any)" para o TypeScript aceitar as propriedades dinâmicas
       const docs = snapshot.docs.map(d => ({ id: d.id, ...(d.data() as any) }));
       const normalized = [];
 
       for (const raw of docs) {
         const copy: any = { ...raw };
-        copy.data = this.parsePossibleDate(raw['Datahora'] ?? raw['datahora'] ?? raw['Data'] ?? raw['date']);
+        copy.data = this.parsePossibleDate(raw['Datahora'] ?? raw['datahora'] ?? raw['DataHora'] ?? raw['Data'] ?? raw['date']);
         copy.type = 'consulta';
         copy.Motivo = raw['Motivo'] ?? raw['motivo'] ?? '';
         copy.status = raw['status'] ?? '';
@@ -239,7 +222,6 @@ export class AgendaMae implements OnInit, OnDestroy {
         normalized.push(copy);
       }
 
-      // Busca os nomes dos profissionais
       const fetchPromises = normalized.map(async c => {
         if (c.profissionalId && c.collectionName) {
           const key = `${c.collectionName}:${c.profissionalId}`;
@@ -255,7 +237,6 @@ export class AgendaMae implements OnInit, OnDestroy {
       });
 
       await Promise.all(fetchPromises);
-      
       this.consultasCache.set(this.normalizeEventosArray(normalized));
       this.generateCalendar();
     });
@@ -272,5 +253,30 @@ export class AgendaMae implements OnInit, OnDestroy {
       console.warn('Erro buscando profissional nome', err);
     }
     return null;
+  }
+
+  // ==========================================
+  // HELPERS DE UI (CORES E ÍCONES)
+  // ==========================================
+  getEventClass(ev: any): string {
+    if (ev.type === 'evento') return 'tipo-evento';
+    if (ev.type === 'artigo') return 'tipo-artigo';
+    if (ev.type === 'consulta') {
+      if (ev.collectionName === 'psicologos') return 'tipo-psi';
+      if (ev.collectionName === 'advogados') return 'tipo-adv';
+      return 'tipo-consulta';
+    }
+    return 'tipo-default';
+  }
+
+  getEventIcon(ev: any): string {
+    if (ev.type === 'evento') return 'fa-regular fa-calendar-check';
+    if (ev.type === 'artigo') return 'fa-solid fa-book-open';
+    if (ev.type === 'consulta') {
+      if (ev.collectionName === 'psicologos') return 'fa-solid fa-brain';
+      if (ev.collectionName === 'advogados') return 'fa-solid fa-scale-balanced';
+      return 'fa-solid fa-stethoscope';
+    }
+    return 'fa-regular fa-star';
   }
 }
