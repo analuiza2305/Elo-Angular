@@ -1717,6 +1717,218 @@
   </section>
 
 
+  <!-- MODERAÇÃO DE CONTEÚDO (ARTIGOS E EVENTOS) -->
+  <section class="content" id="moderacao" [class.hidden]="abaAtiva !== 'moderacao'" (click)="fecharOpcoesConteudo()">
+    <div class="mod-layout">
+
+      <!-- COLUNA PRINCIPAL (esquerda) -->
+      <div class="creditos-col mod-col-principal">
+        <div class="mod-hero">
+          <div class="mod-hero-texto">
+            <h2 class="page-title">Moderação de Conteúdo:</h2>
+            <p class="page-subtitle">Modere Eventos e Artigos publicados</p>
+          </div>
+          <i class="fa-solid fa-shield-halved mod-hero-icone" aria-hidden="true"></i>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Total de Eventos e Artigos</span>
+              <span class="stat-number">{{ contagemConteudoModeracao.total }}</span>
+              <span class="stat-trend neutral">posts...</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-purple"><i class="fa-regular fa-calendar-days"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Eventos Publicados</span>
+              <span class="stat-number">{{ contagemConteudoModeracao.eventos }}</span>
+              <span class="stat-trend neutral">posts...</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-purple"><i class="fa-regular fa-file-lines"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Artigos Publicados</span>
+              <span class="stat-number">{{ contagemConteudoModeracao.artigos }}</span>
+              <span class="stat-trend neutral">posts...</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon stat-icon-laranja"><i class="fa-solid fa-circle-exclamation"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Denunciados</span>
+              <span class="stat-number">{{ contagemConteudoModeracao.denunciados }}</span>
+              <span class="stat-trend neutral">posts...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-panel mod-tabela-card">
+          <div class="mod-tabs-busca">
+            <div class="mod-tabs">
+              <button type="button" class="mod-tab" [class.active]="filtroConteudoModeracao === 'todos'" (click)="filtrarConteudoModeracao('todos')">
+                <i class="fa-solid fa-table-cells-large"></i> Todos
+              </button>
+              <button type="button" class="mod-tab" [class.active]="filtroConteudoModeracao === 'eventos'" (click)="filtrarConteudoModeracao('eventos')">
+                <i class="fa-regular fa-calendar"></i> Eventos
+              </button>
+              <button type="button" class="mod-tab" [class.active]="filtroConteudoModeracao === 'artigos'" (click)="filtrarConteudoModeracao('artigos')">
+                <i class="fa-regular fa-file-lines"></i> Artigos
+              </button>
+              <button type="button" class="mod-tab mod-tab-alerta" [class.active]="filtroConteudoModeracao === 'denuncias'" (click)="filtrarConteudoModeracao('denuncias')">
+                <i class="fa-solid fa-circle-info"></i> Denúncias
+              </button>
+            </div>
+
+            <div class="mae-search-box mod-search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" placeholder="Buscar..." [(ngModel)]="buscaConteudoModeracao">
+            </div>
+          </div>
+
+          <div class="mod-tabela-scroll">
+            <table class="user-table mod-tabela">
+              <thead>
+                <tr>
+                  <th>Conteúdo</th>
+                  <th>Tipo</th>
+                  <th>Usuário</th>
+                  <th>Data</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                @if (carregandoConteudoModeracao) {
+                  <tr><td colspan="6" class="mod-tabela-vazio">Carregando conteúdo...</td></tr>
+                } @else if (conteudoFiltrado.length === 0) {
+                  <tr><td colspan="6" class="mod-tabela-vazio">Nenhum conteúdo encontrado nesse filtro.</td></tr>
+                }
+
+                @for (item of conteudoFiltrado; track item.id) {
+                  <tr>
+                    <td>
+                      <div class="mod-conteudo-cel">
+                        <span class="mod-conteudo-icone">
+                          <i class="fa-regular" [ngClass]="item.tipo === 'Evento' ? 'fa-calendar' : 'fa-file-lines'"></i>
+                        </span>
+                        <div class="mod-conteudo-texto">
+                          <strong>{{ item.titulo }}</strong>
+                          <small>{{ item.assunto || 'Assunto...' }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{ item.tipo }}</td>
+                    <td>{{ item.usuarioNome }}</td>
+                    <td>{{ item.dataFormatada }}</td>
+                    <td>
+                      @if (statusConteudo(item) === 'denunciado') {
+                        <span class="mod-status mod-status-denunciado">Denunciado</span>
+                      } @else if (statusConteudo(item) === 'removido') {
+                        <span class="mod-status mod-status-deletado">Deletado</span>
+                      } @else {
+                        <span class="mod-status mod-status-ok">Ok</span>
+                      }
+                    </td>
+                    <td>
+                      @if (statusConteudo(item) === 'removido') {
+                        <button type="button" class="mod-btn-restaurar" (click)="restaurarConteudo(item)">Restaurar Post</button>
+                      } @else {
+                        <div class="mod-acoes-cel">
+                          <button type="button" class="mod-btn-icone" title="Visualizar">
+                            <i class="fa-regular fa-eye"></i>
+                          </button>
+
+                          <div class="mod-opcoes-wrap">
+                            <button type="button" class="mod-btn-opcoes" (click)="$event.stopPropagation(); toggleOpcoesConteudo(item)">
+                              <i class="fa-solid fa-bars"></i> Opções
+                            </button>
+
+                            @if (opcoesConteudoAbertasId === item.id) {
+                              <div class="mod-opcoes-menu" (click)="$event.stopPropagation()">
+                                @if (statusConteudo(item) === 'denunciado') {
+                                  <button type="button" (click)="abrirModalAnalisarDenuncia(item)">
+                                    <i class="fa-solid fa-magnifying-glass"></i> Analisar Denúncia
+                                  </button>
+                                }
+                                <button type="button" class="mod-opcoes-deletar" (click)="abrirModalDeletarConteudo(item)">
+                                  <i class="fa-solid fa-trash"></i> Deletar
+                                </button>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUNA LATERAL (direita) -->
+      <div class="creditos-col mod-col-lateral">
+        <div class="dash-panel creditos-donut-card">
+          <h3>Dados Gerais:</h3>
+          <div class="creditos-donut-wrap">
+            <canvas id="conteudoDonutChart"></canvas>
+          </div>
+          <div class="creditos-donut-legenda">
+            <div class="creditos-donut-legenda-item">
+              <span class="creditos-donut-dot" style="background:#443A66"></span>
+              <span class="creditos-donut-legenda-nome">Total</span>
+              <span class="creditos-donut-legenda-valor">100 %</span>
+            </div>
+            <div class="creditos-donut-legenda-item">
+              <span class="creditos-donut-dot" style="background:#6C4BBF"></span>
+              <span class="creditos-donut-legenda-nome">Eventos</span>
+              <span class="creditos-donut-legenda-valor">{{ percentualEventosConteudo }} %</span>
+            </div>
+            <div class="creditos-donut-legenda-item">
+              <span class="creditos-donut-dot" style="background:#c9b8f0"></span>
+              <span class="creditos-donut-legenda-nome">Artigos</span>
+              <span class="creditos-donut-legenda-valor">{{ percentualArtigosConteudo }} %</span>
+            </div>
+            <div class="creditos-donut-legenda-item">
+              <span class="creditos-donut-dot" style="background:#c98a3e"></span>
+              <span class="creditos-donut-legenda-nome">Denúncias</span>
+              <span class="creditos-donut-legenda-valor">{{ percentualDenunciasConteudo }} %</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-panel activity-card mod-ultimos-card">
+          <div class="activity-card-header">
+            <h3>Últimos conteúdos moderados:</h3>
+          </div>
+          <div class="activity-list">
+            @for (log of ultimosConteudosModerados; track $index) {
+              <div class="activity-item">
+                <span class="activity-icon icone-roxo"><i class="fa-regular fa-file-lines"></i></span>
+                <div class="activity-texto">
+                  <strong>{{ log.titulo }}</strong>
+                  <span>{{ log.acao }} · Em {{ log.dataFormatada }}</span>
+                </div>
+              </div>
+            }
+            @if (ultimosConteudosModerados.length === 0) {
+              <p class="activity-empty">Nenhuma ação registrada por enquanto.</p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
   <!-- FÓRUM (MODERAÇÃO DOS POSTS REAIS) -->
   <section class="content" id="forum" [class.hidden]="abaAtiva !== 'forum'">
     <h2 class="page-title">Moderação do Fórum</h2>
@@ -1827,6 +2039,369 @@
         </div>
       }
     </div>
+  </section>
+
+
+  <!-- RELATÓRIOS -->
+  <section class="content" id="relatorios" [class.hidden]="abaAtiva !== 'relatorios'">
+    <div class="rel-header">
+      <div class="rel-header-info">
+        <span class="rel-header-icone"><i class="fa-solid fa-chart-simple"></i></span>
+        <div>
+          <h2 class="rel-header-titulo">Relatórios</h2>
+          <p class="rel-header-subtitulo">Acompanhe os principais resultados da plataforma</p>
+        </div>
+      </div>
+
+      <div class="rel-header-acoes">
+        <div class="rel-select-wrap">
+          <i class="fa-regular fa-calendar"></i>
+          <select [(ngModel)]="relatoriosMesSelecionado" aria-label="Selecionar mês do relatório">
+            <option *ngFor="let mes of relatoriosMesesDisponiveis" [value]="mes">{{ mes }}</option>
+          </select>
+          <i class="fa-solid fa-chevron-down rel-select-chevron"></i>
+        </div>
+
+        <button type="button" class="rel-export-btn" (click)="exportarRelatorio()">
+          <i class="fa-solid fa-download"></i> Exportar relatório
+        </button>
+      </div>
+    </div>
+
+    <div class="rel-stats-grid">
+      <div class="rel-stat-card" [ngClass]="'rel-stat-' + stat.cor" *ngFor="let stat of relatoriosStats">
+        <span class="rel-stat-icone"><i class="fa-solid" [ngClass]="stat.icone"></i></span>
+        <div class="rel-stat-info">
+          <span class="rel-stat-label">{{ stat.label }}</span>
+          <span class="rel-stat-valor">{{ stat.valor }}</span>
+          <span class="rel-stat-trend"><i class="fa-solid fa-arrow-up"></i> {{ stat.variacao }}%</span>
+          <span class="rel-stat-comparativo">comparado com o mês anterior</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-columns rel-columns">
+      <div class="dash-panel chart-card rel-financeiro-card">
+        <div class="rel-panel-header">
+          <span class="rel-panel-icone"><i class="fa-solid fa-chart-line"></i></span>
+          <div>
+            <h3>Resultado financeiro</h3>
+            <p class="rel-panel-subtitulo">Receitas, custos e lucros ao longo dos últimos meses.</p>
+          </div>
+        </div>
+        <canvas id="relatoriosFinanceiroChart"></canvas>
+      </div>
+
+      <div class="dash-panel rel-receita-custos-card">
+        <div class="rel-panel-header">
+          <span class="rel-panel-icone"><i class="fa-solid fa-chart-pie"></i></span>
+          <div>
+            <h3>Receita e custos</h3>
+            <p class="rel-panel-subtitulo">De onde vem a receita e para onde o dinheiro está indo.</p>
+          </div>
+        </div>
+
+        <div class="rel-donuts-grid">
+          <div class="rel-donut-block">
+            <h4>Receita por origem</h4>
+            <div class="rel-donut-wrap"><canvas id="relatoriosOrigemChart"></canvas></div>
+            <div class="rel-donut-legenda">
+              <div class="rel-donut-legenda-item" *ngFor="let cat of relatoriosReceitaOrigem">
+                <span class="rel-donut-dot" [style.background]="cat.cor"></span>
+                <span class="rel-donut-legenda-nome">{{ cat.nome }}</span>
+                <span class="rel-donut-legenda-pct">{{ cat.percentual }}%</span>
+                <span class="rel-donut-legenda-valor">{{ cat.valor }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rel-donut-block">
+            <h4>Custos da plataforma</h4>
+            <div class="rel-donut-wrap"><canvas id="relatoriosCustosChart"></canvas></div>
+            <div class="rel-donut-legenda">
+              <div class="rel-donut-legenda-item" *ngFor="let cat of relatoriosCustosPlataforma">
+                <span class="rel-donut-dot" [style.background]="cat.cor"></span>
+                <span class="rel-donut-legenda-nome">{{ cat.nome }}</span>
+                <span class="rel-donut-legenda-pct">{{ cat.percentual }}%</span>
+                <span class="rel-donut-legenda-valor">{{ cat.valor }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rel-insights-grid">
+      <div class="rel-insight-card" [ngClass]="'rel-insight-' + insight.tipo" *ngFor="let insight of relatoriosInsights">
+        <span class="rel-insight-icone"><i class="fa-solid" [ngClass]="insight.icone"></i></span>
+        <div class="rel-insight-texto">
+          <strong>{{ insight.titulo }}</strong>
+          <span>{{ insight.texto }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- CONFIGURAÇÕES -->
+  <section class="content" id="configuracoes" [class.hidden]="abaAtiva !== 'configuracoes'">
+    <div class="rel-header config-header">
+      <div class="rel-header-info">
+        <span class="rel-header-icone"><i class="fa-solid fa-gear"></i></span>
+        <div>
+          <h2 class="rel-header-titulo">Configurações</h2>
+          <p class="rel-header-subtitulo">Gerencie sua conta, a plataforma e as permissões administrativas do EloMaterno</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TELA PRINCIPAL -->
+    @if (configSubTela === 'principal') {
+
+      <div class="config-perfil-card">
+        <div class="config-perfil-avatar-wrap">
+          <span class="config-perfil-avatar"></span>
+          <button type="button" class="config-perfil-avatar-editar" (click)="editarPerfilAdmin()" aria-label="Editar avatar">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+        </div>
+
+        <div class="config-perfil-info">
+          <strong>{{ configAdminLogado.nome }}</strong>
+          <span class="config-perfil-badge">{{ configAdminLogado.cargo }}</span>
+          <span class="config-perfil-desde">Desde {{ configAdminLogado.desde }}</span>
+        </div>
+
+        <div class="config-perfil-contato">
+          <span><i class="fa-regular fa-envelope"></i> E-mail: <a [href]="'mailto:' + configAdminLogado.email">{{ configAdminLogado.email }}</a></span>
+          <span><i class="fa-solid fa-mobile-screen"></i> Cell: {{ configAdminLogado.telefone }}</span>
+        </div>
+
+        <button type="button" class="config-editar-perfil-btn" (click)="editarPerfilAdmin()">
+          <i class="fa-solid fa-pen"></i> Editar perfil
+        </button>
+      </div>
+
+      <div class="dash-panel config-conta-card">
+        <div class="rel-panel-header">
+          <span class="rel-panel-icone"><i class="fa-solid fa-user"></i></span>
+          <div>
+            <h3>Minha conta</h3>
+            <p class="rel-panel-subtitulo">Configurações pessoais do administrador logado.</p>
+          </div>
+        </div>
+
+        <div class="config-conta-grid">
+          <button type="button" class="config-conta-item" (click)="abrirConfigModal('perfil')">
+            <span class="config-conta-icone"><i class="fa-solid fa-user"></i></span>
+            <span class="config-conta-texto">
+              <strong>Meu perfil</strong>
+              <span>Dados pessoais e cargo.</span>
+            </span>
+            <i class="fa-solid fa-chevron-right config-conta-seta"></i>
+          </button>
+
+          <button type="button" class="config-conta-item" (click)="abrirConfigModal('seguranca')">
+            <span class="config-conta-icone"><i class="fa-solid fa-shield-halved"></i></span>
+            <span class="config-conta-texto">
+              <strong>Segurança</strong>
+              <span>Dados pessoais, contato e cargo.</span>
+            </span>
+            <i class="fa-solid fa-chevron-right config-conta-seta"></i>
+          </button>
+
+          <div class="config-conta-item config-conta-item-destaque">
+            <div class="config-outros-adm-topo">
+              <span class="config-conta-icone config-conta-icone-duplo"><i class="fa-solid fa-user-group"></i></span>
+              <span class="config-conta-texto">
+                <strong>Outros administradores</strong>
+                <span>{{ configAdministradoresLista.length }} administradores ativos</span>
+              </span>
+            </div>
+
+            <div class="config-gerir-adm-box">
+              <strong>Gerir administradores</strong>
+              <p>Adicione, edite ou desative contas administrativas registradas na plataforma.</p>
+              <button type="button" class="config-acessar-btn" (click)="abrirGerirAdministradores()">
+                Acessar <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="button" class="config-conta-item" (click)="abrirConfigModal('notificacoes')">
+            <span class="config-conta-icone"><i class="fa-solid fa-bell"></i></span>
+            <span class="config-conta-texto">
+              <strong>Notificações</strong>
+              <span>Dados pessoais, contato e cargo.</span>
+            </span>
+            <i class="fa-solid fa-chevron-right config-conta-seta"></i>
+          </button>
+
+          <button type="button" class="config-conta-item" (click)="abrirConfigModal('termo')">
+            <span class="config-conta-icone"><i class="fa-solid fa-file-lines"></i></span>
+            <span class="config-conta-texto">
+              <strong>Termo do admin</strong>
+              <span>Termo de bom uso do admin.</span>
+            </span>
+            <i class="fa-solid fa-chevron-right config-conta-seta"></i>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- TELA: ADMINISTRADORES / PERMISSÕES -->
+    @if (configSubTela === 'administradores') {
+
+      <div class="config-admin-topbar">
+        <div class="config-tabs">
+          <button
+            type="button"
+            class="config-tab"
+            [class.active]="configAdministradoresSubAba === 'administradores'"
+            (click)="mudarConfigAdministradoresSubAba('administradores')">
+            Administradores
+          </button>
+          <button
+            type="button"
+            class="config-tab"
+            [class.active]="configAdministradoresSubAba === 'permissoes'"
+            (click)="mudarConfigAdministradoresSubAba('permissoes')">
+            Permissões
+          </button>
+        </div>
+
+        <button type="button" class="config-voltar-btn" (click)="voltarConfigPrincipal()" aria-label="Voltar para Configurações">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
+
+      @if (configAdministradoresSubAba === 'administradores') {
+        <div class="dash-panel config-admin-hero">
+          <span class="config-admin-hero-icone"><i class="fa-solid fa-user-group"></i></span>
+          <div class="config-admin-hero-texto">
+            <h3>Equipe de administradores</h3>
+            <p>Gerenciamento de usuários que possuem acesso a conta de administrador.</p>
+          </div>
+          <span class="config-admin-hero-ilustracao"><i class="fa-solid fa-heart"></i></span>
+        </div>
+
+        <div class="dash-panel config-admin-tabela-card">
+          <div class="config-admin-tabela-header">
+            <div class="config-admin-tabela-titulo">
+              <span class="config-admin-tabela-icone"><i class="fa-solid fa-user-group"></i></span>
+              <div>
+                <strong>Administradores da plataforma</strong>
+                <span>{{ configAdministradoresLista.length }} administradores ativos</span>
+              </div>
+            </div>
+
+            <button type="button" class="config-convidar-btn" (click)="convidarAdministrador()">
+              <i class="fa-solid fa-plus"></i> Convidar novo administrador
+            </button>
+          </div>
+
+          <div class="prof-table-scroll">
+            <table class="user-table config-admin-tabela">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Nível de acesso</th>
+                  <th>Permissões</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let adm of configAdministradoresLista">
+                  <td>
+                    <div class="mae-nome-cel">
+                      @if (adm.avatar) {
+                        <img [src]="adm.avatar" alt="" class="mae-avatar-mini">
+                      } @else {
+                        <span class="mae-avatar-mini mae-avatar-iniciais">{{ iniciaisNome(adm.nome) }}</span>
+                      }
+                      <span>{{ adm.nome }}</span>
+                    </div>
+                  </td>
+                  <td>{{ adm.email }}</td>
+                  <td><span class="config-nivel-badge">{{ adm.nivelAcesso }}</span></td>
+                  <td>{{ adm.permissoes }}</td>
+                  <td>
+                    <span class="config-status-dot" [class.ativo]="adm.status === 'ativo'"></span>
+                    {{ adm.status === 'ativo' ? 'Ativo' : 'Inativo' }}
+                  </td>
+                  <td>
+                    <button type="button" class="config-acoes-btn" aria-label="Mais ações">
+                      <i class="fa-solid fa-ellipsis"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+      @if (configAdministradoresSubAba === 'permissoes') {
+        <div class="dash-panel config-admin-hero">
+          <span class="config-admin-hero-icone"><i class="fa-solid fa-user-shield"></i></span>
+          <div class="config-admin-hero-texto">
+            <h3>Controle de níveis e permissões de administradores</h3>
+            <p>Gerenciamento de permissões referente ao nível de administrador.</p>
+          </div>
+          <span class="config-admin-hero-ilustracao"><i class="fa-solid fa-heart"></i></span>
+        </div>
+
+        <div class="dash-panel config-permissoes-card">
+          <div class="config-admin-tabela-titulo">
+            <span class="config-admin-tabela-icone"><i class="fa-solid fa-user-group"></i></span>
+            <div>
+              <strong>Permissões por nível</strong>
+              <span>Configure o que cada nível de administrador terá acesso:</span>
+            </div>
+          </div>
+
+          <div class="prof-table-scroll">
+            <table class="user-table config-permissoes-tabela">
+              <thead>
+                <tr>
+                  <th>Permissões</th>
+                  <th>Super admin</th>
+                  <th>Administrador</th>
+                  <th>Moderador</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let perm of configPermissoesPorNivel">
+                  <td>
+                    <div class="mae-nome-cel">
+                      <span class="config-permissao-dot"></span>
+                      <span>{{ perm.nome }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <button type="button" class="config-permissao-check" [class.on]="perm.superAdmin" (click)="alternarPermissaoNivel(perm, 'superAdmin')" aria-label="Super admin">
+                      @if (perm.superAdmin) { <i class="fa-solid fa-check"></i> }
+                    </button>
+                  </td>
+                  <td>
+                    <button type="button" class="config-permissao-check" [class.on]="perm.administrador" (click)="alternarPermissaoNivel(perm, 'administrador')" aria-label="Administrador">
+                      @if (perm.administrador) { <i class="fa-solid fa-check"></i> }
+                    </button>
+                  </td>
+                  <td>
+                    <button type="button" class="config-permissao-check" [class.on]="perm.moderador" (click)="alternarPermissaoNivel(perm, 'moderador')" aria-label="Moderador">
+                      @if (perm.moderador) { <i class="fa-solid fa-check"></i> }
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    }
   </section>
 
 
@@ -1957,6 +2532,394 @@
         <button type="button" class="suspender-btn-confirmar" [disabled]="removendoPost" (click)="confirmarRemocaoPost()">
           <i class="fa-solid fa-circle-xmark"></i>
           {{ removendoPost ? 'Deletando...' : 'Deletar post' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+
+<!-- MODAL: ANALISAR DENÚNCIA (moderação de conteúdo) -->
+@if (conteudoParaAnalisar) {
+  <div class="suspender-overlay" (click)="fecharModalAnalisarDenuncia()">
+    <div class="suspender-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="suspender-fechar-btn" (click)="fecharModalAnalisarDenuncia()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="suspender-cabecalho">
+        <span class="suspender-icone suspender-icone-alerta"><i class="fa-solid fa-triangle-exclamation"></i></span>
+        <div class="suspender-cabecalho-texto">
+          <h3>Analisar Denúncia</h3>
+          <p>Ao aplicar uma advertência a ação será registrada no histórico do usuário!</p>
+        </div>
+      </div>
+
+      <div class="dash-panel forum-post-card forum-modal-preview">
+        <div class="forum-post-cabecalho">
+          <span class="mod-conteudo-icone">
+            <i class="fa-regular" [ngClass]="conteudoParaAnalisar.tipo === 'Evento' ? 'fa-calendar' : 'fa-file-lines'"></i>
+          </span>
+          <div class="forum-post-autor">
+            <strong>{{ conteudoParaAnalisar.usuarioNome }}</strong>
+            <small>{{ conteudoParaAnalisar.dataFormatada }}</small>
+          </div>
+          <span class="forum-badge badge-neutro">{{ conteudoParaAnalisar.tipo }}</span>
+          <span class="forum-badge badge-laranja">Post denunciado</span>
+        </div>
+        <p class="forum-post-conteudo">{{ conteudoParaAnalisar.titulo }}</p>
+      </div>
+
+      <div class="suspender-campo">
+        <label>Motivo da denúncia</label>
+        <div class="mod-motivo-denuncia-box">
+          {{ conteudoParaAnalisar.moderacao?.motivoDenuncia || 'Nenhum motivo informado pelo denunciante.' }}
+        </div>
+      </div>
+
+      <div class="suspender-campo">
+        <label>Ações</label>
+        <div class="mod-acoes-toggle">
+          <button
+            type="button"
+            class="mod-acao-btn"
+            [class.selecionada]="acaoDenunciaEscolhida === 'remover'"
+            (click)="escolherAcaoDenuncia('remover')">
+            Remover Denúncia
+          </button>
+          <button
+            type="button"
+            class="mod-acao-btn mod-acao-btn-perigo"
+            [class.selecionada]="acaoDenunciaEscolhida === 'deletar'"
+            (click)="escolherAcaoDenuncia('deletar')">
+            Deletar Post
+          </button>
+        </div>
+      </div>
+
+      <div class="suspender-campo">
+        <label for="observacoesAcaoDenuncia">Descreva o motivo da ação escolhida</label>
+        <textarea
+          id="observacoesAcaoDenuncia"
+          rows="3"
+          [(ngModel)]="observacoesAcaoDenuncia"
+          placeholder="Comente sobre a ação escolhida..."></textarea>
+      </div>
+
+      @if (erroAnaliseDenuncia) {
+        <p class="suspender-erro">{{ erroAnaliseDenuncia }}</p>
+      }
+
+      <div class="suspender-acoes">
+        <button type="button" class="suspender-btn-cancelar" [disabled]="analisandoDenuncia" (click)="fecharModalAnalisarDenuncia()">
+          Cancelar
+        </button>
+        <button type="button" class="suspender-btn-confirmar" [disabled]="analisandoDenuncia" (click)="confirmarAnaliseDenuncia()">
+          {{ analisandoDenuncia ? 'Concluindo...' : 'Concluir' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+
+<!-- MODAL: DELETAR CONTEÚDO (artigo/evento) -->
+@if (conteudoParaDeletar) {
+  <div class="suspender-overlay" (click)="fecharModalDeletarConteudo()">
+    <div class="suspender-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="suspender-fechar-btn" (click)="fecharModalDeletarConteudo()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="suspender-cabecalho">
+        <span class="suspender-icone"><i class="fa-solid fa-circle-xmark"></i></span>
+        <div class="suspender-cabecalho-texto">
+          <h3>Deletar post!</h3>
+          <p>Ao deletar um post esta ação será irreversível!</p>
+        </div>
+      </div>
+
+      <div class="dash-panel forum-post-card forum-modal-preview">
+        <div class="forum-post-cabecalho">
+          <span class="mod-conteudo-icone">
+            <i class="fa-regular" [ngClass]="conteudoParaDeletar.tipo === 'Evento' ? 'fa-calendar' : 'fa-file-lines'"></i>
+          </span>
+          <div class="forum-post-autor">
+            <strong>{{ conteudoParaDeletar.usuarioNome }}</strong>
+            <small>{{ conteudoParaDeletar.dataFormatada }}</small>
+          </div>
+          <span class="forum-badge badge-perigo">Post a ser deletado <i class="fa-solid fa-xmark"></i></span>
+        </div>
+        <p class="forum-post-conteudo">"{{ conteudoParaDeletar.titulo }}"</p>
+      </div>
+
+      <div class="suspender-campo">
+        <label for="motivoDelecaoConteudo">Descreva o motivo</label>
+        <textarea
+          id="motivoDelecaoConteudo"
+          rows="3"
+          [(ngModel)]="motivoDelecaoConteudo"
+          placeholder="Descreva o motivo de deletar o post..."></textarea>
+      </div>
+
+      @if (erroDelecaoConteudo) {
+        <p class="suspender-erro">{{ erroDelecaoConteudo }}</p>
+      }
+
+      <div class="suspender-acoes">
+        <button type="button" class="suspender-btn-cancelar" [disabled]="deletandoConteudo" (click)="fecharModalDeletarConteudo()">
+          Cancelar
+        </button>
+        <button type="button" class="suspender-btn-confirmar" [disabled]="deletandoConteudo" (click)="confirmarDelecaoConteudo()">
+          <i class="fa-solid fa-circle-xmark"></i>
+          {{ deletandoConteudo ? 'Deletando...' : 'Deletar post' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL: MEU PERFIL (Configurações) -->
+@if (configModalAberto === 'perfil') {
+  <div class="config-modal-overlay" (click)="fecharConfigModal()">
+    <div class="config-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="config-modal-fechar-btn" (click)="fecharConfigModal()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="config-modal-header">
+        <span class="config-modal-icone"><i class="fa-solid fa-user"></i></span>
+        <div>
+          <h3>Meu perfil</h3>
+          <p>Dados pessoais.</p>
+        </div>
+      </div>
+
+      <div class="config-modal-bar">Configurações pessoais:</div>
+
+      <div class="config-perfil-secao">
+        <h4>Cargo e permissões:</h4>
+
+        <div class="config-perfil-linha">
+          <span class="config-perfil-linha-label">Cargo:</span>
+          <span class="config-nivel-badge">{{ configAdminLogado.cargo }}</span>
+        </div>
+
+        <div class="config-perfil-linha">
+          <span class="config-perfil-linha-label">Setor:</span>
+          <span class="config-perfil-linha-valor">{{ configAdminLogado.setor }}</span>
+        </div>
+
+        <div class="config-perfil-linha config-perfil-linha-top">
+          <span class="config-perfil-linha-label">Permissões:</span>
+          <div class="config-permissoes-chips">
+            <span class="config-permissao-chip" *ngFor="let p of configAdminLogado.permissoesPerfil">{{ p }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-perfil-secao">
+        <h4>Dados:</h4>
+
+        <div class="config-perfil-linha">
+          <span class="config-perfil-linha-label">Cidade:</span>
+          <span class="config-perfil-linha-valor">{{ configAdminLogado.cidade }}</span>
+          <button type="button" class="config-alterar-btn" (click)="alterarDadoPessoal('cidade')">Alterar</button>
+        </div>
+
+        <div class="config-perfil-linha">
+          <span class="config-perfil-linha-label">Gênero:</span>
+          <span class="config-perfil-linha-valor">{{ configAdminLogado.genero }}</span>
+          <button type="button" class="config-alterar-btn" (click)="alterarDadoPessoal('genero')">Alterar</button>
+        </div>
+
+        <div class="config-perfil-linha">
+          <span class="config-perfil-linha-label">CPF:</span>
+          <span class="config-perfil-linha-valor">{{ configAdminLogado.cpf }}</span>
+          <button type="button" class="config-alterar-btn" (click)="alterarDadoPessoal('cpf')">Alterar</button>
+        </div>
+      </div>
+
+      <div class="config-perfil-rodape">
+        <button type="button" class="config-sair-btn" (click)="sairDaConta()">
+          <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
+        </button>
+        <button type="button" class="config-deletar-btn" (click)="deletarConta()">
+          <i class="fa-solid fa-trash"></i> Deletar Conta
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+
+<!-- MODAL: SEGURANÇA (Configurações) -->
+@if (configModalAberto === 'seguranca') {
+  <div class="config-modal-overlay" (click)="fecharConfigModal()">
+    <div class="config-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="config-modal-fechar-btn" (click)="fecharConfigModal()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="config-modal-header">
+        <span class="config-modal-icone"><i class="fa-solid fa-shield-halved"></i></span>
+        <div>
+          <h3>Segurança</h3>
+          <p>Configurações pessoais de segurança</p>
+        </div>
+      </div>
+
+      <div class="config-modal-bar">Configurações de segurança</div>
+
+      <div class="config-senha-row">
+        <span class="config-senha-label">Senha:</span>
+        <span class="config-senha-data">Última alteração: {{ configSenhaUltimaAlteracao }}</span>
+        <span class="config-senha-dots">**********</span>
+        <button type="button" class="config-pill-btn" (click)="alterarSenha()">Alterar senha</button>
+      </div>
+
+      <p class="config-dispositivos-label">Dispositivos conectados:</p>
+
+      <div class="config-dispositivo-card" *ngFor="let disp of configDispositivos">
+        <strong class="config-dispositivo-nome">{{ disp.nome }}</strong>
+
+        <div class="config-dispositivo-info">
+          <span>
+            Status:
+            <span class="config-status-dot" [class.ativo]="disp.status === 'conectado'"></span>
+            {{ disp.status === 'conectado' ? 'Conectado' : 'Desconectado' }}
+          </span>
+          <span>Data do acesso: {{ disp.dataAcesso }}</span>
+        </div>
+
+        <button type="button" class="config-desconectar-btn" (click)="desconectarDispositivo(disp)">
+          Desconectar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+
+<!-- MODAL: NOTIFICAÇÕES (Configurações) -->
+@if (configModalAberto === 'notificacoes') {
+  <div class="config-modal-overlay" (click)="fecharConfigModal()">
+    <div class="config-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="config-modal-fechar-btn" (click)="fecharConfigModal()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="config-modal-header">
+        <span class="config-modal-icone"><i class="fa-solid fa-bell"></i></span>
+        <div>
+          <h3>Notificações</h3>
+          <p>Gerenciador de notificações.</p>
+        </div>
+      </div>
+
+      <div class="config-modal-bar">Gerencie suas notificações</div>
+
+      <div class="prof-table-scroll">
+        <table class="user-table config-notif-tabela">
+          <thead>
+            <tr>
+              <th>Notificação</th>
+              <th>Descrição</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let n of configNotificacoes">
+              <td>{{ n.titulo }}</td>
+              <td>{{ n.descricao }}</td>
+              <td>
+                <div class="config-switch-wrap">
+                  <span class="config-switch-label" [class.on]="n.ativo">{{ n.ativo ? 'ON' : 'OFF' }}</span>
+                  <button
+                    type="button"
+                    class="creditos-switch"
+                    [class.on]="n.ativo"
+                    role="switch"
+                    [attr.aria-checked]="n.ativo"
+                    (click)="alternarNotificacao(n)">
+                    <span class="creditos-switch-bolinha"></span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}
+
+
+<!-- MODAL: TERMO DE USO DO ADMIN (Configurações) -->
+@if (configModalAberto === 'termo') {
+  <div class="config-modal-overlay" (click)="fecharConfigModal()">
+    <div class="config-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="config-modal-fechar-btn" (click)="fecharConfigModal()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="config-modal-header">
+        <span class="config-modal-icone"><i class="fa-solid fa-file-lines"></i></span>
+        <div>
+          <h3>Termo de uso do admin</h3>
+          <p>Leia o termo de uso do admin</p>
+        </div>
+      </div>
+
+      <div class="config-modal-bar">Termo de bom uso da conta de administrador</div>
+
+      <div class="config-termo-box" [class.expandido]="configTermoExpandido">
+        @if (configTermoExpandido) {
+          <button type="button" class="config-termo-fechar-interno" (click)="alternarTermoExpandido()" aria-label="Recolher termo">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        }
+
+        <h4 class="config-termo-titulo">Leia o termo com atenção!</h4>
+
+        <ol class="config-termo-lista">
+          <li>
+            <strong>Respeito e empatia</strong>
+            <p>Este é um espaço seguro e acolhedor para todas as pessoas. Não serão toleradas manifestações de ódio, preconceito, discriminação, assédio ou qualquer comportamento que viole a dignidade de alguém.</p>
+          </li>
+          <li>
+            <strong>Conteúdo adequado</strong>
+            <p>É proibida a publicação de conteúdos que sejam ilegais, ofensivos, enganosos, que incentivem a violência ou que violem direitos autorais.</p>
+          </li>
+          <li>
+            <strong>Uso responsável</strong>
+            @if (!configTermoExpandido) {
+              <p>
+                Utilize a plataforma de forma consciente, contribuindo para
+                <button type="button" class="config-termo-ler-mais" (click)="alternarTermoExpandido()">... ler mais</button>
+              </p>
+            } @else {
+              <p>Utilize a plataforma de forma consciente, contribuindo para um ambiente positivo e construtivo. Evite o compartilhamento de informações pessoais suas ou de outras pessoas.</p>
+            }
+          </li>
+          @if (configTermoExpandido) {
+            <li>
+              <strong>Consequências</strong>
+              <p>O descumprimento destes termos poderá resultar em advertência, suspensão ou exclusão da conta, conforme a gravidade da infração.</p>
+            </li>
+          }
+        </ol>
+      </div>
+
+      <div class="config-termo-aceite">
+        <p>Declaro que li e aceito os Termos de Uso, comprometendo-me a seguir e cumprir as orientações e obrigações estabelecidas nos Termos de Uso do Administrador.</p>
+        <button
+          type="button"
+          class="config-termo-checkbox"
+          [class.checked]="configTermoAceito"
+          (click)="alternarTermoAceito()"
+          aria-label="Aceitar termos de uso">
+          @if (configTermoAceito) { <i class="fa-solid fa-check"></i> }
         </button>
       </div>
     </div>

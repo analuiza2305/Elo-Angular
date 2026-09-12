@@ -105,6 +105,68 @@ interface AbaEmConstrucao {
   subtitulo: string;
 }
 
+/** Um dos 4 cartões de indicador no topo da aba "Relatórios". */
+interface RelatorioStatCard {
+  label: string;
+  valor: string;
+  variacao: number;
+  icone: string;
+  cor: 'purple' | 'pink' | 'green' | 'blue';
+}
+
+/** Fatia de um dos donuts "Receita por origem" / "Custos da plataforma". */
+interface RelatorioDistribuicao {
+  nome: string;
+  percentual: number;
+  valor: string;
+  cor: string;
+}
+
+/** Cartão de destaque/insight no rodapé da aba "Relatórios". */
+interface RelatorioInsight {
+  tipo: 'alerta' | 'perigo' | 'sucesso';
+  icone: string;
+  titulo: string;
+  texto: string;
+}
+
+// =========================================================
+// CONFIGURAÇÕES
+// =========================================================
+
+/** Linha da tabela "Administradores da plataforma". */
+interface AdminUsuario {
+  id: string;
+  nome: string;
+  email: string;
+  avatar?: string;
+  nivelAcesso: string;
+  permissoes: string;
+  status: 'ativo' | 'inativo';
+}
+
+/** Linha da tabela "Permissões por nível". */
+interface PermissaoPorNivel {
+  nome: string;
+  superAdmin: boolean;
+  administrador: boolean;
+  moderador: boolean;
+}
+
+/** Dispositivo logado listado no modal "Segurança". */
+interface DispositivoConectado {
+  nome: string;
+  status: 'conectado' | 'desconectado';
+  dataAcesso: string;
+}
+
+/** Linha da tabela do modal "Notificações". */
+interface NotificacaoConfig {
+  titulo: string;
+  descricao: string;
+  ativo: boolean;
+}
+
 /**
  * Moderação aplicada a um post do fórum pelo admin. Fica salva dentro do
  * próprio documento em `posts/{id}` (campo `moderacao`), então o fórum
@@ -135,6 +197,41 @@ interface PostForum {
 }
 
 type FiltroPostsForum = 'todos' | 'denunciados' | 'removidos' | 'advertidos';
+
+/**
+ * Moderação aplicada a um conteúdo (artigo ou evento) pelo admin. Fica salva
+ * dentro do próprio documento em `artigos/{id}` ou `eventos/{id}` (campo
+ * `moderacao`), no mesmo padrão já usado pelos posts do fórum (ver
+ * `PostModeracao` acima).
+ *
+ * TODO: ainda não existe, em nenhuma tela da mãe, um botão de "denunciar"
+ * para artigos/eventos (só o fórum tem isso hoje). Por isso `denuncias` e
+ * `motivoDenuncia` começam sempre zerados/vazios pra conteúdo novo — assim
+ * que essa tela existir, ela só precisa escrever nesses mesmos campos que
+ * a Moderação de Conteúdo já sabe ler.
+ */
+interface ConteudoModeracao {
+  denuncias?: number;
+  motivoDenuncia?: string;
+  removido?: boolean;
+  motivoRemocao?: string;
+  dataRemocao?: any;
+}
+
+/** Conteúdo (artigo ou evento) publicado por parceiros/profissionais, unindo as coleções `artigos` e `eventos` pra a aba "Moderação". */
+interface ConteudoAdm {
+  id: string;
+  origem: 'artigos' | 'eventos';
+  tipo: 'Artigo' | 'Evento';
+  titulo: string;
+  assunto: string;
+  usuarioNome: string;
+  dataFormatada: string;
+  dataOrdenacao: number;
+  moderacao?: ConteudoModeracao;
+}
+
+type FiltroConteudoModeracao = 'todos' | 'eventos' | 'artigos' | 'denuncias';
 
 /** Configuração de custo em créditos de uma ação da plataforma (sub-página "Créditos"). */
 interface AcaoCredito {
@@ -337,11 +434,8 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   adminAvatar: string = './img/avatar_usuario.png';
 
   // Abas do novo menu que ainda não têm tela própria implementada
-  abasEmConstrucao: AbaEmConstrucao[] = [
-    { chave: 'moderacao', titulo: 'Moderação', subtitulo: 'Modere o conteúdo publicado na plataforma.' },
-    { chave: 'relatorios', titulo: 'Relatórios', subtitulo: 'Extraia relatórios detalhados sobre o uso da plataforma.' },
-    { chave: 'configuracoes', titulo: 'Configurações', subtitulo: 'Ajuste as preferências gerais do painel administrativo.' },
-  ];
+  abasEmConstrucao: AbaEmConstrucao[] = [];
+
 
   // --- Aba "Parceiros" (sub-abas: Aprovação / Profissionais / Parceiros) ---
   parceirosSubAba: 'aprovacao' | 'profissionais' | 'parceiros' = 'aprovacao';
@@ -1413,6 +1507,320 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     return Math.round((soma / this.maeAvaliacoes.length) * 10) / 10;
   }
 
+  // =========================================================
+  // RELATÓRIOS
+  // TODO: ainda não existe nenhuma coleção/agregação financeira real no
+  // Firestore deste projeto (receita, custos, lucro por período). Os dados
+  // abaixo são de exemplo só para a tela não ficar vazia; assim que o
+  // backend expuser esses números, é só trocar os valores fixos por uma
+  // leitura real dentro de atualizarGraficosRelatorios().
+  // =========================================================
+
+  relatoriosMesSelecionado: string = 'Setembro 2026';
+  relatoriosMesesDisponiveis: string[] = [
+    'Setembro 2026', 'Agosto 2026', 'Julho 2026', 'Junho 2026', 'Maio 2026', 'Abril 2026',
+  ];
+
+  relatoriosStats: RelatorioStatCard[] = [
+    { label: 'Receita', valor: 'R$ 84.520', variacao: 18.4, icone: 'fa-database', cor: 'purple' },
+    { label: 'Custos', valor: 'R$ 84.520', variacao: 18.4, icone: 'fa-sack-dollar', cor: 'pink' },
+    { label: 'Receita', valor: 'R$ 84.520', variacao: 18.4, icone: 'fa-arrow-trend-up', cor: 'green' },
+    { label: 'Receita', valor: 'R$ 84.520', variacao: 18.4, icone: 'fa-arrows-rotate', cor: 'blue' },
+  ];
+
+  relatoriosLabelsMeses: string[] = ['0', '1', '2', '3', '4', '5', '6'];
+  relatoriosReceitaSerie: number[] = [20, 62, 45, 30, 58, 40, 12];
+  relatoriosCustosSerie: number[] = [18, 22, 34, 40, 46, 38, 44];
+  relatoriosLucroSerie: number[] = [10, 16, 24, 20, 30, 34, 38];
+
+  relatoriosReceitaOrigem: RelatorioDistribuicao[] = [
+    { nome: 'Receita', percentual: 50, valor: 'R$ 42.300', cor: '#6C4BBF' },
+    { nome: 'Custos', percentual: 50, valor: 'R$ 42.300', cor: '#8ee0c4' },
+    { nome: 'Lucro', percentual: 50, valor: 'R$ 42.300', cor: '#e685a6' },
+  ];
+
+  relatoriosCustosPlataforma: RelatorioDistribuicao[] = [
+    { nome: 'Receita', percentual: 50, valor: 'R$ 42.300', cor: '#6C4BBF' },
+    { nome: 'Custos', percentual: 50, valor: 'R$ 42.300', cor: '#8ee0c4' },
+    { nome: 'Lucro', percentual: 50, valor: 'R$ 42.300', cor: '#e685a6' },
+  ];
+
+  relatoriosInsights: RelatorioInsight[] = [
+    { tipo: 'alerta', icone: 'fa-triangle-exclamation', titulo: 'Atenção', texto: 'Alguns pontos de atenção no período' },
+    { tipo: 'perigo', icone: 'fa-arrow-up', titulo: 'Custo operacional aumentou 23%', texto: 'Alguns pontos de atenção no período' },
+    { tipo: 'sucesso', icone: 'fa-arrow-up', titulo: 'Receita de consultorias aumentou 18%', texto: '284 consultas a mais que o mês anterior' },
+  ];
+
+  private relatoriosFinanceiroChart: any = null;
+  private relatoriosOrigemChart: any = null;
+  private relatoriosCustosChart: any = null;
+
+  /** TODO: gera um PDF/CSV real do período selecionado assim que o backend expuser os dados. */
+  exportarRelatorio(): void {
+  }
+
+  /** Desenha (ou atualiza) o gráfico de linha "Resultado financeiro". */
+  private atualizarGraficoFinanceiroRelatorios(): void {
+    const ctx = document.getElementById('relatoriosFinanceiroChart') as HTMLCanvasElement;
+    if (!ctx) {
+      return;
+    }
+
+    if (this.relatoriosFinanceiroChart) {
+      this.relatoriosFinanceiroChart.data.datasets[0].data = this.relatoriosReceitaSerie;
+      this.relatoriosFinanceiroChart.data.datasets[1].data = this.relatoriosCustosSerie;
+      this.relatoriosFinanceiroChart.data.datasets[2].data = this.relatoriosLucroSerie;
+      this.relatoriosFinanceiroChart.update();
+      return;
+    }
+
+    this.relatoriosFinanceiroChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: this.relatoriosLabelsMeses,
+        datasets: [
+          {
+            label: 'Receita',
+            data: this.relatoriosReceitaSerie,
+            borderColor: '#6C4BBF',
+            backgroundColor: 'rgba(108,75,191,0.12)',
+            tension: 0.35,
+            fill: false,
+            pointRadius: 3,
+          },
+          {
+            label: 'Custos',
+            data: this.relatoriosCustosSerie,
+            borderColor: '#3fb28f',
+            backgroundColor: 'rgba(63,178,143,0.12)',
+            tension: 0.35,
+            fill: false,
+            pointRadius: 3,
+          },
+          {
+            label: 'Lucro',
+            data: this.relatoriosLucroSerie,
+            borderColor: '#e685a6',
+            backgroundColor: 'rgba(230,133,166,0.12)',
+            tension: 0.35,
+            fill: false,
+            pointRadius: 3,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top', align: 'end' },
+          tooltip: { mode: 'index', intersect: false },
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0 } },
+        },
+      },
+    });
+  }
+
+  /** Desenha (ou atualiza) um dos donuts "Receita por origem" / "Custos da plataforma". */
+  private atualizarDonutRelatorios(
+    canvasId: string,
+    dados: RelatorioDistribuicao[],
+    instancia: 'origem' | 'custos'
+  ): void {
+    const ctx = document.getElementById(canvasId) as HTMLCanvasElement;
+    if (!ctx) {
+      return;
+    }
+
+    const labels = dados.map(d => d.nome);
+    const valores = dados.map(d => d.percentual);
+    const cores = dados.map(d => d.cor);
+
+    const chartAtual = instancia === 'origem' ? this.relatoriosOrigemChart : this.relatoriosCustosChart;
+
+    if (chartAtual) {
+      chartAtual.data.labels = labels;
+      chartAtual.data.datasets[0].data = valores;
+      chartAtual.data.datasets[0].backgroundColor = cores;
+      chartAtual.update();
+      return;
+    }
+
+    const novoChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          data: valores,
+          backgroundColor: cores,
+          borderWidth: 0,
+        }],
+      },
+      options: {
+        responsive: true,
+        cutout: '70%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (item: any) => ` ${item.label}: ${item.raw}%`,
+            },
+          },
+        },
+      },
+    });
+
+    if (instancia === 'origem') {
+      this.relatoriosOrigemChart = novoChart;
+    } else {
+      this.relatoriosCustosChart = novoChart;
+    }
+  }
+
+  /** Desenha/atualiza todos os gráficos da aba "Relatórios". */
+  atualizarGraficosRelatorios(): void {
+    this.atualizarGraficoFinanceiroRelatorios();
+    this.atualizarDonutRelatorios('relatoriosOrigemChart', this.relatoriosReceitaOrigem, 'origem');
+    this.atualizarDonutRelatorios('relatoriosCustosChart', this.relatoriosCustosPlataforma, 'custos');
+  }
+
+  // =========================================================
+  // CONFIGURAÇÕES
+  // TODO: ainda não existe nenhuma coleção `admins`/`permissoes` no
+  // Firestore deste projeto. Os dados abaixo são de exemplo só para a tela
+  // não ficar vazia; assim que o backend expuser essas coleções, é só
+  // trocar os valores fixos por leituras/escritas reais (onSnapshot,
+  // updateDoc, etc.), seguindo o mesmo padrão já usado para "Mães" e
+  // "Parceiros" mais acima nesta classe.
+  // =========================================================
+
+  /** Qual "tela" da aba Configurações está sendo exibida. */
+  configSubTela: 'principal' | 'administradores' = 'principal';
+
+  /** Sub-aba dentro da tela "Administradores" (Administradores | Permissões). */
+  configAdministradoresSubAba: 'administradores' | 'permissoes' = 'administradores';
+
+  /** Qual modal de Configurações está aberto no momento (nenhum = null). */
+  configModalAberto: 'perfil' | 'seguranca' | 'notificacoes' | 'termo' | null = null;
+
+  configAdminLogado = {
+    nome: 'Ana Luiza Bertarelli',
+    cargo: 'Super admin',
+    desde: '23/02/26',
+    email: 'bertarellianaluiza@gmail.com',
+    telefone: '(11) 98159-0183',
+    setor: 'Desenvolvedora',
+    permissoesPerfil: ['Função disponível', 'Função disponível', 'Função disponível', 'Função disponível'],
+    cidade: 'São Paulo',
+    genero: 'Cis',
+    cpf: '111.111.111-11',
+  };
+
+  configAdministradoresLista: AdminUsuario[] = [
+    { id: '1', nome: 'Michelly Moreira', email: 'michelly@elomaterno', nivelAcesso: 'Super admin', permissoes: 'Todas.', status: 'ativo' },
+    { id: '2', nome: 'Michelly Moreira', email: 'michelly@elomaterno', nivelAcesso: 'Super admin', permissoes: 'Todas.', status: 'ativo' },
+    { id: '3', nome: 'Michelly Moreira', email: 'michelly@elomaterno', nivelAcesso: 'Super admin', permissoes: 'Todas.', status: 'ativo' },
+    { id: '4', nome: 'Michelly Moreira', email: 'michelly@elomaterno', nivelAcesso: 'Super admin', permissoes: 'Todas.', status: 'ativo' },
+  ];
+
+  configPermissoesPorNivel: PermissaoPorNivel[] = [
+    { nome: 'A definir', superAdmin: true, administrador: true, moderador: true },
+    { nome: 'A definir', superAdmin: true, administrador: true, moderador: false },
+    { nome: 'A definir', superAdmin: true, administrador: false, moderador: false },
+    { nome: 'A definir', superAdmin: true, administrador: false, moderador: false },
+  ];
+
+  configSenhaUltimaAlteracao: string = '23/07/26';
+
+  configDispositivos: DispositivoConectado[] = [
+    { nome: 'Windows', status: 'conectado', dataAcesso: '23/07/26' },
+  ];
+
+  configNotificacoes: NotificacaoConfig[] = [
+    { titulo: 'Novas denúncias', descricao: 'Notificar quando um conteúdo for denunciado', ativo: true },
+    { titulo: 'Novas denúncias', descricao: 'Notificar quando um conteúdo for denunciado', ativo: true },
+    { titulo: 'Novas denúncias', descricao: 'Notificar quando um conteúdo for denunciado', ativo: true },
+    { titulo: 'Novas denúncias', descricao: 'Notificar quando um conteúdo for denunciado', ativo: true },
+  ];
+
+  configTermoExpandido: boolean = false;
+  configTermoAceito: boolean = false;
+
+  /** Abre um dos modais de Configurações ('perfil' | 'seguranca' | 'notificacoes' | 'termo'). */
+  abrirConfigModal(modal: 'perfil' | 'seguranca' | 'notificacoes' | 'termo'): void {
+    this.configModalAberto = modal;
+  }
+
+  /** Fecha qualquer modal de Configurações aberto. */
+  fecharConfigModal(): void {
+    this.configModalAberto = null;
+  }
+
+  /** Vai para a tela "Administradores/Permissões" (botão "Acessar" do card "Outros administradores"). */
+  abrirGerirAdministradores(): void {
+    this.configSubTela = 'administradores';
+    this.configAdministradoresSubAba = 'administradores';
+  }
+
+  /** Volta da tela "Administradores/Permissões" para a tela principal de Configurações. */
+  voltarConfigPrincipal(): void {
+    this.configSubTela = 'principal';
+  }
+
+  /** Alterna entre as sub-abas "Administradores" e "Permissões". */
+  mudarConfigAdministradoresSubAba(aba: 'administradores' | 'permissoes'): void {
+    this.configAdministradoresSubAba = aba;
+  }
+
+  /** TODO: abrirá o fluxo de convite por e-mail assim que existir no backend. */
+  convidarAdministrador(): void {
+  }
+
+  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção `admins` existir. */
+  alternarNotificacao(item: NotificacaoConfig): void {
+    item.ativo = !item.ativo;
+  }
+
+  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção `permissoes` existir. */
+  alternarPermissaoNivel(item: PermissaoPorNivel, nivel: 'superAdmin' | 'administrador' | 'moderador'): void {
+    item[nivel] = !item[nivel];
+  }
+
+  /** Mostra/recolhe o item 4 ("Consequências") do termo de uso do admin. */
+  alternarTermoExpandido(): void {
+    this.configTermoExpandido = !this.configTermoExpandido;
+  }
+
+  /** TODO: só atualiza em memória — plugar no Firestore (campo `termoAceito`) quando existir. */
+  alternarTermoAceito(): void {
+    this.configTermoAceito = !this.configTermoAceito;
+  }
+
+  /** TODO: abrirá o formulário de edição de dados pessoais (cidade/gênero/CPF). */
+  alterarDadoPessoal(campo: 'cidade' | 'genero' | 'cpf'): void {
+  }
+
+  /** TODO: abrirá o formulário de edição de perfil (nome/e-mail/telefone/avatar). */
+  editarPerfilAdmin(): void {
+  }
+
+  /** TODO: plugar no fluxo real de troca de senha do Firebase Auth. */
+  alterarSenha(): void {
+  }
+
+  /** TODO: só atualiza em memória — plugar na revogação real da sessão do dispositivo. */
+  desconectarDispositivo(dispositivo: DispositivoConectado): void {
+    dispositivo.status = 'desconectado';
+  }
+
+  /** TODO: plugar no signOut real do Firebase Auth (já importado neste arquivo). */
+  sairDaConta(): void {
+  }
+
+  /** TODO: plugar no fluxo real de exclusão de conta (com confirmação extra). */
+  deletarConta(): void {
+  }
+
   private atividadeChart: any = null;
   private unsubscribes: Unsubscribe[] = [];
 
@@ -1420,11 +1828,13 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     this.escutarMudancas();
     this.escutarAdminLogado();
     this.carregarPostsForum();
+    this.carregarConteudoModeracao();
   }
 
   ngAfterViewInit(): void {
     this.atualizarDashboard();
     this.atualizarGraficoDistribuicaoCreditos();
+    this.atualizarGraficosRelatorios();
   }
 
   ngOnDestroy(): void {
@@ -1436,6 +1846,22 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
 
     if (this.creditosDonutChart) {
       this.creditosDonutChart.destroy();
+    }
+
+    if (this.conteudoDonutChart) {
+      this.conteudoDonutChart.destroy();
+    }
+
+    if (this.relatoriosFinanceiroChart) {
+      this.relatoriosFinanceiroChart.destroy();
+    }
+
+    if (this.relatoriosOrigemChart) {
+      this.relatoriosOrigemChart.destroy();
+    }
+
+    if (this.relatoriosCustosChart) {
+      this.relatoriosCustosChart.destroy();
     }
   }
 
@@ -1454,6 +1880,20 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
 
   mudarAba(aba: string): void {
     this.abaAtiva = aba;
+
+    // Os canvases dos gráficos de Relatórios ficam ocultos via CSS ([class.hidden])
+    // em vez de destruídos (*ngIf), então ao reabrir a aba só precisamos garantir
+    // que o Chart.js recalcule o tamanho depois que a seção volta a ficar visível.
+    if (aba === 'relatorios') {
+      setTimeout(() => this.atualizarGraficosRelatorios(), 0);
+    }
+
+    // Sempre que a pessoa entra na aba Configurações pelo menu lateral,
+    // volta para a tela principal (e fecha qualquer modal que tenha ficado aberto).
+    if (aba === 'configuracoes') {
+      this.configSubTela = 'principal';
+      this.configModalAberto = null;
+    }
   }
 
   abrirOuFecharSidebar(): void {
@@ -2353,5 +2793,368 @@ async carregarUsuarios(): Promise<void> {
     } finally {
       this.removendoPost = false;
     }
+  }
+
+
+  // =========================================================
+  // ABA "MODERAÇÃO" — moderação de conteúdo (artigos e eventos)
+  // =========================================================
+
+  carregandoConteudoModeracao: boolean = true;
+  private artigosModeracao: ConteudoAdm[] = [];
+  private eventosModeracao: ConteudoAdm[] = [];
+  conteudoModeracao: ConteudoAdm[] = [];
+
+  buscaConteudoModeracao: string = '';
+  filtroConteudoModeracao: FiltroConteudoModeracao = 'todos';
+
+  /** id do item cujo menu "Opções" está aberto no momento (só um por vez). */
+  opcoesConteudoAbertasId: string | null = null;
+
+  /** Log local das últimas ações de moderação nesta sessão, pra alimentar o painel "Últimos conteúdos moderados". */
+  ultimosConteudosModerados: { titulo: string; acao: string; dataFormatada: string }[] = [];
+
+  private conteudoDonutChart: any = null;
+
+  /** Carrega e escuta em tempo real as coleções `artigos` e `eventos` (as mesmas usadas por parceiros/profissionais/mães), unindo as duas nesta tela. */
+  carregarConteudoModeracao(): void {
+    this.carregandoConteudoModeracao = true;
+
+    const unsubArtigos = onSnapshot(
+      collection(db, 'artigos'),
+      (snapshot) => {
+        this.artigosModeracao = snapshot.docs.map((docSnap) => {
+          const a = docSnap.data() as any;
+          const dataPost = a['datahorapost'];
+          const dataJs = dataPost?.toDate ? dataPost.toDate() : null;
+
+          return {
+            id: docSnap.id,
+            origem: 'artigos',
+            tipo: 'Artigo',
+            titulo: a['titulo'] || 'Sem título',
+            assunto: a['descricao'] || a['resumo'] || '',
+            usuarioNome: a['postadoPor'] || 'Profissional',
+            dataFormatada: dataJs ? dataJs.toLocaleDateString('pt-BR') : '—',
+            dataOrdenacao: dataJs ? dataJs.getTime() : 0,
+            moderacao: a['moderacao'] || {}
+          } as ConteudoAdm;
+        });
+
+        this.mesclarConteudoModeracao();
+      },
+      (erro) => {
+        console.error('Erro ao carregar artigos:', erro);
+        this.carregandoConteudoModeracao = false;
+      }
+    );
+
+    const unsubEventos = onSnapshot(
+      collection(db, 'eventos'),
+      (snapshot) => {
+        this.eventosModeracao = snapshot.docs.map((docSnap) => {
+          const e = docSnap.data() as any;
+          const dataEvento = e['data'];
+          const dataJs = dataEvento?.toDate ? dataEvento.toDate() : null;
+
+          return {
+            id: docSnap.id,
+            origem: 'eventos',
+            tipo: 'Evento',
+            titulo: e['titulo'] || 'Sem título',
+            assunto: e['descricao'] || e['local'] || '',
+            usuarioNome: e['enviadoPor'] || 'Parceiro',
+            dataFormatada: dataJs ? dataJs.toLocaleDateString('pt-BR') : '—',
+            dataOrdenacao: dataJs ? dataJs.getTime() : 0,
+            moderacao: e['moderacao'] || {}
+          } as ConteudoAdm;
+        });
+
+        this.mesclarConteudoModeracao();
+      },
+      (erro) => {
+        console.error('Erro ao carregar eventos:', erro);
+        this.carregandoConteudoModeracao = false;
+      }
+    );
+
+    this.unsubscribes.push(unsubArtigos, unsubEventos);
+  }
+
+  private mesclarConteudoModeracao(): void {
+    this.conteudoModeracao = [...this.artigosModeracao, ...this.eventosModeracao]
+      .sort((a, b) => b.dataOrdenacao - a.dataOrdenacao);
+
+    this.carregandoConteudoModeracao = false;
+    this.atualizarGraficoConteudoModeracao();
+  }
+
+  get contagemConteudoModeracao() {
+    const itens = this.conteudoModeracao;
+
+    return {
+      total: itens.length,
+      eventos: itens.filter(i => i.origem === 'eventos').length,
+      artigos: itens.filter(i => i.origem === 'artigos').length,
+      denunciados: itens.filter(i => (i.moderacao?.denuncias || 0) > 0 && !i.moderacao?.removido).length
+    };
+  }
+
+  get conteudoFiltrado(): ConteudoAdm[] {
+    const termo = this.buscaConteudoModeracao.toLowerCase().trim();
+
+    return this.conteudoModeracao.filter((item) => {
+      const bateBusca =
+        !termo ||
+        item.titulo?.toLowerCase().includes(termo) ||
+        item.assunto?.toLowerCase().includes(termo) ||
+        item.usuarioNome?.toLowerCase().includes(termo);
+
+      if (!bateBusca) {
+        return false;
+      }
+
+      switch (this.filtroConteudoModeracao) {
+        case 'eventos':
+          return item.origem === 'eventos';
+        case 'artigos':
+          return item.origem === 'artigos';
+        case 'denuncias':
+          return (item.moderacao?.denuncias || 0) > 0 && !item.moderacao?.removido;
+        default:
+          return true;
+      }
+    });
+  }
+
+  filtrarConteudoModeracao(filtro: FiltroConteudoModeracao): void {
+    this.filtroConteudoModeracao = filtro;
+  }
+
+  get percentualEventosConteudo(): number {
+    const { total, eventos } = this.contagemConteudoModeracao;
+    return total ? Math.round((eventos / total) * 100) : 0;
+  }
+
+  get percentualArtigosConteudo(): number {
+    const { total, artigos } = this.contagemConteudoModeracao;
+    return total ? Math.round((artigos / total) * 100) : 0;
+  }
+
+  get percentualDenunciasConteudo(): number {
+    const { total, denunciados } = this.contagemConteudoModeracao;
+    return total ? Math.round((denunciados / total) * 100) : 0;
+  }
+
+  statusConteudo(item: ConteudoAdm): 'removido' | 'denunciado' | 'ok' {
+    if (item.moderacao?.removido) {
+      return 'removido';
+    }
+    if ((item.moderacao?.denuncias || 0) > 0) {
+      return 'denunciado';
+    }
+    return 'ok';
+  }
+
+  toggleOpcoesConteudo(item: ConteudoAdm): void {
+    this.opcoesConteudoAbertasId = this.opcoesConteudoAbertasId === item.id ? null : item.id;
+  }
+
+  fecharOpcoesConteudo(): void {
+    this.opcoesConteudoAbertasId = null;
+  }
+
+  /** Desenha (ou atualiza) o donut "Dados Gerais": proporção de Eventos x Artigos publicados. */
+  private atualizarGraficoConteudoModeracao(): void {
+    const ctx = document.getElementById('conteudoDonutChart') as HTMLCanvasElement;
+
+    if (!ctx) {
+      return;
+    }
+
+    const { total, eventos, artigos } = this.contagemConteudoModeracao;
+    const pctEventos = total ? Math.round((eventos / total) * 100) : 0;
+    const pctArtigos = total ? 100 - pctEventos : 0;
+
+    const valores = [pctEventos, pctArtigos];
+    const cores = ['#6C4BBF', '#c9b8f0'];
+
+    if (this.conteudoDonutChart) {
+      this.conteudoDonutChart.data.datasets[0].data = valores;
+      this.conteudoDonutChart.update();
+      return;
+    }
+
+    this.conteudoDonutChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Eventos', 'Artigos'],
+        datasets: [{
+          data: valores,
+          backgroundColor: cores,
+          borderWidth: 0,
+        }],
+      },
+      options: {
+        responsive: true,
+        cutout: '72%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (item: any) => ` ${item.label}: ${item.raw}%`,
+            },
+          },
+        },
+      },
+    });
+  }
+
+  // --- Modal "Analisar Denúncia" ---
+  conteudoParaAnalisar: ConteudoAdm | null = null;
+  acaoDenunciaEscolhida: 'remover' | 'deletar' | null = null;
+  observacoesAcaoDenuncia: string = '';
+  analisandoDenuncia: boolean = false;
+  erroAnaliseDenuncia: string = '';
+
+  abrirModalAnalisarDenuncia(item: ConteudoAdm): void {
+    this.conteudoParaAnalisar = item;
+    this.acaoDenunciaEscolhida = null;
+    this.observacoesAcaoDenuncia = '';
+    this.erroAnaliseDenuncia = '';
+    this.fecharOpcoesConteudo();
+  }
+
+  fecharModalAnalisarDenuncia(): void {
+    if (this.analisandoDenuncia) {
+      return;
+    }
+    this.conteudoParaAnalisar = null;
+    this.acaoDenunciaEscolhida = null;
+    this.observacoesAcaoDenuncia = '';
+    this.erroAnaliseDenuncia = '';
+  }
+
+  escolherAcaoDenuncia(acao: 'remover' | 'deletar'): void {
+    this.acaoDenunciaEscolhida = acao;
+    this.erroAnaliseDenuncia = '';
+  }
+
+  async confirmarAnaliseDenuncia(): Promise<void> {
+    const item = this.conteudoParaAnalisar;
+    if (!item) {
+      return;
+    }
+
+    if (!this.acaoDenunciaEscolhida) {
+      this.erroAnaliseDenuncia = 'Escolha uma ação: remover a denúncia ou deletar o post.';
+      return;
+    }
+
+    this.analisandoDenuncia = true;
+    this.erroAnaliseDenuncia = '';
+
+    try {
+      if (this.acaoDenunciaEscolhida === 'remover') {
+        await updateDoc(doc(db, item.origem, item.id), {
+          'moderacao.denuncias': 0,
+          'moderacao.motivoDenuncia': ''
+        });
+        this.registrarUltimoConteudoModerado(item, 'Denúncia removida');
+      } else {
+        await updateDoc(doc(db, item.origem, item.id), {
+          'moderacao.removido': true,
+          'moderacao.motivoRemocao': this.observacoesAcaoDenuncia.trim() || 'Denúncia procedente',
+          'moderacao.dataRemocao': serverTimestamp()
+        });
+        this.registrarUltimoConteudoModerado(item, 'Post Deletado');
+      }
+
+      this.conteudoParaAnalisar = null;
+      this.acaoDenunciaEscolhida = null;
+      this.observacoesAcaoDenuncia = '';
+    } catch (error) {
+      console.error('Erro ao analisar denúncia:', error);
+      this.erroAnaliseDenuncia = 'Não foi possível concluir a análise agora. Tente novamente.';
+    } finally {
+      this.analisandoDenuncia = false;
+    }
+  }
+
+  // --- Modal "Deletar post" (artigo/evento) ---
+  conteudoParaDeletar: ConteudoAdm | null = null;
+  motivoDelecaoConteudo: string = '';
+  deletandoConteudo: boolean = false;
+  erroDelecaoConteudo: string = '';
+
+  abrirModalDeletarConteudo(item: ConteudoAdm): void {
+    this.conteudoParaDeletar = item;
+    this.motivoDelecaoConteudo = '';
+    this.erroDelecaoConteudo = '';
+    this.fecharOpcoesConteudo();
+  }
+
+  fecharModalDeletarConteudo(): void {
+    if (this.deletandoConteudo) {
+      return;
+    }
+    this.conteudoParaDeletar = null;
+    this.motivoDelecaoConteudo = '';
+    this.erroDelecaoConteudo = '';
+  }
+
+  /** Remoção lógica (soft delete): o card fica marcado como "Deletado" e pode ser restaurado, igual ao padrão já usado nos posts do fórum. */
+  async confirmarDelecaoConteudo(): Promise<void> {
+    const item = this.conteudoParaDeletar;
+    if (!item) {
+      return;
+    }
+
+    if (!this.motivoDelecaoConteudo.trim()) {
+      this.erroDelecaoConteudo = 'Descreva o motivo de deletar o post.';
+      return;
+    }
+
+    this.deletandoConteudo = true;
+    this.erroDelecaoConteudo = '';
+
+    try {
+      await updateDoc(doc(db, item.origem, item.id), {
+        'moderacao.removido': true,
+        'moderacao.motivoRemocao': this.motivoDelecaoConteudo.trim(),
+        'moderacao.dataRemocao': serverTimestamp()
+      });
+
+      this.registrarUltimoConteudoModerado(item, 'Post Deletado');
+      this.conteudoParaDeletar = null;
+      this.motivoDelecaoConteudo = '';
+    } catch (error) {
+      console.error('Erro ao deletar conteúdo:', error);
+      this.erroDelecaoConteudo = 'Não foi possível deletar agora. Tente novamente.';
+    } finally {
+      this.deletandoConteudo = false;
+    }
+  }
+
+  /** Restaura um artigo/evento deletado (desfaz o soft delete). */
+  async restaurarConteudo(item: ConteudoAdm): Promise<void> {
+    try {
+      await updateDoc(doc(db, item.origem, item.id), {
+        'moderacao.removido': false,
+        'moderacao.motivoRemocao': ''
+      });
+      this.registrarUltimoConteudoModerado(item, 'Post Restaurado');
+    } catch (error) {
+      console.error('Erro ao restaurar conteúdo:', error);
+    }
+  }
+
+  private registrarUltimoConteudoModerado(item: ConteudoAdm, acao: string): void {
+    this.ultimosConteudosModerados.unshift({
+      titulo: item.titulo,
+      acao,
+      dataFormatada: new Date().toLocaleDateString('pt-BR')
+    });
+    this.ultimosConteudosModerados = this.ultimosConteudosModerados.slice(0, 5);
   }
 }
