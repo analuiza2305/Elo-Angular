@@ -193,6 +193,8 @@ interface PostForum {
   autorFoto: string;
   categoria: string;
   dataFormatada: string;
+  /** Igual ao campo usado no fórum público (forum.ts) — indica se algum profissional já respondeu o post. */
+  respondido: boolean;
   moderacao?: PostModeracao;
 }
 
@@ -2620,6 +2622,7 @@ async carregarUsuarios(): Promise<void> {
             dataFormatada: p['data']?.toDate
               ? p['data'].toDate().toLocaleString('pt-BR')
               : 'Agora',
+            respondido: !!p['respondido'],
             moderacao: p['moderacao'] || {}
           } as PostForum;
         });
@@ -2679,6 +2682,25 @@ async carregarUsuarios(): Promise<void> {
 
   filtrarPostsForum(filtro: FiltroPostsForum): void {
     this.filtroPostsForum = filtro;
+  }
+
+  /**
+   * Classe de sombra do card conforme o estado de moderação do post (igual
+   * ao protótipo do Figma): vermelha se removido, amarela se advertido,
+   * laranja se denunciado, e roxa (neutra) se estiver tudo em ordem — a
+   * mesma cor dos 4 cartões de filtro acima.
+   */
+  categoriaCardPost(post: PostForum): string {
+    if (post.moderacao?.removido) {
+      return 'card-perigo';
+    }
+    if (post.moderacao?.advertido) {
+      return 'card-alerta';
+    }
+    if ((post.moderacao?.denuncias || 0) > 0) {
+      return 'card-laranja';
+    }
+    return 'card-neutro';
   }
 
   // --- Modal "Aplicar advertência" (post do fórum) ---

@@ -963,6 +963,9 @@ chat mandou fazer isso só colar*/
   border-color: var(--secondary-color);
   box-shadow: none;
 }
+.parc-subtab.active i {
+  color:#fff
+}
 
 .parc-subtab-icone {
   width: 38px;
@@ -1020,7 +1023,7 @@ chat mandou fazer isso só colar*/
   border-radius: var(--radius-pill);
 }
 
-.parc-subtab.active .parc-subtab-badge {
+.parc-subtab.active .parc-subtab-badge.active {
   background: var(--secondary-color);
   color: #fff;
 }
@@ -1212,9 +1215,9 @@ chat mandou fazer isso só colar*/
 .mae-perfil-panel {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 10px;
 
-  position: sticky;
+  position: fixed;
   top: 96px;
 
   width: 390px;
@@ -1229,7 +1232,7 @@ chat mandou fazer isso só colar*/
 
   border-radius: 20px;
 
-  max-height: calc(100vh - 120px);
+  height:auto;
   overflow-y: auto;
 
   z-index: 1500;
@@ -2341,13 +2344,46 @@ chat mandou fazer isso só colar*/
    ABA "FÓRUM" — moderação dos posts reais
    ========================================================= */
 
+.forum-search-row {
+  width: 80%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.forum-search-row .forum-search-box {
+  width: auto;
+  max-width: none;
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.forum-search-filtros-btn {
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  border-radius: var(--radius-btn);
+  background: var(--card-bg);
+  border: 1px solid var(--parc-border);
+  color: var(--secondary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-card);
+}
+
+.forum-search-filtros-btn:hover {
+  background: var(--hover-bg);
+}
+
 .forum-search-box {
-  width: 90%;
+  width: 80%;
   margin-bottom: 16px;
 }
 
 .forum-filtro-cards {
-  width: 90%;
+  width: 80%;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 14px;
@@ -2361,7 +2397,7 @@ chat mandou fazer isso só colar*/
   background: var(--card-bg);
   border: 2px solid transparent;
   border-radius: var(--radius-card);
-  padding: 16px 18px;
+  padding: 38px 11px;
   box-shadow: var(--shadow-card);
   cursor: pointer;
   text-align: left;
@@ -2374,7 +2410,8 @@ chat mandou fazer isso só colar*/
 }
 
 .forum-filtro-card.active {
-  border-color: var(--secondary-color);
+  border-color: #937ec555;
+  box-shadow: 0 6px 9px #8472ae62;
 }
 
 .forum-filtro-icone {
@@ -2386,7 +2423,10 @@ chat mandou fazer isso só colar*/
   align-items: center;
   justify-content: center;
   font-size: 1.05rem;
-  color: #ffffff;
+}
+.forum-filtro-icone i {
+
+  color: var(--parc-page-bg) !important;
 }
 
 .forum-filtro-icone.icone-neutro  { background: var(--secondary-color); }
@@ -2428,13 +2468,41 @@ chat mandou fazer isso só colar*/
 
 .forum-post-card {
   width: 100%;
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.forum-post-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Sombra leve tingida com a cor do estado de moderação do post (igual ao
+   protótipo do Figma). Sem nenhuma categoria (post em ordem), a sombra é
+   roxa — a mesma cor dos 4 cartões de filtro acima. */
+.forum-post-card.card-neutro {
+  box-shadow: 0 0 0 1px rgba(88, 62, 142, 0.12), 0 10px 22px rgba(88, 62, 142, 0.16);
+}
+
+.forum-post-card.card-laranja {
+  box-shadow: 0 0 0 1px rgba(224, 138, 60, 0.16), 0 10px 22px rgba(224, 138, 60, 0.20);
+}
+
+.forum-post-card.card-perigo {
+  box-shadow: 0 0 0 1px rgba(178, 59, 59, 0.16), 0 10px 22px rgba(178, 59, 59, 0.20);
+}
+
+.forum-post-card.card-alerta {
+  box-shadow: 0 0 0 1px rgba(217, 164, 65, 0.18), 0 10px 22px rgba(217, 164, 65, 0.22);
 }
 
 .forum-post-cabecalho {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 .forum-post-avatar {
@@ -2465,8 +2533,48 @@ chat mandou fazer isso só colar*/
 .forum-post-conteudo {
   color: var(--text-color);
   font-size: 0.92rem;
-  line-height: 1.5;
-  margin: 0 0 10px;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+
+.forum-post-rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.forum-post-rodape-esquerda {
+  flex: 1;
+  min-width: 0;
+}
+
+.badge-respondido {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background: #e4f6e6;
+  color: #256029;
+}
+
+.badge-aguardando {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background: #ffe8a1;
+  color: #8a6d00;
 }
 
 .forum-post-motivo {
@@ -2553,11 +2661,73 @@ chat mandou fazer isso só colar*/
 
 @media (max-width: 768px) {
   .forum-search-box,
+  .forum-search-row,
   .forum-filtro-cards,
   .forum-post-lista {
     width: 100%;
   }
 }
+
+/* =========================================================
+   ABA "USUÁRIOS" (Mães) — painel de perfil fixo à direita
+   (mesmo comportamento da sidebar: acompanha a tela inteira)
+   ========================================================= */
+
+.maes-layout.perfil-aberto {
+  /* Ocupa toda a largura disponível e reserva, à direita, o espaço exato
+     do painel fixo (390px + 24px de respiro), pra tabela não ficar
+     embaixo dele — mesma lógica do padding-left que o .main-container
+     já usa pra não ficar embaixo da sidebar fixa. */
+  width: 100%;
+  padding-right: 414px;
+}
+
+.mae-perfil-panel {
+  position: fixed;
+  top: 70px;
+  right: 0;
+  bottom: 0;
+  z-index: 1500;
+
+  width: 390px;
+  max-width: 390px;
+  min-width: 390px;
+
+  margin: 0;
+  border-radius: var(--radius-card) 0 0 var(--radius-card);
+  max-height: none;
+  height: auto;
+}
+
+@media (max-width: 1200px) {
+  .maes-layout.perfil-aberto {
+    padding-right: 0;
+  }
+
+  .mae-perfil-panel {
+    position: sticky;
+    top: 96px;
+    right: auto;
+    bottom: auto;
+    border-radius: 20px;
+    max-height: calc(100vh - 120px);
+  }
+}
+
+@media (max-width: 768px) {
+  .maes-layout.perfil-aberto {
+    padding-right: 0;
+  }
+
+  .mae-perfil-panel {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    border-radius: 20px;
+  }
+}
+
 /* =========================================================
    ABA "MODERAÇÃO" — moderação de conteúdo (artigos e eventos)
    ========================================================= */

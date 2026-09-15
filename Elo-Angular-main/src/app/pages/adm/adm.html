@@ -1934,12 +1934,15 @@
     <h2 class="page-title">Moderação do Fórum</h2>
     <p class="page-subtitle">Acompanhe as publicações reais do fórum e aplique advertências ou remova conteúdos que violem as diretrizes da comunidade.</p>
 
-    <div class="mae-search-box forum-search-box">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <input
-        type="text"
-        placeholder="Pesquisar no fórum..."
-        [(ngModel)]="buscaPostsForum">
+    <div class="forum-search-row">
+      <div class="mae-search-box forum-search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="text"
+          placeholder="Pesquisar no fórum..."
+          [(ngModel)]="buscaPostsForum">
+      </div>
+      
     </div>
 
     <div class="forum-filtro-cards">
@@ -2000,7 +2003,7 @@
       }
 
       @for (post of postsFiltradosForum; track post.id) {
-        <div class="dash-panel forum-post-card">
+        <div class="dash-panel forum-post-card" [ngClass]="categoriaCardPost(post)">
           <div class="forum-post-cabecalho">
             <img [src]="post.autorFoto" class="forum-post-avatar" alt="">
 
@@ -2020,22 +2023,30 @@
 
           <p class="forum-post-conteudo">"{{ post.conteudo }}"</p>
 
-          @if (post.moderacao?.removido) {
-            <div class="forum-post-motivo motivo-perigo">
-              <strong>Motivo da remoção:</strong> {{ post.moderacao?.motivoRemocao }}
+          <div class="forum-post-rodape">
+            <div class="forum-post-rodape-esquerda">
+              @if (post.moderacao?.removido) {
+                <div class="forum-post-motivo motivo-perigo">
+                  <strong>Motivo da remoção:</strong> {{ post.moderacao?.motivoRemocao }}
+                </div>
+              } @else if (post.moderacao?.advertido) {
+                <div class="forum-post-motivo motivo-alerta">
+                  <strong>Motivo da advertência:</strong> {{ post.moderacao?.motivoAdvertencia }}
+                </div>
+              } @else if (post.respondido) {
+                <span class="badge-respondido"><i class="fa-solid fa-check"></i> Respondido por especialista</span>
+              } @else {
+                <span class="badge-aguardando"><i class="fa-regular fa-clock"></i> Aguardando especialista</span>
+              }
             </div>
-          } @else if (post.moderacao?.advertido) {
-            <div class="forum-post-motivo motivo-alerta">
-              <strong>Motivo da advertência:</strong> {{ post.moderacao?.motivoAdvertencia }}
-            </div>
-          }
 
-          @if (!post.moderacao?.removido) {
-            <div class="actions">
-              <button type="button" class="forum-btn-advertir" (click)="abrirModalAdvertirPost(post)">Advertência</button>
-              <button type="button" class="forum-btn-remover" (click)="abrirModalRemoverPost(post)">Remover Post</button>
-            </div>
-          }
+            @if (!post.moderacao?.removido) {
+              <div class="actions">
+                <button type="button" class="forum-btn-advertir" (click)="abrirModalAdvertirPost(post)">Advertência</button>
+                <button type="button" class="forum-btn-remover" (click)="abrirModalRemoverPost(post)">Remover Post</button>
+              </div>
+            }
+          </div>
         </div>
       }
     </div>
