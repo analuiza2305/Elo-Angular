@@ -44,6 +44,8 @@
         </div>
 
         <div class="header-icons">
+            <app-carteira-widget [uid]="carteiraUid()" tipo="parceiro"></app-carteira-widget>
+
             <button class="icon-btn" id="notifBellBtn" data-target="notificacoes" title="Notificações" aria-label="Notificações">
                 <i class="fa-solid fa-bell" aria-hidden="true"></i>
                 <span class="notif-dot hidden" id="notifDot" aria-hidden="true"></span>

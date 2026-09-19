@@ -1,6 +1,6 @@
 <header class="header">
   <h1 id="boasVindas">Bem-vindo(a), Dr(a). {{ nomeExibicao() }}</h1>
-  
+
   <div class="right-section">
     <button class="icon-btn" aria-label="Acessibilidade">
       <i class="fa fa-universal-access"></i>
@@ -131,9 +131,9 @@
             </div>
             <div class="calendar-dates">
               @for (dia of diasCalendario(); track $index) {
-                <div class="date" 
-                     [class.empty]="!dia.valor" 
-                     [class.today]="dia.hoje" 
+                <div class="date"
+                     [class.empty]="!dia.valor"
+                     [class.today]="dia.hoje"
                      [class.has-event]="dia.temConsulta"
                      [class.date-past]="dia.passado"
                      (click)="abrirModalDisponibilidade(dia.valor, dia.passado)">
@@ -142,7 +142,7 @@
               }
             </div>
           </div>
-          
+
           <div class="events-container">
             <h3>Consultas Agendadas</h3>
             <div class="event-list">
@@ -222,9 +222,9 @@
             <button class="tab" [class.ativo]="abaConsultasStatus() === 'realizado'" (click)="setAbaConsultas('realizado')">Realizadas</button>
             <button class="tab" [class.ativo]="abaConsultasStatus() === 'negado'" (click)="setAbaConsultas('negado')">Negadas</button>
           </div>
-          
+
           <h2 style="color: var(--accent-color); font-weight:800; margin-bottom: 24px; text-align: left;">Minhas Consultas</h2>
-          
+
           <div class="conteudo-tab ativo">
             @if (consultasFiltradas().length === 0) {
               <div style="grid-column: 1 / -1; text-align: center; padding: 40px 0;">
@@ -233,12 +233,12 @@
             } @else {
               @for (c of consultasFiltradas(); track c.id) {
                 <div class="consulta-card">
-                  
+
                   <div class="consulta-profissional">
                     <img [src]="c.maeInfo?.avatar || './img/avatar_usuario.png'" class="consulta-foto-prof" alt="Foto do paciente">
                     <h3>{{ c.maeInfo?.nome || 'Paciente' }}</h3>
                   </div>
-                  
+
                   <div class="consulta-header">
                     <h3 style="font-size: 1rem; color: #4B2C82; margin: 0;">{{ formatarData(c.Datahora) }} - {{ formatarHora(c.Datahora) }}</h3>
                     <span class="badge" [ngClass]="{
@@ -248,9 +248,9 @@
                         'badge-negado': c.status === 'negado'
                     }">{{ c.status }}</span>
                   </div>
-                  
+
                   <p><strong>Motivo:</strong> {{ c.Motivo || c.motivo || 'Não informado' }}</p>
-                  
+
                   <div style="display: flex; gap: 8px; margin-top: auto;">
                     @if (c.status === 'pendente') {
                       <button class="btn-detalhes" style="flex:1" (click)="atualizarStatusConsulta(c.id, 'aceito')">Aceitar</button>
@@ -398,11 +398,11 @@
       <span class="close" (click)="showModalDisponibilidade.set(false)">&times;</span>
       <h3 style="color: var(--primary-dark); margin-bottom: 8px;">Definir Disponibilidade</h3>
       <p style="font-weight: 600; margin-bottom: 20px; color: var(--text-color);">{{ formatarDataSelecionada() }}</p>
-      
+
       <div class="horarios-container">
         @for (h of horariosDoDia(); track h.hora) {
-          <button 
-            class="horario-btn" 
+          <button
+            class="horario-btn"
             [class.selecionado]="h.selecionado"
             [class.ocupado]="h.status === 'ocupado'"
             [disabled]="h.status === 'ocupado'"
@@ -412,7 +412,7 @@
           </button>
         }
       </div>
-      
+
       <div class="modal-actions" style="margin-top: 32px;">
         <button class="btn-recusar" style="padding:10px 20px; border-radius:12px; font-weight:bold; cursor:pointer;" (click)="showModalDisponibilidade.set(false)">Cancelar</button>
         <button class="btn-aceitar" style="padding:10px 20px; border:none; border-radius:12px; background:var(--primary-color); color:#fff; font-weight:bold; cursor:pointer;" (click)="salvarDisponibilidade()">Confirmar</button>

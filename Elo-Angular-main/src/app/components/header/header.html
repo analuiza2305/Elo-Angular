@@ -211,7 +211,9 @@
               </div>
 
               <a routerLink="/chat" class="header-icon-btn" title="Mensagens"><i class="fa-regular fa-comment"></i></a>
-              
+
+              <app-carteira-widget [uid]="currentUser()?.uid ?? null" tipo="mae"></app-carteira-widget>
+
               <div class="accessibility-selector">
                 <button type="button" (click)="$event.stopPropagation(); toggleMenu()" aria-label="Opções de acessibilidade" class="header-icon-btn">
                     <i class="fa fa-universal-access" aria-hidden="true"></i>

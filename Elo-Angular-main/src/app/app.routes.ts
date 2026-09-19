@@ -28,6 +28,9 @@ import { Perfil } from './pages/perfil/perfil';
 // Importando a nova página de Agenda da Mãe
 import { AgendaMae } from './pages/agenda-mae/agenda-mae';
 
+// Carteira de moedas
+import { Carteira } from './pages/carteira/carteira';
+
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'login', component: Login },
@@ -55,6 +58,7 @@ export const routes: Routes = [
   { path: 'consultas-lista-psi', component: ConsultaListaPsiComponent },  { path: 'agenda-mae', component: AgendaMae }, // Rota mapeada
   { path: 'chat', component: Chat },
   { path: 'perfil', component: Perfil },
+  { path: 'carteira', component: Carteira },
   
   // Rota corrigida apontando para arquivos sem .component
   { path: 'artigos-favoritos', loadComponent: () => import('./pages/artigos-favoritos/artigos-favoritos').then(m => m.ArtigosFavoritos) },

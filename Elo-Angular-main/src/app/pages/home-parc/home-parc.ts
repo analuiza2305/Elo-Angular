@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, PLATFORM_ID, inject, signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import {
@@ -32,6 +32,7 @@ import {
 } from 'firebase/firestore';
 import { Chart, registerables } from 'chart.js';
 import { auth, db } from '../../core/firebase';
+import { CarteiraWidgetComponent } from '../../components/carteira-widget/carteira-widget';
 
 /**
  * Página do Parceiro (dashboard, calendário, fórum, artigos, relatórios,
@@ -48,13 +49,17 @@ import { auth, db } from '../../core/firebase';
 @Component({
   selector: 'app-home-parc',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CarteiraWidgetComponent],
   templateUrl: './home-parc.html',
   styleUrl: './home-parc.css',
 })
 export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly router = inject(Router);
+
+  // uid exposto como signal só pra alimentar o <app-carteira-widget> no
+  // header (o resto da página continua usando o `uidAtual` privado normal).
+  carteiraUid = signal<string | null>(null);
 
   private unsubscribeAuth: Unsubscribe | null = null;
   private unsubscribeForumAuth: Unsubscribe | null = null;
@@ -384,6 +389,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
       this.uidAtual = user.uid;
+      this.carteiraUid.set(user.uid);
 
       const heroBoasVindas = document.getElementById('heroBoasVindas');
       const headerAvatar = document.getElementById('headerAvatar') as HTMLImageElement | null;

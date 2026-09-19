@@ -1,0 +1,18 @@
+<a routerLink="/carteira" class="carteira-widget" [class.comemorando]="ganhou()" title="Minha Carteira de créditos">
+  <i class="fa-solid fa-coins"></i>
+
+  @if (carregando()) {
+    <span class="valor skeleton">&nbsp;</span>
+  } @else {
+    <span class="valor">{{ saldo() ?? 0 }}</span>
+  }
+
+  @if (ganhou()) {
+    <span class="ganho-flutuante">+{{ ganho() }}</span>
+    <span class="moedas-burst" aria-hidden="true">
+      @for (m of moedas; track m) {
+        <i class="fa-solid fa-coins moeda" [style.animation-delay.ms]="m * 90"></i>
+      }
+    </span>
+  }
+</a>

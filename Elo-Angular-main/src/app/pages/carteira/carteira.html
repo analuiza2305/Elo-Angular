@@ -1,0 +1,353 @@
+<app-header tipo="mae"></app-header>
+
+<main class="carteira-page">
+
+  @if (carregandoUsuario()) {
+    <div class="estado-info">
+      <div class="loader-moeda"><i class="fa-solid fa-coins"></i></div>
+      <p>Carregando sua carteira...</p>
+    </div>
+  } @else if (!currentUser()) {
+    <div class="estado-info">
+      <h2>Você precisa estar logada para ver sua carteira.</h2>
+      <a routerLink="/login" class="btn-primario">Fazer login</a>
+    </div>
+  } @else {
+
+    <header class="carteira-header">
+      <div>
+        <span class="eyebrow"><i class="fa-solid fa-wallet"></i> Carteira EloMaterno</span>
+        <h1>Minha Carteira</h1>
+        <p class="subtitulo">Acompanhe seu saldo, veja no que usar seus créditos e compre mais quando precisar.</p>
+      </div>
+    </header>
+
+    @if (mensagem()) {
+      <div class="alerta" [class.alerta-erro]="mensagem()!.tipo === 'erro'" [class.alerta-sucesso]="mensagem()!.tipo === 'sucesso'">
+        {{ mensagem()!.texto }}
+      </div>
+    }
+
+    @switch (tipoUsuario()) {
+
+      <!-- ============ MÃE ============ -->
+      @case ('mae') {
+        <section class="saldo-cards">
+          <div class="saldo-card">
+            <span class="saldo-label"><i class="fa-regular fa-calendar"></i> Créditos do mês</span>
+            <span class="saldo-valor">{{ saldoAnimadoMensal() }}</span>
+            <div class="barra-progresso" [attr.aria-label]="'Saldo mensal em ' + progressoMensal() + '%'">
+              <div class="barra-preenchida" [style.width.%]="progressoMensal()"></div>
+            </div>
+            <span class="saldo-nota">Renova todo mês · não acumula</span>
+          </div>
+
+          <div class="saldo-card">
+            <span class="saldo-label"><i class="fa-solid fa-cart-shopping"></i> Créditos comprados</span>
+            <span class="saldo-valor">{{ saldoAnimadoComprado() }}</span>
+            <span class="saldo-nota">Fica disponível pra sempre</span>
+          </div>
+
+          <div class="saldo-card saldo-total" [class.saldo-pulsando]="saldoPulsando()">
+            <span class="saldo-label"><i class="fa-solid fa-coins"></i> Total disponível</span>
+            <span class="saldo-valor">{{ saldoAnimadoTotal() }}</span>
+            <div class="mini-stats">
+              <span><i class="fa-solid fa-arrow-down"></i> {{ entradasDoMes() }} entraram</span>
+              <span><i class="fa-solid fa-arrow-up"></i> {{ saidasDoMes() }} usados</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Recomendações ===== -->
+        <section class="secao-reco">
+          <div class="secao-titulo">
+            <h2>No que usar seus créditos</h2>
+            <span class="secao-nota">Sugestões com base no que você tem disponível agora.</span>
+          </div>
+
+          <div class="reco-grid">
+            @for (r of recomendacoes; track r.titulo) {
+              <article class="reco-card" [class.reco-bloqueada]="!podePagar(r.custo)">
+                <div class="reco-icone" [style.background]="r.cor + '1f'" [style.color]="r.cor">
+                  <i [class]="r.icone"></i>
+                </div>
+                <h3>{{ r.titulo }}</h3>
+                <p>{{ r.descricao }}</p>
+                <div class="reco-rodape">
+                  <span class="reco-custo"><i class="fa-solid fa-coins"></i> {{ r.custo }}</span>
+                  @if (podePagar(r.custo)) {
+                    <a [routerLink]="r.rota" class="btn-reco">Ir agora <i class="fa-solid fa-arrow-right"></i></a>
+                  } @else {
+                    <span class="reco-faltam">Faltam {{ faltam(r.custo) }}</span>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+
+        <!-- ===== Compra ===== -->
+        <section class="secao-compra">
+          <div class="secao-titulo">
+            <h2>Comprar créditos extras</h2>
+            <span class="secao-nota">Compra simulada: nenhum valor é cobrado de verdade no protótipo.</span>
+          </div>
+
+          <div class="pacotes-grid">
+            @for (pacote of pacotesMae; track pacote.quantidade) {
+              <div class="pacote-card" [class.pacote-destaque]="pacote.destaque">
+                @if (pacote.etiqueta) { <span class="pacote-tag">{{ pacote.etiqueta }}</span> }
+                <div class="pacote-moedas"><i class="fa-solid fa-coins"></i></div>
+                <span class="pacote-qtd">{{ pacote.quantidade }} créditos</span>
+                @if (pacote.bonus) { <span class="pacote-bonus">+{{ pacote.bonus }} de bônus</span> }
+                <span class="pacote-preco">{{ pacote.precoExibicao }}</span>
+                <button class="btn-primario" [disabled]="processando()" (click)="abrirCheckout(pacote)">
+                  Comprar
+                </button>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- ============ PARCEIRO ============ -->
+      @case ('parceiro') {
+        <section class="saldo-cards">
+          <div class="saldo-card saldo-total saldo-largo" [class.saldo-pulsando]="saldoPulsando()">
+            <span class="saldo-label"><i class="fa-solid fa-coins"></i> Créditos premium disponíveis</span>
+            <span class="saldo-valor">{{ saldoAnimadoPremium() }}</span>
+            <span class="saldo-nota">Use para apoiar mães da rede</span>
+          </div>
+        </section>
+
+        <section class="secao-compra">
+          <div class="secao-titulo">
+            <h2>Comprar créditos premium</h2>
+            <span class="secao-nota">Compra simulada: nenhum valor é cobrado de verdade no protótipo.</span>
+          </div>
+          <div class="pacotes-grid">
+            @for (pacote of pacotesParceiro; track pacote.quantidade) {
+              <div class="pacote-card" [class.pacote-destaque]="pacote.destaque">
+                @if (pacote.etiqueta) { <span class="pacote-tag">{{ pacote.etiqueta }}</span> }
+                <div class="pacote-moedas"><i class="fa-solid fa-coins"></i></div>
+                <span class="pacote-qtd">{{ pacote.quantidade }} créditos</span>
+                @if (pacote.bonus) { <span class="pacote-bonus">+{{ pacote.bonus }} de bônus</span> }
+                <span class="pacote-preco">{{ pacote.precoExibicao }}</span>
+                <button class="btn-primario" [disabled]="processando()" (click)="abrirCheckout(pacote)">
+                  Comprar
+                </button>
+              </div>
+            }
+          </div>
+        </section>
+
+        <section class="secao-transferencia">
+          <div class="secao-titulo">
+            <h2>Transferir para uma mãe</h2>
+            <span class="secao-nota">Os créditos saem do seu saldo premium e caem direto na carteira dela.</span>
+          </div>
+          <form class="form-transferencia" (ngSubmit)="transferirParaMae()">
+            <label>
+              E-mail da mãe
+              <input type="email" name="email" [(ngModel)]="transferenciaForm.email" placeholder="mae@exemplo.com" required />
+            </label>
+            <label>
+              Quantidade
+              <input type="number" name="valor" [(ngModel)]="transferenciaForm.valor" min="1" required />
+            </label>
+            <button type="submit" class="btn-primario" [disabled]="processando()">
+              {{ processando() ? 'Enviando...' : 'Transferir' }}
+            </button>
+          </form>
+        </section>
+      }
+
+      <!-- ============ PROFISSIONAL (advogado / psicólogo) ============ -->
+      @case ('advogado') {
+        <section class="estado-info secao-vazia">
+          <h2>Profissionais atuam de forma voluntária no EloMaterno</h2>
+          <p>Por enquanto não existe carteira de moedas para o seu perfil. Se isso mudar, essa tela já está pronta pra receber a funcionalidade.</p>
+        </section>
+      }
+      @case ('psicologo') {
+        <section class="estado-info secao-vazia">
+          <h2>Profissionais atuam de forma voluntária no EloMaterno</h2>
+          <p>Por enquanto não existe carteira de moedas para o seu perfil. Se isso mudar, essa tela já está pronta pra receber a funcionalidade.</p>
+        </section>
+      }
+
+      @default {
+        <section class="estado-info secao-vazia">
+          <h2>Não encontramos um perfil de carteira para essa conta.</h2>
+        </section>
+      }
+    }
+
+    <!-- ============ HISTÓRICO (mãe e parceiro) ============ -->
+    @if (tipoUsuario() === 'mae' || tipoUsuario() === 'parceiro') {
+      <section class="secao-historico">
+        <div class="secao-titulo">
+          <h2>Histórico</h2>
+          <span class="secao-nota">Tudo que entrou e saiu da sua carteira.</span>
+        </div>
+
+        @if (historico().length === 0) {
+          <div class="historico-vazio">
+            <i class="fa-solid fa-receipt"></i>
+            <p>Nenhuma movimentação ainda. Assim que você comprar ou usar créditos, aparece aqui.</p>
+          </div>
+        } @else {
+          <ul class="lista-historico">
+            @for (t of historico(); track t.id) {
+              <li class="item-historico">
+                <div class="item-icone" [class.icone-entrada]="ehEntrada(t)" [class.icone-saida]="!ehEntrada(t)">
+                  <i [class]="iconeTransacao(t)"></i>
+                </div>
+                <div class="item-info">
+                  <span class="item-desc">{{ descricaoTransacao(t) }}</span>
+                  <span class="item-data">{{ formatarData(t.data) }}</span>
+                </div>
+                <span class="item-valor" [class.valor-positivo]="ehEntrada(t)" [class.valor-negativo]="!ehEntrada(t)">
+                  {{ ehEntrada(t) ? '+' : '-' }}{{ t.valor }}
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  }
+
+  <!-- ============ MODAL DE CHECKOUT SIMULADO ============ -->
+  @if (checkoutAberto()) {
+    <div class="checkout-backdrop" (click)="fecharCheckout()">
+      <div class="checkout-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+
+        @if (etapaCheckout() !== 'processando' && etapaCheckout() !== 'sucesso') {
+          <button type="button" class="checkout-fechar" (click)="fecharCheckout()" aria-label="Fechar">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        }
+
+        <!-- resumo do pacote -->
+        @if (etapaCheckout() !== 'sucesso') {
+          <div class="checkout-resumo">
+            <div class="resumo-moedas"><i class="fa-solid fa-coins"></i></div>
+            <div>
+              <strong>{{ totalDoPacote(pacoteSelecionado()) }} créditos</strong>
+              @if (pacoteSelecionado()?.bonus) {
+                <span class="resumo-bonus">{{ pacoteSelecionado()!.quantidade }} + {{ pacoteSelecionado()!.bonus }} de bônus</span>
+              }
+            </div>
+            <span class="resumo-preco">{{ pacoteSelecionado()?.precoExibicao }}</span>
+          </div>
+        }
+
+        <!-- ETAPA 1: método -->
+        @if (etapaCheckout() === 'metodo') {
+          <h2 class="checkout-titulo">Como você quer pagar?</h2>
+          <div class="metodos">
+            <button type="button" class="metodo" [class.metodo-ativo]="metodoPagamento() === 'pix'" (click)="escolherMetodo('pix')">
+              <i class="fa-solid fa-qrcode"></i>
+              <span>Pix</span>
+              <small>Aprovação na hora</small>
+            </button>
+            <button type="button" class="metodo" [class.metodo-ativo]="metodoPagamento() === 'cartao'" (click)="escolherMetodo('cartao')">
+              <i class="fa-regular fa-credit-card"></i>
+              <span>Cartão</span>
+              <small>Crédito ou débito</small>
+            </button>
+          </div>
+          <p class="checkout-aviso"><i class="fa-solid fa-circle-info"></i> Protótipo: nenhum dado é enviado e nada é cobrado.</p>
+          <button class="btn-primario btn-largo" (click)="irParaDados()">Continuar</button>
+        }
+
+        <!-- ETAPA 2: dados -->
+        @if (etapaCheckout() === 'dados') {
+          @if (metodoPagamento() === 'pix') {
+            <h2 class="checkout-titulo">Pague com Pix</h2>
+            <div class="pix-area">
+              <div class="pix-qr" aria-hidden="true">
+                @for (n of confetes; track n) { <span class="qr-bloco"></span> }
+              </div>
+              <button type="button" class="btn-copiar" (click)="copiarPix()">
+                <i class="fa-regular fa-copy"></i> {{ pixCopiado() ? 'Código copiado!' : 'Copiar código Pix' }}
+              </button>
+              <p class="checkout-aviso">QR Code ilustrativo — é só clicar em confirmar pra simular o pagamento.</p>
+            </div>
+          } @else {
+            <h2 class="checkout-titulo">Dados do cartão</h2>
+            <div class="cartao-preview">
+              <span class="cartao-chip"></span>
+              <span class="cartao-numero">{{ cartaoForm.numero || '•••• •••• •••• ••••' }}</span>
+              <div class="cartao-linha">
+                <span>{{ cartaoForm.nome || 'NOME NO CARTÃO' }}</span>
+                <span>{{ cartaoForm.validade || 'MM/AA' }}</span>
+              </div>
+            </div>
+            <div class="form-cartao">
+              <label>
+                Número do cartão
+                <input type="text" name="numero" maxlength="19" [(ngModel)]="cartaoForm.numero" placeholder="0000 0000 0000 0000" />
+              </label>
+              <label>
+                Nome impresso
+                <input type="text" name="nome" [(ngModel)]="cartaoForm.nome" placeholder="Maria S. Souza" />
+              </label>
+              <div class="form-linha">
+                <label>
+                  Validade
+                  <input type="text" name="validade" maxlength="5" [(ngModel)]="cartaoForm.validade" placeholder="MM/AA" />
+                </label>
+                <label>
+                  CVV
+                  <input type="text" name="cvv" maxlength="4" [(ngModel)]="cartaoForm.cvv" placeholder="123" />
+                </label>
+              </div>
+            </div>
+          }
+
+          <div class="checkout-acoes">
+            <button type="button" class="btn-secundario" (click)="voltarParaMetodo()">Voltar</button>
+            <button
+              type="button"
+              class="btn-primario"
+              [disabled]="metodoPagamento() === 'cartao' && !cartaoValido()"
+              (click)="confirmarPagamento()">
+              Confirmar pagamento
+            </button>
+          </div>
+        }
+
+        <!-- ETAPA 3: processando -->
+        @if (etapaCheckout() === 'processando') {
+          <div class="checkout-processando">
+            <div class="spinner"></div>
+            <h2 class="checkout-titulo">Processando pagamento...</h2>
+            <p class="checkout-aviso">Validando a transação simulada. Não feche essa janela.</p>
+          </div>
+        }
+
+        <!-- ETAPA 4: sucesso -->
+        @if (etapaCheckout() === 'sucesso') {
+          <div class="checkout-sucesso">
+            <div class="sucesso-check"><i class="fa-solid fa-check"></i></div>
+            <h2 class="checkout-titulo">Pagamento aprovado!</h2>
+            <p class="sucesso-valor">+{{ creditadoAgora() }} créditos</p>
+            <p class="checkout-aviso">Já caíram na sua carteira — olha lá no topo da página.</p>
+            <button class="btn-primario btn-largo" (click)="fecharCheckout()">Ver meu saldo</button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- confete da compra concluída -->
+  @if (mostrarConfete()) {
+    <div class="confete-container" aria-hidden="true">
+      @for (c of confetes; track c) {
+        <span class="confete" [style.left.%]="(c * 4) % 100" [style.animation-delay.ms]="c * 60"></span>
+      }
+    </div>
+  }
+</main>

@@ -5,11 +5,12 @@ import { RouterLink, Router } from '@angular/router';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import { CarteiraWidgetComponent } from '../carteira-widget/carteira-widget';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CarteiraWidgetComponent],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })

@@ -236,7 +236,13 @@ export class AuthFormComponent {
         // por isso toda mãe recém-cadastrada ia parar na home do parceiro).
         if (this.publico === 'mae') {
           await setDoc(doc(db, 'usuarios', uid), {
+            // Carteira de moedas: creditoMensal renova todo mês (ver
+            // CreditosService), creditoComprado nunca é resetado. `ultimoResetCredito`
+            // já entra marcado com o mês atual pra não sofrer um "reset" falso
+            // no primeiro login depois do cadastro.
             nome: this.nome, email: this.email, telefone: '', tipo: 'mae', avatar: null, emailVerificado: false,
+            creditoMensal: 50, creditoComprado: 0, creditopremium: 0,
+            ultimoResetCredito: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
             extras: { login_load: { mae: true, parceiro: false, advogado: false, psicologo: false }, consult_load: false, termos_load: false, fonte_number: 1, dark_mode: false, espacamento_number: 1, filtro_daltonismo: 'Filtros_daltonismo', leitura_voz: false, letras_destaque: false, mascara_leitura: false }
           });
 
@@ -268,7 +274,7 @@ export class AuthFormComponent {
           await setDoc(doc(db, 'psicologos', uid), { nome: this.nome, email: this.email, crp: this.numeroDocumento, tipo: 'psicologo', status: 'pendente', avatar: avatarGerado, uid });
         } else if (this.tipoDocumento === 'cnpj') {
           tipoPerfil = 'parceiro'; rotaDestino = '/home-parc';
-          await setDoc(doc(db, 'parceiros', uid), { nome: this.nome, nomeEmpresa: this.nome, razaoSocial: this.razaoSocialEncontrada || this.nome, email: this.email, cnpj: this.numeroDocumento, tipo: 'parceiro', status: 'pendente', avatar: null, uid });
+          await setDoc(doc(db, 'parceiros', uid), { nome: this.nome, nomeEmpresa: this.nome, razaoSocial: this.razaoSocialEncontrada || this.nome, email: this.email, cnpj: this.numeroDocumento, tipo: 'parceiro', status: 'pendente', avatar: null, uid, creditopremium: 0 });
         }
 
         await setDoc(doc(db, 'usuarios', uid), {
