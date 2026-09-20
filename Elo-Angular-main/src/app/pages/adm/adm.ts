@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +17,7 @@ import {
   serverTimestamp,
   Unsubscribe
 } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 import { Chart, registerables } from 'chart.js';
 
@@ -409,6 +410,8 @@ interface ParceiroEmpresaLista {
   styleUrl: './adm.css',
 })
 export class Adm implements OnInit, OnDestroy, AfterViewInit {
+
+  private router = inject(Router);
 
   abaAtiva: string = 'home';
 
@@ -1703,7 +1706,22 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   configAdministradoresSubAba: 'administradores' | 'permissoes' = 'administradores';
 
   /** Qual modal de Configurações está aberto no momento (nenhum = null). */
-  configModalAberto: 'perfil' | 'seguranca' | 'notificacoes' | 'termo' | null = null;
+  configModalAberto: 'perfil' | 'editar-perfil' | 'seguranca' | 'notificacoes' | 'termo' | null = null;
+
+  /** Campo em edição no modal "Meu perfil" (cidade/gênero). CPF nunca entra aqui. */
+  configCampoEditando: 'cidade' | 'genero' | null = null;
+  configValorEditando: string = '';
+
+  /** Controla a mensagem de confirmação de exclusão de conta dentro do modal "Meu perfil". */
+  configConfirmarExclusao: boolean = false;
+
+  /** Dados temporários usados no modal "Editar perfil". */
+  configPerfilEditando = {
+    nome: '',
+    email: '',
+    telefone: '',
+  };
+
 
   configAdminLogado = {
     nome: 'Ana Luiza Bertarelli',
@@ -1751,11 +1769,15 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   /** Abre um dos modais de Configurações ('perfil' | 'seguranca' | 'notificacoes' | 'termo'). */
   abrirConfigModal(modal: 'perfil' | 'seguranca' | 'notificacoes' | 'termo'): void {
     this.configModalAberto = modal;
+    this.configCampoEditando = null;
+    this.configConfirmarExclusao = false;
   }
 
   /** Fecha qualquer modal de Configurações aberto. */
   fecharConfigModal(): void {
     this.configModalAberto = null;
+    this.configCampoEditando = null;
+    this.configConfirmarExclusao = false;
   }
 
   /** Vai para a tela "Administradores/Permissões" (botão "Acessar" do card "Outros administradores"). */
@@ -1798,12 +1820,50 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     this.configTermoAceito = !this.configTermoAceito;
   }
 
-  /** TODO: abrirá o formulário de edição de dados pessoais (cidade/gênero/CPF). */
+  /** Entra no modo de edição de Cidade/Gênero. CPF nunca é editável (não faz nada). */
   alterarDadoPessoal(campo: 'cidade' | 'genero' | 'cpf'): void {
+    if (campo === 'cpf') {
+      return;
+    }
+    this.configCampoEditando = campo;
+    this.configValorEditando = this.configAdminLogado[campo];
   }
 
-  /** TODO: abrirá o formulário de edição de perfil (nome/e-mail/telefone/avatar). */
+  /** TODO: só atualiza em memória — plugar no Firestore (coleção `admins`) quando existir. */
+  salvarDadoPessoal(campo: 'cidade' | 'genero'): void {
+    const valor = this.configValorEditando.trim();
+    if (valor) {
+      this.configAdminLogado[campo] = valor;
+    }
+    this.configCampoEditando = null;
+  }
+
+  /** Abre o modal de edição e copia os dados atuais para o formulário. */
   editarPerfilAdmin(): void {
+    this.configPerfilEditando = {
+      nome: this.configAdminLogado.nome,
+      email: this.configAdminLogado.email,
+      telefone: this.configAdminLogado.telefone,
+    };
+
+    this.configModalAberto = 'editar-perfil';
+  }
+
+  /** Salva os dados do formulário apenas em memória. */
+  salvarPerfilAdmin(): void {
+    const nome = this.configPerfilEditando.nome.trim();
+    const email = this.configPerfilEditando.email.trim();
+    const telefone = this.configPerfilEditando.telefone.trim();
+
+    if (!nome || !email || !telefone) {
+      return;
+    }
+
+    this.configAdminLogado.nome = nome;
+    this.configAdminLogado.email = email;
+    this.configAdminLogado.telefone = telefone;
+
+    this.fecharConfigModal();
   }
 
   /** TODO: plugar no fluxo real de troca de senha do Firebase Auth. */
@@ -1815,12 +1875,39 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     dispositivo.status = 'desconectado';
   }
 
-  /** TODO: plugar no signOut real do Firebase Auth (já importado neste arquivo). */
-  sairDaConta(): void {
+  /** Encerra a sessão no Firebase Auth (mesma instância `auth` usada em todo o projeto)
+   *  e redireciona para a tela de login.
+   *  OBS: confirme se '/login' é mesmo a rota da sua tela de login — ajuste aqui se for outra. */
+  async sairDaConta(): Promise<void> {
+    try {
+      await signOut(auth);
+      this.fecharConfigModal();
+      this.router.navigate(['/login']);
+    } catch (error) {
+      console.error('Erro ao sair da conta:', error);
+    }
   }
 
-  /** TODO: plugar no fluxo real de exclusão de conta (com confirmação extra). */
+  /** Abre a mensagem de confirmação de exclusão de conta (ver `confirmarExclusaoConta`). */
   deletarConta(): void {
+    this.configConfirmarExclusao = true;
+  }
+
+  /** Fecha a confirmação de exclusão sem fazer nada. */
+  cancelarExclusaoConta(): void {
+    this.configConfirmarExclusao = false;
+  }
+
+  /**
+   * TODO: este projeto ainda não tem nenhum fluxo real de exclusão de conta
+   * implementado (nem no Firebase Auth, nem apagando os dados no Firestore).
+   * Não inventei uma chamada aqui para não criar uma falsa sensação de que a
+   * conta foi excluída de verdade. Quando esse fluxo existir no backend
+   * (ex.: uma Cloud Function que remove o usuário do Auth + os documentos
+   * dele no Firestore), chame-o a partir daqui.
+   */
+  confirmarExclusaoConta(): void {
+    console.warn('Exclusão de conta ainda não implementada neste projeto.');
   }
 
   private atividadeChart: any = null;
@@ -2830,6 +2917,10 @@ async carregarUsuarios(): Promise<void> {
   buscaConteudoModeracao: string = '';
   filtroConteudoModeracao: FiltroConteudoModeracao = 'todos';
 
+  // --- Paginação da tabela de conteúdo (mesmo padrão da tabela de mães) ---
+  paginaConteudoAtual: number = 1;
+  itensPorPaginaConteudo: number = 8;
+
   /** id do item cujo menu "Opções" está aberto no momento (só um por vez). */
   opcoesConteudoAbertasId: string | null = null;
 
@@ -2951,6 +3042,32 @@ async carregarUsuarios(): Promise<void> {
 
   filtrarConteudoModeracao(filtro: FiltroConteudoModeracao): void {
     this.filtroConteudoModeracao = filtro;
+    this.paginaConteudoAtual = 1;
+  }
+
+  onBuscaConteudoModeracaoChange(): void {
+    this.paginaConteudoAtual = 1;
+  }
+
+  /** Total de páginas para a lista filtrada de conteúdo. */
+  get totalPaginasConteudo(): number {
+    return Math.max(1, Math.ceil(this.conteudoFiltrado.length / this.itensPorPaginaConteudo));
+  }
+
+  /** Fatia da lista filtrada correspondente à página atual da tabela de conteúdo. */
+  get conteudoPaginado(): ConteudoAdm[] {
+    if (this.paginaConteudoAtual > this.totalPaginasConteudo) {
+      this.paginaConteudoAtual = this.totalPaginasConteudo;
+    }
+    const inicio = (this.paginaConteudoAtual - 1) * this.itensPorPaginaConteudo;
+    return this.conteudoFiltrado.slice(inicio, inicio + this.itensPorPaginaConteudo);
+  }
+
+  irParaPaginaConteudo(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginasConteudo) {
+      return;
+    }
+    this.paginaConteudoAtual = pagina;
   }
 
   get percentualEventosConteudo(): number {

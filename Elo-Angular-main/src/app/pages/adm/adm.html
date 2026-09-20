@@ -144,7 +144,10 @@
   <!-- USUÁRIOS -->
   <!-- MÃES (antiga aba "Usuários") -->
   <section class="content" id="usuarios" [class.hidden]="abaAtiva !== 'usuarios'">
-    <h2 class="page-title">Mães <p class="page-subtitle">Consulte e gerencie as mães cadastradas na plataforma.</p></h2>
+    <div class="pagina-header-card">
+      <h2 class="page-title">Mães</h2>
+      <p class="page-subtitle">Consulte e gerencie as mães cadastradas na plataforma.</p>
+    </div>
 
     <div class="maes-toolbar">
       <div class="mae-search-box">
@@ -184,6 +187,7 @@
         <p class="maes-contador">
           {{ maesFiltradas.length }} mãe{{ maesFiltradas.length === 1 ? '' : 's' }} encontrada{{ maesFiltradas.length === 1 ? '' : 's' }}
         </p>
+        <div class="prof-table-scroll">
         <table>
           <thead>
             <tr>
@@ -234,6 +238,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
 
         @if (maesFiltradas.length === 0) {
           <p class="activity-empty">Nenhuma mãe encontrada com esse filtro.</p>
@@ -527,12 +532,12 @@
     <div class="parc-page-header">
       <h2 class="page-title">
         {{ parceirosSubAba === 'parceiros' ? 'Parceiros' : 'Profissionais' }}
-        <p class="page-subtitle">
-          {{ parceirosSubAba === 'parceiros'
-            ? 'gerencie, acompanhe e modere os parceiros da plataforma.'
-            : 'gerencie, acompanhe e modere os profissionais da plataforma.' }}
-        </p>
       </h2>
+      <p class="page-subtitle">
+        {{ parceirosSubAba === 'parceiros'
+          ? 'gerencie, acompanhe e modere os parceiros da plataforma.'
+          : 'gerencie, acompanhe e modere os profissionais da plataforma.' }}
+      </p>
     </div>
 
     <div class="parc-stats-grid">
@@ -1788,7 +1793,11 @@
 
             <div class="mae-search-box mod-search-box">
               <i class="fa-solid fa-magnifying-glass"></i>
-              <input type="text" placeholder="Buscar..." [(ngModel)]="buscaConteudoModeracao">
+              <input
+                type="text"
+                placeholder="Buscar..."
+                [(ngModel)]="buscaConteudoModeracao"
+                (ngModelChange)="onBuscaConteudoModeracaoChange()">
             </div>
           </div>
 
@@ -1811,7 +1820,7 @@
                   <tr><td colspan="6" class="mod-tabela-vazio">Nenhum conteúdo encontrado nesse filtro.</td></tr>
                 }
 
-                @for (item of conteudoFiltrado; track item.id) {
+                @for (item of conteudoPaginado; track item.id) {
                   <tr>
                     <td>
                       <div class="mod-conteudo-cel">
@@ -1871,10 +1880,30 @@
               </tbody>
             </table>
           </div>
+
+          @if (conteudoFiltrado.length > itensPorPaginaConteudo) {
+            <div class="maes-paginacao">
+              <button
+                type="button"
+                class="mae-pagina-btn"
+                [disabled]="paginaConteudoAtual === 1"
+                (click)="irParaPaginaConteudo(paginaConteudoAtual - 1)">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+
+              <span class="mae-pagina-info">Página {{ paginaConteudoAtual }} de {{ totalPaginasConteudo }}</span>
+
+              <button
+                type="button"
+                class="mae-pagina-btn"
+                [disabled]="paginaConteudoAtual === totalPaginasConteudo"
+                (click)="irParaPaginaConteudo(paginaConteudoAtual + 1)">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          }
         </div>
       </div>
-
-      <!-- COLUNA LATERAL (direita) -->
       <div class="creditos-col mod-col-lateral">
         <div class="dash-panel creditos-donut-card">
           <h3>Dados Gerais:</h3>
@@ -1931,8 +1960,10 @@
 
   <!-- FÓRUM (MODERAÇÃO DOS POSTS REAIS) -->
   <section class="content" id="forum" [class.hidden]="abaAtiva !== 'forum'">
-    <h2 class="page-title">Moderação do Fórum</h2>
-    <p class="page-subtitle">Acompanhe as publicações reais do fórum e aplique advertências ou remova conteúdos que violem as diretrizes da comunidade.</p>
+    <div class="pagina-header-card">
+      <h2 class="page-title">Moderação do Fórum</h2>
+      <p class="page-subtitle">Acompanhe as publicações reais do fórum e aplique advertências ou remova conteúdos que violem as diretrizes da comunidade.</p>
+    </div>
 
     <div class="forum-search-row">
       <div class="mae-search-box forum-search-box">
@@ -2690,11 +2721,16 @@
   </div>
 }
 
-<!-- MODAL: MEU PERFIL (Configurações) -->
+<!-- MODAL: EDITAR PERFIL (Configurações) -->
 @if (configModalAberto === 'perfil') {
   <div class="config-modal-overlay" (click)="fecharConfigModal()">
     <div class="config-modal" (click)="$event.stopPropagation()">
-      <button type="button" class="config-modal-fechar-btn" (click)="fecharConfigModal()" aria-label="Fechar">
+
+      <button
+        type="button"
+        class="config-modal-fechar-btn"
+        (click)="fecharConfigModal()"
+        aria-label="Fechar">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
@@ -2702,7 +2738,7 @@
         <span class="config-modal-icone"><i class="fa-solid fa-user"></i></span>
         <div>
           <h3>Meu perfil</h3>
-          <p>Dados pessoais.</p>
+          <p>Dados pessoais e cargo.</p>
         </div>
       </div>
 
@@ -2720,13 +2756,6 @@
           <span class="config-perfil-linha-label">Setor:</span>
           <span class="config-perfil-linha-valor">{{ configAdminLogado.setor }}</span>
         </div>
-
-        <div class="config-perfil-linha config-perfil-linha-top">
-          <span class="config-perfil-linha-label">Permissões:</span>
-          <div class="config-permissoes-chips">
-            <span class="config-permissao-chip" *ngFor="let p of configAdminLogado.permissoesPerfil">{{ p }}</span>
-          </div>
-        </div>
       </div>
 
       <div class="config-perfil-secao">
@@ -2734,35 +2763,149 @@
 
         <div class="config-perfil-linha">
           <span class="config-perfil-linha-label">Cidade:</span>
-          <span class="config-perfil-linha-valor">{{ configAdminLogado.cidade }}</span>
-          <button type="button" class="config-alterar-btn" (click)="alterarDadoPessoal('cidade')">Alterar</button>
+          @if (configCampoEditando === 'cidade') {
+            <input type="text" class="config-editar-input" [(ngModel)]="configValorEditando">
+            <button type="button" class="config-alterar-btn" (click)="salvarDadoPessoal('cidade')">Salvar</button>
+          } @else {
+            <span class="config-perfil-linha-valor">{{ configAdminLogado.cidade }}</span>
+            <button type="button" class="config-alterar-btn" (click)="alterarDadoPessoal('cidade')">Alterar</button>
+          }
         </div>
 
         <div class="config-perfil-linha">
           <span class="config-perfil-linha-label">Gênero:</span>
-          <span class="config-perfil-linha-valor">{{ configAdminLogado.genero }}</span>
-          <button type="button" class="config-alterar-btn" (click)="alterarDadoPessoal('genero')">Alterar</button>
+          @if (configCampoEditando === 'genero') {
+            <input type="text" class="config-editar-input" [(ngModel)]="configValorEditando">
+            <button type="button" class="config-alterar-btn" (click)="salvarDadoPessoal('genero')">Salvar</button>
+          } @else {
+            <span class="config-perfil-linha-valor">{{ configAdminLogado.genero }}</span>
+            <button type="button" class="config-alterar-btn" (click)="alterarDadoPessoal('genero')">Alterar</button>
+          }
         </div>
 
         <div class="config-perfil-linha">
           <span class="config-perfil-linha-label">CPF:</span>
           <span class="config-perfil-linha-valor">{{ configAdminLogado.cpf }}</span>
-          <button type="button" class="config-alterar-btn" (click)="alterarDadoPessoal('cpf')">Alterar</button>
         </div>
       </div>
 
       <div class="config-perfil-rodape">
-        <button type="button" class="config-sair-btn" (click)="sairDaConta()">
-          <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
-        </button>
-        <button type="button" class="config-deletar-btn" (click)="deletarConta()">
-          <i class="fa-solid fa-trash"></i> Deletar Conta
-        </button>
+        @if (!configConfirmarExclusao) {
+          <button type="button" class="config-sair-btn" (click)="sairDaConta()">
+            <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
+          </button>
+          <button type="button" class="config-deletar-btn" (click)="deletarConta()">
+            <i class="fa-solid fa-trash"></i> Deletar Conta
+          </button>
+        } @else {
+          <div class="config-confirmar-exclusao">
+            <p>Deseja excluir sua conta? Essa ação será irreversível.</p>
+            <div class="config-confirmar-exclusao-botoes">
+              <button type="button" class="config-cancelar-btn" (click)="cancelarExclusaoConta()">Cancelar</button>
+              <button type="button" class="config-deletar-btn" (click)="confirmarExclusaoConta()">Deletar</button>
+            </div>
+          </div>
+        }
       </div>
+
     </div>
   </div>
 }
 
+<!-- MODAL: EDITAR PERFIL (aberto pelo lápis/"Editar perfil" no topo da tela principal) -->
+@if (configModalAberto === 'editar-perfil') {
+  <div class="config-modal-overlay" (click)="fecharConfigModal()">
+    <div class="config-modal config-modal-editar-perfil" (click)="$event.stopPropagation()">
+
+      <button
+        type="button"
+        class="config-modal-fechar-btn"
+        (click)="fecharConfigModal()"
+        aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="config-modal-header config-modal-header-centralizado">
+        <span class="config-modal-icone config-modal-icone-perfil">
+          <i class="fa-solid fa-user-pen"></i>
+        </span>
+
+        <div>
+          <h3>Editar perfil</h3>
+          <p>Atualize seus dados pessoais.</p>
+        </div>
+      </div>
+
+      <div class="config-modal-bar">
+        Dados do perfil
+      </div>
+
+      <div class="config-editar-perfil-form">
+
+        <div class="config-editar-campo">
+          <label for="editarPerfilNome">
+            <i class="fa-solid fa-user"></i>
+            Nome
+          </label>
+
+          <input
+            id="editarPerfilNome"
+            type="text"
+            [(ngModel)]="configPerfilEditando.nome"
+            placeholder="Digite seu nome"
+            autocomplete="name">
+        </div>
+
+        <div class="config-editar-campo">
+          <label for="editarPerfilEmail">
+            <i class="fa-solid fa-envelope"></i>
+            E-mail
+          </label>
+
+          <input
+            id="editarPerfilEmail"
+            type="email"
+            [(ngModel)]="configPerfilEditando.email"
+            placeholder="Digite seu e-mail"
+            autocomplete="email">
+        </div>
+
+        <div class="config-editar-campo">
+          <label for="editarPerfilTelefone">
+            <i class="fa-solid fa-mobile-screen"></i>
+            Número de telefone
+          </label>
+
+          <input
+            id="editarPerfilTelefone"
+            type="tel"
+            [(ngModel)]="configPerfilEditando.telefone"
+            placeholder="(11) 99999-9999"
+            autocomplete="tel">
+        </div>
+
+      </div>
+
+      <div class="config-editar-perfil-acoes">
+        <button
+          type="button"
+          class="config-editar-perfil-cancelar"
+          (click)="fecharConfigModal()">
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="config-editar-perfil-salvar"
+          (click)="salvarPerfilAdmin()">
+          <i class="fa-solid fa-check"></i>
+          Salvar alterações
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
 
 <!-- MODAL: SEGURANÇA (Configurações) -->
 @if (configModalAberto === 'seguranca') {
@@ -2815,7 +2958,7 @@
 <!-- MODAL: NOTIFICAÇÕES (Configurações) -->
 @if (configModalAberto === 'notificacoes') {
   <div class="config-modal-overlay" (click)="fecharConfigModal()">
-    <div class="config-modal" (click)="$event.stopPropagation()">
+    <div class="config-modal config-modal-notificacoes" (click)="$event.stopPropagation()">
       <button type="button" class="config-modal-fechar-btn" (click)="fecharConfigModal()" aria-label="Fechar">
         <i class="fa-solid fa-xmark"></i>
       </button>

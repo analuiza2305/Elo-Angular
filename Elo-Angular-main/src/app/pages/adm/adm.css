@@ -239,6 +239,23 @@
   display: none;
 }
 
+
+.content.page-title{
+
+width: 95%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--muted-bg);
+  border-radius: var(--radius-card);
+  padding: 10px 26px;
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+
+
 .page-title {
   width: 90%;
   font-weight: 800;
@@ -264,7 +281,7 @@
   width: 95%;
   background: linear-gradient(135deg, var(--parc-header-from) 0%, var(--parc-header-to) 100%);
   border-radius: var(--radius-card);
-  padding: 70px 32px;
+  padding: 40px 32px;
   margin-bottom: 0px;
   margin-top: 0px;
   box-shadow: var(--shadow-card);
@@ -302,6 +319,33 @@
   max-width: 640px;
   line-height: 1.5;
   margin: 10px 0 10px;
+}
+
+/* Cards de cabeçalho compactos (Mães, Fórum) — mesma ideia visual do
+   .admin-hero da Home (mesmo degradê), porém mais baixos, pra dar mais
+   padronização visual entre as telas sem repetir a altura da Home. */
+.pagina-header-card {
+  width: 95%;
+  background: var(--muted-bg);
+  border-radius: var(--radius-card);
+  padding: 18px 28px;
+  margin: 6px 0 20px;
+  box-shadow: var(--shadow-card);
+  text-align: left;
+}
+
+.pagina-header-card .page-title {
+  width: 100%;
+  color: var(--primary-color-dark);
+  margin: 0 0 4px;
+  text-align: left;
+}
+
+.pagina-header-card .page-subtitle {
+  width: 100%;
+  color: var(--text-color2);
+  margin: 0;
+  text-align: left;
 }
 
 /* =========================================
@@ -474,6 +518,9 @@
   gap: 12px;
 }
 
+.acrivity-icon i{
+  color: #ffffff;
+}
 .activity-icon {
   width: 36px;
   height: 36px;
@@ -609,7 +656,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color:#3c2f80;
   font-size: 0.72rem;
   font-weight: 800;
   background: var(--secondary-color);
@@ -806,6 +853,31 @@ chat mandou fazer isso só colar*/
   color: #fff;
 }
 
+/* ---- filtros de status com vários botões (Mães/Parceiros/Aprovação):
+   em telas menores viram um grid 2x2 em vez de espremer numa única linha ---- */
+@media (max-width: 768px) {
+  .mae-filtro-status {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    border-radius: var(--radius-card);
+    gap: 6px;
+  }
+
+  .mae-filtro-status button {
+    padding: 8px 10px;
+    font-size: 0.78rem;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .mae-filtro-status {
+    grid-template-columns: 1fr;
+  }
+}
+
 .maes-layout {
   width: 90%;
   display: flex;
@@ -883,12 +955,12 @@ chat mandou fazer isso só colar*/
 /* ========================================= ABA "PARCEIROS" — sub-abas, checklist e ações de aprovação ========================================= */
 
 .parc-page-header {
-  width: 90%;
-  background: var(--card-bg);
+  width: 95%;
+  background: var(--muted-bg);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  padding: 22px 28px;
-  margin: 10px 0 4px;
+  padding: 18px 28px;
+  margin: 6px 0 20px;
 }
 
 .parc-page-header .page-title {
@@ -1907,6 +1979,8 @@ chat mandou fazer isso só colar*/
 /* =========================================
    CRÉDITOS
    ========================================= */
+
+
 .creditos-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
@@ -2185,6 +2259,7 @@ chat mandou fazer isso só colar*/
 .creditos-donut-legenda {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 10px;
   width: 100%;
 }
@@ -2192,7 +2267,9 @@ chat mandou fazer isso só colar*/
 .creditos-donut-legenda-item {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  width: auto;
   font-size: 0.85rem;
 }
 
@@ -2205,7 +2282,9 @@ chat mandou fazer isso só colar*/
 
 .creditos-donut-legenda-nome {
   color: var(--text-color2);
-  flex: 1;
+  flex: none;
+  white-space: nowrap;
+
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2214,7 +2293,9 @@ chat mandou fazer isso só colar*/
 .creditos-donut-legenda-valor {
   font-weight: 800;
   color: var(--text-color);
+  white-space: nowrap;
 }
+
 
 /* --- Configurações gerais --- */
 .creditos-config-card h3 {
@@ -2668,6 +2749,63 @@ chat mandou fazer isso só colar*/
   }
 }
 
+/* ---- fórum: telas menores (cards de filtro, cabeçalho e ações do post) ---- */
+@media (max-width: 640px) {
+  .forum-filtro-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .forum-filtro-card {
+    padding: 16px 12px;
+    gap: 10px;
+  }
+
+  .forum-filtro-icone {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    font-size: 0.9rem;
+  }
+
+  .forum-filtro-texto strong {
+    font-size: 0.84rem;
+  }
+
+  .forum-post-card {
+    padding: 20px 16px 18px;
+  }
+
+  .forum-post-cabecalho {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .forum-post-rodape {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .forum-post-rodape .actions {
+    width: 100%;
+  }
+
+  .forum-post-rodape .actions button {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+@media (max-width: 460px) {
+  .forum-filtro-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .forum-filtro-card {
+    padding: 14px 16px;
+  }
+}
+
 /* =========================================================
    ABA "USUÁRIOS" (Mães) — painel de perfil fixo à direita
    (mesmo comportamento da sidebar: acompanha a tela inteira)
@@ -2734,20 +2872,181 @@ chat mandou fazer isso só colar*/
 
 .mod-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
   width: 100%;
   align-items: start;
 }
 
+/* "Desembrulha" as antigas colunas: os filhos passam a ser itens diretos
+   do grid do .mod-layout acima, o que permite reordenar/posicionar cada
+   card individualmente (via order/grid-column) sem mexer no HTML. */
 .mod-col-principal,
 .mod-col-lateral {
+  display: contents;
+}
+
+/* min-width:0 em todo item do grid: por padrão um item de grid nunca encolhe
+   menos que o conteúdo interno, então sem isso o card da tabela (que tem uma
+   tabela com min-width:720px lá dentro) empurra a página inteira pra ficar
+   larga em vez de deixar só a tabela rolar por dentro. */
+.mod-layout .mod-hero,
+.mod-layout .stats-grid,
+.mod-layout .creditos-donut-card,
+.mod-layout .mod-ultimos-card,
+.mod-layout .mod-tabela-card {
   min-width: 0;
 }
+
+/* Linha 1: card "Moderação de Conteúdo" ocupando toda a largura */
+.mod-layout .mod-hero {
+  grid-column: 1 / -1;
+  order: 1;
+}
+
+/* Linha 2: os 4 cards de estatística, um ao lado do outro, mesma largura/altura */
+.mod-layout .stats-grid {
+  grid-column: 1 / -1;
+  order: 2;
+  width: 100%;
+  gap: 12px;
+  margin: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Linha 3: Dados Gerais + Últimos Conteúdos Moderados, dividindo o espaço */
+.mod-layout .creditos-donut-card {
+  grid-column: span 2;
+  order: 3;
+}
+.mod-layout .creditos-donut-card,
+.mod-layout .mod-ultimos-card {
+  height: 100%;
+  min-height: 100%;
+  min-height: 300px;
+}
+.mod-layout .mod-col-lateral {
+  height: 100%;
+}
+
+.mod-layout .mod-col-lateral > .creditos-donut-card,
+.mod-layout .mod-col-lateral > .mod-ultimos-card {
+  height: 100%;
+}
+
+.mod-layout .creditos-donut-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* Área que junta gráfico e legendas */
+.mod-layout .creditos-donut-card .creditos-donut-wrap {
+  flex-shrink: 0;
+}
+.mod-layout .creditos-donut-card .creditos-donut-legenda {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Cada legenda */
+.mod-layout .creditos-donut-legenda-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  font-size: 0.85rem;
+}
+
+.mod-layout .creditos-donut-legenda-nome {
+  flex: none;
+  white-space: nowrap;
+}
+
+.mod-layout .creditos-donut-legenda-valor {
+  flex: none;
+  white-space: nowrap;
+  font-weight: 800;
+}
+
+.mod-layout .mod-ultimos-card {
+  grid-column: span 2;
+  order: 4;
+}
+
+/* Linha 4: tabela de publicações, largura total */
+.mod-layout .mod-tabela-card {
+  grid-column: 1 / -1;
+  order: 5;
+  margin-top: 50px; /* o espaçamento agora vem do gap do grid */
+}
+
+/* =========================================================
+   TELAS GRANDES
+   Gráfico à esquerda + legendas à direita
+   ========================================================= */
+
+@media (min-width: 901px) {
+
+  .mod-layout .creditos-donut-card {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .mod-layout .creditos-donut-card h3 {
+    width: 100%;
+    margin-bottom: 4px;
+  }
+
+  .mod-layout .creditos-donut-card .creditos-donut-wrap {
+    width: 180px;
+    max-width: 180px;
+  }
+
+  .mod-layout .creditos-donut-card .creditos-donut-legenda {
+    width: auto;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+}
+
+/* =========================================================
+   TELAS MENORES
+   Gráfico em cima + legendas embaixo
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .mod-layout .creditos-donut-card .creditos-donut-legenda {
+    align-items: center;
+    margin-left: 0;
+    margin-top: 4px;
+  }
+
+  .mod-layout .creditos-donut-legenda-item {
+    justify-content: center;
+  }
+
+}
+
 
 @media (max-width: 900px) {
   .mod-layout {
     grid-template-columns: 1fr;
+  }
+
+  .mod-layout .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mod-layout .creditos-donut-card,
+  .mod-layout .mod-ultimos-card {
+    grid-column: 1 / -1;
   }
 }
 
@@ -2757,16 +3056,17 @@ chat mandou fazer isso só colar*/
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  background: var(--outro);
+  background: var(--muted-bg);
   border-radius: var(--radius-card);
-  padding: 26px 30px;
+  padding: 18px 28px;
   box-shadow: var(--shadow-card);
   overflow: hidden;
+  margin-top: 20px;
 }
 
 .mod-hero-texto .page-title {
   width: auto;
-  margin: 0 0 6px;
+  margin: 0 0 10px;
 }
 
 .mod-hero-texto .page-subtitle {
@@ -2784,10 +3084,6 @@ chat mandou fazer isso só colar*/
 .stat-icon-laranja { background: #c98a3e; }
 
 /* ---- tabela de conteúdo ---- */
-
-.mod-tabela-card {
-  margin-top: 20px;
-}
 
 .mod-tabs-busca {
   display: flex;
@@ -2810,11 +3106,11 @@ chat mandou fazer isso só colar*/
 .mod-tab {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: transparent;
   border: none;
   color: var(--text-color2);
-  padding: 9px 16px;
+  padding: 11px 20px;
   border-radius: var(--radius-pill);
   font-size: 0.84rem;
   font-weight: 700;
@@ -2824,6 +3120,10 @@ chat mandou fazer isso só colar*/
 
 .mod-tab.active {
   background: var(--secondary-color);
+  color: #fff;
+}
+
+.mod-tab.active i {
   color: #fff;
 }
 
@@ -2842,6 +3142,7 @@ chat mandou fazer isso só colar*/
 
 .mod-tabela {
   min-width: 720px;
+  width: 100%; /* a .user-table (compartilhada com outras telas) define 90%; aqui a tabela fica dentro de um card e deve ocupar a largura toda dele */
 }
 
 .mod-tabela-vazio {
@@ -2892,7 +3193,7 @@ chat mandou fazer isso só colar*/
 .mod-status {
   display: inline-flex;
   align-items: center;
-  padding: 5px 14px;
+  padding: 8px 14px;
   border-radius: var(--radius-pill);
   font-size: 0.76rem;
   font-weight: 800;
@@ -3085,11 +3386,22 @@ chat mandou fazer isso só colar*/
   flex-wrap: wrap;
   background: var(--muted-bg);
   border-radius: var(--radius-card);
-  padding: 20px 26px;
+  padding: 10px 26px;
   margin-top: 6px;
   margin-bottom: 4px;
 }
 
+/* Só em Relatórios (não em Configurações, que reaproveita .rel-header) o
+   card fica um pouco mais alto verticalmente — as outras telas de destaque
+   (Mães, Fórum, Parceiros, Moderação de Conteúdo) seguem esse mesmo tamanho. */
+.rel-header:not(.config-header) {
+  padding: 18px 28px;
+}
+.rel-header.config-header{
+   background: #ffffff50;
+    gap: 30px;
+
+}
 .rel-header-info {
   display: flex;
   align-items: center;
@@ -3109,6 +3421,12 @@ chat mandou fazer isso só colar*/
   justify-content: center;
   font-size: 1.2rem;
   box-shadow: var(--shadow-card);
+}
+
+/* .rel-header-icone é compartilhado com a aba Relatórios — deixamos o ícone
+   branco só na tela de Configurações, sem mexer no Relatórios. */
+.config-header .rel-header-icone {
+  color: #ffffff;
 }
 
 .rel-header-titulo {
@@ -3289,6 +3607,12 @@ chat mandou fazer isso só colar*/
   font-size: 0.95rem;
 }
 
+/* .rel-panel-icone é compartilhado com a aba Relatórios — deixamos o ícone
+   branco só no card "Minha conta" de Configurações, sem mexer no Relatórios. */
+.config-conta-card .rel-panel-icone {
+  color: #ffffff;
+}
+
 .rel-panel-header h3 {
   margin-bottom: 2px;
 }
@@ -3467,11 +3791,11 @@ chat mandou fazer isso só colar*/
   width: 95%;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 30px;
   flex-wrap: wrap;
   background: var(--muted-bg);
   border-radius: var(--radius-card);
-  padding: 20px 26px;
+  padding: 50px 36px;
   margin: 18px 0 24px;
 }
 
@@ -3492,8 +3816,8 @@ chat mandou fazer isso só colar*/
   position: absolute;
   right: -2px;
   bottom: -2px;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: var(--secondary-color);
   color: #ffffff;
@@ -3503,6 +3827,11 @@ chat mandou fazer isso só colar*/
   justify-content: center;
   font-size: 0.65rem;
   cursor: pointer;
+}
+
+.config-perfil-avatar-editar i {
+  color: #ffffff;
+  align-items: center;
 }
 
 .config-perfil-info {
@@ -3580,26 +3909,33 @@ chat mandou fazer isso só colar*/
 }
 
 /* ---- Painel "Minha conta" ---- */
+/* Configurações usa .rel-header (compartilhado com Relatórios) — aumento
+   sutil só aqui, sem alterar o cabeçalho de Relatórios. */
+.config-header {
+  padding: 16px 30px;
+}
+
 .config-conta-card {
   width: 95%;
+  padding: 28px;
 }
 
 .config-conta-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1.3fr;
   grid-template-rows: auto auto;
-  gap: 14px;
+  gap: 28px;
 }
 
 .config-conta-item {
   grid-column: span 1;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
   background: var(--bg-color);
   border: 1px solid var(--parc-border);
   border-radius: var(--radius-btn);
-  padding: 16px;
+  padding: 48px 26px; /* mais "gordinho" na horizontal, altura praticamente igual */
   text-align: left;
   cursor: pointer;
   font-family: inherit;
@@ -3611,17 +3947,20 @@ chat mandou fazer isso só colar*/
   box-shadow: var(--shadow-card);
 }
 
+.config-outros-adm-topo i{
+  color: #F9F6FF;
+}
 .config-conta-icone {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
   border-radius: 12px;
   background: var(--menu-btn-hover);
-  color: var(--secondary-color);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
 }
 
 .config-conta-texto {
@@ -3633,12 +3972,12 @@ chat mandou fazer isso só colar*/
 }
 
 .config-conta-texto strong {
-  font-size: 0.88rem;
+  font-size: 0.94rem;
   color: var(--primary-color-dark);
 }
 
 .config-conta-texto span {
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   color: var(--text-color2);
 }
 
@@ -3751,14 +4090,14 @@ chat mandou fazer isso só colar*/
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 18px 0 18px;
+  margin: 18px 0 16px;
+  background: var(--muted-bg);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  padding: 14px 22px;
 }
 
 .config-tabs {
   display: inline-flex;
-  background: var(--muted-bg);
-  border-radius: var(--radius-pill);
-  padding: 4px;
   gap: 4px;
 }
 
@@ -3812,6 +4151,10 @@ chat mandou fazer isso só colar*/
   margin-bottom: 16px;
 }
 
+.config-admin-hero-icone i{
+  color: #ffffff;
+}
+
 .config-admin-hero-icone {
   width: 52px;
   height: 52px;
@@ -3856,6 +4199,7 @@ chat mandou fazer isso só colar*/
 .config-admin-tabela-card,
 .config-permissoes-card {
   width: 95%;
+  padding: 26px;
 }
 
 .config-admin-tabela-header {
@@ -3864,31 +4208,49 @@ chat mandou fazer isso só colar*/
   justify-content: space-between;
   gap: 14px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--parc-border);
 }
 
 .config-admin-tabela-titulo {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--parc-border);
 }
 
 .config-admin-tabela-header .config-admin-tabela-titulo {
   margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
-
-.config-admin-tabela-icone {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
-  border-radius: 12px;
-  background: var(--menu-btn-hover);
-  color: var(--secondary-color);
+.config-admin-tabela-icone i{
+   width: 46px;
+  height: 46px;
+  min-width: 46px;
+  border-radius: 14px;
+  background: var(--secondary-color);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
+}
+
+.config-admin-tabela-icone {
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  border-radius: 14px;
+  background: var(--secondary-color);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
 }
 
 .config-admin-tabela-titulo strong {
@@ -3901,6 +4263,10 @@ chat mandou fazer isso só colar*/
   display: block;
   color: var(--text-color2);
   font-size: 0.78rem;
+}
+
+.config-convidar-btn i{
+  color: #ffffff;
 }
 
 .config-convidar-btn {
@@ -3962,6 +4328,15 @@ chat mandou fazer isso só colar*/
   color: #ffffff;
 }
 
+/* .user-table (classe base, compartilhada) tem width:90% — aqui isso deixava
+   a tabela encostada à esquerda do card, com uma sobra vazia à direita.
+   Sem mexer no .user-table em si, garantimos 100% só nestas duas tabelas
+   pra ficarem centralizadas/preenchendo o card. */
+.config-admin-tabela,
+.config-permissoes-tabela {
+  width: 100%;
+}
+
 /* ---- Tabela de permissões ---- */
 .config-permissoes-tabela th:not(:first-child),
 .config-permissoes-tabela td:not(:first-child) {
@@ -3976,7 +4351,9 @@ chat mandou fazer isso só colar*/
   background: var(--muted-bg);
   border: 1px solid var(--parc-border);
 }
-
+.config-permissao-check i{
+  color: #ffffff;
+}
 .config-permissao-check {
   width: 28px;
   height: 28px;
@@ -4023,6 +4400,20 @@ chat mandou fazer isso só colar*/
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
 }
 
+/* Modal de Notificações precisa de mais largura pra caber as 3 colunas da
+   tabela sem cortar/rolar — os outros modais de Configurações continuam 560px. */
+.config-modal-notificacoes {
+  max-width: 720px;
+}
+
+/* .prof-table-scroll table tem min-width:640px (regra compartilhada com a
+   aba Profissionais, e com maior especificidade que uma classe sozinha) —
+   isso força rolagem horizontal sempre. Como a tabela de notificações já
+   tem largura de sobra dentro do modal maior, zeramos esse mínimo só pra ela. */
+.prof-table-scroll .config-notif-tabela {
+  min-width: 0;
+}
+
 .config-modal-fechar-btn {
   position: absolute;
   top: 18px;
@@ -4052,13 +4443,15 @@ chat mandou fazer isso só colar*/
   padding-right: 30px;
 }
 
+
+
 .config-modal-icone {
   width: 44px;
   height: 44px;
   min-width: 44px;
   border-radius: 14px;
   background: var(--muted-bg);
-  color: var(--secondary-color);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4259,12 +4652,73 @@ chat mandou fazer isso só colar*/
   color: #ffffff;
 }
 
+.config-editar-input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--parc-border);
+  border-radius: var(--radius-btn);
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-color);
+  background: var(--card-bg);
+}
+
+.config-editar-input:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+}
+
+.config-confirmar-exclusao {
+  width: 100%;
+  background: #fdeceb;
+  border-radius: var(--radius-btn);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.config-confirmar-exclusao p {
+  margin: 0;
+  color: #8a1f1f;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.config-confirmar-exclusao-botoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.config-cancelar-btn {
+  background: var(--menu-btn-hover);
+  color: var(--primary-color-dark);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 9px 16px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.config-cancelar-btn:hover {
+  background: var(--hover-bg);
+}
+
 .config-perfil-rodape {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 18px;
   flex-wrap: wrap;
+}
+
+.config-sair-btn i,
+.config-deletar-btn i{
+  color: #ffffff;
 }
 
 .config-sair-btn,
@@ -4437,6 +4891,153 @@ chat mandou fazer isso só colar*/
 
   .config-pill-btn {
     margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   MODAL — EDITAR PERFIL
+   ========================================================= */
+
+.config-modal-editar-perfil {
+  max-width: 500px;
+  padding: 28px;
+  border: 1px solid rgba(124, 105, 169, 0.12);
+}
+
+.config-modal-header-centralizado {
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.config-modal-icone-perfil i{
+  color: #ffffff;
+}
+
+.config-modal-icone-perfil {
+  background: var(--secondary-color);
+  color: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(108, 75, 191, 0.18);
+}
+
+.config-editar-perfil-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.config-editar-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.config-editar-campo label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--primary-color-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.config-editar-campo label i {
+  color: var(--secondary-color);
+  width: 16px;
+  text-align: center;
+}
+
+.config-editar-campo input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 11px 13px;
+  border: 1px solid var(--parc-border);
+  border-radius: 12px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: inherit;
+  font-size: 0.86rem;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.config-editar-campo input::placeholder {
+  color: var(--text-color2);
+  opacity: 0.7;
+}
+
+.config-editar-campo input:focus {
+  background: var(--card-bg);
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px rgba(108, 75, 191, 0.10);
+}
+
+.config-editar-perfil-acoes {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--parc-border);
+}
+
+.config-editar-perfil-salvar i {
+  color: #ffffff;
+}
+.config-editar-perfil-cancelar,
+.config-editar-perfil-salvar {
+  min-height: 40px;
+  padding: 9px 17px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.16s ease, filter 0.16s ease, background 0.16s ease;
+}
+
+.config-editar-perfil-cancelar {
+  background: transparent;
+  color: var(--text-color2);
+  border: 1px solid var(--parc-border);
+}
+
+.config-editar-perfil-cancelar:hover {
+  background: var(--menu-btn-hover);
+  color: var(--secondary-color);
+}
+
+.config-editar-perfil-salvar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: var(--secondary-color);
+  color: #ffffff;
+  border: 1px solid var(--secondary-color);
+  box-shadow: 0 5px 14px rgba(108, 75, 191, 0.18);
+}
+
+.config-editar-perfil-salvar:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+  .config-modal-editar-perfil {
+    padding: 22px 18px;
+  }
+
+  .config-editar-perfil-acoes {
+    flex-direction: column-reverse;
+  }
+
+  .config-editar-perfil-cancelar,
+  .config-editar-perfil-salvar {
     width: 100%;
   }
 }
