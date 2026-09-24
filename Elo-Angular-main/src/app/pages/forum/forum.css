@@ -262,3 +262,38 @@ label[for="anonimo-checkbox"] {
   font-weight: normal;
   cursor: pointer;
 }
+.badge-respondido {
+    background-color: #f0fdf4;
+    color: #166534; /* Verde escuro para o texto */
+    border: 1px solid #bbf7d0;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+}
+
+/* Força o ícone a herdar a cor verde escuro do pai */
+.badge-respondido i {
+    color: inherit; 
+}
+@media (max-width: 768px) {
+    /* Ajusta o rodapé do card para permitir quebra se faltar espaço entre os likes e a tag */
+    .fc-footer {
+        flex-wrap: wrap; 
+        gap: 12px;
+    }
+
+    /* Impede que o texto dentro das tags quebre em várias linhas */
+    .badge-aguardando, 
+    .badge-respondido {
+        white-space: nowrap; 
+        font-size: 0.75rem; /* Reduz levemente a fonte no celular */
+        padding: 6px 12px;
+        width: 100%; /* Opcional: Faz a tag ocupar a linha inteira abaixo dos likes */
+        justify-content: center; /* Opcional: Centraliza o conteúdo se usar width 100% */
+    }
+}
