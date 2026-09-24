@@ -73,8 +73,8 @@
                             }
                         </div>
                         
-                        @if (post.respondido) {
-                            <div class="badge-respondido"><i class="fa-solid fa-check"></i> Respondido por especialista</div>
+                      @if (post.totalComentarios > 0) {
+                            <div class="badge-respondido"><i class="fa-solid fa-check-circle"></i> Respondido por especialista</div>
                         } @else {
                             <div class="badge-aguardando"><i class="fa-regular fa-clock"></i> Aguardando especialista</div>
                         }
