@@ -1,0 +1,742 @@
+<svg aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;">
+        <defs>
+            <filter id="protanopia">
+                <feColorMatrix type="matrix" values="
+            0.567 0.433 0 0 0
+            0.558 0.442 0 0 0
+            0     0.242 0.758 0 0
+            0     0     0     1 0" />
+            </filter>
+            <filter id="deuteranopia">
+                <feColorMatrix type="matrix" values="
+            0.625 0.375 0 0 0
+            0.700 0.300 0 0 0
+            0     0.300 0.700 0 0
+            0     0     0     1 0" />
+            </filter>
+            <filter id="tritanopia">
+                <feColorMatrix type="matrix" values="
+            0.950 0.050 0     0 0
+            0     0.433 0.567 0 0
+            0     0.475 0.525 0 0
+            0     0     0     1 0" />
+            </filter>
+            <filter id="Acromatopsia">
+                <feColorMatrix type="matrix" values="
+            0.299 0.587 0.114 0 0
+            0.299 0.587 0.114 0 0
+            0.299 0.587 0.114 0 0
+            0     0     0     1 0" />
+            </filter>
+        </defs>
+    </svg>
+
+    <header class="header">
+        <div class="header-left">
+            <a routerLink="/home-parc" class="botao-link header-logo-link">
+                <img src="./img/logo_icon.png" alt="Ícone Elo Materno" class="header-logo-icon">
+                <span class="header-logo-text">elomaterno</span>
+            </a>
+        </div>
+
+        <div class="header-icons">
+            <button class="icon-btn" id="notifBellBtn" data-target="notificacoes" title="Notificações" aria-label="Notificações">
+                <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                <span class="notif-dot hidden" id="notifDot" aria-hidden="true"></span>
+            </button>
+
+            <div class="accessibility-selector">
+                <button class="icon-btn" id="accessibility-toggle" title="Acessibilidade" aria-label="Opções de acessibilidade" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa-solid fa-universal-access" aria-hidden="true"></i>
+                </button>
+                <ul id="accessibility-menu" class="hidden">
+                    <li id="increase-font">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i> Aumentar Fonte
+                    </li>
+                    <li id="decrease-font">
+                        <i class="fa fa-minus-circle" aria-hidden="true"></i> Diminuir Fonte
+                    </li>
+                    <li id="colorblind-filter">
+                        <i class="fa fa-low-vision" aria-hidden="true"></i> Filtros Daltonismo
+                    </li>
+                    <li id="screen-reader">
+                        <i class="fa fa-assistive-listening-systems" aria-hidden="true"></i> Leitura em Voz
+                    </li>
+                    <li id="reading-mask">
+                        <i class="fa fa-highlighter" aria-hidden="true"></i> Máscara de leitura
+                    </li>
+                    <li id="bold-text">
+                        <i class="fa fa-bold" aria-hidden="true"></i> Letras destacadas
+                    </li>
+                    <li id="high-contrast">
+                        <i class="fa fa-adjust" aria-hidden="true"></i> Alto contraste
+                    </li>
+                    <li id="increase-line">
+                        <i class="fa fa-arrows-alt-v" aria-hidden="true"></i> Aumentar Espaçamento Linhas
+                    </li>
+                    <li id="decrease-line">
+                        <i class="fa fa-compress-arrows-alt" aria-hidden="true"></i> Diminuir Espaçamento Linhas
+                    </li>
+                    <li id="reset-accessibility">
+                        <i class="fa fa-undo" aria-hidden="true"></i> Redefinir
+                    </li>
+                </ul>
+            </div>
+
+            <div id="reading-mask-overlay">
+                <div class="highlight-window"></div>
+            </div>
+
+            <button class="icon-btn" id="theme-toggle" title="Alternar tema">
+                <i class="fas fa-moon" id="theme-toggle-icon" aria-hidden="true"></i>
+                <span class="sr-only">Alternar tema claro e escuro</span>
+            </button>
+            <button class="icon-btn" id="logoutBtn" title="Sair" aria-label="Sair da conta">
+                <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+            </button>
+            <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false"
+            aria-controls="parceiroSidebar">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+        </div>
+    </header>
+
+    <div id="sidebar-overlay" class="hidden" aria-hidden="true"></div>
+
+    <div id="postModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="postModalTitulo">
+        <div class="modal-content modal-wide">
+            <span id="closeModal" class="close" role="button" tabindex="0" aria-label="Fechar">&times;</span>
+            <h2 id="postModalTitulo">Novo artigo</h2>
+            <p class="modal-sub">Preencha os dados e veja ao lado como o artigo vai aparecer para as mães.</p>
+
+            <div class="modal-grid">
+                <form id="postForm" class="modal-form">
+                    <label for="artigoTitulo">Título</label>
+                    <input type="text" id="artigoTitulo" required maxlength="90" placeholder="Ex: 5 dicas para a amamentação">
+
+                    <label for="artigoDescricao">Descrição curta</label>
+                    <input type="text" id="artigoDescricao" required maxlength="140" placeholder="Uma frase que resume o artigo">
+
+                    <label for="resumo">Resumo <span class="opcional">(opcional)</span></label>
+                    <textarea id="resumo" rows="3"></textarea>
+
+                    <div class="form-row">
+                        <div>
+                            <label for="categoria">Categoria</label>
+                            <select id="categoria" required>
+                                <option value="posts">Posts</option>
+                                <option value="legislativos">Legislativos</option>
+                                <option value="educacionais">Educacionais</option>
+                                <option value="dicas">Dicas</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="img">Imagem (URL)</label>
+                            <input type="text" id="img" placeholder="img/post_img.png" required>
+                        </div>
+                    </div>
+
+                    <label for="link">Link do artigo</label>
+                    <input type="url" id="link" placeholder="https://..." required>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-ghost" id="salvarRascunhoArtigo"><i class="fa-regular fa-floppy-disk"></i> Salvar rascunho</button>
+                        <button type="submit" class="btn-primary">Publicar</button>
+                    </div>
+                    <div id="postMsg" class="form-msg" role="status" aria-live="polite"></div>
+                </form>
+
+                <aside class="modal-preview" aria-label="Prévia do artigo">
+                    <span class="preview-label">Prévia</span>
+                    <div class="article-card preview-card">
+                        <div class="card-topbar" id="prevArtTopbar"></div>
+                        <img id="prevArtImg" class="article-img" alt="" hidden>
+                        <div class="article-thumb" id="prevArtThumb"><i class="fa-regular fa-image"></i></div>
+                        <div class="article-body">
+                            <h3 id="prevArtTitulo">Título do artigo</h3>
+                            <p id="prevArtDesc">A descrição aparece aqui.</p>
+                            <span class="categoria-tag" id="prevArtCat">posts</span>
+                            <div class="article-card-footer">
+                                <span class="article-card-date" id="prevArtData"></span>
+                                <button type="button" class="article-card-ver" tabindex="-1">Ver →</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="draft-status" id="draftStatusArtigo"></p>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <div id="eventModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="eventModalTitulo">
+        <div class="modal-content modal-wide">
+            <span id="closeEventModal" class="close" role="button" tabindex="0" aria-label="Fechar">&times;</span>
+            <h2 id="eventModalTitulo">Novo evento</h2>
+            <p class="modal-sub">Preencha os dados e veja ao lado como o evento vai aparecer no calendário.</p>
+
+            <div class="modal-grid">
+                <form id="eventForm" class="modal-form">
+                    <label for="tituloEvento">Título</label>
+                    <input type="text" id="tituloEvento" required maxlength="80" placeholder="Ex: Roda de conversa sobre puerpério">
+
+                    <label for="descricaoEvento">Descrição <span class="opcional">(opcional)</span></label>
+                    <textarea id="descricaoEvento" rows="3"></textarea>
+
+                    <div class="form-row">
+                        <div>
+                            <label for="dataEvento">Data e hora</label>
+                            <input type="datetime-local" id="dataEvento" required>
+                        </div>
+                        <div>
+                            <label for="tipoEvento">Categoria</label>
+                            <select id="tipoEvento" required>
+                                <option value="psicologo">Psicólogo</option>
+                                <option value="apoio">Apoio</option>
+                                <option value="oficinas">Oficinas</option>
+                                <option value="juridico">Jurídico</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label for="localEvento">Local</label>
+                    <input type="text" id="localEvento" placeholder="Ex: Online, Auditório Central..." required>
+
+                    <label for="capaEvento">Imagem de capa (URL)</label>
+                    <input type="text" id="capaEvento" placeholder="img/palestra_img.png" required>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-ghost" id="salvarRascunhoEvento"><i class="fa-regular fa-floppy-disk"></i> Salvar rascunho</button>
+                        <button type="submit" class="btn-primary">Publicar evento</button>
+                    </div>
+                    <div id="eventMsg" class="form-msg" role="status" aria-live="polite"></div>
+                </form>
+
+                <aside class="modal-preview" aria-label="Prévia do evento">
+                    <span class="preview-label">Prévia</span>
+                    <div class="event evento-card preview-card" id="prevEvCard">
+                        <div class="evento-card-header">
+                            <strong id="prevEvTitulo">Título do evento</strong>
+                            <span class="evento-tipo-tag tipo-psicologo" id="prevEvTipo">psicólogo</span>
+                        </div>
+                        <p id="prevEvDesc" class="prev-desc">A descrição aparece aqui.</p>
+                        <div class="prev-meta"><i class="fa-regular fa-clock"></i> <span id="prevEvData">Escolha a data</span></div>
+                        <div class="prev-meta"><i class="fa-solid fa-location-dot"></i> <span id="prevEvLocal">Local do evento</span></div>
+                    </div>
+                    <p class="draft-status" id="draftStatusEvento"></p>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <div id="excluirContaModal" class="modal hidden">
+        <div class="modal-content" style="max-width:420px;text-align:center;">
+            <span id="closeExcluirContaModal" class="close" role="button" tabindex="0" aria-label="Fechar">&times;</span>
+            <h2>Excluir sua conta?</h2>
+            <p>Essa ação é <strong>permanente</strong>. Todos os seus dados serão removidos e você perderá o acesso à plataforma.</p>
+            <p>Para confirmar, digite sua senha atual:</p>
+            <input type="password" id="excluirContaSenha" placeholder="Sua senha atual" autocomplete="current-password">
+            <div id="excluirContaMsg"></div>
+            <div class="modal-actions">
+                <button type="button" id="cancelarExcluirConta">Cancelar</button>
+                <button type="button" id="confirmarExcluirConta" class="btn-perigo">Excluir definitivamente</button>
+            </div>
+        </div>
+    </div>
+
+
+    <main class="main-container">
+        <aside class="sidebar" id="parceiroSidebar" role="tablist" aria-orientation="vertical" aria-label="Seções do portal">
+            <div class="sidebar-profile">
+                <img id="sidebarAvatar" src="./img/logo_icon.png" alt="Foto da empresa" class="sidebar-profile-avatar">
+                <div class="sidebar-profile-info">
+                    <h4 id="sidebarNomeEmpresa">Minha Empresa</h4>
+                    <span class="sidebar-profile-tag">Parceiro</span>
+                </div>
+            </div>
+
+            <div class="sidebar-group-label">Gerenciar</div>
+            <button type="button" class="menu-btn active" role="tab" data-target="dashboard" aria-selected="true">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Dashboard</span>
+            </button>
+            <button type="button" class="menu-btn" role="tab" data-target="calendario" aria-selected="false">
+                <i class="fa-regular fa-calendar"></i>
+                <span>Calendário</span>
+            </button>
+            <button type="button" class="menu-btn" role="tab" data-target="forum" aria-selected="false">
+                <i class="fa-solid fa-people-group"></i>
+                <span>Fórum</span>
+            </button>
+            <button type="button" class="menu-btn" role="tab" data-target="artigos" aria-selected="false">
+                <i class="fa-solid fa-book-open"></i>
+                <span>Artigos</span>
+            </button>
+
+            <div class="sidebar-group-label">Analíticos</div>
+            <button type="button" class="menu-btn" role="tab" data-target="relatorios" aria-selected="false">
+                <i class="fa-regular fa-file-lines"></i>
+                <span>Relatórios</span>
+            </button>
+
+            <div class="sidebar-group-label">Conta</div>
+            <button type="button" class="menu-btn" role="tab" data-target="perfil" aria-selected="false">
+                <i class="fa-regular fa-building"></i>
+                <span>Minha Empresa</span>
+            </button>
+            <button type="button" class="menu-btn" role="tab" data-target="configuracoes" aria-selected="false">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configurações</span>
+            </button>
+
+            <div class="last-activities">
+                <h3>Últimas Atividades</h3>
+                <div id="sidebarAtividadeList" class="last-activities-list">
+                    <p class="empty-hint">Carregando...</p>
+                </div>
+            </div>
+        </aside>
+
+        <section class="content" id="dashboard">
+
+            <div class="parc-hero">
+                <span class="hero-badge">ÁREA DO PARCEIRO</span>
+                <h1 id="heroBoasVindas">Olá, Parceiro!</h1>
+                <p>Seu espaço de impacto está pronto. Acompanhe seus posts, eventos e o alcance da sua empresa
+                    junto às mães da nossa comunidade.</p>
+            </div>
+
+            <div class="stats-grid" id="dashboardStats">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-file-lines"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="statPosts">–</span>
+                        <span class="stat-label">Posts Publicados</span>
+                        <span class="stat-delta" id="statPostsDelta"></span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-yellow"><i class="fa-regular fa-calendar"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="statEventos">–</span>
+                        <span class="stat-label">Eventos cadastrados</span>
+                        <span class="stat-delta" id="statEventosDelta"></span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-coral"><i class="fa-solid fa-people-group"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="statMaes">–</span>
+                        <span class="stat-label">Mães inscritas</span>
+                        <span class="stat-delta" id="statMaesDelta"></span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-book-open"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="statArtigos">–</span>
+                        <span class="stat-label">Artigos Publicados</span>
+                        <span class="stat-delta" id="statArtigosDelta"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-columns">
+                <div class="dash-panel">
+                    <h3>Atividade Recente</h3>
+                    <div id="atividadeRecenteList" class="dash-list">
+                        <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    </div>
+                </div>
+
+                <div class="dash-panel">
+                    <div class="dash-panel-header">
+                        <h3>Próximos eventos</h3>
+                        <button class="add-event-btn" title="Adicionar evento">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="proximosEventosList" class="dash-list">
+                        <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    </div>
+                </div>
+
+                <div class="dash-panel">
+                    <div class="dash-panel-header">
+                        <h3>Artigos Recentes</h3>
+                        <button class="dash-see-more" data-target="artigos">Ver mais</button>
+                    </div>
+                    <div id="artigosRecentesList" class="dash-list">
+                        <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions-panel">
+                <h3>Ações rápidas</h3>
+                <div class="quick-actions-grid">
+                    <button class="quick-action-btn qa-purple add-post-btn-artigos">+ Novo Artigo</button>
+                    <button class="quick-action-btn qa-yellow add-event-btn">+ Criar Evento</button>
+                    <button class="quick-action-btn qa-coral" id="qaComunicadoBtn">+ Publicar Comunicado</button>
+                    <button class="quick-action-btn qa-blue" data-target="relatorios">+ Ver Relatórios</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="content hidden" id="calendario">
+            <div class="calendario-topbar">
+                <button type="button" class="btn-criar-evento add-event-btn" id="calCriarEventoBtn">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Criar evento
+                </button>
+            </div>
+            <div class="container">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button onclick="prevMonth()">&lt;</button>
+                        <div class="month-year-select">
+                            <select id="month-select" onchange="onMonthChange()"></select>
+                            <select id="year-select" onchange="onYearChange()"></select>
+                        </div>
+                        <button onclick="nextMonth()">&gt;</button>
+                    </div>
+
+                    <div class="calendar-days">
+                        <div>D</div>
+                        <div>S</div>
+                        <div>T</div>
+                        <div>Q</div>
+                        <div>Q</div>
+                        <div>S</div>
+                        <div>S</div>
+                    </div>
+                    <div class="calendar-dates" id="calendarDates"></div>
+
+                    <div class="calendar-legend">
+                        <span class="legend-item"><span class="legend-dot dot-psicologo"></span> Psicólogo</span>
+                        <span class="legend-item"><span class="legend-dot dot-apoio"></span> Apoio</span>
+                        <span class="legend-item"><span class="legend-dot dot-oficinas"></span> Oficinas</span>
+                        <span class="legend-item"><span class="legend-dot dot-juridico"></span> Jurídico</span>
+                    </div>
+                </div>
+
+                <div class="events-container">
+                    <h3 id="eventosDoDiaTitulo">Eventos do dia</h3>
+                    <div class="event-list" id="eventosDoDiaList">
+                        <p class="empty-hint">Selecione um dia com evento para ver os detalhes.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content hidden" id="forum">
+            <div class="forum-container">
+                <div class="forum-search">
+                    <input type="text" id="forum-search-input" placeholder="Pesquisar no fórum">
+                    <button class="add-for-btn" id="nova-post-btn">+</button>
+                </div>
+
+                <div id="posts-list">
+                    <div class="loader">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <div class="modal hidden" id="modal-post">
+            <div class="modal-content">
+                <span class="close" id="close-post-modal" role="button" tabindex="0" aria-label="Fechar">&times;</span>
+                <h2>Nova Publicação</h2>
+
+                <form id="form-post">
+                    <label for="titulo">Título</label>
+                    <input type="text" id="titulo" placeholder="Digite o título" required>
+
+                    <label for="conteudo">Conteúdo</label>
+                    <textarea id="conteudo" rows="4" placeholder="Escreva sua mensagem..." required></textarea>
+
+                    <label for="anonimo-checkbox" class="anonimo-check">
+                        <input type="checkbox" id="anonimo-checkbox">
+                        <span>Postar como anônimo</span>
+                    </label>
+
+                    <div class="modal-actions">
+                        <button type="button" id="cancelar-post">Cancelar</button>
+                        <button type="submit">Publicar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="modal hidden" id="modal-comentarios" role="dialog" aria-modal="true" aria-labelledby="comentariosTitulo">
+            <div class="modal-content modal-wide">
+                <span class="close" id="close-comentarios" role="button" tabindex="0" aria-label="Fechar">&times;</span>
+                <h2 id="comentariosTitulo">Publicação</h2>
+                <p id="comentariosConteudo" class="modal-sub"></p>
+                <div id="comentariosLista" class="comentarios-lista" aria-live="polite"></div>
+                <form id="form-comentario" class="comentario-form">
+                    <label for="novoComentarioInput" class="sr-only">Sua resposta</label>
+                    <textarea id="novoComentarioInput" rows="2" placeholder="Escreva sua resposta..." required></textarea>
+                    <button type="submit" class="btn-primary">Responder</button>
+                </form>
+            </div>
+        </div>
+
+        <section class="content hidden" id="artigos">
+
+            <div class="artigos-topbar">
+                <div class="artigos-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="artigos-search-input" placeholder="Pesquisar artigo...">
+                </div>
+                <button class="quick-action-btn qa-purple add-post-btn-artigos">+ Novo Artigo</button>
+            </div>
+
+            <div class="artigos-abas" role="tablist" aria-label="Origem dos artigos">
+                <button type="button" class="aba-btn active" role="tab" aria-selected="true" data-escopo="meus">Meus artigos</button>
+                <button type="button" class="aba-btn" role="tab" aria-selected="false" data-escopo="comunidade">Outros parceiros</button>
+            </div>
+
+            <div class="filtros-categorias">
+                <button class="filtro-btn active" data-cat="todas">Todos</button>
+                <button class="filtro-btn" data-cat="legislativos">Legislativos</button>
+                <button class="filtro-btn" data-cat="educacionais">Educacionais</button>
+                <button class="filtro-btn" data-cat="dicas">Dicas</button>
+                <button class="filtro-btn" data-cat="posts">Posts</button>
+            </div>
+
+            <div class="articles-grid-cards" id="articlesGridArtigos">
+                <div class="loader">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+
+        </section>
+
+        <section class="content hidden" id="notificacoes">
+            <h2 class="page-title">Notificações</h2>
+            <div class="filtros-categorias" id="notifFiltros">
+                <button class="filtro-btn active" data-notif-filter="todos">Todos</button>
+                <button class="filtro-btn" data-notif-filter="nao-lidos">Não lidos</button>
+            </div>
+            <div class="notif-panel" id="notifList">
+                <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            </div>
+        </section>
+
+        <section class="content hidden" id="relatorios">
+            <div class="relatorios-topbar">
+                <h2 class="page-title">Relatórios</h2>
+                <button class="quick-action-btn qa-purple" id="exportarRelatorioBtn"><i class="fa-solid fa-download"></i> Exportar</button>
+            </div>
+
+            <div class="stats-grid" id="reportStats">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-file-lines"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="repArtigos">–</span>
+                        <span class="stat-label">Artigos publicados</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-yellow"><i class="fa-regular fa-calendar-check"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="repEventos">–</span>
+                        <span class="stat-label">Eventos realizados</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-coral"><i class="fa-solid fa-people-group"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="repParticipantes">–</span>
+                        <span class="stat-label">Participantes alcançados</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-user-plus"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="repNovosMembros">–</span>
+                        <span class="stat-label">Novos membros</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Artigos publicados por mês</h3>
+                    <canvas id="chartArtigos"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Eventos realizados</h3>
+                    <canvas id="chartEventos"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Participação no fórum</h3>
+                    <canvas id="chartForum"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="content hidden" id="configuracoes">
+            <h2 class="page-title">Configurações</h2>
+            <p class="page-subtitle">Gerencie suas preferências e configurações da conta.</p>
+
+            <div class="config-grid">
+                <div class="config-square" id="configPanel-conta">
+                    <div class="config-square-header">
+                        <i class="fa-regular fa-user"></i>
+                        <h3>Informações</h3>
+                    </div>
+                    <form id="formConfigConta">
+                        <label>Nome Fantasia <span class="foto-hint" style="display:inline;">(nome exibido publicamente)</span></label>
+                        <input type="text" id="cfgNomeFantasia" placeholder="Como sua empresa quer ser chamada">
+
+                        <label>Razão Social</label>
+                        <input type="text" id="cfgNomeEmpresa" placeholder="Nome da empresa">
+
+                        <label>E-mail corporativo</label>
+                        <input type="email" id="cfgEmail" placeholder="email@empresa.com.br">
+
+                        <label>Telefone</label>
+                        <input type="text" id="cfgTelefone" placeholder="(11) 99999-9999">
+
+                        <label>Cidade</label>
+                        <input type="text" id="cfgCidade" placeholder="Cidade">
+
+                        <button type="submit" class="quick-action-btn qa-purple" style="margin-top:10px;">Salvar alterações</button>
+                        <span id="cfgSalvarMsg"></span>
+                    </form>
+                </div>
+
+                <div class="config-square" id="configPanel-privacidade">
+                    <div class="config-square-header">
+                        <i class="fa-solid fa-lock"></i>
+                        <h3>Privacidade</h3>
+                    </div>
+                    <p class="empty-hint">Consulte nossos termos e política antes de continuar usando a plataforma.</p>
+                    <div class="config-legal-links">
+                        <a class="quick-action-btn qa-purple" href="termos_de_uso.html" target="_blank" rel="noopener">
+                            <i class="fa-solid fa-file-contract"></i> Termos de Uso
+                        </a>
+                        <a class="quick-action-btn qa-purple" href="politica_privacidade.html" target="_blank" rel="noopener">
+                            <i class="fa-solid fa-user-shield"></i> Política de Privacidade
+                        </a>
+                    </div>
+                </div>
+
+                <div class="config-square" id="configPanel-seguranca">
+                    <div class="config-square-header">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <h3>Segurança</h3>
+                    </div>
+
+                    <div class="config-seguranca-bloco">
+                        <h4>Senha</h4>
+                        <p class="empty-hint" id="segUltimaAlteracaoSenha">Última alteração: —</p>
+                        <button class="quick-action-btn qa-purple" type="button" id="segAlterarSenhaBtn">Alterar senha</button>
+                    </div>
+
+                    <div class="config-seguranca-bloco">
+                        <h4>Sair da conta</h4>
+                        <p class="empty-hint">Encerra sua sessão neste dispositivo.</p>
+                        <button class="quick-action-btn qa-yellow" type="button" id="segSairContaBtn">Sair da conta</button>
+                    </div>
+
+                    <div class="config-seguranca-bloco config-seguranca-perigo">
+                        <h4>Excluir conta</h4>
+                        <p class="empty-hint">Essa ação é permanente e remove todos os seus dados. Não é possível desfazer.</p>
+                        <button class="quick-action-btn qa-coral" type="button" id="segExcluirContaBtn">Excluir minha conta</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="config-card config-photo-card">
+                <h3>Foto do perfil</h3>
+                <div class="config-photo-row">
+                    <img id="cfgFotoPreview" class="config-photo" src="./img/logo_icon.png" alt="Foto do perfil">
+                    <div>
+                        <button class="quick-action-btn qa-purple" type="button" id="cfgAlterarFotoBtn">Alterar foto</button>
+                        <p class="foto-hint">PNG ou JPG. Máx. 2MB</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content hidden" id="perfil">
+            <h2 class="page-title">Minha empresa</h2>
+            <p class="page-subtitle">Veja como sua empresa aparece para as mães e acompanhe sua atividade.</p>
+
+            <div class="perfil-layout">
+                <div class="perfil-card">
+                    <div class="perfil-cover"></div>
+                    <img id="perfilLogo" class="perfil-logo" src="./img/logo_icon.png" alt="Logo da empresa">
+                    <h3 id="perfilNomeEmpresa">Empresa parceira</h3>
+                    <span class="perfil-tag">Empresa parceira</span>
+                    <ul class="perfil-info-list">
+                        <li><i class="fa-solid fa-location-dot"></i> <span id="perfilCidade">—</span></li>
+                        <li><i class="fa-solid fa-globe"></i> <span id="perfilSite">—</span></li>
+                        <li><i class="fa-regular fa-envelope"></i> <span id="perfilEmail">—</span></li>
+                        <li><i class="fa-solid fa-phone"></i> <span id="perfilTelefone">—</span></li>
+                    </ul>
+                    <button class="quick-action-btn qa-purple" data-target="configuracoes">Editar perfil</button>
+                </div>
+
+                <div class="perfil-right">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-file-lines"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="perfilArtigosCount">–</span>
+                                <span class="stat-label">Artigos publicados</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-yellow"><i class="fa-regular fa-calendar-check"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="perfilEventosCount">–</span>
+                                <span class="stat-label">Eventos realizados</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-coral"><i class="fa-solid fa-people-group"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="perfilUsuariasCount">–</span>
+                                <span class="stat-label">Usuárias alcançadas</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-blue"><i class="fa-regular fa-comment-dots"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="perfilForumCount">–</span>
+                                <span class="stat-label">Participações no fórum</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-columns" style="grid-template-columns: 1.2fr 1fr;">
+                        <div class="dash-panel">
+                            <div class="dash-panel-header">
+                                <h3>Atividade recente</h3>
+                            </div>
+                            <div id="perfilAtividadeList" class="dash-list">
+                                <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                            </div>
+                        </div>
+                        <div class="dash-panel">
+                            <div class="dash-panel-header">
+                                <h3>Seus últimos artigos</h3>
+                                <button class="dash-see-more" data-target="artigos">Ver todos</button>
+                            </div>
+                            <div id="perfilArtigosList" class="dash-list">
+                                <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>

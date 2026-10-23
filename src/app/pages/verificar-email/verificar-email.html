@@ -1,0 +1,56 @@
+<main class="cadastro-container">
+  <div class="cadastro-box fade-in visible">
+    <a routerLink="/">
+      <img src="/img/logo_icon.png" alt="Logo EloMaterno" class="logo">
+    </a>
+
+    <h2>Confirme seu e-mail</h2>
+    <p class="subtexto">
+      Enviamos um código de 6 dígitos para
+      <strong>{{ email() || 'o seu e-mail' }}</strong>. Digite abaixo para
+      concluir o cadastro.
+    </p>
+
+    @if (errorMessage()) {
+      <div class="custom-alert-box">
+        <i class="fa fa-circle-exclamation"></i>
+        <span>{{ errorMessage() }}</span>
+        <button type="button" (click)="errorMessage.set('')">&times;</button>
+      </div>
+    }
+
+    @if (successMessage()) {
+      <div class="custom-alert-box custom-success-box">
+        <i class="fa fa-circle-check"></i>
+        <span>{{ successMessage() }}</span>
+        <button type="button" (click)="successMessage.set('')">&times;</button>
+      </div>
+    }
+
+    <form (submit)="confirmar($event)" class="cadastro-form">
+      <div class="input-group">
+        <i class="fa fa-key icon"></i>
+        <input
+          type="text"
+          inputmode="numeric"
+          maxlength="6"
+          placeholder="Código de 6 dígitos"
+          [(ngModel)]="codigo"
+          name="codigo"
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn-cadastrar" [disabled]="loading()">
+        {{ loading() ? 'Verificando...' : 'Confirmar código' }}
+      </button>
+    </form>
+
+    <p class="login-link" style="margin-top: 15px;">
+      Não recebeu o código?
+      <a href="javascript:void(0)" (click)="reenviarCodigo()">
+        {{ reenviando() ? 'Reenviando...' : 'Reenviar código' }}
+      </a>
+    </p>
+  </div>
+</main>

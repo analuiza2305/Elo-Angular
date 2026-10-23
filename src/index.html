@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EloMaterno - Maternidade com apoio</title>
+    
+    <!-- Tag OBRIGATÓRIA para o roteamento do Angular funcionar -->
+    <base href="/">
+
+    <!-- Favicons e PWA -->
+    <link rel="icon" type="image/svg+xml" href="img/iconelogo.svg">
+    <link rel="alternate icon" type="image/png" href="img/iconelogo.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#594a7d">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Ícones -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    
+    <!-- =========================================
+         A MÁGICA DO ANGULAR: Tudo carrega aqui dentro!
+    ========================================= -->
+    <app-root></app-root>
+
+    <!-- =========================================
+         UTILITÁRIOS GLOBAIS (VLIBRAS)
+    ========================================= -->
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(() => console.log('Service Worker registrado!'))
+            .catch((err) => console.error('Erro ao registrar SW:', err));
+        }
+        
+  // Monitora cliques e dinamicidade da tela de forma global
+  document.addEventListener('click', (e) => {
+    // 1. Interatividade do Carrossel (Avançar)
+    const btnNext = e.target.closest('.seta-carrossel.next');
+    if (btnNext) {
+      const container = document.getElementById('artigos-home') || document.querySelector('.artigos-carrossel-track');
+      if (container) container.scrollBy({ left: 320, behavior: 'smooth' });
+    }
+
+    // 2. Interatividade do Carrossel (Voltar)
+    const btnPrev = e.target.closest('.seta-carrossel.prev');
+    if (btnPrev) {
+      const container = document.getElementById('artigos-home') || document.querySelector('.artigos-carrossel-track');
+      if (container) container.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+
+    // 3. Interatividade de Favoritar (Bookmark)
+    const bookmarkBtn = e.target.closest('.ac-bookmark');
+    if (bookmarkBtn) {
+      e.stopPropagation();
+      e.preventDefault();
+      const icon = bookmarkBtn.querySelector('i');
+      if (icon) {
+        icon.classList.toggle('fa-solid');
+        icon.classList.toggle('fa-regular');
+      }
+    }
+  });
+</script>
+</body>
+</html>

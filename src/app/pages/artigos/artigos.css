@@ -1,0 +1,378 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background-color: #FBFBFE;
+  color: #333333;
+}
+
+.artigos-container {
+  max-width: 1320px !important;
+  margin: 40px auto;
+  padding: 0 32px;
+}
+
+/* 1. HERO BANNER COM IMAGEM DE FUNDO */
+.artigos-hero-banner {
+  width: 100%;
+  min-height: 240px;
+  background-image: url('/img/hero-artigos.png');
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+  border-radius: 32px;
+  padding: 45px 50px;
+  margin-bottom: 35px;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(132, 113, 177, 0.12);
+  box-shadow: 0 12px 35px rgba(115, 93, 163, 0.04);
+}
+
+.hero-content {
+  max-width: 550px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  padding: 6px 16px;
+  border-radius: 50px;
+  color: #4B2C82;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  border: 1px solid rgba(132, 113, 177, 0.1);
+  box-shadow: 0 4px 10px rgba(124, 105, 169, 0.04);
+}
+
+.hero-content h1 {
+  color: #2D1E4E;
+  font-size: 2.3rem;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 10px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.hero-content p {
+  color: #554D6B;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+/* 2. BARRA DE FILTROS */
+.artigos-filtros-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+  background: #FFFFFF;
+  padding: 12px 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(132, 113, 177, 0.1);
+  box-shadow: 0 6px 20px rgba(115, 93, 163, 0.03);
+}
+
+.filtros-pulas {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+}
+
+.filtro-btn {
+  background: transparent;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #554D6B;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.filtro-btn:hover {
+  background: rgba(124, 105, 169, 0.08);
+  color: #4B2C82;
+}
+
+.filtro-btn.active {
+  background: #4B2C82;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(75, 44, 130, 0.22);
+}
+
+.ordenacao-dropdown-wrapper {
+  position: relative;
+}
+
+.btn-ordenar {
+  background: transparent;
+  border: 1px solid rgba(132, 113, 177, 0.2);
+  padding: 10px 18px;
+  border-radius: 50px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #4B2C82;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.btn-ordenar:hover {
+  background: rgba(124, 105, 169, 0.06);
+}
+
+.dropdown-menu-ordenacao {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #FFFFFF;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(75, 44, 130, 0.12);
+  border: 1px solid rgba(132, 113, 177, 0.15);
+  list-style: none;
+  padding: 8px;
+  width: 200px;
+  z-index: 99;
+}
+
+.dropdown-menu-ordenacao li {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #554D6B;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.dropdown-menu-ordenacao li:hover {
+  background: #F4ECFF;
+  color: #4B2C82;
+}
+
+/* 3. GRID DE ARTIGOS
+   Os cards em si (.artigo-card-novo, .ac-*) usam o
+   mesmo estilo global do home-mãe — não precisam de
+   CSS próprio aqui. Só o placeholder sem imagem fica
+   local mesmo, por completude. */
+.artigos-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 30px !important;
+  align-items: stretch;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.artigo-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7B6AAE;
+  font-size: 2.5rem;
+  background: #F4ECFF;
+}
+
+/* Estado Vazio */
+.estado-vazio {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #FCFCFF;
+  border: 2px dashed rgba(132, 113, 177, 0.2);
+  border-radius: 32px;
+  padding: 60px 30px;
+  text-align: center;
+}
+
+.vazio-icon-wrapper {
+  width: 70px;
+  height: 70px;
+  background: #F4ECFF;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4B2C82;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 20px rgba(124, 105, 169, 0.08);
+}
+
+.estado-vazio h3 {
+  color: #2D1E4E;
+  font-size: 1.35rem;
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+}
+
+.estado-vazio p {
+  color: #554D6B;
+  font-size: 1rem;
+  max-width: 450px;
+}
+
+@media (max-width: 1050px) {
+  .artigos-hero-banner { padding: 30px; background-position: center; }
+  .artigos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+
+@media (max-width: 750px) {
+  .artigos-grid { grid-template-columns: 1fr !important; }
+  .artigos-filtros-bar { flex-direction: column; gap: 15px; align-items: stretch; }
+}
+/* =========================================
+   BLINDAGEM DO CARD E IMAGEM (BUG FIX)
+========================================= */
+.artigo-card-novo {
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg, #ffffff);
+  border-radius: 16px;
+  border: 1px solid rgba(132, 113, 177, 0.15);
+  box-shadow: 0 4px 15px rgba(89, 74, 125, 0.05);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.artigo-card-novo:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(88, 62, 142, 0.12);
+}
+
+.ac-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 180px; /* ALTURA FIXA VITAL: impede o card de murchar */
+  background-color: var(--muted-bg, #E9E0FF); /* Cor de fundo enquanto carrega */
+  overflow: hidden;
+}
+
+.ac-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Garante o preenchimento sem distorcer */
+  display: block;
+}
+
+.ac-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--primary-color-darker, #3E2A72);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-transform: capitalize;
+}
+
+.ac-bookmark {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--primary-color-darker, #3E2A72);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: color 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.ac-bookmark:hover {
+  color: var(--primary-color, #7c69a9);
+  transform: scale(1.1);
+}
+
+.ac-bookmark.saved i {
+  font-weight: 900; /* Preenche o ícone do FontAwesome quando favoritado */
+  color: var(--primary-color, #7c69a9);
+}
+
+.ac-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.ac-time {
+  font-size: 0.85rem;
+  color: var(--text-color-light, #666);
+  margin-bottom: 8px;
+}
+
+.ac-title {
+  margin: 0 0 10px 0;
+  color: var(--primary-color-darker, #3E2A72);
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.ac-excerpt {
+  margin: 0 0 20px 0;
+  color: var(--text-color-light, #666);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ac-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(132, 113, 177, 0.15);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ac-author {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-color-light, #666);
+}
+
+.ac-ler {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--primary-color, #7c69a9);
+}
+

@@ -1,0 +1,472 @@
+    .auth-container {
+        width: 100%;
+    }
+
+    .cadastro-form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .input-group {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 1px solid #6844b0;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        padding: 8px 10px;
+    }
+
+    .input-group .icon {
+        width: 20px;
+        margin-right: 8px;
+        opacity: 0.7;
+        color: #583E8E;
+    }
+
+    .input-group input {
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: 14px;
+        background: transparent;
+        font-family: inherit;
+    }
+
+    .campo-documento {
+        width: 100%;
+    }
+
+    .dropdown-titulo {
+        padding: 10px 15px;
+        background: #f8f6ff;
+        color: #50328c;
+        font-size: 13px;
+        font-weight: 700;
+        border-bottom: 1px solid #e5ddff;
+        text-align: left;
+    }
+
+    .dropdown-container {
+        width: 100%;
+        cursor: pointer;
+    }
+
+    #campoNumeroDocumento {
+        margin-top: 10px;
+    }
+
+    .dropdown {
+        position: relative;
+        width: 100%;
+    }
+
+    .dropdown-btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #50328ce4;
+        font-weight: 400;
+        width: 100%;
+        min-height: 24px;
+    }
+
+    .dropdown.active .seta {
+        transform: rotate(180deg);
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 15px);
+        left: -10px;
+        width: 105%;
+        background: white;
+        border: 2px solid #e2d9ffeb;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(88, 62, 142, 0.18);
+        overflow: hidden;
+        z-index: 1000;
+    }
+
+    .dropdown.active .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-item {
+        padding: 12px 15px;
+        cursor: pointer;
+        color: #583E8E;
+        font-weight: 600;
+        text-align: left;
+        transition: 0.2s;
+    }
+
+    .dropdown-item:hover {
+        background: #f8f6ffee;
+    }
+
+    .dropdown-item:not(:last-child) {
+        border-bottom: 1px solid #e2d9ffeb;
+    }
+
+    .btn-cadastrar {
+        width: 100%;
+        padding: 12px;
+        background: #583E8E;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: bold;
+    }
+
+    .btn-cadastrar:hover {
+        background: #432e6a;
+    }
+
+    .senha-linha {
+        display: flex;
+        gap: 10px;
+    }
+
+    .senha-linha .input-group {
+        flex: 1;
+        margin-bottom: 15px;
+    }
+
+    .aceite-termos {
+        text-align: left;
+        margin: 8px 0 15px 2px;
+    }
+
+    .aceite-termos label {
+        color: #583E8E;   
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .aceite-termos input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        accent-color: #564286;  
+        cursor: pointer;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+
+    .aceite-termos p {
+        color: #593e8ee0; 
+        font-size: 11px;
+        margin-top: 4px;
+    }.auth-container {
+        width: 100%;
+    }
+
+    .cadastro-form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .input-group {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 1px solid #6844b0;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        padding: 8px 10px;
+    }
+
+    .input-group .icon {
+        width: 20px;
+        margin-right: 8px;
+        opacity: 0.7;
+        color: #583E8E;
+    }
+
+    .input-group input {
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: 14px;
+        background: transparent;
+        font-family: inherit;
+    }
+
+    .campo-documento {
+        width: 100%;
+    }
+
+    .dropdown-titulo {
+        padding: 10px 15px;
+        background: #f8f6ff;
+        color: #50328c;
+        font-size: 13px;
+        font-weight: 700;
+        border-bottom: 1px solid #e5ddff;
+        text-align: left;
+    }
+
+    .dropdown-container {
+        width: 100%;
+        cursor: pointer;
+    }
+
+    #campoNumeroDocumento {
+        margin-top: 10px;
+    }
+
+    .dropdown {
+        position: relative;
+        width: 100%;
+    }
+
+    .dropdown-btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #50328ce4;
+        font-weight: 400;
+        width: 100%;
+        min-height: 24px;
+    }
+
+    .dropdown.active .seta {
+        transform: rotate(180deg);
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 15px);
+        left: -10px;
+        width: 105%;
+        background: white;
+        border: 2px solid #e2d9ffeb;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(88, 62, 142, 0.18);
+        overflow: hidden;
+        z-index: 1000;
+    }
+
+    .dropdown.active .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-item {
+        padding: 12px 15px;
+        cursor: pointer;
+        color: #583E8E;
+        font-weight: 600;
+        text-align: left;
+        transition: 0.2s;
+    }
+
+    .dropdown-item:hover {
+        background: #f8f6ffee;
+    }
+
+    .dropdown-item:not(:last-child) {
+        border-bottom: 1px solid #e2d9ffeb;
+    }
+
+    .btn-cadastrar {
+        width: 100%;
+        padding: 12px;
+        background: #583E8E;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: bold;
+    }
+
+    .btn-cadastrar:hover {
+        background: #432e6a;
+    }
+
+    .senha-linha {
+        display: flex;
+        gap: 10px;
+    }
+
+    .senha-linha .input-group {
+        flex: 1;
+        margin-bottom: 15px;
+    }
+
+    .aceite-termos {
+        text-align: left;
+        margin: 8px 0 15px 2px;
+    }
+
+    .aceite-termos label {
+        color: #583E8E;   
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .aceite-termos input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        accent-color: #564286;  
+        cursor: pointer;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+
+    .aceite-termos p {
+        color: #593e8ee0; 
+        font-size: 11px;
+        margin-top: 4px;
+    }
+    /* Caixa de Alerta Customizada */
+    .custom-alert-box {
+        background-color: #fdf2f2;
+        border: 1px solid #f8d7da;
+        color: #842029;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        text-align: left;
+        animation: fadeInAlert 0.3s ease;
+    }
+
+    .custom-alert-box i {
+        color: #dc3545;
+        font-size: 1.1rem;
+    }
+
+    .custom-alert-box span {
+        flex: 1;
+    }
+
+    .custom-alert-box button {
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        color: #842029;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    @keyframes fadeInAlert {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Variante verde da caixa de alerta, para mensagens de sucesso
+       (ex.: confirmação de envio do e-mail de redefinição de senha) */
+    .custom-success-box {
+        background-color: #f0f9f1;
+        border-color: #c9e6cc;
+        color: #235a29;
+    }
+
+    .custom-success-box i {
+        color: #2e8b39;
+    }
+
+    .custom-success-box button {
+        color: #235a29;
+    }
+
+    .esqueci-senha-link {
+        text-align: right;
+        margin-top: -8px;
+        margin-bottom: 12px;
+        font-size: 0.85rem;
+    }
+
+    .esqueci-senha-link a {
+        color: #583E8E;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    
+/* Botão "G" do Google minimalista, sem fundo e sem borda */
+.btn-google {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin: 5px auto;
+    padding: 3px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-google:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+}
+
+.google-icon-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 900;
+    font-size: 2.20rem;
+    color: #583E8E; /* Roxo padrão do EloMaterno */
+}
+/* =========================================
+   MODO ESCURO - AUTH-FORM.CSS
+   ========================================= */
+   body[data-theme="dark"] .input-group {
+    background: #1b2336 !important;
+    border-color: rgba(157, 143, 231, 0.3) !important;
+}
+
+body[data-theme="dark"] .input-group input {
+    color: #f5f0ff !important;
+}
+
+body[data-theme="dark"] .input-group input::placeholder {
+    color: #b8b0d6 !important;
+}
+
+body[data-theme="dark"] .dropdown-titulo {
+    background: #1b2336 !important;
+    color: #d1c4e9 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body[data-theme="dark"] .dropdown-menu {
+    background: #141a26 !important;
+    border-color: rgba(157, 143, 231, 0.3) !important;
+}
+
+body[data-theme="dark"] .dropdown-item {
+    color: #e2dafc !important;
+}
+
+body[data-theme="dark"] .dropdown-item:hover {
+    background: rgba(157, 143, 231, 0.2) !important;
+    color: #ffffff !important;
+}
+
+body[data-theme="dark"] .dropdown-item:not(:last-child) {
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body[data-theme="dark"] .aceite-termos label,
+body[data-theme="dark"] .aceite-termos p,
+body[data-theme="dark"] .esqueci-senha-link a {
+    color: #d1c4e9 !important;
+}
+
+.cnpj-hint {
+    font-size: 0.85rem;
+    color: #7a5fe8;
+    margin: -6px 0 8px 4px;
+}

@@ -1,0 +1,136 @@
+<app-header tipo="mae"></app-header>
+
+<main class="psi-container">
+  <nav class="breadcrumb">
+    <span>
+      <a routerLink="/consultas">
+        <i class="fa-solid fa-circle-arrow-left"></i> Voltar
+      </a>
+    </span>
+  </nav>
+
+  <h2 class="titulo-principal">Escolha quem vai te atender</h2>
+
+  <div class="filtros">
+    <input
+      type="text"
+      placeholder="Pesquisar profissionais (Nome, CRP...)"
+      class="input-busca"
+      [ngModel]="termoBusca()"
+      (ngModelChange)="termoBusca.set($event)"
+    >
+  </div>
+
+  @if (isLoading()) {
+    <div class="psi-card">
+      <div class="loader">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+  } @else if (profissionaisFiltrados().length === 0) {
+    <p style="text-align:center;margin-top:40px;color:gray">
+      Nenhum profissional encontrado.
+    </p>
+  } @else {
+    @for (prof of profissionaisFiltrados(); track prof.docId) {
+      <div class="psi-card">
+        <div class="psi-info">
+          <img [src]="prof.foto" [alt]="prof.tipo" class="psi-foto">
+          <div class="psi-dados">
+            <h3>{{ prof.nome }}</h3>
+            <p class="psi-cargo">{{ prof.cargoLabel }} {{ prof.identificacao }}</p>
+            <div class="psi-tags">
+              @for (tag of prof.especializacoes; track tag) {
+                <span>{{ tag }}</span>
+              }
+              @if (prof.extrasCount > 0) {
+                <span>+{{ prof.extrasCount }}</span>
+              }
+            </div>
+            <div class="psi-stats">
+              <span class="atendimentos">
+                <i class="fa fa-comment-dots"></i> {{ prof.atendimentos }} atendimentos
+              </span>
+            </div>
+            <p class="psi-abordagem">{{ prof.area }}</p>
+            <a href="#" class="ver-perfil" (click)="$event.preventDefault(); verPerfil(prof)">
+              Ver perfil completo <i class="fa fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="psi-agenda">
+          <h4>Selecione uma data:</h4>
+          <div class="datas">
+            @for (d of prof.datasDisponiveis; track d.key) {
+              <button
+                class="data"
+                [class.ativo]="prof.dataSelecionada === d.key"
+                (click)="selecionarData(prof, d.key)"
+              >
+                {{ d.diaSemana }}<br><b>{{ d.diaMes }}</b>
+              </button>
+            }
+          </div>
+
+          <div class="horarios">
+            @if (horariosDaData(prof).length > 0) {
+              @for (hora of horariosDaData(prof); track hora) {
+                <button
+                  [class.ativo]="prof.horarioSelecionado === hora"
+                  (click)="selecionarHorario(prof, hora)"
+                >{{ hora }}</button>
+              }
+            } @else {
+              <p style="color:gray">Sem horários disponíveis</p>
+            }
+          </div>
+
+          <div class="preco-info">
+            <span class="duracao">Duração: 45min</span>
+          </div>
+          <button class="btn-agendar" (click)="abrirModal(prof)">Agendar</button>
+        </div>
+      </div>
+    }
+  }
+</main>
+
+<!-- Modal de Agendamento -->
+@if (showModal()) {
+  <div id="modalAgendamento" style="display: flex;">
+    <div class="modal-overlay" (click)="fecharModal()"></div>
+    <div class="modal-content">
+      <h2>Confirmar Agendamento</h2>
+      <div class="psi-modal-info">
+        <div class="foto" [style.background-image]="'url(' + modalInfo().foto + ')'"></div>
+        <div class="dados">
+          <h3>{{ modalInfo().nome }}</h3>
+          <p>{{ modalInfo().cargo }}</p>
+          <p>{{ modalInfo().area }}</p>
+        </div>
+      </div>
+      <div class="modal-detalhes">
+        <p><b>Data:</b> <span>{{ modalInfo().dataFormatada }}</span></p>
+        <p><b>Horário:</b> <span>{{ modalInfo().hora }}</span></p>
+      </div>
+      <label for="motivo">Motivo da consulta:</label>
+      <input
+        id="motivo"
+        placeholder="Ex: Ansiedade, Depressão, etc"
+        [ngModel]="motivoConsulta()"
+        (ngModelChange)="motivoConsulta.set($event)"
+      />
+      <div class="modal-botoes">
+        <button id="confirmarAgendamento" [disabled]="salvando()" (click)="confirmarAgendamento()">
+          {{ salvando() ? 'Salvando...' : 'Confirmar' }}
+        </button>
+        <button id="cancelarAgendamento" (click)="fecharModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<app-footer></app-footer>

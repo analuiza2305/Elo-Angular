@@ -1,0 +1,129 @@
+<app-header tipo="mae"></app-header>
+
+<main class="container agenda-soft-ui">
+  <div class="calendar-container">
+    <div class="calendar-header">
+      <button class="nav-btn" (click)="prevMonth()"><i class="fa-solid fa-chevron-left"></i></button>
+      
+      <div class="month-year-select">
+        <select [ngModel]="currentMonth()" (ngModelChange)="updateMonth($event)">
+          @for (mes of monthNames; track $index) {
+            <option [value]="$index">{{ mes }}</option>
+          }
+        </select>
+        
+        <select [ngModel]="currentYear()" (ngModelChange)="updateYear($event)">
+          @for (ano of anosDisponiveis; track ano) {
+            <option [value]="ano">{{ ano }}</option>
+          }
+        </select>
+      </div>
+      
+      <button class="nav-btn" (click)="nextMonth()"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <div class="calendar-days">
+      <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+    </div>
+
+    <div class="calendar-dates">
+      @for (empty of emptyDays(); track $index) {
+        <div class="empty"></div>
+      }
+
+      @for (day of calendarDays(); track day.number) {
+        <div 
+          class="date-wrapper"
+          [attr.data-tooltip]="day.tooltip ? day.tooltip : null"
+          (click)="openDayModal(day)">
+          <div class="date" 
+               [class.today]="day.isToday" 
+               [class.has-event]="day.hasEvent" 
+               [class.past]="day.isPast">
+            {{ day.number }}
+          </div>
+          
+          @if (day.hasEvent) {
+            <div class="event-dots" aria-hidden="true">
+              @for (dot of [].constructor(day.dotsCount); track $index) {
+                <span class="dot" [class.past]="day.isPast"></span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="events-container">
+    <h3>Meus Eventos</h3>
+    <div class="event-list">
+@if (futurosEventos().length === 0) {
+        <div class="empty-state">
+          <div class="empty-state-title">
+            <!-- Caso queira adicionar a sua imagem do calendário depois, basta colocar a tag <img> aqui -->
+            <strong>Nenhum evento futuro</strong>
+          </div>
+          <p>Inscreva-se em eventos ou agende consultorias para que apareçam aqui.</p>
+        </div>
+      }
+
+      @for (ev of futurosEventos(); track ev.id) {
+        <div class="event-item" 
+             [ngClass]="getEventClass(ev)"
+             [style.cursor]="ev.type === 'evento' ? 'pointer' : 'default'"
+             (click)="ev.type === 'evento' ? irParaEvento(ev.id) : null">
+          
+          <div class="event-icon-box">
+             <i [class]="getEventIcon(ev)"></i>
+          </div>
+          
+          <div class="event-details">
+            @if (ev.type === 'consulta') {
+              <strong>Consulta{{ ev.profissionalNome ? ' com ' + ev.profissionalNome : '' }}</strong>
+              <p class="meta">{{ formatarData(ev.data) }} • {{ formatarHora(ev.data) }}</p>
+              <p class="descricao">{{ ev.Motivo || ev.motivo || '' }}</p>
+            } @else {
+              <strong>{{ ev.titulo || ev.title || 'Evento' }}</strong>
+              <p class="meta">{{ formatarData(ev.data) }} • {{ formatarHora(ev.data) }}</p>
+              <p class="descricao">{{ ev.descricao || ev.description || '' }}</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</main>
+
+@if (selectedDayEvents()) {
+<div class="em-overlay" (click)="closeDayModal()">
+  <div class="em-modal em-modal-list" (click)="$event.stopPropagation()">
+    <div class="em-modal-header">
+      <h2>Eventos do dia</h2>
+      <button class="em-modal-close" aria-label="Fechar" (click)="closeDayModal()">✕</button>
+    </div>
+    
+    <div class="em-modal-body">
+      @for (ev of selectedDayEvents(); track ev.id) {
+        <div class="event-item" [ngClass]="getEventClass(ev)">
+          <div class="event-icon-box">
+            <i [class]="getEventIcon(ev)"></i>
+          </div>
+          
+          <div class="event-details" style="flex:1">
+            @if (ev.type === 'consulta') {
+              <strong>Consulta{{ ev.profissionalNome ? ' com ' + ev.profissionalNome : '' }}</strong>
+              <p class="meta">{{ formatarHora(ev.data) }} • {{ ev.status || '' }}</p>
+              <p class="descricao"><strong>Motivo:</strong> {{ ev.Motivo || ev.motivo || '' }}</p>
+            } @else {
+              <strong>{{ ev.titulo || ev.title || '' }}</strong>
+              <p class="meta">{{ ev.local || 'Online' }} • {{ formatarHora(ev.data) }}</p>
+              <p class="descricao">{{ ev.descricao || ev.description || '' }}</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+}

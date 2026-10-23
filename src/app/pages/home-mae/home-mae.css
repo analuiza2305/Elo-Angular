@@ -1,0 +1,545 @@
+/* =========================================
+   ESTRUTURA GERAL DA HOME-MÃE
+========================================= */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.home-sections {
+  max-width: 1200px;
+  margin: 28px auto 64px auto;
+  padding: 0 16px;
+}
+
+.section {
+  margin-top: 40px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.section-header h3 {
+  color: var(--primary-color-dark, #3E2A72);
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.ver-mais {
+  color: var(--secondary-color, #6C4BBF);
+  font-weight: 700;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+/* =========================================
+ 1. HERO SECTION
+========================================= */
+.hero-section-nova {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #EFEBF9 0%, #E2DDF5 100%);
+  border-radius: 28px;
+  padding: 48px 56px;
+  margin-bottom: 40px;
+  gap: 40px;
+  box-shadow: 0 10px 30px rgba(108, 75, 191, 0.08);
+}
+
+.hero-conteudo {
+  flex: 1;
+  max-width: 55%;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(124, 105, 169, 0.14);
+  color: #55447A;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 26px;
+}
+
+.hero-titulo {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.5rem;
+  color: #2D1E4E;
+  line-height: 1.2;
+  margin: 0 0 18px 0;
+  font-weight: 800;
+}
+
+.hero-titulo .destaque {
+  color: var(--primary-color, #7c69a9);
+}
+
+.hero-subtitulo {
+  font-size: 1rem;
+  color: #554D6B;
+  line-height: 1.6;
+  margin: 0 0 32px 0;
+}
+
+.hero-botoes {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.botao-roxo, .botao-branco {
+  text-decoration: none;
+  padding: 13px 26px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.25s ease;
+}
+
+.botao-roxo {
+  background-color: #52427D !important;
+  color: #FFFFFF !important;
+}
+
+.botao-roxo i {
+  color: #FFFFFF !important;
+}
+
+.botao-branco {
+  background-color: #FFFFFF;
+  color: #52427D;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.hero-imagem-container {
+  flex: 1;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hero-img-ilustracao {
+  width: 100%;
+  max-width: 450px;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 20px 40px rgba(88, 62, 142, 0.14);
+}
+
+.card-flutuante {
+  position: absolute;
+  bottom: -15px;
+  left: -20px;
+  background: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.card-icone {
+  background-color: #7E6EB3;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.card-texto {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-label {
+  font-size: 11px;
+  color: #9285AB;
+}
+
+.card-valor {
+  font-size: 13px;
+  font-weight: 800;
+  color: #433366;
+}
+
+/* =========================================
+ 2. MENU RÁPIDO (COM MAIS CLAREZA)
+========================================= */
+.quick-menu-section {
+  max-width: 1200px;
+  margin: 0 auto 40px auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.quick-menu-container {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(132, 113, 177, 0.15);
+  box-shadow: 0 4px 14px rgba(88, 62, 142, 0.04);
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+}
+
+.quick-menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #4b387c; /* Um pouco mais claro e legível */
+  padding: 18px 14px;
+  border-radius: 16px;
+  flex: 1;
+  transition: background-color 0.25s ease;
+}
+
+.quick-menu-item svg {
+  stroke: #7c68b8 !important; /* Mais claro e visível */
+  margin-bottom: 8px;
+  transition: stroke 0.25s ease;
+}
+
+.quick-menu-item span {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.quick-menu-item:hover {
+  background-color: #F4F0FC;
+  color: #3C2E60;
+}
+
+/* =========================================
+ 3. BANNER DE CONSULTORIAS
+========================================= */
+.banner-consultoria {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #F9F7FF 0%, #E7DBFB 100%);
+  border-radius: 28px;
+  padding: 32px 48px;
+  box-shadow: 0 10px 30px rgba(108, 75, 191, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  margin-bottom: 40px;
+  gap: 40px;
+  overflow: hidden;
+}
+
+.banner-content {
+  flex: 1;
+  max-width: 50%;
+}
+
+.banner-content h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.2rem;
+  color: #3E2A72;
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+
+.banner-content h2 span {
+  color: #7c69a9;
+}
+
+.banner-content p {
+  color: #555555;
+  font-size: 1.05rem;
+  margin-bottom: 28px;
+  line-height: 1.8;
+}
+
+.btn-agendar {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #7c69a9;
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-agendar i {
+  color: #ffffff;
+  font-size: 1.3rem;
+}
+
+.btn-agendar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.25);
+  color: white;
+}
+
+.banner-image {
+  flex: 1;
+  display: flex;
+  align-self: stretch;
+  margin: -32px -48px -32px 0;
+}
+
+.banner-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center left;
+}
+
+/* =========================================
+ 4. CARROSSEL DE ARTIGOS & SETAS
+========================================= */
+.carrossel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.artigos-carrossel-track {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  padding: 15px 0 25px 0;
+  width: 100%;
+}
+
+.artigos-carrossel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.seta-carrossel {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(132, 113, 177, 0.2);
+  color: #7c69a9;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(88, 62, 142, 0.15);
+  transition: all 0.3s ease;
+}
+
+.seta-carrossel:hover {
+  background: #7c69a9;
+  color: white;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.seta-carrossel.prev { left: -20px; }
+.seta-carrossel.next { right: -20px; }
+
+@media (max-width: 768px) {
+  .seta-carrossel {
+      display: none !important;
+  }
+}
+
+/* =========================================
+ 5. MODO ESCURO (CORRIGIDO SEM FUNDOS DUPLICADOS)
+========================================= */
+
+/* Remove qualquer duplicidade de fundo global da home no escuro */
+body[data-theme="dark"] .home-sections {
+  background-color: transparent !important;
+}
+
+body[data-theme="dark"] .hero-section-nova {
+  background: linear-gradient(135deg, #171b2d 0%, #0f1422 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body[data-theme="dark"] .hero-titulo,
+body[data-theme="dark"] .section-header h3,
+body[data-theme="dark"] .banner-content h2,
+body[data-theme="dark"] .fc-titulo,
+body[data-theme="dark"] .ac-title,
+body[data-theme="dark"] .tc-title {
+  color: #f5f0ff !important;
+}
+
+body[data-theme="dark"] .hero-subtitulo,
+body[data-theme="dark"] .banner-content p,
+body[data-theme="dark"] .fc-texto,
+body[data-theme="dark"] .ac-excerpt {
+  color: #c7bbeb !important;
+}
+
+/* Garante contraste adequado na parte de consultorias e demais blocos no escuro */
+body[data-theme="dark"] .quick-menu-container,
+body[data-theme="dark"] .banner-consultoria,
+body[data-theme="dark"] .forum-card-novo,
+body[data-theme="dark"] .artigo-card-novo,
+body[data-theme="dark"] .ticket-card {
+  background-color: #141a26 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f5f0ff !important;
+}
+
+/* Acesso rápido mais claro no modo escuro */
+body[data-theme="dark"] .quick-menu-item {
+  color: #e2dafc !important;
+}
+
+body[data-theme="dark"] .quick-menu-item svg {
+  stroke: #bdaffc !important; 
+}
+
+/* Tags de categoria legíveis no escuro */
+body[data-theme="dark"] .ac-tag {
+  background: rgba(27, 35, 54, 0.9) !important;
+  color: #e2dafc !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+body[data-theme="dark"] .card-flutuante {
+  background: #1b2336 !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+body[data-theme="dark"] .card-valor,
+body[data-theme="dark"] .fc-nome {
+  color: #f5f0ff !important;
+}
+
+/* =========================================
+ 6. RESPONSIVIDADE
+========================================= */
+@media (max-width: 992px) {
+  .banner-consultoria {
+      flex-direction: column;
+      padding: 32px 24px 0 24px;
+      text-align: center;
+  }
+  .banner-content { 
+      max-width: 100%; 
+      margin-bottom: 24px;
+  }
+  .banner-image { 
+      width: 100%;
+      margin: 0 -24px 0 -24px; 
+  }
+  .banner-image img {
+      border-radius: 0 0 28px 28px; 
+  }
+  
+  .hero-section-nova {
+      flex-direction: column;
+      padding: 30px 20px;
+      text-align: center;
+  }
+
+  .hero-conteudo {
+      max-width: 100%;
+  }
+
+  .hero-titulo {
+      font-size: 2rem;
+  }
+
+  .hero-botoes {
+      flex-direction: column;
+      width: 100%;
+  }
+
+  .botao-roxo, .botao-branco {
+      width: 100%;
+      justify-content: center;
+  }
+
+  .hero-imagem-container {
+      justify-content: center;
+      margin-top: 20px;
+  }
+
+  .card-flutuante {
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -20px;
+      width: max-content;
+  }
+}
+/* =========================================
+   EXPANSÃO TOTAL DE PONTA A PONTA (MODO ESCURO)
+========================================= */
+body[data-theme="dark"] .hero-section-nova {
+    width: 100vw !important;
+    position: relative !important;
+    left: 50% !important;
+    right: 50% !important;
+    margin-left: -50vw !important;
+    margin-right: -50vw !important;
+    border-radius: 0 !important; /* Retira o arredondamento para colar nas bordas da tela */
+    padding-left: max(5vw, calc((100vw - 1200px) / 2)) !important;
+    padding-right: max(5vw, calc((100vw - 1200px) / 2)) !important;
+    background: linear-gradient(135deg, #121726 0%, #0a0e17 100%) !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body[data-theme="dark"] .banner-consultoria {
+    width: 100vw !important;
+    position: relative !important;
+    left: 50% !important;
+    right: 50% !important;
+    margin-left: -50vw !important;
+    margin-right: -50vw !important;
+    border-radius: 0 !important;
+    padding-left: max(5vw, calc((100vw - 1200px) / 2)) !important;
+    padding-right: max(5vw, calc((100vw - 1200px) / 2)) !important;
+    background: linear-gradient(135deg, #121726 0%, #171d30 100%) !important;
+    border: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Garante que a ilustração e os textos fiquem perfeitamente alinhados e sem o bloco branco fantasma */
+body[data-theme="dark"] .hero-img-ilustracao,
+body[data-theme="dark"] .banner-image img {
+    filter: brightness(0.8) contrast(1.15) saturate(0.85);
+    mix-blend-mode: screen; /* Deixa o fundo roxo claro da imagem transparente no modo escuro */
+    opacity: 0.95;
+}

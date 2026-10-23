@@ -1,0 +1,529 @@
+<div class="home-psi-page">
+  <header class="header">
+    <h1 id="boasVindas">Bem-vindo(a), Dr(a). {{ nomeCompleto() }}</h1>
+
+    <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" (click)="toggleSidebar()">☰</button>
+
+    <div id="sidebar-overlay" class="sidebar-overlay" [class.active]="sidebarOpen()" (click)="closeSidebar()" aria-hidden="true"></div>
+
+    <div class="right-section">
+      <div class="accessibility-selector">
+        <button id="accessibility-toggle" aria-label="Opções de acessibilidade" (click)="toggleAccessibilityMenu()">
+          <i class="fa fa-universal-access" aria-hidden="true"></i>
+        </button>
+        <ul id="accessibility-menu" [class.hidden]="!accessibilityMenuOpen()">
+          <li (click)="aumentarFonte()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Aumentar Fonte</li>
+          <li (click)="diminuirFonte()"><i class="fa fa-minus-circle" aria-hidden="true"></i> Diminuir Fonte</li>
+          <li (click)="alternarFiltroDaltonismo()"><i class="fa fa-low-vision" aria-hidden="true"></i> Filtros Daltonismo</li>
+          <li (click)="alternarLeituraVoz()"><i class="fa fa-assistive-listening-systems" aria-hidden="true"></i> Leitura em Voz</li>
+          <li (click)="alternarMascaraLeitura()"><i class="fa fa-highlighter" aria-hidden="true"></i> Máscara de leitura</li>
+          <li (click)="alternarTextoDestacado()"><i class="fa fa-bold" aria-hidden="true"></i> Letras destacadas</li>
+          <li (click)="alternarAltoContraste()"><i class="fa fa-adjust" aria-hidden="true"></i> Alto contraste</li>
+          <li (click)="aumentarEspacamentoLinhas()"><i class="fa fa-arrows-alt-v" aria-hidden="true"></i> Aumentar Espaçamento</li>
+          <li (click)="diminuirEspacamentoLinhas()"><i class="fa fa-compress-arrows-alt" aria-hidden="true"></i> Diminuir Espaçamento</li>
+          <li (click)="redefinirAcessibilidade()"><i class="fa fa-undo" aria-hidden="true"></i> Redefinir</li>
+        </ul>
+      </div>
+
+      <div id="reading-mask-overlay"><div class="highlight-window"></div></div>
+
+      <div class="theme-toggle" id="theme-toggle" (click)="toggleTheme()">
+        <i class="fas" [class.fa-moon]="!isDarkMode()" [class.fa-sun]="isDarkMode()" aria-label="Alternar tema claro e escuro"></i>
+      </div>
+
+      <button id="infoBtn" class="info-btn" (click)="abrirInformacoes()">
+        <i class="fa-solid fa-circle-info"></i>
+      </button>
+
+      <button id="logoutBtn" class="logout-btn" (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+
+      <button id="avatarBtn" class="avatar-btn" (click)="abrirTrocaAvatar()">
+        <img id="currentAvatar" [src]="avatarUrl()" alt="Avatar">
+      </button>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <aside class="sidebar" [class.active]="sidebarOpen()">
+      <!-- Topo do menu (só aparece no celular): perfil + atalhos que saíram do header -->
+      <div class="drawer-top">
+        <button type="button" class="drawer-close" aria-label="Fechar menu" (click)="closeSidebar()">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <div class="drawer-profile">
+          <img class="drawer-avatar" [src]="avatarUrl()" alt="Foto do perfil">
+          <div class="drawer-profile-info">
+            <strong>{{ nomeCompleto() }}</strong>
+            <span class="drawer-tag">Psicólogo(a)</span>
+          </div>
+        </div>
+        <div class="drawer-actions">
+          <button type="button" (click)="toggleAccessibilityMenu(); closeSidebar()">
+            <i class="fa fa-universal-access" aria-hidden="true"></i><span>Acessibilidade</span>
+          </button>
+          <button type="button" (click)="toggleTheme()">
+            <i class="fas" [class.fa-moon]="!isDarkMode()" [class.fa-sun]="isDarkMode()" aria-hidden="true"></i>
+            <span>{{ isDarkMode() ? 'Modo claro' : 'Modo escuro' }}</span>
+          </button>
+          <button type="button" (click)="abrirInformacoes()">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>Informações</span>
+          </button>
+          <button type="button" class="drawer-sair" (click)="logout()">
+            <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Sair</span>
+          </button>
+        </div>
+      </div>
+      <button
+        *ngFor="let item of menuItems"
+        class="menu-btn"
+        [class.active]="activeSection() === item.target"
+        [attr.data-target]="item.target"
+        (click)="selecionarSecao(item.target)"
+      >
+        <i [class]="item.icon"></i>
+        <span>{{ item.label }}</span>
+      </button>
+
+      <div class="last-activities">
+        <h3>Últimas Atividades</h3>
+        <ul>
+          <li *ngFor="let atividade of ultimasAtividades()">{{ atividade }}</li>
+          <li *ngIf="ultimasAtividades().length === 0">Sem próximas consultas</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- DASHBOARD -->
+    <section class="content" id="dashboard" *ngIf="activeSection() === 'dashboard'">
+      <div class="welcome-hero" [style.--mouse-x]="heroMouseX()" [style.--mouse-y]="heroMouseY()" (mousemove)="onHeroMouseMove($event)">
+        <div class="hero-content">
+          <span class="hero-badge">Área do Profissional</span>
+          <h2 id="hero-nome">Olá, Dr(a). {{ primeiroNome() }}!</h2>
+          <p>Seu espaço de cuidado está pronto. Acompanhe seus atendimentos, gerencie sua agenda e transforme o dia dos seus pacientes.</p>
+        </div>
+        <div class="hero-glow shape-1"></div>
+        <div class="hero-glow shape-2"></div>
+        <div class="hero-glow shape-3"></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon icon-hoje"><i class="fa-solid fa-calendar-day"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="count-hoje">
+              <ng-container *ngIf="carregandoStats(); else valorHoje"><div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></ng-container>
+              <ng-template #valorHoje>{{ consultasHoje() }}</ng-template>
+            </span>
+            <span class="stat-label">Consultas para hoje</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon icon-total"><i class="fa-solid fa-users"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="count-total">
+              <ng-container *ngIf="carregandoStats(); else valorTotal"><div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></ng-container>
+              <ng-template #valorTotal>{{ sessoesAgendadas() }}</ng-template>
+            </span>
+            <span class="stat-label">Sessões agendadas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-appointments-section">
+        <div class="section-title-row">
+          <h3>Consultas de Hoje</h3>
+          <button class="btn-ver-agenda" (click)="irParaAgenda()">Ver agenda completa <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+
+        <div class="appointments-container" *ngIf="!carregandoConsultasHoje() && consultasDeHoje().length > 0">
+          <div class="appointment-item" *ngFor="let consulta of consultasDeHoje()">
+            <img [src]="consulta.avatar" class="appointment-avatar" alt="Avatar da mãe">
+            <div class="appointment-info">
+              <h4>{{ consulta.nome }}</h4>
+              <span><i class="fa-regular fa-clock"></i> Hoje - {{ consulta.horario }}</span>
+            </div>
+            <button class="btn-contato-consulta" (click)="abrirChatComMae(consulta.maeId)">Contato</button>
+          </div>
+        </div>
+
+        <div id="todayAppointments" *ngIf="carregandoConsultasHoje() || consultasDeHoje().length === 0">
+          <div class="loader" *ngIf="carregandoConsultasHoje()"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          <p *ngIf="!carregandoConsultasHoje() && consultasDeHoje().length === 0">Nenhuma consulta hoje.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENDA -->
+    <section class="content" id="agenda" *ngIf="activeSection() === 'agenda'">
+      <h2>Minha agenda</h2>
+      <p class="secao-sub">Clique em um dia para marcar os horários em que você atende. As mães veem essas vagas na hora de agendar.</p>
+      <div class="agenda-container">
+        <div class="calendar-container">
+          <div class="calendar-header">
+            <button type="button" class="calendar-nav-btn" (click)="mesAnterior()" aria-label="Mês anterior"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="month-year-select">
+              <select [ngModel]="currentMonth()" (ngModelChange)="selecionarMes($event)" aria-label="Selecionar mês">
+                <option *ngFor="let mes of nomesMeses; let i = index" [value]="i">{{ mes }}</option>
+              </select>
+              <select [ngModel]="currentYear()" (ngModelChange)="selecionarAno($event)" aria-label="Selecionar ano">
+                <option *ngFor="let ano of anosSelecionaveis" [value]="ano">{{ ano }}</option>
+              </select>
+            </div>
+            <button type="button" class="calendar-nav-btn" (click)="mesSeguinte()" aria-label="Próximo mês"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+          <div class="calendar-days"><div *ngFor="let d of diasSemana">{{ d }}</div></div>
+          <div class="calendar-dates">
+            <div *ngFor="let celula of celulasCalendario()" class="date" [class.vazio]="celula.dia === null" [class.today]="celula.isHoje" [class.has-event]="celula.temDisponibilidade" (click)="abrirSelecaoHorarios(celula.dia)">
+              {{ celula.dia }}
+            </div>
+          </div>
+          <p class="mensagem-agenda" *ngIf="mensagemAgenda() && !modalHorariosAberto()">{{ mensagemAgenda() }}</p>
+        </div>
+
+        <div class="events-container">
+          <h3>Consultas do mês</h3>
+          <div class="event-list">
+            <div class="event" *ngFor="let evento of eventosDoMesOrdenados()">
+              <strong>{{ evento.data | date:'dd/MM' }} — {{ evento.titulo }}</strong>
+              <p>{{ evento.descricao }}</p>
+              <small>{{ evento.local }}</small>
+            </div>
+            <p class="em-construcao" *ngIf="eventosDoMesOrdenados().length === 0">Nenhuma consulta marcada neste mês.</p>
+          </div>
+          <button type="button" class="add-consult-btn" (click)="adicionarConsulta()">Definir horários de hoje</button>
+        </div>
+      </div>
+
+      <div class="modal" *ngIf="modalHorariosAberto()">
+        <div class="modal-content detalhes-consulta-card">
+          <h3>Selecionar horários disponíveis</h3>
+          <p class="data-selecionada" *ngIf="diaSelecionado()">{{ diaSelecionado() | date:'dd \'de\' MMMM \'de\' yyyy' }}</p>
+          <p class="mensagem-agenda" *ngIf="mensagemAgenda()">{{ mensagemAgenda() }}</p>
+          <div class="horarios-container">
+            <div class="loader" *ngIf="carregandoHorarios()"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <button type="button" *ngFor="let slot of horariosDoDia()" class="horario-btn"
+                    [class.selecionado]="slot.selecionado"
+                    [class.ocupado]="slot.status !== 'livre'"
+                    [disabled]="slot.status !== 'livre'"
+                    [title]="slot.status === 'ocupado' ? ('Consulta com ' + (slot.pacienteNome || 'paciente')) : (slot.status === 'passado' ? 'Horário já passou' : '')"
+                    (click)="alternarHorario(slot)">
+              {{ slot.horario }}
+            </button>
+          </div>
+          <p class="legenda-horarios">Roxo = disponível para as mães · Cinza = ocupado ou já passou</p>
+          <div class="modal-actions">
+            <button type="button" class="contact-btn" [disabled]="salvandoHorarios()" (click)="confirmarDisponibilidade()">{{ salvandoHorarios() ? 'Salvando...' : 'Confirmar' }}</button>
+            <button type="button" class="add-consult-btn" (click)="fecharModalHorarios()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- ARTIGOS -->
+    <!-- ============================================================ -->
+    <section class="content" id="artigos" *ngIf="activeSection() === 'artigos'">
+
+      <div class="artigos-header-top">
+        <div class="artigos-title-box">
+          <h2>Artigos e Conteúdos</h2>
+          <p class="secao-sub">Acesse materiais e publique conteúdos para apoiar as mães da comunidade.</p>
+        </div>
+        <button type="button" class="btn-novo-artigo" (click)="abrirModalArtigo()">
+          <i class="fa-solid fa-plus"></i> Novo artigo
+        </button>
+      </div>
+
+      <div class="artigos-filter-bar">
+        <div class="artigos-categorias">
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'todos'" (click)="filtroArtigo.set('todos')"><i class="fa-solid fa-border-all"></i> Todos</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'legislativos'" (click)="filtroArtigo.set('legislativos')"><i class="fa-solid fa-scale-balanced"></i> Legislativos</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'educacionais'" (click)="filtroArtigo.set('educacionais')"><i class="fa-solid fa-graduation-cap"></i> Educacionais</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'dicas'" (click)="filtroArtigo.set('dicas')"><i class="fa-solid fa-lightbulb"></i> Dicas</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'posts'" (click)="filtroArtigo.set('posts')"><i class="fa-regular fa-newspaper"></i> Posts</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'meus'" (click)="filtroArtigo.set('meus')"><i class="fa-solid fa-user-pen"></i> Meus artigos</button>
+        </div>
+        <button class="btn-sort" type="button" (click)="alternarOrdemArtigos()">
+          <i class="fa-solid fa-sliders"></i> {{ ordemArtigos() === 'recentes' ? 'Mais recentes' : 'Mais antigos' }}
+        </button>
+      </div>
+
+      <div class="loader" *ngIf="carregandoArtigos()" style="margin: 40px auto;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+
+      <div class="artigos-grid-psi" *ngIf="!carregandoArtigos()">
+        <a [routerLink]="['/artigo_ind']" [queryParams]="{ id: artigo.id }" class="artigo-card-novo" *ngFor="let artigo of artigosFiltrados()">
+          <div class="ac-img-wrapper">
+            <img *ngIf="imagemDoArtigo(artigo)" [src]="imagemDoArtigo(artigo)" [alt]="artigo.titulo" class="ac-cover" (error)="artigo.img = ''; artigo.capa = ''; artigo.imagem = ''">
+            <div class="ac-sem-imagem" *ngIf="!imagemDoArtigo(artigo)"><i class="fa-regular fa-image"></i></div>
+            <span class="ac-tag" [style.color]="corCategoria(artigo.categoria)">{{ artigo.categoria || 'conteúdo' }}</span>
+          </div>
+          <div class="ac-body">
+            <h4 class="ac-title">{{ artigo.titulo }}</h4>
+            <p class="ac-excerpt">{{ artigo.descricao || artigo.resumo || artigo.conteudo }}</p>
+            <div class="ac-footer">
+              <span class="ac-author"><i class="fa-solid fa-user-doctor"></i> {{ artigo.postadoPor || 'Equipe EloMaterno' }}</span>
+              <span class="ac-ler">Ler artigo <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+          </div>
+        </a>
+      </div>
+      <p class="vazio-msg" *ngIf="!carregandoArtigos() && artigosFiltrados().length === 0">
+        {{ filtroArtigo() === 'meus' ? 'Você ainda não publicou nenhum artigo.' : 'Nenhum artigo publicado ainda.' }}
+      </p>
+
+      <!-- MODAL: NOVO ARTIGO COM PRÉVIA -->
+      <div class="modal" *ngIf="modalArtigoAberto()">
+        <div class="modal-content modal-wide">
+          <button type="button" class="modal-close" (click)="fecharModalArtigo()" aria-label="Fechar">&times;</button>
+          <h3>Novo artigo</h3>
+          <p class="modal-sub">Preencha os dados e veja ao lado como o artigo vai aparecer para as mães.</p>
+
+          <div class="modal-grid">
+            <form class="modal-form" (ngSubmit)="publicarArtigo()" #formArtigo="ngForm">
+              <label for="artTitulo">Título</label>
+              <input type="text" id="artTitulo" name="titulo" maxlength="90" placeholder="Ex: 5 dicas para a amamentação"
+                     [ngModel]="artigoForm().titulo" (ngModelChange)="setCampoArtigo('titulo', $event)">
+
+              <label for="artDescricao">Descrição curta</label>
+              <input type="text" id="artDescricao" name="descricao" maxlength="140" placeholder="Uma frase que resume o artigo"
+                     [ngModel]="artigoForm().descricao" (ngModelChange)="setCampoArtigo('descricao', $event)">
+
+              <label for="artResumo">Resumo <span class="opcional">(opcional)</span></label>
+              <textarea id="artResumo" name="resumo" rows="3" placeholder="Texto que aparece na página do artigo"
+                        [ngModel]="artigoForm().resumo" (ngModelChange)="setCampoArtigo('resumo', $event)"></textarea>
+
+              <div class="form-row">
+                <div>
+                  <label for="artCategoria">Categoria</label>
+                  <select id="artCategoria" name="categoria" [ngModel]="artigoForm().categoria" (ngModelChange)="setCampoArtigo('categoria', $event)">
+                    <option *ngFor="let c of categoriasArtigo" [value]="c.valor">{{ c.label }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="artImg">Imagem (URL) <span class="opcional">(opcional)</span></label>
+                  <input type="text" id="artImg" name="img" placeholder="https://..."
+                         [ngModel]="artigoForm().img" (ngModelChange)="setCampoArtigo('img', $event)">
+                </div>
+              </div>
+
+              <label for="artLink">Link do artigo <span class="opcional">(opcional)</span></label>
+              <input type="url" id="artLink" name="link" placeholder="https://..."
+                     [ngModel]="artigoForm().link" (ngModelChange)="setCampoArtigo('link', $event)">
+
+              <div class="modal-actions">
+                <button type="button" class="btn-ghost" (click)="salvarRascunhoArtigo()"><i class="fa-regular fa-floppy-disk"></i> Salvar rascunho</button>
+                <button type="submit" class="btn-primary" [disabled]="publicandoArtigo()">{{ publicandoArtigo() ? 'Publicando...' : 'Publicar' }}</button>
+              </div>
+              <div class="form-msg" role="status" aria-live="polite" *ngIf="msgArtigo() as m" [class.erro]="m.tipo === 'erro'">{{ m.texto }}</div>
+            </form>
+
+            <aside class="modal-preview" aria-label="Prévia do artigo">
+              <span class="preview-label">Prévia</span>
+              <div class="preview-card">
+                <div class="card-topbar" [style.background]="corCategoriaPreview()"></div>
+                <img *ngIf="artigoForm().img.trim() && imagemPreviaOk()" [src]="artigoForm().img.trim()" class="preview-img" alt="" (error)="imagemPreviaOk.set(false)">
+                <div class="preview-thumb" *ngIf="!artigoForm().img.trim() || !imagemPreviaOk()"><i class="fa-regular fa-image"></i></div>
+                <div class="preview-body">
+                  <h4>{{ artigoForm().titulo.trim() || 'Título do artigo' }}</h4>
+                  <p>{{ artigoForm().descricao.trim() || 'A descrição aparece aqui.' }}</p>
+                  <span class="categoria-tag">{{ artigoForm().categoria }}</span>
+                  <div class="preview-footer">
+                    <span>{{ dataHojeTexto }}</span>
+                    <span class="preview-ver">Ver →</span>
+                  </div>
+                </div>
+              </div>
+              <p class="draft-status">{{ statusRascunho() }}</p>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONSULTAS -->
+    <section class="content" id="consultas" *ngIf="activeSection() === 'consultas'">
+      <h2>Consultas</h2>
+      <div class="tabs">
+        <button class="tab" [class.ativo]="abaConsultas() === 'Pendentes'" (click)="setAbaConsultas('Pendentes')">Pendentes</button>
+        <button class="tab" [class.ativo]="abaConsultas() === 'Agendadas'" (click)="setAbaConsultas('Agendadas')">Agendadas</button>
+        <button class="tab" [class.ativo]="abaConsultas() === 'Realizadas'" (click)="setAbaConsultas('Realizadas')">Realizadas</button>
+        <button class="tab" [class.ativo]="abaConsultas() === 'Negadas'" (click)="setAbaConsultas('Negadas')">Negadas</button>
+      </div>
+
+      <div class="lista-consultas">
+        <div class="consulta-card-novo" *ngFor="let consulta of consultasFiltradas()">
+          <div class="c-info-wrapper">
+            <img [src]="consulta.avatar" class="c-avatar-img" alt="Avatar">
+            <div class="c-text-info">
+              <h3>{{ consulta.nome }}</h3>
+              <span class="c-data"><i class="fa-regular fa-clock"></i> {{ consulta.data }} às {{ consulta.horario }}</span>
+              <p>Motivo: {{ consulta.motivo }}</p>
+            </div>
+          </div>
+          <div class="c-actions-wrapper">
+            <ng-container *ngIf="consulta.status === 'Pendente'">
+              <button class="btn-aceitar" (click)="aceitarConsulta(consulta)">Aceitar</button>
+              <button class="btn-recusar" (click)="recusarConsulta(consulta)">Recusar</button>
+            </ng-container>
+            <ng-container *ngIf="consulta.status === 'Agendada'">
+              <button class="btn-aceitar" (click)="marcarRealizada(consulta)">Marcar como realizada</button>
+              <button class="btn-chat-outline" (click)="abrirChatComMae(consulta.maeId)">Abrir chat</button>
+            </ng-container>
+            <ng-container *ngIf="consulta.status === 'Realizada'">
+              <button class="btn-chat-outline" (click)="abrirChatComMae(consulta.maeId)">Abrir chat</button>
+            </ng-container>
+          </div>
+        </div>
+        <p class="vazio-msg" *ngIf="consultasFiltradas().length === 0">Nenhuma consulta encontrada nesta categoria.</p>
+      </div>
+    </section>
+
+    <!-- FÓRUM -->
+    <section class="content" id="forum" *ngIf="activeSection() === 'forum'">
+      <h2>Fórum da comunidade</h2>
+      <p class="secao-sub">Acolha e oriente as mães. Sua resposta aparece para elas assim que você enviar.</p>
+
+      <div class="forum-toolbar">
+        <div class="forum-search-bar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Pesquisar no fórum..." [ngModel]="termoForum()" (ngModelChange)="termoForum.set($event)">
+        </div>
+        <div class="forum-filtros">
+          <button type="button" class="cat-btn" [class.active]="filtroForum() === 'todos'" (click)="filtroForum.set('todos')">Todos</button>
+          <button type="button" class="cat-btn" [class.active]="filtroForum() === 'aguardando'" (click)="filtroForum.set('aguardando')"><i class="fa-regular fa-clock"></i> Aguardando resposta</button>
+        </div>
+      </div>
+
+      <div class="loader" *ngIf="carregandoForum()" style="margin: 40px auto;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+
+      <div class="forum-posts-list" *ngIf="!carregandoForum()">
+        @for (post of forumFiltrado(); track post.id) {
+          <article class="forum-post-card">
+            <div class="f-post-author-row">
+              <img [src]="post.autorFoto" [alt]="post.autorNome">
+              <div class="f-post-author-data">
+                <strong>{{ post.autorNome }}</strong>
+                <span>{{ post.dataTexto }}</span>
+              </div>
+              <span class="f-post-cat" *ngIf="post.categoria">{{ post.categoria }}</span>
+            </div>
+            <h3 class="f-post-title">{{ post.titulo }}</h3>
+            <p class="f-post-text">{{ post.conteudo }}</p>
+
+            <div class="f-post-footer">
+              @if (post.totalRespostas > 0) {
+                <span class="badge-respondido"><i class="fa-solid fa-check-circle"></i> {{ post.totalRespostas }} {{ post.totalRespostas === 1 ? 'resposta' : 'respostas' }}</span>
+              } @else {
+                <span class="badge-aguardando"><i class="fa-regular fa-clock"></i> Aguardando especialista</span>
+              }
+              <button type="button" class="btn-responder" (click)="alternarPost(post)">
+                <i class="fa-solid fa-reply"></i> {{ postAbertoId() === post.id ? 'Fechar' : 'Responder' }}
+              </button>
+            </div>
+
+            @if (postAbertoId() === post.id) {
+              <div class="forum-replies">
+                @if (carregandoRespostas()) {
+                  <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                } @else {
+                  @for (r of respostasDoPost(); track r.id) {
+                    <div class="reply-item">
+                      <img [src]="r.autorFoto" [alt]="r.autorNome">
+                      <div class="reply-body">
+                        <div class="reply-head"><strong>{{ r.autorNome }}</strong> <span class="reply-tag" *ngIf="r.profissional">Profissional</span> <small>{{ r.dataTexto }}</small></div>
+                        <p>{{ r.conteudo }}</p>
+                      </div>
+                    </div>
+                  } @empty {
+                    <p class="vazio-msg" style="margin: 4px 0 12px;">Ainda não há respostas. Seja a primeira pessoa a acolher.</p>
+                  }
+                }
+
+                <div class="reply-form">
+                  <textarea rows="3" placeholder="Escreva sua orientação profissional ou acolhimento..."
+                            [ngModel]="textoResposta()" (ngModelChange)="textoResposta.set($event)"></textarea>
+                  <p class="reply-erro" *ngIf="erroResposta()">{{ erroResposta() }}</p>
+                  <div class="reply-actions">
+                    <button type="button" class="btn-aceitar" [disabled]="enviandoResposta() || !textoResposta().trim()" (click)="enviarResposta(post)">
+                      {{ enviandoResposta() ? 'Enviando...' : 'Enviar resposta' }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </article>
+        } @empty {
+          <p class="vazio-msg">Nenhuma publicação encontrada.</p>
+        }
+      </div>
+    </section>
+
+    <!-- PACIENTES -->
+    <section class="content" id="pacientes" *ngIf="activeSection() === 'pacientes'">
+      <h2>Histórico de Pacientes</h2>
+      <div class="pacientes-grid-novo">
+        <div class="paciente-card-novo" *ngFor="let paciente of pacientes()">
+          <div class="p-avatar-circle"><img [src]="paciente.avatar" alt="Avatar"></div>
+          <h3>{{ paciente.nome }}</h3>
+          <span class="p-tag">Paciente</span>
+          <div class="p-details-box"><p>Última consulta: <strong>{{ paciente.ultimaConsulta }}</strong></p></div>
+          <button class="p-btn-chat" (click)="abrirChatComPaciente(paciente)">Abrir Chat</button>
+        </div>
+      </div>
+      <p class="vazio-msg" *ngIf="pacientes().length === 0">Você ainda não possui pacientes no histórico.</p>
+    </section>
+
+    <!-- CHATS -->
+    <section class="content" id="chats" *ngIf="activeSection() === 'chats'">
+      <div class="chats-container">
+        <div class="chat-wrapper-box">
+          <div class="chat-users-list">
+            <div class="chat-users-title">Pacientes</div>
+            <div class="chat-user-item" *ngFor="let user of chatUsers()" [class.active]="user.ativo" (click)="selecionarChat(user)">
+              <img [src]="user.avatar" alt="Avatar">
+              <div class="chat-user-info"><h4>{{ user.nome }}</h4></div>
+            </div>
+            <p class="vazio-msg" *ngIf="chatUsers().length === 0" style="padding: 20px; text-align: center;">Nenhum chat disponível. Os chats aparecem depois que você aceita uma consulta.</p>
+          </div>
+
+          <div class="chat-messages-area">
+            <ng-container *ngIf="chatSelecionado(); else noChat">
+              <div class="chat-header-bar">
+                <img [src]="chatSelecionado().avatar" alt="Avatar">
+                <div><h4>{{ chatSelecionado().nome }}</h4><span class="status-online">Paciente</span></div>
+              </div>
+
+              <div class="chat-history">
+                <div class="chat-bubble" *ngFor="let msg of mensagensChat()" [class.sent]="msg.sender === 'sent'" [class.received]="msg.sender === 'received'">
+                  <audio *ngIf="msg.audio" [src]="msg.audio" controls></audio>
+                  <p *ngIf="msg.text">{{ msg.text }}</p>
+                  <span class="chat-time">{{ msg.time }}</span>
+                </div>
+                <p class="vazio-msg" *ngIf="mensagensChat().length === 0" style="text-align: center;">Envie uma mensagem para iniciar o atendimento.</p>
+              </div>
+
+              <div class="chat-input-bar">
+                <input type="text" placeholder="Digite sua mensagem..." [ngModel]="novaMensagem()" (ngModelChange)="novaMensagem.set($event)" (keyup.enter)="enviarMensagem()">
+                <button class="btn-send-msg" (click)="enviarMensagem()" aria-label="Enviar"><i class="fa-solid fa-paper-plane"></i></button>
+              </div>
+            </ng-container>
+
+            <ng-template #noChat>
+              <div class="chat-vazio"><p>Selecione um paciente para abrir o chat</p></div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INFORMAÇÕES -->
+    <section class="content" id="informacoes" *ngIf="activeSection() === 'informacoes'">
+      <h2>Editar minhas Informações</h2>
+      <p class="em-construcao">Área de configurações em desenvolvimento.</p>
+    </section>
+
+  </main>
+</div>
