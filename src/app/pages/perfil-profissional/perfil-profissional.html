@@ -1,0 +1,343 @@
+<app-header *ngIf="isMae()" tipo="mae"></app-header>
+
+<header class="header header-prof" *ngIf="!isMae()">
+  <h1 id="boasVindas">Meu Perfil</h1>
+  <div class="right-section">
+    <div class="accessibility-selector">
+      <button id="accessibility-toggle" aria-label="Opções de acessibilidade" (click)="toggleAccessibilityMenu()"><i class="fa fa-universal-access" aria-hidden="true"></i></button>
+      <ul id="accessibility-menu" [class.hidden]="!accessibilityMenuOpen()">
+        <li (click)="aumentarFonte()"><i class="fa fa-plus-circle"></i> Aumentar Fonte</li>
+        <li (click)="diminuirFonte()"><i class="fa fa-minus-circle"></i> Diminuir Fonte</li>
+        <li (click)="redefinirAcessibilidade()"><i class="fa fa-undo"></i> Redefinir</li>
+      </ul>
+    </div>
+    <div class="theme-toggle" id="theme-toggle" (click)="toggleTheme()"><i class="fas" [class.fa-moon]="!isDarkMode()" [class.fa-sun]="isDarkMode()" aria-label="Alternar tema"></i></div>
+    <button id="logoutBtn" class="logout-btn" (click)="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+  </div>
+</header>
+
+<main class="perfil-container">
+  <button class="back-link" *ngIf="isMae()" (click)="voltar()">
+    <i class="ph ph-arrow-left"></i> Voltar para a lista
+  </button>
+  <button class="back-link" *ngIf="!isMae()" (click)="voltar()">
+    <i class="ph ph-arrow-left"></i> Voltar para o painel
+  </button>
+
+  @if (isLoading()) {
+    <div class="loading-card">
+      <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <p>Carregando perfil...</p>
+    </div>
+  } @else if (!profissional()) {
+    <div class="empty-state">
+      <i class="ph ph-user-slash"></i>
+      <h2>Profissional não encontrado</h2>
+      <button class="btn-primary" (click)="voltar()">Voltar à lista</button>
+    </div>
+  } @else {
+    <!-- Cartão de Perfil Principal -->
+    <div class="profile-hero-card">
+      <div class="profile-avatar-container">
+        <img [src]="profissional().foto" [alt]="profissional().nome" class="profile-avatar" onerror="this.src='img/account_icon.png'">
+        <span class="online-badge">Online</span>
+      </div>
+
+      <div class="profile-header-info">
+        @if (premium() || reputacao().bemAvaliado) {
+          <div class="selos-row">
+            @if (premium()) {
+              <span class="selo selo-premium" title="Perfil em destaque por assinatura Premium">
+                <i class="fa-solid fa-crown"></i> Profissional Premium
+              </span>
+            }
+            @if (reputacao().bemAvaliado) {
+              <span class="selo selo-bem-avaliado" title="Selo conquistado pelas avaliações das mães (não pode ser comprado)">
+                <i class="fa-solid fa-award"></i> Bem avaliado pelas mães
+              </span>
+            }
+          </div>
+        }
+        <h1>{{ profissional().nome }}</h1>
+        <p class="profile-role">{{ profissional().cargoLabel }} • <strong>{{ profissional().identificacao }}</strong></p>
+        
+        <div class="tags-container">
+          @for (esp of profissional().especializacoes; track esp) {
+            <span class="esp-tag">{{ esp }}</span>
+          }
+        </div>
+
+        <!-- Reputação resumida -->
+        @if (!carregandoReputacao()) {
+          <div class="rep-resumo">
+            @if (!reputacao().novo) {
+              <span class="rep-estrelas" [attr.aria-label]="'Nota ' + reputacao().mediaTexto + ' de 5'">
+                @for (classe of estrelasMedia(); track $index) { <i [class]="classe"></i> }
+              </span>
+              <strong class="rep-media">{{ reputacao().mediaTexto }}</strong>
+              <span class="rep-total">({{ reputacao().total }} avaliações)</span>
+              @if (reputacao().recomendamPct !== null) {
+                <span class="rep-recomenda"><i class="fa-solid fa-thumbs-up"></i> {{ reputacao().recomendamPct }}% recomendam</span>
+              }
+            } @else {
+              <span class="rep-novo"><i class="fa-solid fa-seedling"></i> Novo na rede</span>
+              @if (reputacao().total > 0) {
+                <span class="rep-total">{{ reputacao().total }} {{ reputacao().total === 1 ? 'avaliação' : 'avaliações' }} até agora</span>
+              }
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Grid de Conteúdo -->
+    <div class="profile-grid-content">
+      
+      <div class="profile-main-column">
+        <section class="content-box">
+          <h2>Sobre o Profissional <button class="btn-edit-profile" *ngIf="isProprioPerfil()" (click)="showOnboardingModal.set(true); onboardingStep.set(2)"><i class="fa-solid fa-pen"></i> Editar</button></h2>
+          <p class="bio-text" style="white-space: pre-line;">{{ profissional().biografia }}</p>
+        </section>
+
+        <!-- Reputação detalhada -->
+        @if (!carregandoReputacao() && reputacao().total > 0) {
+          <section class="content-box reputacao-box">
+            <h2>O que as mães dizem</h2>
+
+            @if (!reputacao().novo) {
+              <div class="rep-grid">
+                <div class="rep-nota-grande">
+                  <strong>{{ reputacao().mediaTexto }}</strong>
+                  <span class="rep-estrelas">
+                    @for (classe of estrelasMedia(); track $index) { <i [class]="classe"></i> }
+                  </span>
+                  <small>{{ reputacao().total }} avaliações</small>
+                </div>
+                <div class="rep-barras">
+                  @for (b of barrasNotas(); track b.nota) {
+                    <div class="rep-barra-linha">
+                      <span class="rep-barra-label">{{ b.nota }} <i class="fa-solid fa-star"></i></span>
+                      <span class="rep-barra"><span [style.width.%]="b.pct"></span></span>
+                      <span class="rep-barra-qtd">{{ b.qtd }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            } @else {
+              <p class="rep-aviso">
+                A nota média aparece a partir de 3 avaliações. Por enquanto, veja o que já destacaram:
+              </p>
+            }
+
+            @if (reputacao().elogiosTop.length) {
+              <h3 class="rep-subtitulo">Mais elogiado por</h3>
+              <div class="rep-elogios">
+                @for (e of reputacao().elogiosTop; track e.elogio) {
+                  <span class="rep-elogio">{{ e.elogio }} <b>{{ e.qtd }}</b></span>
+                }
+              </div>
+            }
+
+            <p class="rep-rodape"><i class="fa-solid fa-lock"></i> Avaliações anônimas de mães atendidas pela rede Elo Materno.</p>
+          </section>
+        }
+      </div>
+
+      <div class="profile-side-column" *ngIf="isMae()">
+        <div class="action-card">
+          <h3>Agende sua Sessão</h3>
+          <p>Converse com este(a) profissional de forma 100% gratuita, sigilosa e humanizada.</p>
+          
+          @if (datasAgenda().length) {
+            <p class="proximo-horario">
+              <i class="fa-regular fa-calendar"></i>
+              Próximo horário: <strong>{{ datasAgenda()[0].diaSemana }} {{ datasAgenda()[0].diaMes }} às {{ datasAgenda()[0].horarios[0].hora }}</strong>
+            </p>
+            <button class="btn-primary full-width" (click)="abrirAgendaModal()">
+              <i class="ph ph-calendar-check"></i> Escolher horário na agenda
+            </button>
+          } @else {
+            <p class="sem-horario"><i class="fa-regular fa-calendar-xmark"></i> Sem horários disponíveis no momento.</p>
+          }
+
+          <div class="support-info">
+            <div class="support-item">
+              <i class="ph ph-shield-check"></i>
+              <span>Ambiente seguro e protegido</span>
+            </div>
+            <div class="support-item">
+              <i class="ph ph-video"></i>
+              <span>Atendimento integrado via vídeo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-side-column" *ngIf="isProprioPerfil()">
+        <div class="action-card">
+          <h3>Sua Agenda</h3>
+          <p>Seus horários configurados estão abertos para as mães da rede agendarem de forma gratuita.</p>
+          
+          <button class="btn-primary full-width" (click)="voltar()">
+            <i class="ph ph-calendar-plus"></i> Gerenciar Meus Horários
+          </button>
+
+          <div class="support-info">
+            <div class="support-item">
+              <i class="ph ph-users"></i>
+              <span>As mães veem este perfil publicamente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  }
+</main>
+
+  <!-- ONBOARDING MODAL -->
+  <div class="modal" *ngIf="showOnboardingModal() && isProprioPerfil()">
+    <div class="modal-content onboarding-modal">
+      <button class="modal-close" (click)="closeOnboarding()"><i class="fa-solid fa-xmark"></i></button>
+      
+      <!-- Slide 1: Welcome -->
+      <div class="onboarding-slide" *ngIf="onboardingStep() === 1">
+        <div class="slide-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
+        <h2>Olá, Dr(a). {{ profissional()?.nome?.split(' ')[0] }}!</h2>
+        <p>Ficamos muito felizes em ter você fazendo parte da rede Elo Materno.</p>
+        <p>A sua presença aqui faz toda a diferença na vida e na jornada de muitas mães.</p>
+        <button class="btn-primary full-width mt-4" (click)="nextStep()">Continuar <i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+
+      <!-- Slide 2: Fill Profile -->
+      <div class="onboarding-slide" *ngIf="onboardingStep() === 2">
+        <h2>Complete seu perfil!</h2>
+        <p class="subtext">Isso ajuda as mães a encontrarem o profissional ideal para o que precisam no momento.</p>
+        
+        <div class="form-group">
+          <label>Como você descreve seu estilo de trabalho?</label>
+          <textarea rows="4" placeholder="Ex: Sou especialista em psicologia perinatal e atuo com foco em TCC, oferecendo um espaço de escuta sem julgamentos..." [ngModel]="editSobreMim()" (ngModelChange)="editSobreMim.set($event)"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Selecione suas especialidades (Tags)</label>
+          <div class="tags-selector">
+            <span class="tag-option" *ngFor="let tag of availableTags" [class.selected]="editTags().includes(tag)" (click)="editTags().includes(tag) ? removeTag(tag) : addTag(tag)">
+              {{ tag }}
+            </span>
+          </div>
+        </div>
+
+        <div class="selected-tags" *ngIf="editTags().length > 0">
+          <strong>Selecionadas:</strong>
+          <div class="tags-list">
+             <span class="badge" *ngFor="let tag of editTags()">{{ tag }} <i class="fa-solid fa-xmark" (click)="removeTag(tag)"></i></span>
+          </div>
+        </div>
+
+        <div class="modal-actions-footer">
+            <label class="dont-show-again">
+              <input type="checkbox" [ngModel]="dontShowAgain()" (ngModelChange)="dontShowAgain.set($event)"> Não mostrar novamente
+            </label>
+            <div class="btn-group">
+                <button class="btn-ghost" *ngIf="!profissional()?.sobreMim" (click)="prevStep()">Voltar</button>
+                <button class="btn-primary" [disabled]="isSavingProfile()" (click)="saveProfileData()">{{ isSavingProfile() ? 'Salvando...' : 'Salvar Perfil' }}</button>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<!-- MODAL DE AGENDAMENTO (agenda real do profissional) -->
+@if (showAgendaModal()) {
+  <div class="modal-wrapper">
+    <div class="modal-overlay" (click)="fecharAgendaModal()"></div>
+    <div class="modal-content premium-modal agenda-modal" role="dialog" aria-modal="true" aria-labelledby="titulo-agenda">
+
+      @if (agendadoOk()) {
+        <!-- Sucesso -->
+        <div class="agenda-sucesso">
+          <div class="sucesso-icone"><i class="fa-solid fa-calendar-check"></i></div>
+          <h2 id="titulo-agenda">Consulta solicitada!</h2>
+          <p>
+            Seu pedido para <strong>{{ agendadoOk() }}</strong> com {{ profissional()?.nome }} foi enviado.
+            Você será avisada quando o profissional confirmar.
+          </p>
+          <div class="modal-actions">
+            <button class="btn-cancel" (click)="fecharAgendaModal()">Fechar</button>
+            <button class="btn-confirm" (click)="irParaMinhasConsultas()">Ver minhas consultas</button>
+          </div>
+        </div>
+      } @else {
+        <div class="modal-header-fancy">
+          <h2 id="titulo-agenda">Agendar consulta</h2>
+          <button class="close-btn" (click)="fecharAgendaModal()" aria-label="Fechar"><i class="ph ph-x"></i></button>
+        </div>
+        <p class="modal-subtitle">Escolha o melhor dia e horário com {{ profissional()?.nome }}.</p>
+
+        @if (!datasAgenda().length) {
+          <div class="agenda-vazia">
+            <i class="fa-regular fa-calendar-xmark"></i>
+            <p>Este profissional não tem horários livres no momento.</p>
+          </div>
+        } @else {
+          <p class="agenda-label">Data</p>
+          <div class="datas-wrapper">
+            @if (datasAgenda().length > 4) {
+              <button class="datas-seta" (click)="rolarDatas(trilhaDatas, -1)" aria-label="Datas anteriores">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+            }
+            <div class="datas-trilha" #trilhaDatas>
+              @for (d of datasAgenda(); track d.key) {
+                <button class="data-chip" [class.ativo]="dataSelecionada() === d.key" (click)="selecionarData(d.key)">
+                  <span class="data-dia">{{ d.diaSemana }}</span>
+                  <span class="data-num">{{ d.diaMes }}</span>
+                </button>
+              }
+            </div>
+            @if (datasAgenda().length > 4) {
+              <button class="datas-seta" (click)="rolarDatas(trilhaDatas, 1)" aria-label="Próximas datas">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            }
+          </div>
+
+          <p class="agenda-label">Horário</p>
+          <div class="horarios-grid">
+            @for (h of horariosDaData(); track h.instante) {
+              <button class="hora-chip" [class.ativo]="horarioSelecionado()?.instante === h.instante" (click)="selecionarHorario(h)">
+                <i class="fa-regular fa-clock"></i> {{ h.hora }}
+              </button>
+            }
+          </div>
+
+          <label class="agenda-label" for="motivo-agenda">Motivo da consulta</label>
+          <textarea id="motivo-agenda" class="agenda-motivo" rows="3" maxlength="300"
+                    placeholder="Ex.: ansiedade no pós-parto, dificuldades com o sono do bebê..."
+                    [ngModel]="motivoConsulta()" (ngModelChange)="motivoConsulta.set($event)"></textarea>
+          <p class="agenda-ajuda"><i class="fa-solid fa-lock"></i> Só o profissional vê o motivo.</p>
+        }
+
+        @if (erroAgenda()) {
+          <div class="agenda-erro" role="alert"><i class="fa-solid fa-circle-exclamation"></i> {{ erroAgenda() }}</div>
+        }
+
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="fecharAgendaModal()" [disabled]="agendando()">Cancelar</button>
+          <button class="btn-confirm" (click)="confirmarAgendamentoPaciente()"
+                  [disabled]="agendando() || !datasAgenda().length">
+            @if (agendando()) {
+              <span class="spinner-mini" aria-hidden="true"></span> Agendando...
+            } @else {
+              Confirmar agendamento
+            }
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<app-footer></app-footer>

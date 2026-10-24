@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { LembreteService } from '../../services/lembrete';
+import { carregarReputacao, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
+
 import {
   doc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, onSnapshot, orderBy, limit,
   serverTimestamp, Timestamp, arrayUnion, arrayRemove, getCountFromServer, writeBatch,
@@ -18,7 +21,6 @@ interface CelulaCalendario { dia: number | null; isHoje: boolean; temDisponibili
 interface EventoAgenda { titulo: string; descricao: string; local: string; data: Date; }
 type StatusHorario = 'livre' | 'ocupado' | 'passado';
 interface HorarioSlot { horario: string; status: StatusHorario; selecionado: boolean; publicado: boolean; pacienteNome?: string; }
-
 interface ConsultaView {
   id: string;
   maeId: string;
@@ -31,7 +33,6 @@ interface ConsultaView {
   statusRaw: string;
   status: 'Pendente' | 'Agendada' | 'Realizada' | 'Negada';
 }
-
 interface ArtigoForm {
   titulo: string; descricao: string; resumo: string; categoria: CategoriaArtigo; img: string; link: string;
 }
@@ -40,16 +41,22 @@ const CHAVE_ULTIMA_SECAO = 'homeadv_lastSection';
 const CHAVE_RASCUNHO_ARTIGO = 'homeadv_draft_artigo';
 const NOMES_MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 const DIAS_SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
-const HORARIOS_PADRAO = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
-
-// Os status são gravados em minúsculo pela mãe (consultas.ts / consulta-lista-psi.ts).
 const STATUS_LABEL: Record<string, ConsultaView['status']> = {
   pendente: 'Pendente',
-  aceito: 'Agendada',
-  realizado: 'Realizada',
-  negado: 'Negada',
+  aceito: 'Agendada', aceita: 'Agendada', agendada: 'Agendada',
+  realizado: 'Realizada', realizada: 'Realizada',
+  negado: 'Negada', negada: 'Negada',
 };
+const CHAVE_DURACAO = 'adv_duracao_sessao';
+const CHAVE_EXPEDIENTE = 'adv_expediente';
 
+/** localStorage pode não existir (SSR) ou estar bloqueado: nunca deixa a página quebrar. */
+function lerLocal(chave: string): string | null {
+  try { return typeof localStorage !== 'undefined' ? localStorage.getItem(chave) : null; } catch { return null; }
+}
+const EXPEDIENTE_SALVO: { inicio?: string; fim?: string } = (() => {
+  try { return JSON.parse(lerLocal(CHAVE_EXPEDIENTE) || '{}'); } catch { return {}; }
+})();
 const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', categoria: 'posts', img: '', link: '' };
 
 @Component({
@@ -60,12 +67,10 @@ const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', catego
   styleUrl: './home-adv.css',
 })
 export class HomeAdv implements OnInit, OnDestroy {
-  private router = inject(Router);
+  public router = inject(Router);
+  private lembreteService = inject(LembreteService);
   private readonly isBrowser: boolean;
 
-  // ==========================================================
-  // NAVEGAÇÃO / ESTADO GERAL
-  // ==========================================================
   readonly menuItems: MenuItem[] = [
     { target: 'dashboard', label: 'Painel de controle', icon: 'fa-solid fa-chart-line' },
     { target: 'agenda', label: 'Agenda', icon: 'fa-solid fa-calendar-days' },
@@ -80,25 +85,30 @@ export class HomeAdv implements OnInit, OnDestroy {
   readonly sidebarOpen = signal(false);
   readonly accessibilityMenuOpen = signal(false);
   readonly isDarkMode = signal(false);
-
   readonly nomeCompleto = signal('Advogado(a)');
   readonly primeiroNome = computed(() => this.nomeCompleto().split(' ')[0]);
   readonly avatarUrl = signal('./img/account_icon.png');
-
   readonly heroMouseX = signal('50%');
   readonly heroMouseY = signal('50%');
 
   readonly carregandoStats = signal(true);
+  readonly reputacao = signal<Reputacao>(REPUTACAO_VAZIA);
+  readonly carregandoReputacao = signal(true);
   readonly carregandoConsultasHoje = signal(true);
-
-  // Identificação do profissional logado
   private uidAtual: string | null = null;
-  /** ID do documento em `advogados` (é o uid nas contas novas; aleatório nas contas antigas). */
   private advDocId: string | null = null;
 
-  // ==========================================================
-  // CONSULTAS  (coleção `Consultas`, campo `Advogado` — igual ao que a mãe grava)
-  // ==========================================================
+  // Passo a passo da agenda: 1) período do dia  2) duração da consulta  3) escolher os horários
+  readonly modalConfigPeriodoAberto = signal(false);
+  readonly horaInicioExpediente = signal<string>(EXPEDIENTE_SALVO.inicio || '08:00');
+  readonly horaFimExpediente = signal<string>(EXPEDIENTE_SALVO.fim || '18:00');
+  readonly erroPeriodo = signal('');
+  readonly modalConfigTempoAberto = signal(false);
+  readonly duracaoSessao = signal<number>(Number(lerLocal(CHAVE_DURACAO) || '30'));
+  readonly manterProximosDias = signal<boolean>(true);
+  /** Dia que está sendo configurado (hoje pelo botão, ou o dia clicado no calendário). */
+  private diaEmConfiguracao: Date | null = null;
+
   readonly todasConsultas = signal<ConsultaView[]>([]);
   readonly abaConsultas = signal<AbaConsultas>('Pendentes');
   private unsubConsultas: (() => void) | null = null;
@@ -116,20 +126,19 @@ export class HomeAdv implements OnInit, OnDestroy {
     const hoje = new Date().toDateString();
     return this.todasConsultas().filter((c) => c.status === 'Agendada' && c.dataObj?.toDateString() === hoje);
   });
+
   readonly consultasHoje = computed(() => this.consultasDeHoje().length);
   readonly sessoesAgendadas = computed(() => this.todasConsultas().filter((c) => c.status === 'Agendada').length);
 
-  /** Próximas consultas aceitas — aparece na lateral. */
   readonly ultimasAtividades = computed(() => {
     const agora = Date.now();
     return this.todasConsultas()
       .filter((c) => c.status === 'Agendada' && c.dataObj && c.dataObj.getTime() >= agora)
       .sort((a, b) => a.dataObj!.getTime() - b.dataObj!.getTime())
       .slice(0, 3)
-      .map((c) => `${c.nome} — ${c.data.slice(0, 5)} às ${c.horario}`);
+      .map((c) => `${c.nome} • ${c.data.slice(0, 5)} às ${c.horario}`);
   });
 
-  /** Clientes = mães com consulta aceita ou realizada. */
   readonly pacientes = computed(() => {
     const mapa = new Map<string, any>();
     for (const c of this.todasConsultas()) {
@@ -142,14 +151,12 @@ export class HomeAdv implements OnInit, OnDestroy {
     return Array.from(mapa.values());
   });
 
-  // ==========================================================
-  // AGENDA / DISPONIBILIDADE  (advogados/{id}.disponibilidade e .agendados)
-  // ==========================================================
   readonly nomesMeses = NOMES_MESES;
   readonly diasSemana = DIAS_SEMANA;
   readonly anosSelecionaveis: number[];
   readonly currentMonth = signal(new Date().getMonth());
   readonly currentYear = signal(new Date().getFullYear());
+
   private readonly disponibilidade = signal<Date[]>([]);
   private readonly agendados = signal<Date[]>([]);
 
@@ -159,12 +166,10 @@ export class HomeAdv implements OnInit, OnDestroy {
     const hoje = new Date();
     const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
     const diasNoMes = new Date(ano, mes + 1, 0).getDate();
-
     const marcados = new Set<number>();
     [...this.disponibilidade(), ...this.agendados()].forEach((d) => {
       if (d.getFullYear() === ano && d.getMonth() === mes) marcados.add(d.getDate());
     });
-
     const celulas: CelulaCalendario[] = [];
     for (let i = 0; i < primeiroDiaSemana; i++) celulas.push({ dia: null, isHoje: false, temDisponibilidade: false });
     for (let d = 1; d <= diasNoMes; d++) {
@@ -180,7 +185,7 @@ export class HomeAdv implements OnInit, OnDestroy {
     return this.todasConsultas()
       .filter((c) => (c.status === 'Agendada' || c.status === 'Realizada') && c.dataObj
         && c.dataObj.getFullYear() === ano && c.dataObj.getMonth() === mes)
-      .map((c) => ({ titulo: c.nome, descricao: `Motivo: ${c.motivo}`, local: `Às ${c.horario}`, data: c.dataObj! }))
+      .map((c) => ({ titulo: c.nome, descricao: `Motivo: ${c.motivo}`, local: `às ${c.horario}`, data: c.dataObj! }))
       .sort((a, b) => a.data.getTime() - b.data.getTime());
   });
 
@@ -191,9 +196,6 @@ export class HomeAdv implements OnInit, OnDestroy {
   readonly horariosDoDia = signal<HorarioSlot[]>([]);
   readonly mensagemAgenda = signal('');
 
-  // ==========================================================
-  // ARTIGOS (coleção `artigos` — mesmo formato do parceiro)
-  // ==========================================================
   readonly artigos = signal<any[]>([]);
   readonly carregandoArtigos = signal(true);
   readonly filtroArtigo = signal<'todos' | CategoriaArtigo | 'meus'>('todos');
@@ -214,6 +216,7 @@ export class HomeAdv implements OnInit, OnDestroy {
     { valor: 'educacionais', label: 'Educacionais' },
     { valor: 'dicas', label: 'Dicas' },
   ];
+
   private readonly CATEGORIA_COR: Record<string, string> = {
     legislativos: '#e63946', educacionais: '#1d3557', dicas: '#2a9d8f', posts: '#6a4c93',
   };
@@ -225,22 +228,18 @@ export class HomeAdv implements OnInit, OnDestroy {
   readonly publicandoArtigo = signal(false);
   readonly imagemPreviaOk = signal(true);
   readonly dataHojeTexto = new Date().toLocaleDateString('pt-BR');
-
   readonly corCategoriaPreview = computed(() => this.CATEGORIA_COR[this.artigoForm().categoria] || '#7a5fe8');
 
-  // ==========================================================
-  // FÓRUM (coleção `posts` + subcoleção `comentarios`)
-  // ==========================================================
-  readonly forumPosts = signal<any[]>([]);
   readonly carregandoForum = signal(true);
-  readonly termoForum = signal('');
-  readonly filtroForum = signal<'todos' | 'aguardando'>('todos');
   readonly postAbertoId = signal<string | null>(null);
   readonly respostasDoPost = signal<any[]>([]);
   readonly carregandoRespostas = signal(false);
   readonly textoResposta = signal('');
   readonly enviandoResposta = signal(false);
   readonly erroResposta = signal('');
+  readonly termoForum = signal('');
+  readonly filtroForum = signal<'todos' | 'aguardando'>('todos');
+  readonly forumPosts = signal<any[]>([]);
 
   readonly forumFiltrado = computed(() => {
     const termo = this.termoForum().toLowerCase().trim();
@@ -252,19 +251,17 @@ export class HomeAdv implements OnInit, OnDestroy {
     });
   });
 
-  // ==========================================================
-  // CHAT (mesmo esquema do chat da mãe: chats/{id}/mensagens)
-  // ==========================================================
   readonly chatUsers = computed(() => {
     const ativoId = this.chatSelecionado()?.id;
     return this.pacientes().map((p) => ({ id: p.id, nome: p.nome, avatar: p.avatar, ativo: p.id === ativoId }));
   });
+
   readonly chatSelecionado = signal<any>(null);
   readonly mensagensChat = signal<any[]>([]);
   readonly novaMensagem = signal('');
+  readonly isMobileChatActive = signal<boolean>(false);
   private chatId: string | null = null;
   private chatUnsubscribe: (() => void) | null = null;
-
   private timers: ReturnType<typeof setTimeout>[] = [];
 
   constructor(@Inject(PLATFORM_ID) private readonly platformId: Object) {
@@ -273,12 +270,8 @@ export class HomeAdv implements OnInit, OnDestroy {
     this.anosSelecionaveis = [anoAtual - 1, anoAtual, anoAtual + 1, anoAtual + 2];
   }
 
-  // ==========================================================
-  // INICIALIZAÇÃO
-  // ==========================================================
   ngOnInit(): void {
     this.activeSection.set(this.lerUltimaSecaoSalva());
-
     if (this.isBrowser) {
       const temaSalvo = localStorage.getItem('theme');
       this.isDarkMode.set(temaSalvo === 'dark');
@@ -290,15 +283,14 @@ export class HomeAdv implements OnInit, OnDestroy {
         this.router.navigate(['/login-profissional']);
         return;
       }
-      // evita carregar duas vezes se o Firebase emitir o mesmo usuário de novo
       if (this.uidAtual === user.uid) return;
       this.uidAtual = user.uid;
-
       this.carregandoStats.set(true);
       this.carregandoConsultasHoje.set(true);
-
       await this.carregarPerfilProfissional(user.uid);
       this.ouvirConsultas(user.uid);
+      this.carregarMinhaReputacao(user.uid);
+      this.lembreteService.iniciarListenerDeConsultas(user.uid, 'advogado');
       this.carregarArtigos();
       this.carregarForum();
     });
@@ -310,39 +302,47 @@ export class HomeAdv implements OnInit, OnDestroy {
     this.chatUnsubscribe?.();
   }
 
-  // ==========================================================
-  // PERFIL
-  // ==========================================================
+  irParaPerfil() {
+    this.router.navigate(['/perfil-profissional']);
+  }
+
   private async carregarPerfilProfissional(uid: string) {
     try {
       let dados: any = null;
-
-      const docPsi = await getDoc(doc(db, 'advogados', uid));
-      if (docPsi.exists()) {
-        this.advDocId = docPsi.id;
-        dados = docPsi.data();
+      const docAdv = await getDoc(doc(db, 'advogados', uid));
+      if (docAdv.exists()) {
+        this.advDocId = docAdv.id;
+        dados = docAdv.data();
       } else {
-        // contas antigas: documento com ID aleatório e campo uid
         const snapLegado = await getDocs(query(collection(db, 'advogados'), where('uid', '==', uid)));
         if (!snapLegado.empty) {
           this.advDocId = snapLegado.docs[0].id;
           dados = snapLegado.docs[0].data();
         }
       }
-
       if (!dados) {
         const docUser = await getDoc(doc(db, 'usuarios', uid));
         if (docUser.exists()) dados = docUser.data();
       }
-
       if (dados) {
         this.nomeCompleto.set(dados['nome'] || 'Advogado(a)');
         if (dados['avatar']) this.avatarUrl.set(dados['avatar']);
         this.disponibilidade.set(this.paraDatas(dados['disponibilidade']));
         this.agendados.set(this.paraDatas(dados['agendados']));
       }
-    } catch (err) {
-      console.error('Erro ao carregar perfil do advogado:', err);
+    } catch (err: any) {
+      console.error('Erro ao carregar perfil:', err);
+    }
+  }
+
+  private async carregarMinhaReputacao(uid: string) {
+    this.carregandoReputacao.set(true);
+    try {
+      this.reputacao.set(await carregarReputacao(uid));
+    } catch (e) {
+      console.warn('Não foi possível carregar a reputação', e);
+    } finally {
+      this.carregandoReputacao.set(false);
     }
   }
 
@@ -352,18 +352,13 @@ export class HomeAdv implements OnInit, OnDestroy {
       .filter((d: Date) => !isNaN(d.getTime()));
   }
 
-  // ==========================================================
-  // CONSULTAS (tempo real)
-  // ==========================================================
   private ouvirConsultas(uid: string) {
     this.unsubConsultas?.();
-    const q = query(collection(db, 'Consultas'), where('Advogado', '==', uid));
-
+    const q = query(collection(db, 'Consultas'), where('profissionalId', '==', uid));
     this.unsubConsultas = onSnapshot(
       q,
       async (snap) => {
-        // busca nome/foto das mães (uma vez por mãe)
-        const idsNovos = [...new Set(snap.docs.map((d) => d.data()['Mae'] as string).filter((id) => id && !this.cacheMaes.has(id)))];
+        const idsNovos = [...new Set(snap.docs.map((d) => (d.data()['maeId'] || d.data()['Mae']) as string).filter((id) => id && !this.cacheMaes.has(id)))];
         await Promise.all(
           idsNovos.map(async (id) => {
             try {
@@ -375,15 +370,15 @@ export class HomeAdv implements OnInit, OnDestroy {
             }
           }),
         );
-
         const lista: ConsultaView[] = snap.docs.map((d) => {
           const raw: any = d.data();
           const dataObj: Date | null = raw['Datahora']?.toDate ? raw['Datahora'].toDate() : raw['Datahora'] ? new Date(raw['Datahora']) : null;
-          const mae = this.cacheMaes.get(raw['Mae']) || { nome: 'Cliente', avatar: './img/avatar_usuario.png' };
+          const idDaMae = raw['maeId'] || raw['Mae'];
+          const mae = this.cacheMaes.get(idDaMae) || { nome: 'Cliente', avatar: './img/avatar_usuario.png' };
           const statusRaw = String(raw['status'] || 'pendente').toLowerCase();
           return {
             id: d.id,
-            maeId: raw['Mae'],
+            maeId: idDaMae,
             nome: mae.nome,
             avatar: mae.avatar,
             dataObj,
@@ -394,7 +389,6 @@ export class HomeAdv implements OnInit, OnDestroy {
             status: STATUS_LABEL[statusRaw] || 'Pendente',
           };
         });
-
         this.todasConsultas.set(lista);
         this.carregandoStats.set(false);
         this.carregandoConsultasHoje.set(false);
@@ -411,8 +405,9 @@ export class HomeAdv implements OnInit, OnDestroy {
 
   async aceitarConsulta(c: ConsultaView) {
     try {
-      await updateDoc(doc(db, 'Consultas', c.id), { status: 'aceito' });
-    } catch (err) {
+      await updateDoc(doc(db, 'Consultas', c.id), { status: 'aceito', confirmadoEm: serverTimestamp() });
+      await this.avisarMae(c, 'aceita');
+    } catch (err: any) {
       console.error(err);
       alert('Houve um erro ao aceitar a consulta.');
     }
@@ -426,22 +421,49 @@ export class HomeAdv implements OnInit, OnDestroy {
         canceladoEm: serverTimestamp(),
       });
       await this.liberarHorario(c.dataObj);
-    } catch (err) {
+      await this.avisarMae(c, 'recusada');
+    } catch (err: any) {
       console.error(err);
       alert('Houve um erro ao recusar a consulta.');
+    }
+  }
+
+  /**
+   * Aviso para a mãe na coleção `notificacoes` (mesmo formato que o painel do admin usa).
+   * Falhar aqui nunca desfaz a confirmação.
+   */
+  private async avisarMae(c: ConsultaView, decisao: 'aceita' | 'recusada') {
+    if (!c.maeId) return;
+    const quando = c.dataObj
+      ? c.dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) + ' às ' + c.horario
+      : 'a data combinada';
+    try {
+      await addDoc(collection(db, 'notificacoes'), {
+        destinatarioId: c.maeId,
+        tipo: decisao === 'aceita' ? 'consulta_confirmada' : 'consulta_recusada',
+        titulo: decisao === 'aceita' ? 'Sua consulta foi confirmada!' : 'Sua consulta não pôde ser confirmada',
+        mensagem: decisao === 'aceita'
+          ? `${this.nomeCompleto()} confirmou sua consulta de ${quando}. No horário, entre pela página Minhas consultas.`
+          : `${this.nomeCompleto()} não poderá atender em ${quando}. Que tal escolher outro horário?`,
+        consultaId: c.id,
+        link: '/consultas',
+        lida: false,
+        criadoEm: serverTimestamp(),
+      });
+    } catch (e) {
+      console.warn('Aviso para a mãe não gravado:', e);
     }
   }
 
   async marcarRealizada(c: ConsultaView) {
     try {
       await updateDoc(doc(db, 'Consultas', c.id), { status: 'realizado' });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       alert('Não foi possível marcar como realizada.');
     }
   }
 
-  /** Devolve o horário para a lista de disponíveis quando o advogado recusa o pedido. */
   private async liberarHorario(data: Date | null) {
     if (!data || !this.advDocId || data.getTime() < Date.now()) return;
     try {
@@ -452,14 +474,11 @@ export class HomeAdv implements OnInit, OnDestroy {
       const mesmo = (d: Date) => d.getTime() === data.getTime();
       this.agendados.update((l) => l.filter((d) => !mesmo(d)));
       this.disponibilidade.update((l) => [...l, data]);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Não foi possível liberar o horário:', err);
     }
   }
 
-  // ==========================================================
-  // AGENDA
-  // ==========================================================
   mesAnterior(): void {
     if (this.currentMonth() === 0) { this.currentMonth.set(11); this.currentYear.update((y) => y - 1); }
     else { this.currentMonth.update((m) => m - 1); }
@@ -473,11 +492,67 @@ export class HomeAdv implements OnInit, OnDestroy {
   selecionarMes(valor: string): void { this.currentMonth.set(Number(valor)); }
   selecionarAno(valor: string): void { this.currentYear.set(Number(valor)); }
 
+  /** Botão "Definir horários de hoje": começa pelo período de atendimento. */
+  adicionarConsulta(): void {
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    this.diaEmConfiguracao = hoje;
+    this.erroPeriodo.set('');
+    this.modalConfigPeriodoAberto.set(true);
+  }
+
+  avancarParaDuracaoSessao() {
+    const inicio = this.paraMinutos(this.horaInicioExpediente());
+    const fim = this.paraMinutos(this.horaFimExpediente());
+    if (inicio === null || fim === null) { this.erroPeriodo.set('Preencha os dois horários.'); return; }
+    if (fim <= inicio) { this.erroPeriodo.set('O horário final precisa ser depois do inicial.'); return; }
+    this.erroPeriodo.set('');
+    this.modalConfigPeriodoAberto.set(false);
+    this.modalConfigTempoAberto.set(true);
+  }
+
+  ajustarMinutos(delta: number) {
+    const novo = this.duracaoSessao() + delta;
+    if (novo >= 15 && novo <= 120) this.duracaoSessao.set(novo);
+  }
+
+  confirmarConfiguracaoTempo() {
+    if (this.isBrowser) {
+      try {
+        if (this.manterProximosDias()) {
+          localStorage.setItem(CHAVE_DURACAO, String(this.duracaoSessao()));
+          localStorage.setItem(CHAVE_EXPEDIENTE, JSON.stringify({ inicio: this.horaInicioExpediente(), fim: this.horaFimExpediente() }));
+        } else {
+          localStorage.removeItem(CHAVE_DURACAO);
+          localStorage.removeItem(CHAVE_EXPEDIENTE);
+        }
+      } catch { /* sem armazenamento: segue só nesta sessão */ }
+    }
+    this.modalConfigTempoAberto.set(false);
+    const dia = this.diaEmConfiguracao || new Date();
+    this.abrirHorariosDoDia(new Date(dia.getFullYear(), dia.getMonth(), dia.getDate()));
+  }
+
+  abrirConfiguracaoNovamente() {
+    this.diaEmConfiguracao = this.diaSelecionado();
+    this.fecharModalHorarios();
+    this.erroPeriodo.set('');
+    this.modalConfigPeriodoAberto.set(true);
+  }
+
+  private paraMinutos(h: string): number | null {
+    if (!h || !h.includes(':')) return null;
+    const [hh, mm] = h.split(':').map(Number);
+    return isNaN(hh) || isNaN(mm) ? null : hh * 60 + mm;
+  }
+
+  /** Clique num dia do calendário. */
   abrirSelecaoHorarios(dia: number | null): void {
     if (dia === null) return;
-    const dataClicada = new Date(this.currentYear(), this.currentMonth(), dia);
-    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    this.abrirHorariosDoDia(new Date(this.currentYear(), this.currentMonth(), dia));
+  }
 
+  private abrirHorariosDoDia(dataClicada: Date): void {
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
     if (dataClicada < hoje) {
       this.mensagemAgenda.set('Você não pode selecionar datas anteriores a hoje.');
       return;
@@ -490,9 +565,27 @@ export class HomeAdv implements OnInit, OnDestroy {
     const mesmoSlot = (d: Date, h: string) =>
       d.toDateString() === dataClicada.toDateString() &&
       `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` === h;
-
+    
     const agora = new Date();
-    const slots: HorarioSlot[] = HORARIOS_PADRAO.map((h) => {
+    const duracaoMinutos = this.duracaoSessao() || 30;
+    const inicio = this.paraMinutos(this.horaInicioExpediente()) ?? 8 * 60;
+    const fim = this.paraMinutos(this.horaFimExpediente()) ?? 18 * 60;
+
+    // Só entra o horário em que a consulta inteira cabe antes do fim do expediente
+    const horariosDinamicos: string[] = [];
+    for (let m = inicio; m + duracaoMinutos <= fim; m += duracaoMinutos) {
+      horariosDinamicos.push(`${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
+    }
+
+    // Horários já publicados/ocupados nesse dia que não batem com a grade atual continuam aparecendo
+    const doDia = (d: Date) => d.toDateString() === dataClicada.toDateString();
+    const hm = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    [...this.disponibilidade(), ...this.agendados()].filter(doDia).forEach((d) => {
+      if (!horariosDinamicos.includes(hm(d))) horariosDinamicos.push(hm(d));
+    });
+    horariosDinamicos.sort();
+
+    const slots: HorarioSlot[] = horariosDinamicos.map((h) => {
       const [hh, mm] = h.split(':').map(Number);
       const jaPassou = new Date(dataClicada.getFullYear(), dataClicada.getMonth(), dataClicada.getDate(), hh, mm) < agora;
       const ocupado = this.agendados().some((d) => mesmoSlot(d, h));
@@ -524,15 +617,14 @@ export class HomeAdv implements OnInit, OnDestroy {
     this.horariosDoDia.update((lista) => lista.map((h) => (h.horario === slot.horario ? { ...h, selecionado: !h.selecionado } : h)));
   }
 
-  /** Grava no banco os horários marcados — é daqui que a mãe enxerga as vagas. */
   async confirmarDisponibilidade(): Promise<void> {
     const dia = this.diaSelecionado();
     if (!dia) return;
     if (!this.advDocId) {
-      this.mensagemAgenda.set('Não encontramos seu cadastro de advogado(a) para salvar os horários.');
+      alert('Não encontramos seu cadastro de advogado(a) para salvar os horários.');
+      this.fecharModalHorarios();
       return;
     }
-
     const paraData = (h: string) => {
       const [hh, mm] = h.split(':').map(Number);
       return new Date(dia.getFullYear(), dia.getMonth(), dia.getDate(), hh, mm, 0, 0);
@@ -542,7 +634,7 @@ export class HomeAdv implements OnInit, OnDestroy {
     const remover = slots.filter((s) => !s.selecionado && s.publicado && s.status === 'livre').map((s) => paraData(s.horario));
 
     if (adicionar.length === 0 && remover.length === 0) {
-      this.mensagemAgenda.set('Nenhuma alteração para salvar.');
+      this.fecharModalHorarios();
       return;
     }
 
@@ -551,28 +643,20 @@ export class HomeAdv implements OnInit, OnDestroy {
       const ref = doc(db, 'advogados', this.advDocId);
       if (adicionar.length) await updateDoc(ref, { disponibilidade: arrayUnion(...adicionar.map((d) => Timestamp.fromDate(d))) });
       if (remover.length) await updateDoc(ref, { disponibilidade: arrayRemove(...remover.map((d) => Timestamp.fromDate(d))) });
-
       const chaves = new Set(remover.map((d) => d.getTime()));
       this.disponibilidade.update((l) => [...l.filter((d) => !chaves.has(d.getTime())), ...adicionar]);
       this.mensagemAgenda.set('');
       this.fecharModalHorarios();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erro ao salvar disponibilidade:', err);
-      this.mensagemAgenda.set('Erro ao salvar os horários. Tente novamente.');
+      alert('Erro ao salvar os horários. Tente novamente.');
     } finally {
       this.salvandoHorarios.set(false);
     }
   }
 
-  adicionarConsulta(): void {
-    this.abrirSelecaoHorarios(new Date().getDate());
-  }
-
   irParaAgenda(): void { this.selecionarSecao('agenda'); }
 
-  // ==========================================================
-  // ARTIGOS
-  // ==========================================================
   async carregarArtigos() {
     try {
       this.carregandoArtigos.set(true);
@@ -585,7 +669,7 @@ export class HomeAdv implements OnInit, OnDestroy {
           return { id: d.id, ...a, tempo };
         }),
       );
-    } catch (e) {
+    } catch (e: any) {
       console.error('Erro ao carregar artigos:', e);
     } finally {
       this.carregandoArtigos.set(false);
@@ -593,14 +677,8 @@ export class HomeAdv implements OnInit, OnDestroy {
   }
 
   alternarOrdemArtigos() { this.ordemArtigos.update((o) => (o === 'recentes' ? 'antigos' : 'recentes')); }
-
-  corCategoria(cat: string | undefined): string {
-    return this.CATEGORIA_COR[(cat || '').toLowerCase()] || '#6a4c93';
-  }
-
-  imagemDoArtigo(a: any): string {
-    return a.img || a.capa || a.imagem || '';
-  }
+  corCategoria(cat: string | undefined): string { return this.CATEGORIA_COR[(cat || '').toLowerCase()] || '#6a4c93'; }
+  imagemDoArtigo(a: any): string { return a.img || a.capa || a.imagem || ''; }
 
   abrirModalArtigo() {
     this.msgArtigo.set(null);
@@ -647,7 +725,6 @@ export class HomeAdv implements OnInit, OnDestroy {
       return;
     }
     if (!this.uidAtual) return;
-
     this.publicandoArtigo.set(true);
     try {
       await addDoc(collection(db, 'artigos'), {
@@ -669,7 +746,7 @@ export class HomeAdv implements OnInit, OnDestroy {
       this.artigoForm.set({ ...ARTIGO_VAZIO });
       this.fecharModalArtigo();
       await this.carregarArtigos();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erro ao publicar artigo:', err);
       this.msgArtigo.set({ tipo: 'erro', texto: 'Erro ao publicar o artigo. Tente novamente.' });
     } finally {
@@ -677,14 +754,10 @@ export class HomeAdv implements OnInit, OnDestroy {
     }
   }
 
-  // ==========================================================
-  // FÓRUM
-  // ==========================================================
   async carregarForum() {
     try {
       this.carregandoForum.set(true);
       const snap = await getDocs(query(collection(db, 'posts'), orderBy('data', 'desc'), limit(30)));
-
       const lista = await Promise.all(
         snap.docs.map(async (d) => {
           const p: any = d.data();
@@ -706,9 +779,8 @@ export class HomeAdv implements OnInit, OnDestroy {
           };
         }),
       );
-
       this.forumPosts.set(lista.filter((p) => !p.removido));
-    } catch (e) {
+    } catch (e: any) {
       console.error('Erro ao carregar fórum:', e);
     } finally {
       this.carregandoForum.set(false);
@@ -743,7 +815,7 @@ export class HomeAdv implements OnInit, OnDestroy {
           };
         }),
       );
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erro ao carregar respostas:', err);
       this.respostasDoPost.set([]);
     } finally {
@@ -754,7 +826,6 @@ export class HomeAdv implements OnInit, OnDestroy {
   async enviarResposta(post: any) {
     const texto = this.textoResposta().trim();
     if (!texto || !this.uidAtual || this.enviandoResposta()) return;
-
     this.enviandoResposta.set(true);
     this.erroResposta.set('');
     try {
@@ -767,24 +838,18 @@ export class HomeAdv implements OnInit, OnDestroy {
         likes: 0,
         data: serverTimestamp(),
       });
-
-      // marcar o post como respondido não pode impedir a resposta de aparecer
-      try { await updateDoc(doc(db, 'posts', post.id), { respondido: true }); } catch (e) { console.warn('Não foi possível marcar o post como respondido:', e); }
-
+      try { await updateDoc(doc(db, 'posts', post.id), { respondido: true }); } catch (e: any) { console.warn(e); }
       this.textoResposta.set('');
       this.forumPosts.update((l) => l.map((p) => (p.id === post.id ? { ...p, totalRespostas: p.totalRespostas + 1 } : p)));
       await this.carregarRespostas(post.id);
-    } catch (err) {
-      console.error('Erro ao enviar resposta:', err);
+    } catch (err: any) {
+      console.error(err);
       this.erroResposta.set('Não foi possível enviar sua resposta. Verifique sua conexão e tente de novo.');
     } finally {
       this.enviandoResposta.set(false);
     }
   }
 
-  // ==========================================================
-  // CHAT
-  // ==========================================================
   abrirChatComPaciente(paciente: any) { this.abrirChatComMae(paciente.id); }
 
   abrirChatComMae(maeId: string): void {
@@ -795,13 +860,12 @@ export class HomeAdv implements OnInit, OnDestroy {
   }
 
   async selecionarChat(user: any) {
+    this.isMobileChatActive.set(true);
     if (!this.uidAtual) return;
     this.chatSelecionado.set(user);
     this.mensagensChat.set([]);
     this.chatUnsubscribe?.();
-
     try {
-      // procura a conversa já existente (a mãe pode ter iniciado) ou cria uma nova
       const snap = await getDocs(query(collection(db, 'chats'), where('participantes', 'array-contains', this.uidAtual)));
       let existente = snap.docs.find((d) => (d.data()['participantes'] || []).includes(user.id));
       if (!existente) {
@@ -815,7 +879,6 @@ export class HomeAdv implements OnInit, OnDestroy {
       } else {
         this.chatId = existente.id;
       }
-
       const meuId = this.uidAtual;
       this.chatUnsubscribe = onSnapshot(
         query(collection(db, 'chats', this.chatId!, 'mensagens'), orderBy('enviadoEm', 'asc')),
@@ -832,7 +895,6 @@ export class HomeAdv implements OnInit, OnDestroy {
               };
             }),
           );
-          // marca como lidas as mensagens recebidas
           const naoLidas = s.docs.filter((d) => d.data()['enviadoPor'] !== meuId && d.data()['lido'] === false);
           if (naoLidas.length) {
             const batch = writeBatch(db);
@@ -840,10 +902,10 @@ export class HomeAdv implements OnInit, OnDestroy {
             batch.commit().catch(() => {});
           }
         },
-        (err) => console.error('Erro ao ler mensagens:', err),
+        (err) => console.error(err),
       );
-    } catch (e) {
-      console.error('Erro ao abrir o chat:', e);
+    } catch (e: any) {
+      console.error(e);
     }
   }
 
@@ -863,15 +925,12 @@ export class HomeAdv implements OnInit, OnDestroy {
         ultimoEnviadoPor: this.uidAtual,
         ultimaAtualizacao: serverTimestamp(),
       });
-    } catch (e) {
-      console.error('Erro ao enviar mensagem:', e);
+    } catch (e: any) {
+      console.error(e);
       this.novaMensagem.set(texto);
     }
   }
 
-  // ==========================================================
-  // NAVEGAÇÃO E SIDEBAR
-  // ==========================================================
   selecionarSecao(secao: SecaoHomeAdv): void {
     this.activeSection.set(secao);
     if (this.isBrowser) {
@@ -891,9 +950,6 @@ export class HomeAdv implements OnInit, OnDestroy {
     return salva && validas.includes(salva) ? salva : 'dashboard';
   }
 
-  // ==========================================================
-  // HEADER
-  // ==========================================================
   toggleAccessibilityMenu(): void { this.accessibilityMenuOpen.update((v) => !v); }
   aumentarFonte(): void { } diminuirFonte(): void { } alternarFiltroDaltonismo(): void { }
   alternarLeituraVoz(): void { } alternarMascaraLeitura(): void { } alternarTextoDestacado(): void { }
@@ -908,11 +964,9 @@ export class HomeAdv implements OnInit, OnDestroy {
   }
 
   async logout(): Promise<void> {
-    try { await signOut(auth); } catch (e) { console.error(e); }
+    try { await signOut(auth); } catch (e: any) { console.error(e); }
     this.router.navigateByUrl('/login-profissional');
   }
-
-  abrirTrocaAvatar(): void { }
 
   onHeroMouseMove(event: MouseEvent): void {
     const alvo = event.currentTarget as HTMLElement;

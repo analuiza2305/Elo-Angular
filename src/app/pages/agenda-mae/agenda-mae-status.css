@@ -1,0 +1,18 @@
+/* ===== Status da consulta na lista (cole no fim do agenda-mae.css) ===== */
+.status-chip {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+.status-pendente { background: #FFF4D6; color: #92400E; }
+.status-aceito { background: #E7F8F1; color: #0F7A55; }
+.status-realizado { background: #EDE7FB; color: #52427D; }
+
+body[data-theme="dark"] .status-pendente { background: rgba(251, 191, 36, .14); color: #FCD34D; }
+body[data-theme="dark"] .status-aceito { background: rgba(16, 185, 129, .14); color: #6EE7B7; }
+body[data-theme="dark"] .status-realizado { background: #262046; color: #BDAFFC; }

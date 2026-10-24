@@ -253,3 +253,34 @@ body[data-theme="dark"] .btn-favoritar {
       border-radius: 20px !important;
   }
 }
+/* ==========================================================================
+   CSS DO BOTÃO DE VOLTAR NO ARTIGO INDIVIDUAL
+   ========================================================================== */
+
+button.link-voltar, 
+a.link-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF !important;
+  color: #52427D !important;
+  border: 1.5px solid rgba(124, 105, 169, 0.2) !important;
+  border-radius: 50px !important;
+  padding: 10px 20px !important;
+  font-family: inherit !important;
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 4px 12px rgba(108, 75, 191, 0.05) !important;
+}
+
+button.link-voltar:hover, 
+a.link-voltar:hover {
+  background: #F9F7FF !important;
+  color: #2B1854 !important;
+  border-color: rgba(124, 105, 169, 0.4) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(108, 75, 191, 0.1) !important;
+}

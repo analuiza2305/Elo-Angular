@@ -1,11 +1,8 @@
 <div class="home-adv-page">
   <header class="header">
     <h1 id="boasVindas">Bem-vindo(a), Dr(a). {{ nomeCompleto() }}</h1>
-
     <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" (click)="toggleSidebar()">☰</button>
-
     <div id="sidebar-overlay" class="sidebar-overlay" [class.active]="sidebarOpen()" (click)="closeSidebar()" aria-hidden="true"></div>
-
     <div class="right-section">
       <div class="accessibility-selector">
         <button id="accessibility-toggle" aria-label="Opções de acessibilidade" (click)="toggleAccessibilityMenu()">
@@ -14,32 +11,19 @@
         <ul id="accessibility-menu" [class.hidden]="!accessibilityMenuOpen()">
           <li (click)="aumentarFonte()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Aumentar Fonte</li>
           <li (click)="diminuirFonte()"><i class="fa fa-minus-circle" aria-hidden="true"></i> Diminuir Fonte</li>
-          <li (click)="alternarFiltroDaltonismo()"><i class="fa fa-low-vision" aria-hidden="true"></i> Filtros Daltonismo</li>
-          <li (click)="alternarLeituraVoz()"><i class="fa fa-assistive-listening-systems" aria-hidden="true"></i> Leitura em Voz</li>
-          <li (click)="alternarMascaraLeitura()"><i class="fa fa-highlighter" aria-hidden="true"></i> Máscara de leitura</li>
-          <li (click)="alternarTextoDestacado()"><i class="fa fa-bold" aria-hidden="true"></i> Letras destacadas</li>
-          <li (click)="alternarAltoContraste()"><i class="fa fa-adjust" aria-hidden="true"></i> Alto contraste</li>
-          <li (click)="aumentarEspacamentoLinhas()"><i class="fa fa-arrows-alt-v" aria-hidden="true"></i> Aumentar Espaçamento</li>
-          <li (click)="diminuirEspacamentoLinhas()"><i class="fa fa-compress-arrows-alt" aria-hidden="true"></i> Diminuir Espaçamento</li>
           <li (click)="redefinirAcessibilidade()"><i class="fa fa-undo" aria-hidden="true"></i> Redefinir</li>
         </ul>
       </div>
-
-      <div id="reading-mask-overlay"><div class="highlight-window"></div></div>
-
       <div class="theme-toggle" id="theme-toggle" (click)="toggleTheme()">
-        <i class="fas" [class.fa-moon]="!isDarkMode()" [class.fa-sun]="isDarkMode()" aria-label="Alternar tema claro e escuro"></i>
+        <i class="fas" [class.fa-moon]="!isDarkMode()" [class.fa-sun]="isDarkMode()" aria-label="Alternar tema"></i>
       </div>
-
       <button id="infoBtn" class="info-btn" (click)="abrirInformacoes()">
         <i class="fa-solid fa-circle-info"></i>
       </button>
-
       <button id="logoutBtn" class="logout-btn" (click)="logout()">
         <i class="fa-solid fa-right-from-bracket"></i>
       </button>
-
-      <button id="avatarBtn" class="avatar-btn" (click)="abrirTrocaAvatar()">
+      <button id="avatarBtn" class="avatar-btn" (click)="irParaPerfil()" title="Meu Perfil">
         <img id="currentAvatar" [src]="avatarUrl()" alt="Avatar">
       </button>
     </div>
@@ -47,12 +31,11 @@
 
   <main class="main-container">
     <aside class="sidebar" [class.active]="sidebarOpen()">
-      <!-- Topo do menu (só aparece no celular): perfil + atalhos que saíram do header -->
       <div class="drawer-top">
         <button type="button" class="drawer-close" aria-label="Fechar menu" (click)="closeSidebar()">
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
-        <div class="drawer-profile">
+        <div class="drawer-profile" (click)="irParaPerfil()">
           <img class="drawer-avatar" [src]="avatarUrl()" alt="Foto do perfil">
           <div class="drawer-profile-info">
             <strong>{{ nomeCompleto() }}</strong>
@@ -79,15 +62,13 @@
         *ngFor="let item of menuItems"
         class="menu-btn"
         [class.active]="activeSection() === item.target"
-        [attr.data-target]="item.target"
         (click)="selecionarSecao(item.target)"
       >
         <i [class]="item.icon"></i>
         <span>{{ item.label }}</span>
       </button>
-
       <div class="last-activities">
-        <h3>Últimas Atividades</h3>
+        <h3>Próximas Consultas</h3>
         <ul>
           <li *ngFor="let atividade of ultimasAtividades()">{{ atividade }}</li>
           <li *ngIf="ultimasAtividades().length === 0">Sem próximas consultas</li>
@@ -112,22 +93,39 @@
         <div class="stat-card">
           <div class="stat-icon icon-hoje"><i class="fa-solid fa-calendar-day"></i></div>
           <div class="stat-info">
-            <span class="stat-value" id="count-hoje">
+            <span class="stat-value">
               <ng-container *ngIf="carregandoStats(); else valorHoje"><div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></ng-container>
               <ng-template #valorHoje>{{ consultasHoje() }}</ng-template>
             </span>
             <span class="stat-label">Consultas para hoje</span>
           </div>
         </div>
-
         <div class="stat-card">
           <div class="stat-icon icon-total"><i class="fa-solid fa-users"></i></div>
           <div class="stat-info">
-            <span class="stat-value" id="count-total">
+            <span class="stat-value">
               <ng-container *ngIf="carregandoStats(); else valorTotal"><div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></ng-container>
               <ng-template #valorTotal>{{ sessoesAgendadas() }}</ng-template>
             </span>
             <span class="stat-label">Sessões agendadas</span>
+          </div>
+        </div>
+        <div class="stat-card stat-card-reputacao" (click)="irParaPerfil()" title="Ver como as mães veem seu perfil">
+          <div class="stat-icon icon-reputacao"><i class="fa-solid fa-star"></i></div>
+          <div class="stat-info">
+            <span class="stat-value">
+              <ng-container *ngIf="carregandoReputacao(); else valorReputacao"><div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></ng-container>
+              <ng-template #valorReputacao>{{ reputacao().novo ? 'Novo' : reputacao().mediaTexto }}</ng-template>
+            </span>
+            <span class="stat-label">
+              @if (reputacao().novo) {
+                {{ reputacao().total }}/3 avaliações para sua nota
+              } @else if (reputacao().bemAvaliado) {
+                <i class="fa-solid fa-award" style="color:#0F7A55"></i> Selo "Bem avaliado" conquistado
+              } @else {
+                Sua avaliação · {{ reputacao().total }} mães
+              }
+            </span>
           </div>
         </div>
       </div>
@@ -137,10 +135,9 @@
           <h3>Consultas de Hoje</h3>
           <button class="btn-ver-agenda" (click)="irParaAgenda()">Ver agenda completa <i class="fa-solid fa-arrow-right"></i></button>
         </div>
-
         <div class="appointments-container" *ngIf="!carregandoConsultasHoje() && consultasDeHoje().length > 0">
           <div class="appointment-item" *ngFor="let consulta of consultasDeHoje()">
-            <img [src]="consulta.avatar" class="appointment-avatar" alt="Avatar da mãe">
+            <img [src]="consulta.avatar" class="appointment-avatar" alt="Avatar">
             <div class="appointment-info">
               <h4>{{ consulta.nome }}</h4>
               <span><i class="fa-regular fa-clock"></i> Hoje - {{ consulta.horario }}</span>
@@ -148,7 +145,6 @@
             <button class="btn-contato-consulta" (click)="abrirChatComMae(consulta.maeId)">Contato</button>
           </div>
         </div>
-
         <div id="todayAppointments" *ngIf="carregandoConsultasHoje() || consultasDeHoje().length === 0">
           <div class="loader" *ngIf="carregandoConsultasHoje()"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
           <p *ngIf="!carregandoConsultasHoje() && consultasDeHoje().length === 0">Nenhuma consulta hoje.</p>
@@ -160,6 +156,7 @@
     <section class="content" id="agenda" *ngIf="activeSection() === 'agenda'">
       <h2>Minha agenda</h2>
       <p class="secao-sub">Clique em um dia para marcar os horários em que você atende. As mães veem essas vagas na hora de agendar.</p>
+      
       <div class="agenda-container">
         <div class="calendar-container">
           <div class="calendar-header">
@@ -187,7 +184,7 @@
           <h3>Consultas do mês</h3>
           <div class="event-list">
             <div class="event" *ngFor="let evento of eventosDoMesOrdenados()">
-              <strong>{{ evento.data | date:'dd/MM' }} — {{ evento.titulo }}</strong>
+              <strong>{{ evento.data | date:'dd/MM' }} • {{ evento.titulo }}</strong>
               <p>{{ evento.descricao }}</p>
               <small>{{ evento.local }}</small>
             </div>
@@ -197,11 +194,63 @@
         </div>
       </div>
 
+      <!-- NOVO MODAL 1: DEFINIR PERÍODO DE ATENDIMENTO -->
+      <div class="modal" *ngIf="modalConfigPeriodoAberto()">
+        <div class="modal-content premium-modal-psi">
+          <h3>Período de Atendimento</h3>
+          <p class="data-selecionada">Defina o intervalo de horas em que você deseja atender:</p>
+          
+          <div class="periodo-inputs-grid" style="display: flex; gap: 16px; margin: 20px 0;">
+            <div style="flex: 1;">
+              <label style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 6px;">Das horas:</label>
+              <input type="time" [ngModel]="horaInicioExpediente()" (ngModelChange)="horaInicioExpediente.set($event)" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #D6D1E9; font-size: 1rem;">
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 6px;">Até as horas:</label>
+              <input type="time" [ngModel]="horaFimExpediente()" (ngModelChange)="horaFimExpediente.set($event)" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #D6D1E9; font-size: 1rem;">
+            </div>
+          </div>
+
+          <p class="erro-periodo" *ngIf="erroPeriodo()" role="alert">{{ erroPeriodo() }}</p>
+
+          <div class="modal-actions" style="margin-top: 24px;">
+            <button type="button" class="contact-btn" (click)="avancarParaDuracaoSessao()">Avançar</button>
+            <button type="button" class="add-consult-btn" (click)="modalConfigPeriodoAberto.set(false)">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 2: DURAÇÃO DAS SESSÕES -->
+      <div class="modal" *ngIf="modalConfigTempoAberto()">
+        <div class="modal-content premium-modal-psi">
+          <h3>Duração das Consultas</h3>
+          <p class="data-selecionada">Quanto tempo você quer que dure cada consulta?</p>
+          <div class="contador-minutos-container">
+            <button type="button" class="btn-contador" (click)="ajustarMinutos(-5)" aria-label="Diminuir 5 minutos"><i class="fa-solid fa-minus"></i></button>
+            <div class="display-minutos">
+              <strong>{{ duracaoSessao() }}</strong>
+              <span>minutos</span>
+            </div>
+            <button type="button" class="btn-contador" (click)="ajustarMinutos(5)" aria-label="Aumentar 5 minutos"><i class="fa-solid fa-plus"></i></button>
+          </div>
+          <div style="margin-top: 20px; text-align: left;">
+            <label class="checkbox-container-psi">
+              <input type="checkbox" [checked]="manterProximosDias()" (change)="manterProximosDias.set(!manterProximosDias())">
+              Usar esse mesmo período e duração nos próximos dias
+            </label>
+          </div>
+          <div class="modal-actions" style="margin-top: 24px;">
+            <button type="button" class="contact-btn" (click)="confirmarConfiguracaoTempo()">Gerar horários</button>
+            <button type="button" class="add-consult-btn" (click)="modalConfigTempoAberto.set(false)">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 3: SELEÇÃO DE HORÁRIOS -->
       <div class="modal" *ngIf="modalHorariosAberto()">
-        <div class="modal-content detalhes-consulta-card">
+        <div class="modal-content detalhes-consulta-card premium-modal-psi">
           <h3>Selecionar horários disponíveis</h3>
           <p class="data-selecionada" *ngIf="diaSelecionado()">{{ diaSelecionado() | date:'dd \'de\' MMMM \'de\' yyyy' }}</p>
-          <p class="mensagem-agenda" *ngIf="mensagemAgenda()">{{ mensagemAgenda() }}</p>
           <div class="horarios-container">
             <div class="loader" *ngIf="carregandoHorarios()"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
             <button type="button" *ngFor="let slot of horariosDoDia()" class="horario-btn"
@@ -214,6 +263,9 @@
             </button>
           </div>
           <p class="legenda-horarios">Roxo = disponível para as mães · Cinza = ocupado ou já passou</p>
+          <div class="alterar-periodo-link" (click)="abrirConfiguracaoNovamente()">
+            <i class="fa-solid fa-gear"></i> Alterar período e duração
+          </div>
           <div class="modal-actions">
             <button type="button" class="contact-btn" [disabled]="salvandoHorarios()" (click)="confirmarDisponibilidade()">{{ salvandoHorarios() ? 'Salvando...' : 'Confirmar' }}</button>
             <button type="button" class="add-consult-btn" (click)="fecharModalHorarios()">Cancelar</button>
@@ -222,9 +274,7 @@
       </div>
     </section>
 
-    <!-- ============================================================ -->
     <!-- ARTIGOS -->
-    <!-- ============================================================ -->
     <section class="content" id="artigos" *ngIf="activeSection() === 'artigos'">
 
       <div class="artigos-header-top">
@@ -264,7 +314,7 @@
             <h4 class="ac-title">{{ artigo.titulo }}</h4>
             <p class="ac-excerpt">{{ artigo.descricao || artigo.resumo || artigo.conteudo }}</p>
             <div class="ac-footer">
-              <span class="ac-author"><i class="fa-solid fa-user-doctor"></i> {{ artigo.postadoPor || 'Equipe EloMaterno' }}</span>
+              <span class="ac-author"><i class="fa-solid fa-pen-nib"></i> {{ artigo.postadoPor || 'Equipe EloMaterno' }}</span>
               <span class="ac-ler">Ler artigo <i class="fa-solid fa-arrow-right"></i></span>
             </div>
           </div>
@@ -343,45 +393,96 @@
       </div>
     </section>
 
-    <!-- CONSULTAS -->
+    <!-- CONSULTAS (mesmo visual da tela "Minhas consultas" da mãe) -->
     <section class="content" id="consultas" *ngIf="activeSection() === 'consultas'">
-      <h2>Consultas</h2>
-      <div class="tabs">
-        <button class="tab" [class.ativo]="abaConsultas() === 'Pendentes'" (click)="setAbaConsultas('Pendentes')">Pendentes</button>
-        <button class="tab" [class.ativo]="abaConsultas() === 'Agendadas'" (click)="setAbaConsultas('Agendadas')">Agendadas</button>
-        <button class="tab" [class.ativo]="abaConsultas() === 'Realizadas'" (click)="setAbaConsultas('Realizadas')">Realizadas</button>
-        <button class="tab" [class.ativo]="abaConsultas() === 'Negadas'" (click)="setAbaConsultas('Negadas')">Negadas</button>
+      <div class="cs-topo">
+        <h2>Minhas consultas</h2>
+        <p>Acompanhe as solicitações, as consultas agendadas e o histórico de atendimento.</p>
       </div>
 
-      <div class="lista-consultas">
-        <div class="consulta-card-novo" *ngFor="let consulta of consultasFiltradas()">
-          <div class="c-info-wrapper">
-            <img [src]="consulta.avatar" class="c-avatar-img" alt="Avatar">
-            <div class="c-text-info">
-              <h3>{{ consulta.nome }}</h3>
-              <span class="c-data"><i class="fa-regular fa-clock"></i> {{ consulta.data }} às {{ consulta.horario }}</span>
-              <p>Motivo: {{ consulta.motivo }}</p>
+      <div class="cs-tabs" role="tablist">
+        <button type="button" class="cs-tab" role="tab" [class.ativo]="abaConsultas() === 'Pendentes'" [attr.aria-selected]="abaConsultas() === 'Pendentes'" (click)="setAbaConsultas('Pendentes')"><i class="fa-regular fa-clock"></i> Pendentes</button>
+        <button type="button" class="cs-tab" role="tab" [class.ativo]="abaConsultas() === 'Agendadas'" [attr.aria-selected]="abaConsultas() === 'Agendadas'" (click)="setAbaConsultas('Agendadas')"><i class="fa-regular fa-calendar"></i> Agendadas</button>
+        <button type="button" class="cs-tab" role="tab" [class.ativo]="abaConsultas() === 'Realizadas'" [attr.aria-selected]="abaConsultas() === 'Realizadas'" (click)="setAbaConsultas('Realizadas')"><i class="fa-regular fa-circle-check"></i> Realizadas</button>
+        <button type="button" class="cs-tab" role="tab" [class.ativo]="abaConsultas() === 'Negadas'" [attr.aria-selected]="abaConsultas() === 'Negadas'" (click)="setAbaConsultas('Negadas')"><i class="fa-regular fa-circle-xmark"></i> Negadas</button>
+      </div>
+
+      <div class="cs-select-mobile">
+        <select [value]="abaConsultas()" (change)="setAbaConsultas($any($event.target).value)" aria-label="Escolher aba">
+          <option value="Pendentes">Pendentes</option>
+          <option value="Agendadas">Agendadas</option>
+          <option value="Realizadas">Realizadas</option>
+          <option value="Negadas">Negadas</option>
+        </select>
+      </div>
+
+      <div class="cs-grid">
+        @for (consulta of consultasFiltradas(); track consulta.id) {
+          <div class="cs-card">
+            <div class="cs-card-header">
+              <div class="cs-pessoa">
+                <img [src]="consulta.avatar" class="cs-foto" alt="Foto da mãe">
+                <div class="cs-pessoa-info">
+                  <h3>{{ consulta.nome }}</h3>
+                  <p class="cs-tipo">Mãe · Cliente</p>
+                </div>
+              </div>
+              <span [class]="'cs-badge cs-badge-' + consulta.status.toLowerCase()">{{ consulta.status }}</span>
             </div>
+
+            <div class="cs-divider"></div>
+
+            <div class="cs-info-row">
+              <div class="cs-info-icon"><i class="fa-regular fa-calendar"></i></div>
+              <div class="cs-info-text">
+                <span class="cs-info-label">Data e hora</span>
+                <p class="cs-info-value">{{ consulta.data }} às {{ consulta.horario }}</p>
+              </div>
+            </div>
+
+            <div class="cs-info-row">
+              <div class="cs-info-icon"><i class="fa-regular fa-comment-dots"></i></div>
+              <div class="cs-info-text">
+                <span class="cs-info-label">Motivo da consulta</span>
+                <p class="cs-info-value">{{ consulta.motivo }}</p>
+              </div>
+            </div>
+
+            @if (consulta.status === 'Pendente') {
+              <div class="cs-acoes">
+                <button type="button" class="cs-btn cs-btn-primario" (click)="aceitarConsulta(consulta)"><i class="fa-solid fa-check"></i> Aceitar</button>
+              </div>
+              <div class="cs-area-secundaria">
+                <button type="button" class="cs-btn-recusar" (click)="recusarConsulta(consulta)"><i class="fa-regular fa-circle-xmark"></i> Recusar pedido</button>
+              </div>
+            }
+
+            @if (consulta.status === 'Agendada') {
+              <div class="cs-acoes">
+                <button type="button" class="cs-btn cs-btn-video" [routerLink]="['/videochamada']" [queryParams]="{ id: consulta.id }"><i class="fa-solid fa-video"></i> Chamada</button>
+                <button type="button" class="cs-btn cs-btn-outline" (click)="abrirChatComMae(consulta.maeId)"><i class="fa-regular fa-comment"></i> Chat</button>
+              </div>
+              <div class="cs-area-secundaria">
+                <button type="button" class="cs-btn-concluir" (click)="marcarRealizada(consulta)"><i class="fa-regular fa-circle-check"></i> Marcar como realizada</button>
+              </div>
+            }
+
+            @if (consulta.status === 'Realizada') {
+              <div class="cs-acoes">
+                <button type="button" class="cs-btn cs-btn-outline" (click)="abrirChatComMae(consulta.maeId)"><i class="fa-regular fa-comment"></i> Abrir chat</button>
+              </div>
+            }
           </div>
-          <div class="c-actions-wrapper">
-            <ng-container *ngIf="consulta.status === 'Pendente'">
-              <button class="btn-aceitar" (click)="aceitarConsulta(consulta)">Aceitar</button>
-              <button class="btn-recusar" (click)="recusarConsulta(consulta)">Recusar</button>
-            </ng-container>
-            <ng-container *ngIf="consulta.status === 'Agendada'">
-              <button class="btn-aceitar" (click)="marcarRealizada(consulta)">Marcar como realizada</button>
-              <button class="btn-chat-outline" (click)="abrirChatComMae(consulta.maeId)">Abrir chat</button>
-            </ng-container>
-            <ng-container *ngIf="consulta.status === 'Realizada'">
-              <button class="btn-chat-outline" (click)="abrirChatComMae(consulta.maeId)">Abrir chat</button>
-            </ng-container>
+        } @empty {
+          <div class="cs-vazio">
+            <h2>Nenhuma consulta {{ abaConsultas() === 'Pendentes' ? 'pendente' : abaConsultas() === 'Agendadas' ? 'agendada' : abaConsultas() === 'Realizadas' ? 'realizada' : 'negada' }}</h2>
+            <p>{{ abaConsultas() === 'Pendentes' ? 'Quando uma mãe pedir um horário, o pedido aparece aqui para você aceitar ou recusar.' : 'Assim que houver consultas nesta categoria, elas aparecem aqui.' }}</p>
           </div>
-        </div>
-        <p class="vazio-msg" *ngIf="consultasFiltradas().length === 0">Nenhuma consulta encontrada nesta categoria.</p>
+        }
       </div>
     </section>
 
-    <!-- FÓRUM -->
+    <!-- FÓRUM (Padronizado com estilo da Mãe) -->
     <section class="content" id="forum" *ngIf="activeSection() === 'forum'">
       <h2>Fórum da comunidade</h2>
       <p class="secao-sub">Acolha e oriente as mães. Sua resposta aparece para elas assim que você enviar.</p>
@@ -476,41 +577,44 @@
       <p class="vazio-msg" *ngIf="pacientes().length === 0">Você ainda não possui clientes no histórico.</p>
     </section>
 
-    <!-- CHATS -->
+        <!-- CHATS (Padronizado com estilo da Mãe) -->
     <section class="content" id="chats" *ngIf="activeSection() === 'chats'">
       <div class="chats-container">
         <div class="chat-wrapper-box">
           <div class="chat-users-list">
             <div class="chat-users-title">Clientes</div>
-            <div class="chat-user-item" *ngFor="let user of chatUsers()" [class.active]="user.ativo" (click)="selecionarChat(user)">
-              <img [src]="user.avatar" alt="Avatar">
-              <div class="chat-user-info"><h4>{{ user.nome }}</h4></div>
+            <div class="chat-users-scroll">
+              <div class="chat-user-item" *ngFor="let user of chatUsers()" [class.active]="user.ativo" (click)="selecionarChat(user)">
+                <img [src]="user.avatar" alt="Avatar">
+                <div class="chat-user-info">
+                  <h4>{{ user.nome }}</h4>
+                  <span>Toque para conversar</span>
+                </div>
+              </div>
+              <p class="vazio-msg" *ngIf="chatUsers().length === 0" style="padding: 20px; text-align: center;">Nenhum chat disponível. Os chats aparecem depois que você aceita uma consulta.</p>
             </div>
-            <p class="vazio-msg" *ngIf="chatUsers().length === 0" style="padding: 20px; text-align: center;">Nenhum chat disponível. Os chats aparecem depois que você aceita uma consulta.</p>
           </div>
-
-          <div class="chat-messages-area">
+          <div class="chat-messages-area" [class.active]="isMobileChatActive()">
             <ng-container *ngIf="chatSelecionado(); else noChat">
               <div class="chat-header-bar">
+                <button class="back-btn" (click)="isMobileChatActive.set(false)">
+                  <i class="fa fa-arrow-left"></i>
+                </button>
                 <img [src]="chatSelecionado().avatar" alt="Avatar">
-                <div><h4>{{ chatSelecionado().nome }}</h4><span class="status-online">Cliente</span></div>
+                <div><h4>{{ chatSelecionado().nome }}</h4><span class="status-online">Online</span></div>
               </div>
-
               <div class="chat-history">
                 <div class="chat-bubble" *ngFor="let msg of mensagensChat()" [class.sent]="msg.sender === 'sent'" [class.received]="msg.sender === 'received'">
-                  <audio *ngIf="msg.audio" [src]="msg.audio" controls></audio>
+                  <audio *ngIf="msg.audio" [src]="msg.audio" controls style="max-width: 220px; height: 36px;"></audio>
                   <p *ngIf="msg.text">{{ msg.text }}</p>
                   <span class="chat-time">{{ msg.time }}</span>
                 </div>
-                <p class="vazio-msg" *ngIf="mensagensChat().length === 0" style="text-align: center;">Envie uma mensagem para iniciar a conversa.</p>
               </div>
-
               <div class="chat-input-bar">
                 <input type="text" placeholder="Digite sua mensagem..." [ngModel]="novaMensagem()" (ngModelChange)="novaMensagem.set($event)" (keyup.enter)="enviarMensagem()">
                 <button class="btn-send-msg" (click)="enviarMensagem()" aria-label="Enviar"><i class="fa-solid fa-paper-plane"></i></button>
               </div>
             </ng-container>
-
             <ng-template #noChat>
               <div class="chat-vazio"><p>Selecione um cliente para abrir o chat</p></div>
             </ng-template>
@@ -521,9 +625,8 @@
 
     <!-- INFORMAÇÕES -->
     <section class="content" id="informacoes" *ngIf="activeSection() === 'informacoes'">
-      <h2>Editar minhas Informações</h2>
-      <p class="em-construcao">Área de configurações em desenvolvimento.</p>
+      <h2>Configurações e Ajuda</h2>
+      <p class="em-construcao">Central de suporte e dados cadastrais.</p>
     </section>
-
   </main>
 </div>

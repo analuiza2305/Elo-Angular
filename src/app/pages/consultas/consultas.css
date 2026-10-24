@@ -1965,3 +1965,173 @@ body[data-theme="dark"] .detalhes-psi-modal p {
   border-color: rgba(157, 143, 231, 0.2) !important;
   color: #d1c4e9 !important;
 }
+/* Botão da Videochamada (Verde Frio / Cool Mint) */
+.btn-videochamada {
+  flex: 1 !important;
+  min-height: 52px !important;
+  border-radius: 12px !important;
+  font-family: inherit;
+  font-weight: 800 !important;
+  font-size: 0.92rem !important;
+  cursor: pointer;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  background: linear-gradient(135deg, #2DD4BF, #0D9488) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  gap: 6px !important;
+  padding: 0 10px !important;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25) !important;
+  white-space: nowrap !important;
+}
+
+.btn-videochamada i {
+  color: #FFFFFF !important;
+  font-size: 1.05rem !important;
+}
+
+.btn-videochamada:hover {
+  background: linear-gradient(135deg, #14B8A6, #0F766E) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35) !important;
+}
+
+/* Deixa a grid das consultas um pouco mais espaçosa */
+.conteudo-tab.ativo {
+  grid-template-columns: repeat(auto-fill, minmax(370px, 1fr)) !important;
+}
+/* Avaliar consulta realizada */
+.btn-avaliar {
+  flex: 1;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #7C69A9, #52427D);
+  color: #fff;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: .92rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(82, 66, 125, .25);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.btn-avaliar i { color: #FBBF24 !important; }
+.btn-avaliar:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(82, 66, 125, .32); }
+
+.ja-avaliou {
+  flex: 1;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 12px;
+  background: #E7F8F1;
+  color: #0F7A55;
+  font-weight: 800;
+  font-size: .9rem;
+}
+.ja-avaliou i { color: #0F7A55 !important; }
+/* =========================================
+   ESTADO VAZIO (sem consultas)
+========================================= */
+
+/* Quando a aba está vazia, o card ocupa a largura toda (sem moldura extra em volta) */
+.conteudo-tab.ativo:has(> .estado-vazio) {
+  display: block !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.estado-vazio {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 56px 24px !important;
+  text-align: center;
+  background: linear-gradient(160deg, #FFFFFF 0%, #F7F3FF 100%) !important;
+  border: 1px solid #EEE8FA !important;
+  border-radius: 24px !important;
+  box-shadow: 0 12px 34px rgba(91, 61, 153, 0.08);
+  animation: vazioEntrar .5s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+/* Ícone de calendário num círculo suave */
+.estado-vazio::before {
+  content: "\f133";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 400;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #F1EBFF, #E4D9FB);
+  color: #7C69A9;
+  font-size: 1.8rem;
+  box-shadow: 0 0 0 8px rgba(124, 105, 169, 0.06);
+}
+
+/* Bolhas de luz decorativas no fundo */
+.estado-vazio::after {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  right: -90px;
+  top: -110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 184, 255, 0.35), transparent 70%);
+  pointer-events: none;
+}
+
+.estado-vazio h2 {
+  position: relative;
+  margin: 0 !important;
+  color: #2D1E4E !important;
+  font-size: 1.35rem !important;
+  font-weight: 800;
+}
+
+.estado-vazio p {
+  position: relative;
+  max-width: 420px;
+  margin: 0 !important;
+  color: #715B9E !important;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+@keyframes vazioEntrar {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Modo escuro */
+body[data-theme="dark"] .estado-vazio {
+  background: linear-gradient(160deg, #141A26 0%, #1B2034 100%) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+}
+body[data-theme="dark"] .estado-vazio::before {
+  background: linear-gradient(135deg, #262046, #2E2752);
+  color: #BDAFFC;
+}
+body[data-theme="dark"] .estado-vazio h2 { color: #F5F0FF !important; }
+body[data-theme="dark"] .estado-vazio p { color: #C7BBEB !important; }

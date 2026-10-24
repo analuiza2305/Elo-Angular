@@ -1,5 +1,5 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, AfterViewInit, signal, inject, ViewChild } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
 import { FooterComponent } from '../../components/footer/footer';
@@ -14,27 +14,48 @@ import { onAuthStateChanged } from 'firebase/auth';
   templateUrl: './artigo-ind.html',
   styleUrls: ['./artigo-ind.css']
 })
-export class ArtigoInd implements OnInit {
+export class ArtigoInd implements OnInit, AfterViewInit {
+  @ViewChild(HeaderComponent) headerComponent!: HeaderComponent;
+
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private location = inject(Location);
 
   artigo = signal<any>(null);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string>('');
   
   isFavorito = signal<boolean>(false);
+  origemTipo = signal<string | null>(null);
+  
   private artigoIdAtual: string = '';
+  private uidLogado: string | null = null;
 
   ngOnInit() {
+    // Pega a origem direto da URL de forma instantânea
+    const urlParams = new URLSearchParams(window.location.search);
+    const origem = urlParams.get('origem');
+    if (origem) {
+      this.origemTipo.set(origem);
+    }
+
     this.route.queryParams.subscribe(params => {
       const artigoId = params['id'];
+
       if (artigoId) {
         this.artigoIdAtual = artigoId;
         this.carregarArtigo(artigoId);
         
         onAuthStateChanged(auth, (user) => {
           if (user) {
+            this.uidLogado = user.uid;
             this.verificarSeFavorito(user.uid, artigoId);
+            
+            // Injeta a foto do profissional
+            const tipoAtual = this.origemTipo();
+            if (tipoAtual === 'psi' || tipoAtual === 'adv') {
+              this.forcarDadosProfissionalNoHeader(user.uid, tipoAtual);
+            }
           }
         });
       } else {
@@ -42,6 +63,43 @@ export class ArtigoInd implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  ngAfterViewInit() {
+    // Redundância de segurança para garantir que a foto carregue
+    if (this.uidLogado) {
+       const tipoAtual = this.origemTipo();
+       if (tipoAtual === 'psi' || tipoAtual === 'adv') {
+         this.forcarDadosProfissionalNoHeader(this.uidLogado, tipoAtual);
+       }
+    }
+  }
+
+  async forcarDadosProfissionalNoHeader(uid: string, tipo: string) {
+    try {
+      const colecao = tipo === 'psi' ? 'psicologos' : 'advogados';
+      const docSnap = await getDoc(doc(db, colecao, uid));
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        
+        // Timeout garante que vamos injetar os dados DEPOIS que o próprio header tentar e falhar
+        setTimeout(() => {
+          if (this.headerComponent) {
+            if (data['fotoURL'] || data['avatar']) {
+              this.headerComponent.userAvatar.set(data['fotoURL'] || data['avatar']);
+            }
+            if (data['nome']) {
+              const names = data['nome'].trim().split(' ');
+              const nomeCurto = names.length > 1 ? `${names[0]} ${names[names.length - 1]}` : names[0];
+              this.headerComponent.userName.set(nomeCurto);
+            }
+          }
+        }, 300);
+      }
+    } catch (error) {
+      console.error("Erro ao forçar dados no header:", error);
+    }
   }
 
   async carregarArtigo(id: string) {
@@ -122,6 +180,17 @@ export class ArtigoInd implements OnInit {
       }
     } catch (error) {
       console.error("Erro ao atualizar favoritos:", error);
+    }
+  }
+
+  voltar() {
+    const origem = this.origemTipo();
+    if (origem === 'psi') {
+      this.router.navigate(['/home-psi']);
+    } else if (origem === 'adv') {
+      this.router.navigate(['/home-adv']);
+    } else {
+      this.location.back();
     }
   }
 }

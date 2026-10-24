@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
@@ -10,6 +10,7 @@ import {
   doc,
   addDoc,
   setDoc,
+  getDoc,
   getDocs,
   onSnapshot,
   query,
@@ -28,6 +29,10 @@ import {
 })
 export class Chat implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  @ViewChild('caixaMensagens') caixaMensagens?: ElementRef<HTMLDivElement>;
+  private readonly LIMITE_AUDIO_SEG = 60;   // áudio vai em base64 no documento (limite de 1 MB do Firestore)
+  private timerAudio: any = null;
 
   currentUser = signal<any>(null);
   usuariosLista = signal<any[]>([]);
@@ -57,25 +62,18 @@ export class Chat implements OnInit, OnDestroy {
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        alert("Você precisa estar logado.");
-        window.location.href = "/login";
+        this.router.navigate(['/login']);
         return;
       }
       this.currentUser.set(user);
       await this.loadUsers();
       this.listenUserChats();
 
+      // "Chat" em Minhas consultas abre direto a conversa (?uid=...); ?psi= mantido por compatibilidade
       this.route.queryParams.subscribe(params => {
-        const psiUid = params['psi'];
-        if (psiUid) {
-          const checkExist = setInterval(() => {
-            const state = this.chatListState.get(psiUid);
-            if (state) {
-              clearInterval(checkExist);
-              this.openChatWith(psiUid, { nome: state.nome, avatar: state.avatar });
-            }
-          }, 100);
-        }
+        const alvo = params['uid'] || params['psi'];
+        const state = alvo ? this.chatListState.get(alvo) : null;
+        if (state) this.openChatWith(alvo, { nome: state.nome, avatar: state.avatar });
       });
     });
   }
@@ -83,64 +81,61 @@ export class Chat implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.unsubscribeMessages) this.unsubscribeMessages();
     if (this.unsubUserChats) this.unsubUserChats();
+    clearTimeout(this.timerAudio);
   }
 
+  /** Profissionais com quem a mãe tem (ou teve) consulta, no formato novo e no antigo. */
   async loadUsers() {
     try {
       const user = this.currentUser();
       if (!user) return;
 
       const consultasRef = collection(db, "Consultas");
-      const q = query(consultasRef, where("Mae", "==", user.uid));
-      const snapConsultas = await getDocs(q);
+      const [snapNovo, snapAntigo] = await Promise.all([
+        getDocs(query(consultasRef, where("maeId", "==", user.uid))),
+        getDocs(query(consultasRef, where("Mae", "==", user.uid))).catch(() => null)
+      ]);
 
-      if (snapConsultas.empty) {
-        this.usuariosLista.set([]);
-        return;
-      }
+      // uid do profissional -> coleção
+      const profissionais = new Map<string, 'psicologos' | 'advogados'>();
+      const registrar = (data: any) => {
+        if (String(data['status'] || '').toLowerCase() === 'negado') return;   // canceladas não abrem chat
+        const id = data['profissionalId'] || data['Psicologo'] || data['Advogado'];
+        if (!id) return;
+        const tipo = data['tipoProfissional'] || (data['Advogado'] ? 'advogado' : 'psicologo');
+        profissionais.set(id, tipo === 'advogado' ? 'advogados' : 'psicologos');
+      };
+      snapNovo.forEach(d => registrar(d.data()));
+      snapAntigo?.forEach(d => registrar(d.data()));
 
-      const psicSet = new Set<string>();
-      const advSet = new Set<string>();
-
-      snapConsultas.forEach(docSnap => {
-        const data = docSnap.data();
-        if (data['Psicologo']) psicSet.add(data['Psicologo']);
-        if (data['Advogado']) advSet.add(data['Advogado']);
-      });
-
-      const psicUids = Array.from(psicSet).filter(Boolean);
-      const advUids = Array.from(advSet).filter(Boolean);
-
-      let psicDocs: any[] = [];
-      if (psicUids.length > 0) {
-        const qPsi = query(collection(db, "psicologos"), where("uid", "in", psicUids.slice(0, 10)));
-        const snapPsi = await getDocs(qPsi);
-        snapPsi.forEach(s => psicDocs.push({ id: s.id, ...s.data() }));
-      }
-
-      let advDocs: any[] = [];
-      if (advUids.length > 0) {
-        const qAdv = query(collection(db, "advogados"), where("uid", "in", advUids.slice(0, 10)));
-        const snapAdv = await getDocs(qAdv);
-        snapAdv.forEach(s => advDocs.push({ id: s.id, ...s.data() }));
-      }
-
-      const todos = [...psicDocs, ...advDocs].map(p => {
-        const uid = p['uid'] || p.id;
+      const todos = await Promise.all([...profissionais.entries()].map(async ([uid, colecao]) => {
+        const p = await this.buscarProfissional(uid, colecao);
         const dadosUser = {
           uid,
-          nome: p['nome'] || 'Profissional',
-          avatar: p['avatar'] || p['fotoURL'] || './img/avatar_usuario.png',
-          lastMessage: '',
+          nome: p?.['nome'] || 'Profissional',
+          avatar: p?.['avatar'] || p?.['fotoURL'] || './img/avatar_usuario.png',
+          lastMessage: this.chatListState.get(uid)?.lastMessage || '',
           unreadCount: 0
         };
         this.chatListState.set(uid, dadosUser);
         return dadosUser;
-      });
+      }));
 
       this.usuariosLista.set(todos);
     } catch (error) {
       console.error("Erro ao carregar profissionais:", error);
+    }
+  }
+
+  /** Procura pelo id do documento e, se não achar, pelo campo uid (cadastros antigos). */
+  private async buscarProfissional(uid: string, colecao: string): Promise<any | null> {
+    try {
+      const porId = await getDoc(doc(db, colecao, uid));
+      if (porId.exists()) return porId.data();
+      const legado = await getDocs(query(collection(db, colecao), where("uid", "==", uid)));
+      return legado.empty ? null : legado.docs[0].data();
+    } catch {
+      return null;
     }
   }
 
@@ -215,9 +210,23 @@ export class Chat implements OnInit, OnDestroy {
         });
       });
       this.mensagens.set(msgs);
-    });
+      this.rolarParaFim();
 
-    this.markMessagesAsRead(chatDoc.id, otherUid);
+      // Marca como lidas as que chegarem enquanto a conversa está aberta
+      const naoLidas = snap.docs.filter(d => d.data()['enviadoPor'] === otherUid && d.data()['lido'] === false);
+      if (naoLidas.length) {
+        const batch = writeBatch(db);
+        naoLidas.forEach(d => batch.update(d.ref, { lido: true }));
+        batch.commit().catch(() => {});
+      }
+    });
+  }
+
+  private rolarParaFim() {
+    setTimeout(() => {
+      const el = this.caixaMensagens?.nativeElement;
+      if (el) el.scrollTop = el.scrollHeight;
+    }, 30);
   }
 
   async markMessagesAsRead(chatId: string, otherUid: string) {
@@ -265,7 +274,7 @@ export class Chat implements OnInit, OnDestroy {
       }, { merge: true });
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
-      alert("Erro ao enviar mensagem.");
+      this.textoMensagem.set(texto);   // devolve o texto para tentar de novo
     }
   }
 
@@ -305,12 +314,18 @@ export class Chat implements OnInit, OnDestroy {
 
         this.mediaRecorder.start();
         this.isRecording.set(true);
+        // Para sozinho no limite para não passar do tamanho máximo do documento
+        this.timerAudio = setTimeout(() => {
+          if (this.isRecording()) this.toggleGravacaoAudio();
+        }, this.LIMITE_AUDIO_SEG * 1000);
       } catch (err) {
         alert("Não foi possível acessar o microfone.");
       }
     } else {
+      clearTimeout(this.timerAudio);
       if (this.mediaRecorder) {
         this.mediaRecorder.stop();
+        this.mediaRecorder.stream.getTracks().forEach(t => t.stop());   // solta o microfone
       }
       this.isRecording.set(false);
     }

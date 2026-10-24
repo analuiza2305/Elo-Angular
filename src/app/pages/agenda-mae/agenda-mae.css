@@ -885,3 +885,105 @@ body[data-theme="dark"] .month-year-select select {
   width: 4px !important;
   height: 4px !important;
 }
+/* Dia de hoje: número sempre branco, mesmo quando o dia tem consulta */
+.calendar-dates .date.today,
+.calendar-dates .date.today.has-event {
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+/* Os pontinhos de consulta do dia de hoje também ficam claros */
+.calendar-dates .date-wrapper:has(.date.today) .event-dots .dot {
+  background-color: #FFFFFF !important;
+  box-shadow: 0 0 0 1px rgba(75, 44, 130, .4);
+}
+/* =========================================
+   MODO ESCURO — LISTA "MEUS EVENTOS"
+   (:host-context é o jeito certo de ler o tema do body dentro do componente)
+========================================= */
+:host-context(body[data-theme="dark"]) .event-item {
+  background: #1B2336 !important;
+  border-color: rgba(255, 255, 255, .08) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, .25) !important;
+}
+:host-context(body[data-theme="dark"]) .event-item:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, .4) !important;
+}
+:host-context(body[data-theme="dark"]) .event-details strong { color: #F5F0FF !important; }
+:host-context(body[data-theme="dark"]) .event-details .descricao { color: #C7BBEB !important; }
+:host-context(body[data-theme="dark"]) .tipo-psi .meta { color: #D8B4FE !important; }
+:host-context(body[data-theme="dark"]) .tipo-adv .meta { color: #FDBA74 !important; }
+:host-context(body[data-theme="dark"]) .tipo-evento .meta { color: #7DD3FC !important; }
+:host-context(body[data-theme="dark"]) .tipo-psi .event-icon-box { background: rgba(168, 85, 247, .18) !important; color: #D8B4FE !important; }
+:host-context(body[data-theme="dark"]) .tipo-adv .event-icon-box { background: rgba(251, 146, 60, .18) !important; color: #FDBA74 !important; }
+:host-context(body[data-theme="dark"]) .tipo-evento .event-icon-box { background: rgba(56, 189, 248, .18) !important; color: #7DD3FC !important; }
+:host-context(body[data-theme="dark"]) .event-icon-box i { color: inherit !important; }
+
+/* Selects de mês/ano e estado vazio no escuro */
+:host-context(body[data-theme="dark"]) .month-year-select select {
+  background-color: #1B2336 !important;
+  color: #F5F0FF !important;
+  border-color: rgba(255, 255, 255, .15) !important;
+}
+:host-context(body[data-theme="dark"]) .empty-state { border-color: rgba(189, 175, 252, .25) !important; }
+:host-context(body[data-theme="dark"]) .empty-state-title { color: #F5F0FF !important; }
+:host-context(body[data-theme="dark"]) .empty-state p { color: #C7BBEB !important; }
+:host-context(body[data-theme="dark"]) .event-list::-webkit-scrollbar-thumb { background-color: #3A3F5C; }
+
+/* =========================================
+   TELAS GRANDES (a partir de 1440px)
+========================================= */
+@media (min-width: 1440px) {
+  .agenda-soft-ui {
+    max-width: 1440px;
+    gap: 40px;
+    padding: 56px 40px;
+  }
+  .calendar-container { flex: 1.6; padding: 44px 52px; }
+  .events-container { flex: 1; padding: 40px; }
+
+  .calendar-days { font-size: 1.05rem; margin-bottom: 24px; }
+  .calendar-dates { gap: 22px 12px; }
+  .date-wrapper { height: 54px !important; }
+  .calendar-dates .date {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 1rem !important;
+  }
+  .calendar-dates .date::before { width: 42px !important; height: 42px !important; }
+
+  /* Lista ocupa a altura disponível em vez de ficar travada em 400px */
+  .event-list { max-height: calc(100vh - 320px); }
+  .events-container h3 { font-size: 1.45rem; }
+}
+
+/* =========================================
+   TELAS EXTRA GRANDES (a partir de 1800px)
+========================================= */
+@media (min-width: 1800px) {
+  .agenda-soft-ui {
+    max-width: 1680px;
+    gap: 48px;
+    padding: 64px 48px;
+  }
+  .calendar-container { padding: 52px 64px; }
+  .events-container { padding: 48px; }
+
+  .calendar-days { font-size: 1.15rem; }
+  .calendar-dates { gap: 28px 16px; }
+  .date-wrapper { height: 62px !important; }
+  .calendar-dates .date {
+    width: 52px !important;
+    height: 52px !important;
+    font-size: 1.1rem !important;
+  }
+  .calendar-dates .date::before { width: 50px !important; height: 50px !important; }
+
+  .month-year-select select { font-size: 1.1rem; padding: 12px 40px 12px 24px; }
+  .nav-btn { width: 48px; height: 48px; }
+
+  .event-item { padding: 20px; }
+  .event-icon-box { width: 56px; height: 56px; font-size: 1.35rem; }
+  .event-details strong { font-size: 1.15rem; }
+}

@@ -1,0 +1,147 @@
+<div class="videochamada-page" [class.em-chamada]="!emSalaDeEspera" [class.tema-escuro]="isDarkMode">
+
+  <!-- Fundo animado -->
+  <div class="bg-blobs" aria-hidden="true">
+    <span class="blob blob-1"></span>
+    <span class="blob blob-2"></span>
+    <span class="blob blob-3"></span>
+  </div>
+
+  <!-- Header -->
+  <header class="video-header">
+    <div class="brand">
+      <img src="./img/iconelogo.svg" alt="Elo Materno" class="brand-logo" onerror="this.src='./img/logo_icon.png'">
+      <span>Elo Materno</span>
+    </div>
+
+    <div class="call-info" *ngIf="!emSalaDeEspera && !isLoading">
+      <span class="pulse-dot"></span>
+      <span class="call-label">Ao vivo</span>
+      <span class="call-timer">{{ tempoChamada }}</span>
+      <span class="call-sep"></span>
+      <i class="fa-solid fa-user-group"></i> {{ participantes }}
+    </div>
+
+    <div class="header-actions">
+      <ng-container *ngIf="!emSalaDeEspera && !isLoading">
+        <button class="btn-icon" [class.off]="microfoneMudo" (click)="alternarMicrofone()"
+                [attr.aria-label]="microfoneMudo ? 'Ativar microfone' : 'Silenciar microfone'"
+                [attr.title]="microfoneMudo ? 'Ativar microfone' : 'Silenciar microfone'">
+          <i class="fa-solid" [ngClass]="microfoneMudo ? 'fa-microphone-slash' : 'fa-microphone'"></i>
+        </button>
+        <button class="btn-icon" [class.off]="cameraDesligada" (click)="alternarCamera()"
+                [attr.aria-label]="cameraDesligada ? 'Ligar câmera' : 'Desligar câmera'"
+                [attr.title]="cameraDesligada ? 'Ligar câmera' : 'Desligar câmera'">
+          <i class="fa-solid" [ngClass]="cameraDesligada ? 'fa-video-slash' : 'fa-video'"></i>
+        </button>
+      </ng-container>
+
+      <!-- Tema claro / escuro (sempre visível, também na sala de espera) -->
+      <button class="btn-icon btn-tema" (click)="alternarTema()"
+              [attr.aria-label]="isDarkMode ? 'Ativar modo claro' : 'Ativar modo escuro'"
+              [attr.title]="isDarkMode ? 'Modo claro' : 'Modo escuro'">
+        <i class="fa-solid" [ngClass]="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+      </button>
+
+      <button class="btn-sair" *ngIf="!emSalaDeEspera && !isLoading" (click)="encerrarChamada()">
+        <i class="fa-solid fa-phone-slash"></i>
+        <span class="btn-sair-texto">Encerrar</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="video-main">
+
+    <!-- SALA DE ESPERA -->
+    <div class="sala-espera-container" *ngIf="emSalaDeEspera">
+      <div class="sala-espera-card">
+
+        <!-- Coluna 1: quem é e qual consulta -->
+        <div class="espera-col-info">
+          <div class="espera-icon-wrapper">
+            <span class="ring ring-1"></span>
+            <span class="ring ring-2"></span>
+            <i class="fa-solid fa-video"></i>
+          </div>
+
+          <h2 class="stagger s1">Olá{{ saudacao ? ', ' + saudacao : '' }}!</h2>
+          <p class="espera-sub stagger s2">Você está prestes a entrar em um ambiente seguro e sigiloso.</p>
+
+          <div class="detalhes-consulta-box stagger s3" *ngIf="detalhesConsulta; else skeleton">
+            <div class="detalhe-item">
+              <span class="detalhe-icone"><i class="fa-regular fa-calendar"></i></span>
+              <span>{{ detalhesConsulta.data }}</span>
+            </div>
+            <div class="detalhe-item" *ngIf="detalhesConsulta.outraParteNome">
+              <span class="detalhe-icone">
+                <i class="fa-solid" [ngClass]="ehProfissional ? 'fa-user' : 'fa-user-doctor'"></i>
+              </span>
+              <span>{{ detalhesConsulta.outraParteLabel }}: {{ detalhesConsulta.outraParteNome }}</span>
+            </div>
+            <div class="detalhe-item">
+              <span class="detalhe-icone"><i class="fa-regular fa-comment-dots"></i></span>
+              <span>Motivo: {{ detalhesConsulta.motivo }}</span>
+            </div>
+          </div>
+          <ng-template #skeleton>
+            <div class="detalhes-consulta-box stagger s3">
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line curta"></div>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Coluna 2: preparo e ação -->
+        <div class="espera-col-acao">
+          <h3 class="espera-col-titulo stagger s3">Antes de entrar</h3>
+
+          <div class="dicas-box stagger s4">
+            <div class="dica"><i class="fa-solid fa-headphones"></i> Use fones de ouvido para maior privacidade.</div>
+            <div class="dica"><i class="fa-solid fa-wifi"></i> Verifique sua conexão com a internet.</div>
+            <div class="dica"><i class="fa-solid fa-lock"></i> Sala privada: só os participantes desta consulta entram.</div>
+          </div>
+
+          <button class="btn-entrar-sala stagger s5" (click)="entrarNaChamada()">
+            <i class="fa-solid fa-door-open"></i> Entrar na Chamada
+            <span class="shine"></span>
+          </button>
+          <button class="btn-voltar-link stagger s6" (click)="voltarAoPainel()">Voltar ao painel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAMADA: sempre no DOM (só fica oculta na sala de espera), assim o
+         #jitsiContainer existe desde o início e nunca chega undefined -->
+    <div class="jitsi-wrapper" [class.hidden]="emSalaDeEspera" [class.pronto]="!isLoading">
+      <div #jitsiContainer class="jitsi-container"></div>
+
+      <div class="loader-overlay" [class.saindo]="!isLoading"
+           [class.aguardando]="aguardandoLiberacao" [class.erro]="erroChamada">
+        <div class="loader-logo-wrap">
+          <span class="loader-orbit"></span>
+          <img src="./img/iconelogo.svg" alt="Carregando..." class="loading-logo" onerror="this.src='./img/logo_icon.png'">
+        </div>
+
+        <div class="progress-bar-wrapper" *ngIf="!aguardandoLiberacao && !erroChamada">
+          <div class="progress-bar" [style.width.%]="loadingProgress"></div>
+        </div>
+
+        <p class="loader-texto">{{ loadingTexto }}</p>
+
+        <span class="loader-pct" *ngIf="!aguardandoLiberacao && !erroChamada">{{ loadingProgress }}%</span>
+        <span class="loader-dica" *ngIf="aguardandoLiberacao">
+          Você entra automaticamente assim que for liberado(a).
+        </span>
+
+        <div class="loader-acoes" *ngIf="aguardandoLiberacao || erroChamada">
+          <button class="btn-secundario" *ngIf="erroChamada" (click)="tentarNovamente()">
+            <i class="fa-solid fa-rotate-right"></i> Tentar novamente
+          </button>
+          <button class="btn-voltar-link" (click)="voltarAoPainel()">Sair</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

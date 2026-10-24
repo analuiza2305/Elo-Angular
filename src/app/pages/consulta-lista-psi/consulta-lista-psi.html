@@ -1,28 +1,34 @@
 <app-header tipo="mae"></app-header>
+<main class="consulta-container">
+  <a routerLink="/consultas" class="back-link">
+    <i class="ph ph-arrow-left"></i> Voltar
+  </a>
+  <div class="hero-section">
+    <div class="page-header">
+      <h1>Escolha quem vai te atender</h1>
+      <p>Encontre a profissional ideal para o que você precisa hoje.</p>
+    </div>
+    <div class="hero-image-wrapper">
+      <img src="img/chrameconsultoria.jpg" alt="Ilustração Consultoria" class="hero-img">
+    </div>
+  </div>
 
-<main class="psi-container">
-  <nav class="breadcrumb">
-    <span>
-      <a routerLink="/consultas">
-        <i class="fa-solid fa-circle-arrow-left"></i> Voltar
-      </a>
-    </span>
-  </nav>
-
-  <h2 class="titulo-principal">Escolha quem vai te atender</h2>
-
-  <div class="filtros">
-    <input
-      type="text"
-      placeholder="Pesquisar profissionais (Nome, CRP...)"
-      class="input-busca"
-      [ngModel]="termoBusca()"
-      (ngModelChange)="termoBusca.set($event)"
-    >
+  <div class="search-bar-wrapper">
+    <div class="search-bar">
+      <i class="ph ph-magnifying-glass search-icon"></i>
+      <input 
+        type="text" 
+        placeholder="Pesquisar profissional (nome, especialidade, CRP/OAB...)" 
+        [value]="termoBusca()"
+        (input)="termoBusca.set($any($event.target).value)">
+      <button class="filter-btn" title="Filtrar profissionais" (click)="abrirFiltros()">
+        <i class="ph ph-funnel"></i>
+      </button>
+    </div>
   </div>
 
   @if (isLoading()) {
-    <div class="psi-card">
+    <div class="card" style="justify-content: center; padding: 60px;">
       <div class="loader">
         <div class="dot"></div>
         <div class="dot"></div>
@@ -30,104 +36,264 @@
       </div>
     </div>
   } @else if (profissionaisFiltrados().length === 0) {
-    <p style="text-align:center;margin-top:40px;color:gray">
-      Nenhum profissional encontrado.
-    </p>
+    <div class="empty-state">
+      <i class="ph ph-smiley-sad"></i>
+      <p>Nenhum profissional encontrado com esses filtros.</p>
+    </div>
   } @else {
-    @for (prof of profissionaisFiltrados(); track prof.docId) {
-      <div class="psi-card">
-        <div class="psi-info">
-          <img [src]="prof.foto" [alt]="prof.tipo" class="psi-foto">
-          <div class="psi-dados">
-            <h3>{{ prof.nome }}</h3>
-            <p class="psi-cargo">{{ prof.cargoLabel }} {{ prof.identificacao }}</p>
-            <div class="psi-tags">
-              @for (tag of prof.especializacoes; track tag) {
-                <span>{{ tag }}</span>
-              }
-              @if (prof.extrasCount > 0) {
-                <span>+{{ prof.extrasCount }}</span>
-              }
+    <div class="professional-list">
+      @for (prof of profissionaisFiltrados(); track prof.docId) {
+        <div class="card" [class.card-premium]="prof.premium">
+          <div class="prof-info">
+            <div class="avatar-wrapper">
+              <div class="avatar">
+                <img [src]="prof.foto" [alt]="prof.tipo" onerror="this.src='img/account_icon.png'">
+              </div>
+              <div class="online-indicator"></div>
             </div>
-            <div class="psi-stats">
-              <span class="atendimentos">
-                <i class="fa fa-comment-dots"></i> {{ prof.atendimentos }} atendimentos
-              </span>
-            </div>
-            <p class="psi-abordagem">{{ prof.area }}</p>
-            <a href="#" class="ver-perfil" (click)="$event.preventDefault(); verPerfil(prof)">
-              Ver perfil completo <i class="fa fa-arrow-right"></i>
-            </a>
-          </div>
-        </div>
+            
+            <div class="details">
+              @if (prof.premium || prof.reputacao.bemAvaliado) {
+                <div class="selos-row">
+                  @if (prof.premium) {
+                    <span class="selo selo-premium" title="Perfil em destaque por assinatura Premium">
+                      <i class="fa-solid fa-crown"></i> Profissional Premium
+                    </span>
+                  }
+                  @if (prof.reputacao.bemAvaliado) {
+                    <span class="selo selo-bem-avaliado" title="Selo conquistado pelas avaliações das mães (não pode ser comprado)">
+                      <i class="fa-solid fa-award"></i> Bem avaliado pelas mães
+                    </span>
+                  }
+                </div>
+              }
 
-        <div class="psi-agenda">
-          <h4>Selecione uma data:</h4>
-          <div class="datas">
-            @for (d of prof.datasDisponiveis; track d.key) {
-              <button
-                class="data"
-                [class.ativo]="prof.dataSelecionada === d.key"
-                (click)="selecionarData(prof, d.key)"
-              >
-                {{ d.diaSemana }}<br><b>{{ d.diaMes }}</b>
+              <div class="name-block">
+                <div class="name-row">
+                  <h3>{{ prof.nome }}</h3>
+                  <span class="badge-online">Online</span>
+                </div>
+                <p class="role">
+                  <i class="fa-solid" [ngClass]="prof.tipo === 'psicologo' ? 'fa-brain' : 'fa-scale-balanced'"></i>
+                  {{ prof.cargoLabel }}
+                  <span class="role-sep"></span>
+                  <span class="role-id">{{ registro(prof) }}</span>
+                </p>
+              </div>
+
+              <div class="rating-chips">
+                @if (!prof.reputacao.novo) {
+                  <span class="chip-nota" [attr.aria-label]="'Nota ' + prof.reputacao.mediaTexto + ' de 5, ' + prof.reputacao.total + ' avaliações'">
+                    <span class="rating-estrelas">
+                      @for (classe of estrelas(prof.reputacao.media); track $index) { <i [class]="classe"></i> }
+                    </span>
+                    <strong>{{ prof.reputacao.mediaTexto }}</strong>
+                    <span class="rating-total">{{ prof.reputacao.total }} avaliações</span>
+                  </span>
+                  @if (prof.reputacao.recomendamPct !== null) {
+                    <span class="chip-rec"><i class="fa-solid fa-thumbs-up"></i> {{ prof.reputacao.recomendamPct }}% recomendam</span>
+                  }
+                } @else {
+                  <span class="rating-novo"><i class="fa-solid fa-seedling"></i> Novo na rede</span>
+                }
+              </div>
+
+              @if (prof.especializacoes.length) {
+                <div class="tags-container">
+                  @for (esp of prof.especializacoes; track esp) {
+                    <span class="esp-tag">{{ esp }}</span>
+                  }
+                  @if (prof.extrasCount > 0) {
+                    <span class="esp-tag esp-mais">+{{ prof.extrasCount }}</span>
+                  }
+                </div>
+              }
+
+              <a href="#" (click)="$event.preventDefault(); verPerfil(prof)" class="profile-link">
+                Ver perfil completo <i class="ph ph-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="prof-schedule">
+            @if (prof.datasDisponiveis.length === 0) {
+              <div class="schedule-status-header">
+                <div class="icon-box warning-box"><i class="ph ph-calendar-x"></i></div>
+                <div class="status-text">
+                  <h4>Sem horários disponíveis</h4>
+                  <p>No momento não há horários disponíveis para este profissional.</p>
+                </div>
+              </div>
+              <button class="btn-notify">
+                <i class="ph ph-bell"></i> Avise-me quando houver horário
               </button>
-            }
-          </div>
-
-          <div class="horarios">
-            @if (horariosDaData(prof).length > 0) {
-              @for (hora of horariosDaData(prof); track hora) {
-                <button
-                  [class.ativo]="prof.horarioSelecionado === hora"
-                  (click)="selecionarHorario(prof, hora)"
-                >{{ hora }}</button>
-              }
             } @else {
-              <p style="color:gray">Sem horários disponíveis</p>
+              <div class="schedule-available-container">
+                <div class="icon-box primary-box"><i class="ph ph-calendar-check"></i></div>
+                
+                <div class="schedule-selection">
+                  <p class="section-label">Selecione uma data:</p>
+                  
+                  <div class="carousel-wrapper">
+                    @if (prof.datasDisponiveis.length > 5) {
+                      <button class="carousel-btn left" (click)="scrollDatas(scrollContainer, -1)">
+                        <i class="ph ph-caret-left"></i>
+                      </button>
+                    }
+                    
+                    <div class="date-scroll" #scrollContainer>
+                      @for (d of prof.datasDisponiveis; track d.key) {
+                        <button 
+                          class="date-chip"
+                          [class.selected]="prof.dataSelecionada === d.key"
+                          (click)="selecionarData(prof, d.key)">
+                          <span class="day">{{ d.diaSemana }}</span>
+                          <span class="date">{{ d.diaMes }}</span>
+                        </button>
+                      }
+                    </div>
+
+                    @if (prof.datasDisponiveis.length > 5) {
+                      <button class="carousel-btn right" (click)="scrollDatas(scrollContainer, 1)">
+                        <i class="ph ph-caret-right"></i>
+                      </button>
+                    }
+                  </div>
+
+                  <p class="section-label">Horários disponíveis</p>
+                  <div class="time-selection-row">
+                    <div class="time-scroll">
+                      @if (horariosDaData(prof).length > 0) {
+                        @for (hora of horariosDaData(prof); track hora) {
+                          <button 
+                            class="time-chip"
+                            [class.ativo]="prof.horarioSelecionado === hora"
+                            (click)="selecionarHorario(prof, hora)">
+                            {{ hora }}
+                          </button>
+                        }
+                      } @else {
+                        <p class="no-time-msg">Sem horários para esta data.</p>
+                      }
+                    </div>
+                    <button class="btn-primary" (click)="abrirModal(prof)">
+                      <i class="ph ph-calendar-plus"></i> Agendar
+                    </button>
+                  </div>
+                </div>
+              </div>
             }
           </div>
-
-          <div class="preco-info">
-            <span class="duracao">Duração: 45min</span>
-          </div>
-          <button class="btn-agendar" (click)="abrirModal(prof)">Agendar</button>
         </div>
-      </div>
-    }
+      }
+    </div>
   }
 </main>
 
-<!-- Modal de Agendamento -->
+<!-- MODAL DE FILTROS -->
+@if (showFiltroModal()) {
+  <div class="modal-wrapper">
+    <div class="modal-overlay" (click)="fecharFiltros()"></div>
+    <div class="modal-content premium-modal">
+      <div class="modal-header-fancy">
+        <h2>Filtrar Profissionais</h2>
+        <button class="close-btn" (click)="fecharFiltros()"><i class="ph ph-x"></i></button>
+      </div>
+      <p class="modal-subtitle">Personalize sua busca para encontrar o atendimento ideal.</p>
+      
+      <div class="input-group">
+        <label>Apenas com horários disponíveis</label>
+        <label class="checkbox-container">
+          <input type="checkbox" [checked]="filtroDisponibilidade()" (change)="filtroDisponibilidade.set(!filtroDisponibilidade())">
+          <span class="checkmark"></span>
+          Mostrar somente profissionais com agenda aberta
+        </label>
+      </div>
+
+      <div class="input-group">
+        <label>Selo das mães</label>
+        <label class="checkbox-container">
+          <input type="checkbox" [checked]="filtroBemAvaliados()" (change)="filtroBemAvaliados.set(!filtroBemAvaliados())">
+          <span class="checkmark"></span>
+          Mostrar somente profissionais "Bem avaliados pelas mães"
+        </label>
+      </div>
+
+      <div class="input-group">
+        <label for="ordemSelect">Ordenar por</label>
+        <select id="ordemSelect" [value]="filtroOrdem()" (change)="filtroOrdem.set($any($event.target).value)" class="styled-select">
+          <option value="relevancia">Relevância (destaques Premium primeiro)</option>
+          <option value="avaliacao">Melhor avaliados pelas mães</option>
+          <option value="disponiveis">Mais datas disponíveis</option>
+          <option value="nome">Nome (A–Z)</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-confirm" (click)="fecharFiltros()">Aplicar Filtros</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL DE AGENDAMENTO -->
 @if (showModal()) {
-  <div id="modalAgendamento" style="display: flex;">
+  <div id="modalAgendamento" class="modal-wrapper">
     <div class="modal-overlay" (click)="fecharModal()"></div>
-    <div class="modal-content">
-      <h2>Confirmar Agendamento</h2>
-      <div class="psi-modal-info">
-        <div class="foto" [style.background-image]="'url(' + modalInfo().foto + ')'"></div>
-        <div class="dados">
+    <div class="modal-content premium-modal">
+      <div class="modal-header-fancy">
+        <h2>Confirmar Agendamento</h2>
+        <button class="close-btn" (click)="fecharModal()"><i class="ph ph-x"></i></button>
+      </div>
+      
+      <p class="modal-subtitle">Revise os dados da sua consulta abaixo.</p>
+
+      <div class="prof-card-mini">
+        <div class="foto-mini" [style.background-image]="'url(' + modalInfo().foto + ')'"></div>
+        <div class="dados-mini">
           <h3>{{ modalInfo().nome }}</h3>
-          <p>{{ modalInfo().cargo }}</p>
-          <p>{{ modalInfo().area }}</p>
+          <p class="cargo-mini">{{ modalInfo().cargo }}</p>
+          <span class="area-mini"><i class="ph ph-stethoscope"></i> {{ modalInfo().area }}</span>
         </div>
       </div>
-      <div class="modal-detalhes">
-        <p><b>Data:</b> <span>{{ modalInfo().dataFormatada }}</span></p>
-        <p><b>Horário:</b> <span>{{ modalInfo().hora }}</span></p>
+
+      <div class="datetime-badges">
+        <div class="badge-item">
+          <div class="badge-icon"><i class="ph ph-calendar-blank"></i></div>
+          <div class="badge-text">
+            <span>Data</span>
+            <strong>{{ modalInfo().dataFormatada }}</strong>
+          </div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-icon"><i class="ph ph-clock"></i></div>
+          <div class="badge-text">
+            <span>Horário</span>
+            <strong>{{ modalInfo().hora }}</strong>
+          </div>
+        </div>
       </div>
-      <label for="motivo">Motivo da consulta:</label>
-      <input
-        id="motivo"
-        placeholder="Ex: Ansiedade, Depressão, etc"
-        [ngModel]="motivoConsulta()"
-        (ngModelChange)="motivoConsulta.set($event)"
-      />
-      <div class="modal-botoes">
-        <button id="confirmarAgendamento" [disabled]="salvando()" (click)="confirmarAgendamento()">
-          {{ salvando() ? 'Salvando...' : 'Confirmar' }}
+
+      <div class="input-group">
+        <label for="motivo">Motivo da consulta</label>
+        <textarea 
+          id="motivo" 
+          placeholder="Ex: Ansiedade, questões familiares, orientação de divórcio..."
+          [value]="motivoConsulta()"
+          (input)="motivoConsulta.set($any($event.target).value)"
+          rows="3"
+        ></textarea>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="fecharModal()" [disabled]="salvando()">Cancelar</button>
+        <button class="btn-confirm" (click)="confirmarAgendamento()" [disabled]="salvando()">
+          @if (salvando()) {
+            <i class="ph ph-spinner ph-spin"></i> Agendando...
+          } @else {
+            <i class="ph ph-check-circle"></i> Confirmar Consulta
+          }
         </button>
-        <button id="cancelarAgendamento" (click)="fecharModal()">Cancelar</button>
       </div>
     </div>
   </div>

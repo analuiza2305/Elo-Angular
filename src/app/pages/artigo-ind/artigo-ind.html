@@ -3,9 +3,9 @@
 <main class="artigo-wrapper">
     
     <div class="breadcrumb-acoes">
-        <a routerLink="/artigos" class="link-voltar">
+        <button type="button" class="link-voltar" (click)="voltar()">
             <i class="fa-solid fa-arrow-left"></i> Voltar para artigos
-        </a>
+        </button>
         
         @if (!isLoading() && artigo()) {
             <button class="btn-favoritar" (click)="toggleFavorito()">
@@ -15,7 +15,7 @@
                     <i class="fa-regular fa-bookmark"></i> Salvar Artigo
                 }
             </button>
-        }       
+        }      
     </div>
 
     @if (isLoading()) {
@@ -27,7 +27,7 @@
             <div class="vazio-icon-wrapper"><i class="fa-solid fa-triangle-exclamation"></i></div>
             <h3>Ops! Algo deu errado</h3>
             <p>{{ errorMessage() }}</p>
-            <a routerLink="/artigos" class="btn-externo" style="margin-top: 15px;">Voltar aos Artigos</a>
+            <button type="button" class="btn-externo" style="margin-top: 15px; border: none; cursor: pointer;" (click)="voltar()">Voltar aos Artigos</button>
         </div>
     } @else {
         <article class="artigo-card com-brilho">

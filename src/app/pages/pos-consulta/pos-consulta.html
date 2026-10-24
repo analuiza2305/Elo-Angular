@@ -1,0 +1,266 @@
+<div class="pos-consulta-page" [class.tema-escuro]="isDarkMode()" [class.alto-contraste]="altoContraste()">
+
+  <!-- Fundo suave -->
+  <div class="bg-blobs" aria-hidden="true">
+    <span class="blob blob-1"></span>
+    <span class="blob blob-2"></span>
+    <span class="blob blob-3"></span>
+  </div>
+
+  <!-- Header -->
+  <header class="pc-header">
+    <div class="brand">
+      <img src="./img/iconelogo.svg" alt="" class="brand-logo" onerror="this.src='./img/logo_icon.png'">
+      <span>Elo Materno</span>
+    </div>
+
+    <div class="pc-header-acoes">
+      <!-- Acessibilidade -->
+      <div class="acess-wrapper">
+        <button type="button" class="btn-icon" (click)="toggleMenuAcess($event)"
+                aria-haspopup="true" [attr.aria-expanded]="menuAcessAberto()"
+                aria-label="Opções de acessibilidade" title="Acessibilidade">
+          <i class="fa-solid fa-universal-access"></i>
+        </button>
+
+        @if (menuAcessAberto()) {
+          <div class="acess-menu" role="menu" (click)="$event.stopPropagation()">
+            <p class="acess-titulo">Acessibilidade</p>
+
+            <div class="acess-fonte">
+              <span class="acess-label">Tamanho do texto</span>
+              <div class="acess-fonte-ctrl">
+                <button type="button" (click)="diminuirFonte()" aria-label="Diminuir texto">A−</button>
+                <span>{{ escalaFonte() * 100 | number:'1.0-0' }}%</span>
+                <button type="button" (click)="aumentarFonte()" aria-label="Aumentar texto">A+</button>
+              </div>
+            </div>
+
+            <button type="button" class="acess-item" role="menuitemcheckbox"
+                    [attr.aria-checked]="altoContraste()" (click)="alternarContraste()">
+              <i class="fa-solid fa-circle-half-stroke"></i>
+              <span>Alto contraste</span>
+              <span class="acess-switch" [class.on]="altoContraste()"></span>
+            </button>
+
+            <button type="button" class="acess-item" (click)="redefinirAcessibilidade()">
+              <i class="fa-solid fa-rotate-left"></i>
+              <span>Redefinir</span>
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Tema -->
+      <button type="button" class="btn-icon btn-tema" (click)="alternarTema()"
+              [attr.aria-label]="isDarkMode() ? 'Ativar modo claro' : 'Ativar modo escuro'"
+              [attr.title]="isDarkMode() ? 'Modo claro' : 'Modo escuro'">
+        <i class="fa-solid" [ngClass]="isDarkMode() ? 'fa-sun' : 'fa-moon'"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="pc-main">
+    @if (isLoading()) {
+      <div class="estado-card">
+        <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <p>Carregando informações da sessão...</p>
+      </div>
+
+    } @else if (!consultaId || !consultaData()) {
+      <div class="estado-card">
+        <div class="estado-icone erro"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <h2>Sessão não encontrada</h2>
+        <p>Não conseguimos localizar esta consulta. Ela pode ter sido removida ou o link está incompleto.</p>
+        <button type="button" class="btn-primary" (click)="pular()">Voltar ao início</button>
+      </div>
+
+    } @else if (bloqueio() && !enviado()) {
+      <div class="estado-card">
+        <div class="estado-icone erro"><i class="fa-regular fa-clock"></i></div>
+        <h2>Ainda não dá para avaliar</h2>
+        <p>{{ bloqueio() }}</p>
+        <button type="button" class="btn-primary" (click)="pular()">Voltar ao início</button>
+      </div>
+
+    } @else if (jaAvaliou() && !enviado()) {
+      <div class="estado-card">
+        <div class="estado-icone"><i class="fa-solid fa-circle-check"></i></div>
+        <h2>Você já avaliou esta sessão</h2>
+        <p>Obrigada por compartilhar sua experiência. Cada sessão pode ser avaliada uma vez.</p>
+        <button type="button" class="btn-primary" (click)="pular()">Voltar ao início</button>
+      </div>
+
+    } @else if (enviado()) {
+      <div class="estado-card sucesso">
+        <div class="estado-icone" [class.denuncia]="enviado() === 'denuncia'">
+          <i class="fa-solid" [ngClass]="enviado() === 'denuncia' ? 'fa-shield-halved' : 'fa-heart'"></i>
+        </div>
+        @if (enviado() === 'denuncia') {
+          <h2>Denúncia registrada</h2>
+          <p>Nossa equipe de moderação vai analisar o caso com total sigilo. A outra pessoa não saberá quem denunciou.</p>
+        } @else {
+          <h2>Obrigada pela avaliação!</h2>
+          <p>Sua opinião ajuda a manter a rede Elo Materno segura e acolhedora.</p>
+        }
+        <button type="button" class="btn-primary" (click)="pular()">
+          Voltar ao início <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+    } @else {
+      <div class="feedback-card">
+        <!-- Topo -->
+        <div class="feedback-header">
+          <span class="selo"><i class="fa-solid fa-circle-check"></i> Sessão finalizada</span>
+          <h1>Como foi a sua sessão?</h1>
+          @if (euSouMae()) {
+            <p>Sua avaliação é anônima e ajuda outras mães a encontrarem o profissional certo.</p>
+          } @else {
+            <p>Registro privado para a equipe Elo Materno. A paciente não vê esta avaliação.</p>
+          }
+        </div>
+
+        <!-- Com quem -->
+        <div class="person-card">
+          <img [src]="outraParteFoto()" [alt]="outraParteNome()" onerror="this.src='./img/account_icon.png'">
+          <div class="person-info">
+            <span>{{ euSouMae() ? 'Atendimento com' : 'Paciente' }}</span>
+            <strong>{{ outraParteNome() || 'Carregando...' }}</strong>
+            @if (dataConsultaTexto()) {
+              <small><i class="fa-regular fa-calendar"></i> {{ dataConsultaTexto() }}</small>
+            }
+          </div>
+        </div>
+
+        <!-- Avaliação -->
+        <section class="rating-section" [class.dimmed]="isDenuncia()" [attr.aria-hidden]="isDenuncia()">
+          <p class="campo-label" id="label-nota">Avalie sua experiência</p>
+
+          <div class="stars-box">
+            <div class="stars" role="radiogroup" aria-labelledby="label-nota" (mouseleave)="notaHover.set(0)">
+              @for (estrela of estrelas; track estrela) {
+                <button type="button" class="estrela" role="radio"
+                        [class.ativa]="notaExibida() >= estrela"
+                        [attr.aria-checked]="nota() === estrela"
+                        [attr.aria-label]="estrela + (estrela === 1 ? ' estrela' : ' estrelas')"
+                        [disabled]="isDenuncia()"
+                        (mouseenter)="notaHover.set(estrela)"
+                        (focus)="notaHover.set(estrela)"
+                        (blur)="notaHover.set(0)"
+                        (click)="setNota(estrela)">
+                  <i class="fa-star" [class.fa-solid]="notaExibida() >= estrela" [class.fa-regular]="notaExibida() < estrela"></i>
+                </button>
+              }
+            </div>
+            <span class="nota-texto" [class.escolhida]="notaExibida() > 0">{{ notaTexto() }}</span>
+          </div>
+
+          @if (euSouMae()) {
+            <p class="campo-label">
+              O que mais se destacou? <span class="opcional">até {{ maxElogios }}</span>
+            </p>
+            <div class="elogios">
+              @for (elogio of elogiosDisponiveis; track elogio) {
+                <button type="button" class="elogio-chip"
+                        [class.ativo]="elogios().includes(elogio)"
+                        [disabled]="isDenuncia() || (!elogios().includes(elogio) && elogios().length >= maxElogios)"
+                        [attr.aria-pressed]="elogios().includes(elogio)"
+                        (click)="toggleElogio(elogio)">
+                  @if (elogios().includes(elogio)) { <i class="fa-solid fa-check"></i> }
+                  {{ elogio }}
+                </button>
+              }
+            </div>
+
+            <p class="campo-label" id="label-recomenda">Você recomendaria para outras mães?</p>
+            <div class="recomenda" role="radiogroup" aria-labelledby="label-recomenda">
+              <button type="button" class="recomenda-btn sim" role="radio"
+                      [class.ativo]="recomenda() === true" [attr.aria-checked]="recomenda() === true"
+                      [disabled]="isDenuncia()" (click)="setRecomenda(true)">
+                <i class="fa-solid fa-thumbs-up"></i> Sim
+              </button>
+              <button type="button" class="recomenda-btn nao" role="radio"
+                      [class.ativo]="recomenda() === false" [attr.aria-checked]="recomenda() === false"
+                      [disabled]="isDenuncia()" (click)="setRecomenda(false)">
+                <i class="fa-solid fa-thumbs-down"></i> Não
+              </button>
+            </div>
+          }
+
+          <label class="campo-label" for="comentario">
+            {{ euSouMae() ? 'Quer deixar um comentário?' : 'Observações sobre o atendimento' }}
+            <span class="opcional">opcional</span>
+          </label>
+          <p class="campo-ajuda">
+            <i class="fa-solid fa-lock"></i>
+            {{ euSouMae() ? 'Não aparece no perfil do profissional: só a equipe Elo Materno lê.' : 'Privado: não aparece para a paciente nem em nenhuma página.' }}
+          </p>
+          <div class="campo-texto">
+            <textarea id="comentario" rows="3" [attr.maxlength]="limiteTexto"
+                      placeholder="Conte o que achou do atendimento..."
+                      [ngModel]="feedback()" (ngModelChange)="feedback.set($event)"
+                      [disabled]="isDenuncia()"></textarea>
+            <span class="contador">{{ feedback().length }}/{{ limiteTexto }}</span>
+          </div>
+        </section>
+
+        <!-- Relatar problema -->
+        <div class="denuncia-toggle-wrap">
+          <button type="button" class="btn-toggle-denuncia" [class.active]="isDenuncia()" (click)="toggleDenuncia()"
+                  [attr.aria-expanded]="isDenuncia()">
+            <i class="fa-solid" [ngClass]="isDenuncia() ? 'fa-xmark' : 'fa-flag'"></i>
+            {{ isDenuncia() ? 'Cancelar relato e voltar à avaliação' : 'Algo deu errado? Relatar um problema' }}
+          </button>
+        </div>
+
+        @if (isDenuncia()) {
+          <section class="denuncia-section">
+            <div class="alert-box">
+              <i class="fa-solid fa-shield-halved"></i>
+              <p>O relato é sigiloso. Nossa equipe de moderação analisa cada caso, e a outra pessoa não saberá que foi você.</p>
+            </div>
+
+            <label class="campo-label" for="motivo">Qual foi o problema?</label>
+            <div class="campo-select">
+              <select id="motivo" [ngModel]="motivoDenuncia()" (ngModelChange)="motivoDenuncia.set($event); erroForm.set('')">
+                <option value="" disabled>Selecione um motivo...</option>
+                @for (motivo of motivosDisponiveis; track motivo) {
+                  <option [value]="motivo">{{ motivo }}</option>
+                }
+              </select>
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </div>
+
+            <label class="campo-label" for="descricao">Conte o que aconteceu</label>
+            <div class="campo-texto">
+              <textarea id="descricao" rows="4" [attr.maxlength]="limiteTexto"
+                        placeholder="Quanto mais detalhes, melhor conseguimos agir..."
+                        [ngModel]="descricaoDenuncia()" (ngModelChange)="descricaoDenuncia.set($event); erroForm.set('')"></textarea>
+              <span class="contador">{{ descricaoDenuncia().length }}/{{ limiteTexto }}</span>
+            </div>
+          </section>
+        }
+
+        <!-- Erro -->
+        @if (erroForm()) {
+          <div class="erro-form" role="alert">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ erroForm() }}
+          </div>
+        }
+
+        <!-- Ações -->
+        <div class="card-actions">
+          <button type="button" class="btn-ghost" (click)="pular()" [disabled]="isSaving()">Pular por agora</button>
+          <button type="button" class="btn-primary" [class.perigo]="isDenuncia()" (click)="enviarAvaliacao()" [disabled]="isSaving()">
+            @if (isSaving()) {
+              <span class="spinner" aria-hidden="true"></span> Enviando...
+            } @else {
+              {{ isDenuncia() ? 'Enviar relato' : 'Enviar avaliação' }}
+            }
+          </button>
+        </div>
+      </div>
+    }
+  </main>
+</div>

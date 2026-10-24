@@ -71,8 +71,8 @@
       @for (ev of futurosEventos(); track ev.id) {
         <div class="event-item" 
              [ngClass]="getEventClass(ev)"
-             [style.cursor]="ev.type === 'evento' ? 'pointer' : 'default'"
-             (click)="ev.type === 'evento' ? irParaEvento(ev.id) : null">
+             style="cursor: pointer"
+             (click)="ev.type === 'evento' ? irParaEvento(ev.id) : irParaConsultas()">
           
           <div class="event-icon-box">
              <i [class]="getEventIcon(ev)"></i>
@@ -82,6 +82,9 @@
             @if (ev.type === 'consulta') {
               <strong>Consulta{{ ev.profissionalNome ? ' com ' + ev.profissionalNome : '' }}</strong>
               <p class="meta">{{ formatarData(ev.data) }} • {{ formatarHora(ev.data) }}</p>
+              @if (ev.statusTexto) {
+                <span class="status-chip" [class]="'status-chip status-' + ev.status">{{ ev.statusTexto }}</span>
+              }
               <p class="descricao">{{ ev.Motivo || ev.motivo || '' }}</p>
             } @else {
               <strong>{{ ev.titulo || ev.title || 'Evento' }}</strong>
@@ -113,7 +116,7 @@
           <div class="event-details" style="flex:1">
             @if (ev.type === 'consulta') {
               <strong>Consulta{{ ev.profissionalNome ? ' com ' + ev.profissionalNome : '' }}</strong>
-              <p class="meta">{{ formatarHora(ev.data) }} • {{ ev.status || '' }}</p>
+              <p class="meta">{{ formatarHora(ev.data) }}{{ ev.statusTexto ? ' • ' + ev.statusTexto : '' }}</p>
               <p class="descricao"><strong>Motivo:</strong> {{ ev.Motivo || ev.motivo || '' }}</p>
             } @else {
               <strong>{{ ev.titulo || ev.title || '' }}</strong>

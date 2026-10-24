@@ -1,10 +1,22 @@
-import { Component, Input, HostListener, OnInit, Inject, PLATFORM_ID, inject, signal, Output, EventEmitter, Injector, afterNextRender } from '@angular/core';
+import { Component, Input, HostListener, OnInit, OnDestroy, PLATFORM_ID, inject, signal, computed, Output, EventEmitter, Injector, afterNextRender } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, onSnapshot, updateDoc, writeBatch, Unsubscribe } from 'firebase/firestore';
+import { LembreteService } from '../../services/lembrete';
+
+/** Aviso gravado em `notificacoes` (ex.: o profissional confirmou ou recusou a consulta). */
+export interface Notificacao {
+  id: string;
+  titulo: string;
+  mensagem: string;
+  tipo: string;
+  link: string | null;
+  lida: boolean;
+  criadoEm: Date | null;
+}
 
 @Component({
   selector: 'app-header',
@@ -13,13 +25,23 @@ import { doc, getDoc } from 'firebase/firestore';
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
   private injector = inject(Injector);
+  private lembreteService = inject(LembreteService);
 
-  @Input() tipo: 'landing' | 'mae' | 'profissional' | 'parceiro' | 'adm' | 'auth' = 'landing';
+  // Notificações da mãe (sino)
+  notificacoes = signal<Notificacao[]>([]);
+  naoLidas = computed(() => this.notificacoes().filter((n) => !n.lida).length);
+  isNotifOpen = false;
+  private unsubNotificacoes: Unsubscribe | null = null;
+  private unsubAuth: (() => void) | null = null;
+
+// AQUI: Adicionamos psicologo e advogado como tipos aceitos!
+  @Input() tipo: 'landing' | 'mae' | 'psicologo' | 'advogado' | 'profissional' | 'parceiro' | 'adm' | 'auth' = 'landing';
   @Input() currentLanding: 'mae' | 'profissional' = 'mae';
+  
   @Output() menuAdm = new EventEmitter<void>();
   /** Admin: quantas notificações ainda não foram lidas (bolinha no sino). */
   @Input() notificacoesNaoLidas = 0;
@@ -66,9 +88,17 @@ export class HeaderComponent implements OnInit {
     }
 
     if (this.tipo !== 'landing' && this.tipo !== 'auth') {
-      onAuthStateChanged(auth, async (firebaseUser: any) => {
+      this.unsubAuth = onAuthStateChanged(auth, async (firebaseUser: any) => {
+        // Troca de conta: para de ouvir os avisos da conta anterior
+        this.pararNotificacoes();
+
         if (firebaseUser) {
           this.currentUser.set(firebaseUser);
+
+          if (this.tipo === 'mae' && isPlatformBrowser(this.platformId)) {
+            this.ouvirNotificacoes(firebaseUser.uid);
+            this.lembreteService.iniciarListenerDeConsultas(firebaseUser.uid, 'mae');
+          }
           if (firebaseUser.displayName) this.formatAndSetName(firebaseUser.displayName);
 
           try {
@@ -88,6 +118,98 @@ export class HeaderComponent implements OnInit {
         }
       });
     }
+  }
+
+  ngOnDestroy() {
+    this.pararNotificacoes();
+    this.unsubAuth?.();
+  }
+
+  // --- NOTIFICAÇÕES (SINO DA MÃE) ---
+  // Só filtra por destinatário: ordenar aqui no código evita precisar criar índice no Firestore.
+  private ouvirNotificacoes(uid: string) {
+    const q = query(collection(db, 'notificacoes'), where('destinatarioId', '==', uid));
+    this.unsubNotificacoes = onSnapshot(
+      q,
+      (snap) => {
+        const lista: Notificacao[] = snap.docs.map((d) => {
+          const n = d.data();
+          const criado = n['criadoEm']?.toDate ? n['criadoEm'].toDate() : null;
+          return {
+            id: d.id,
+            titulo: n['titulo'] || 'Aviso',
+            mensagem: n['mensagem'] || '',
+            tipo: n['tipo'] || '',
+            link: n['link'] || null,
+            lida: n['lida'] === true,
+            criadoEm: criado,
+          };
+        });
+        // Mais recentes primeiro (as que acabaram de ser criadas ainda vêm sem data e ficam no topo)
+        lista.sort((a, b) => (b.criadoEm?.getTime() ?? Date.now()) - (a.criadoEm?.getTime() ?? Date.now()));
+        this.notificacoes.set(lista.slice(0, 20));
+      },
+      (erro) => console.warn('Não foi possível carregar as notificações:', erro)
+    );
+  }
+
+  private pararNotificacoes() {
+    this.unsubNotificacoes?.();
+    this.unsubNotificacoes = null;
+    this.notificacoes.set([]);
+  }
+
+  toggleNotificacoes(event: Event) {
+    event.stopPropagation();
+    this.isNotifOpen = !this.isNotifOpen;
+    this.isUserDropdownOpen = false;
+    this.menuAberto.set(false);
+  }
+
+  async abrirNotificacao(n: Notificacao) {
+    this.isNotifOpen = false;
+    if (this.isMobileMenuOpen) this.isMobileMenuOpen = false;
+    if (!n.lida) {
+      try {
+        await updateDoc(doc(db, 'notificacoes', n.id), { lida: true });
+      } catch (e) {
+        console.warn('Não foi possível marcar como lida:', e);
+      }
+    }
+    if (n.link) this.router.navigateByUrl(n.link);
+  }
+
+  async marcarTodasComoLidas(event?: Event) {
+    event?.stopPropagation();
+    const pendentes = this.notificacoes().filter((n) => !n.lida);
+    if (!pendentes.length) return;
+    const batch = writeBatch(db);
+    pendentes.forEach((n) => batch.update(doc(db, 'notificacoes', n.id), { lida: true }));
+    try {
+      await batch.commit();
+    } catch (e) {
+      console.warn('Não foi possível marcar todas como lidas:', e);
+    }
+  }
+
+  iconeNotificacao(tipo: string): string {
+    switch (tipo) {
+      case 'consulta_confirmada': return 'fa-solid fa-calendar-check';
+      case 'consulta_recusada': return 'fa-solid fa-calendar-xmark';
+      default: return 'fa-solid fa-bell';
+    }
+  }
+
+  tempoRelativo(data: Date | null): string {
+    if (!data) return 'agora';
+    const min = Math.floor((Date.now() - data.getTime()) / 60000);
+    if (min < 1) return 'agora';
+    if (min < 60) return `há ${min} min`;
+    const horas = Math.floor(min / 60);
+    if (horas < 24) return `há ${horas} h`;
+    const dias = Math.floor(horas / 24);
+    if (dias < 7) return dias === 1 ? 'ontem' : `há ${dias} dias`;
+    return data.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
   }
 
   private setUserData(data: any) {
@@ -646,6 +768,8 @@ redefinirAcessibilidade() {
   }
 
   async logout() {
+    this.pararNotificacoes();
+    this.lembreteService.parar();
     await signOut(auth);
     this.router.navigate(['/login']);
   }
@@ -656,6 +780,7 @@ redefinirAcessibilidade() {
     this.isAccMenuOpen = false;
     this.isUserDropdownOpen = false;
     this.isLangMenuOpen = false;
+    this.isNotifOpen = false;
     this.menuAberto.set(false);
   }
 }

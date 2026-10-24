@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, where, onSnapshot, getDocs, doc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs, getDoc, doc } from 'firebase/firestore';
 
 @Component({
   selector: 'app-agenda-mae',
@@ -147,6 +147,18 @@ export class AgendaMae implements OnInit, OnDestroy {
     this.selectedDayEvents.set(null);
   }
 
+  irParaConsultas() {
+    this.router.navigate(['/consultas']);
+  }
+
+  textoStatus(status: string): string {
+    const s = String(status || '').toLowerCase();
+    if (s === 'pendente') return 'Aguardando confirmação';
+    if (s === 'aceito') return 'Confirmada';
+    if (s === 'realizado') return 'Realizada';
+    return '';
+  }
+
   irParaEvento(id: string) {
     this.router.navigate(['/eventos'], { queryParams: { evento: id } });
   }
@@ -194,9 +206,13 @@ export class AgendaMae implements OnInit, OnDestroy {
       this.generateCalendar();
     });
 
-    const qConsultas = query(collection(db, 'Consultas'), where('Mae', '==', uid));
+    // Formato novo das consultas: maeId = uid de login
+    const qConsultas = query(collection(db, 'Consultas'), where('maeId', '==', uid));
     this.consultasUnsubscribe = onSnapshot(qConsultas, async (snapshot) => {
-      const docs = snapshot.docs.map(d => ({ id: d.id, ...(d.data() as any) }));
+      const docs = snapshot.docs
+        .map(d => ({ id: d.id, ...(d.data() as any) }))
+        // Canceladas/negadas não aparecem no calendário
+        .filter(c => String(c['status'] || '').toLowerCase() !== 'negado');
       const normalized = [];
 
       for (const raw of docs) {
@@ -205,17 +221,12 @@ export class AgendaMae implements OnInit, OnDestroy {
         copy.type = 'consulta';
         copy.Motivo = raw['Motivo'] ?? raw['motivo'] ?? '';
         copy.status = raw['status'] ?? '';
+        copy.statusTexto = this.textoStatus(copy.status);
 
-        let profissionalId = null;
-        let collectionName = null;
-        
-        if (raw['Psicologo']) {
-          profissionalId = raw['Psicologo'];
-          collectionName = 'psicologos';
-        } else if (raw['Advogado']) {
-          profissionalId = raw['Advogado'];
-          collectionName = 'advogados';
-        }
+        // Formato novo (profissionalId + tipoProfissional), com o antigo como reserva
+        let profissionalId = raw['profissionalId'] || raw['Psicologo'] || raw['Advogado'] || null;
+        const tipo = raw['tipoProfissional'] || (raw['Advogado'] ? 'advogado' : 'psicologo');
+        let collectionName = profissionalId ? (tipo === 'advogado' ? 'advogados' : 'psicologos') : null;
         
         copy.profissionalId = profissionalId;
         copy.collectionName = collectionName;
@@ -244,6 +255,9 @@ export class AgendaMae implements OnInit, OnDestroy {
 
   async fetchProfissionalNome(profissionalId: string, collectionName: string): Promise<string | null> {
     try {
+      // Pelo id do documento e, se não achar, pelo campo uid (cadastros antigos)
+      const porId = await getDoc(doc(db, collectionName, profissionalId));
+      if (porId.exists()) return porId.data()['nome'] ?? null;
       const q = query(collection(db, collectionName), where('uid', '==', profissionalId));
       const snap = await getDocs(q);
       if (!snap.empty) {

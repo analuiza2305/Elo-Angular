@@ -5,9 +5,7 @@ import { HeaderComponent } from '../../components/header/header';
 import { FooterComponent } from '../../components/footer/footer';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import {
-  doc, getDoc, getDocs, collection, query, where, onSnapshot, updateDoc, serverTimestamp
-} from 'firebase/firestore';
+import { doc, getDoc, getDocs, collection, query, where, onSnapshot, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 @Component({
   selector: 'app-consultas',
@@ -56,7 +54,7 @@ export class ConsultasComponent implements OnInit {
   }
 
   ouvirConsultasDaMae(uidMae: string) {
-    const q = query(collection(db, "Consultas"), where("Mae", "==", uidMae));
+    const q = query(collection(db, "Consultas"), where("maeId", "==", uidMae));
 
     onSnapshot(q, async (snapshot) => {
       this.isLoading.set(false);
@@ -66,37 +64,32 @@ export class ConsultasComponent implements OnInit {
 
       for (const snapDoc of snapshot.docs) {
         const raw = { id: snapDoc.id, ...snapDoc.data() } as any;
-        let profissionalId = null;
-        let collectionName = null;
+        
+        // NOVO CONTRATO DE DADOS DA SPRINT 2
+        let profissionalId = raw.profissionalId || raw.Psicologo || raw.Advogado;
+        let tipoProf = raw.tipoProfissional;
 
-        if (raw.Psicologo) {
-          profissionalId = raw.Psicologo;
-          collectionName = 'psicologos';
-        } else if (raw.Advogado) {
-          profissionalId = raw.Advogado;
-          collectionName = 'advogados';
+        // Fallback caso a consulta seja antiga
+        if (!tipoProf) {
+            if (raw.Psicologo) tipoProf = 'psicologo';
+            else if (raw.Advogado) tipoProf = 'advogado';
         }
+
+        let collectionName = tipoProf === 'psicologo' ? 'psicologos' : 'advogados';
 
         // Busca dados do profissional
         let profissionalNome = '';
         let profissionalFoto = './img/account_icon.png';
 
         if (profissionalId && collectionName) {
-          try {
-            const pQuery = query(collection(db, collectionName), where("uid", "==", profissionalId));
-            const pSnap = await getDocs(pQuery);
-            if (!pSnap.empty) {
-              const pData = pSnap.docs[0].data();
-              profissionalNome = pData['nome'] || '';
-              profissionalFoto = pData['avatar'] || './img/account_icon.png';
-            }
-          } catch (e) {
-            console.error(e);
+          const pData = await this.buscarProfissional(profissionalId, collectionName);
+          if (pData) {
+            profissionalNome = pData['nome'] || '';
+            profissionalFoto = pData['avatar'] || './img/account_icon.png';
           }
         }
 
         const dataFormatada = this.formatDataHora(raw.Datahora);
-        const tipoProf = collectionName === 'psicologos' ? 'psicologo' : 'advogado';
 
         const consultaObj = {
           ...raw,
@@ -122,6 +115,28 @@ export class ConsultasComponent implements OnInit {
     });
   }
 
+  private cacheProfissionais = new Map<string, any>();
+
+  /** Procura o profissional pelo id do documento e, se não achar, pelo campo uid (cadastros antigos). */
+  private async buscarProfissional(id: string, colecao: string): Promise<any | null> {
+    const chave = `${colecao}/${id}`;
+    if (this.cacheProfissionais.has(chave)) return this.cacheProfissionais.get(chave);
+    let dados: any = null;
+    try {
+      const porId = await getDoc(doc(db, colecao, id));
+      if (porId.exists()) {
+        dados = porId.data();
+      } else {
+        const legado = await getDocs(query(collection(db, colecao), where('uid', '==', id)));
+        if (!legado.empty) dados = legado.docs[0].data();
+      }
+    } catch (e) {
+      console.error('Erro ao buscar profissional', e);
+    }
+    this.cacheProfissionais.set(chave, dados);
+    return dados;
+  }
+
   formatDataHora(timestamp: any): string {
     if (!timestamp) return "";
     try {
@@ -145,14 +160,12 @@ export class ConsultasComponent implements OnInit {
   async abrirDetalhesProfissional(uid: string, tipo: string) {
     try {
       const collectionName = tipo === "psicologo" ? "psicologos" : "advogados";
-      const q = query(collection(db, collectionName), where("uid", "==", uid));
-      const snap = await getDocs(q);
-      if (snap.empty) {
+      const data = await this.buscarProfissional(uid, collectionName);
+      if (!data) {
         alert("Informações do profissional não encontradas.");
         return;
       }
 
-      const data = snap.docs[0].data();
       this.profissionalSelecionado.set({
         nome: data['nome'] || "—",
         email: data['email'] ? `Email: ${data['email']}` : "",
@@ -177,10 +190,6 @@ export class ConsultasComponent implements OnInit {
   abrirChat(uid: string, tipo: string) {
     this.router.navigate(['/chat'], { queryParams: { uid, tipo } });
   }
-
-  // ==============================
-  // CANCELAMENTO DE CONSULTA
-  // ==============================
 
   abrirModalCancelar(consulta: any) {
     this.consultaParaCancelar.set(consulta);

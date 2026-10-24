@@ -1,0 +1,96 @@
+<div class="artigo-profissional-page">
+  <!-- HEADER ESTILO HOME-PSI / HOME-ADV -->
+  <header class="header">
+    <h1 id="boasVindas">Bem-vindo(a), Dr(a). {{ nomeCompleto() }}</h1>
+    
+    <div class="right-section">
+      <div class="accessibility-selector">
+        <button id="accessibility-toggle" aria-label="Opções de acessibilidade" (click)="toggleAccessibilityMenu()">
+          <i class="fa fa-universal-access" aria-hidden="true"></i>
+        </button>
+        <ul id="accessibility-menu" [class.hidden]="!accessibilityMenuOpen()">
+          <li (click)="aumentarFonte()"><i class="fa fa-plus-circle"></i> Aumentar Fonte</li>
+          <li (click)="diminuirFonte()"><i class="fa fa-minus-circle"></i> Diminuir Fonte</li>
+          <li (click)="redefinirAcessibilidade()"><i class="fa fa-undo"></i> Redefinir</li>
+        </ul>
+      </div>
+      <div class="theme-toggle" id="theme-toggle" (click)="toggleTheme()">
+        <i class="fas" [class.fa-moon]="!isDarkMode()" [class.fa-sun]="isDarkMode()" aria-label="Alternar tema"></i>
+      </div>
+      <button id="logoutBtn" class="logout-btn" (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+      <button id="avatarBtn" class="avatar-btn" (click)="irParaPerfil()" title="Meu Perfil">
+        <img id="currentAvatar" [src]="avatarUrl()" alt="Avatar">
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO DO ARTIGO -->
+  <main class="artigo-wrapper">
+    <div class="breadcrumb-acoes">
+        <button type="button" class="link-voltar" (click)="voltar()">
+            <i class="fa-solid fa-arrow-left"></i> Voltar para o painel
+        </button>
+        
+        @if (!isLoading() && artigo()) {
+            <button class="btn-favoritar" (click)="toggleFavorito()">
+                @if (isFavorito()) {
+                    <i class="fa-solid fa-bookmark" style="color: #4B2C82;"></i> Salvo
+                } @else {
+                    <i class="fa-regular fa-bookmark"></i> Salvar Artigo
+                }
+            </button>
+        }
+    </div>
+
+    @if (isLoading()) {
+        <div class="loader-container">
+            <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        </div>
+    }
+
+    @if (!isLoading() && errorMessage()) {
+        <div class="estado-vazio">
+            <div class="vazio-icon-wrapper"><i class="fa-solid fa-circle-exclamation"></i></div>
+            <h3>Opa! Ocorreu um problema.</h3>
+            <p>{{ errorMessage() }}</p>
+        </div>
+    }
+
+    @if (!isLoading() && !errorMessage() && artigo()) {
+        <article class="artigo-card">
+            <header>
+                <div class="artigo-header-meta">
+                    <span class="categoria-badge">{{ artigo().categoria }}</span>
+                    <span class="data-badge"><i class="fa-regular fa-calendar"></i> {{ artigo().dataString }}</span>
+                </div>
+                <h1 id="artigo-titulo" class="mt-3">{{ artigo().titulo }}</h1>
+            </header>
+
+            <!-- TRATATIVA DA IMAGEM ATUALIZADA (artigo().img) -->
+            @if (artigo().img || artigo().imagemCapa || artigo().imageUrl) {
+                <div class="artigo-img-container">
+                    <img [src]="artigo().img || artigo().imagemCapa || artigo().imageUrl" alt="Capa do artigo" class="artigo-img">
+                </div>
+            }
+
+            <div class="resumo">
+                {{ artigo().conteudo || artigo().resumo || artigo().descricao }}
+            </div>
+
+            @if (artigo().linkExterno || artigo().link) {
+                <div class="link-externo-box">
+                    <a [href]="artigo().linkExterno || artigo().link" target="_blank" class="btn-externo">
+                        Acessar material completo <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+            }
+
+            <footer class="artigo-footer-info">
+                Por: <strong>{{ artigo().postadoPor || artigo().autorNome || 'Equipe EloMaterno' }}</strong>
+            </footer>
+        </article>
+    }
+  </main>
+</div>     

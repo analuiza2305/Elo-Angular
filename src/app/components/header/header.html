@@ -214,6 +214,54 @@
 
               <a routerLink="/chat" class="header-icon-btn" title="Mensagens"><i class="fa-regular fa-comment"></i></a>
 
+              <!-- SINO DE NOTIFICAÇÕES -->
+              <div class="notif-wrapper">
+                <button type="button" class="header-icon-btn notif-btn" (click)="toggleNotificacoes($event)"
+                        [attr.aria-label]="naoLidas() ? 'Notificações, ' + naoLidas() + ' não lidas' : 'Notificações'"
+                        [attr.aria-expanded]="isNotifOpen" title="Notificações">
+                  <i class="fa-regular fa-bell"></i>
+                  @if (naoLidas() > 0) {
+                    <span class="notif-badge">{{ naoLidas() > 9 ? '9+' : naoLidas() }}</span>
+                  }
+                </button>
+
+                @if (isNotifOpen) {
+                  <div class="notif-panel" role="dialog" aria-label="Notificações" (click)="$event.stopPropagation()">
+                    <div class="notif-panel-header">
+                      <strong>Notificações</strong>
+                      @if (naoLidas() > 0) {
+                        <button type="button" class="notif-marcar" (click)="marcarTodasComoLidas($event)">Marcar todas como lidas</button>
+                      }
+                    </div>
+
+                    @if (notificacoes().length === 0) {
+                      <div class="notif-vazio">
+                        <i class="fa-regular fa-bell-slash"></i>
+                        <p>Nenhuma notificação por enquanto.</p>
+                      </div>
+                    } @else {
+                      <ul class="notif-lista">
+                        @for (n of notificacoes(); track n.id) {
+                          <li>
+                            <button type="button" class="notif-item" [class.nao-lida]="!n.lida" (click)="abrirNotificacao(n)">
+                              <span class="notif-icone" [class.recusada]="n.tipo === 'consulta_recusada'">
+                                <i [class]="iconeNotificacao(n.tipo)"></i>
+                              </span>
+                              <span class="notif-texto">
+                                <strong>{{ n.titulo }}</strong>
+                                <span class="notif-msg">{{ n.mensagem }}</span>
+                                <span class="notif-tempo">{{ tempoRelativo(n.criadoEm) }}</span>
+                              </span>
+                              @if (!n.lida) { <span class="notif-ponto" aria-hidden="true"></span> }
+                            </button>
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </div>
+                }
+              </div>
+
               <div class="accessibility-selector">
                 <button type="button" (click)="$event.stopPropagation(); toggleMenu()" aria-label="Opções de acessibilidade" class="header-icon-btn">
                     <i class="fa fa-universal-access" aria-hidden="true"></i>
@@ -255,6 +303,7 @@
           <!-- BOTÃO HAMBÚRGUER (APENAS NO MOBILE) -->
           <button class="menu-toggle" aria-label="Abrir menu" (click)="toggleMobileMenu()">
             <i class="fa" [class.fa-bars]="!isMobileMenuOpen" [class.fa-xmark]="isMobileMenuOpen"></i>
+            @if (naoLidas() > 0 && !isMobileMenuOpen) { <span class="notif-badge" aria-hidden="true"></span> }
           </button>
 
           <!-- BACKDROP MOBILE -->
@@ -302,6 +351,40 @@
                   <a routerLink="/perfil" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
                       <i class="fa-solid fa-user-gear"></i> Meu Perfil
                   </a>
+              </div>
+
+              <!-- Notificações no Mobile -->
+              <div class="mobile-notif-section">
+                <button type="button" class="mobile-acc-btn" (click)="toggleNotificacoes($event)" [attr.aria-expanded]="isNotifOpen">
+                  <i class="fa-solid fa-bell"></i>
+                  <span>Notificações</span>
+                  @if (naoLidas() > 0) { <span class="notif-badge-inline">{{ naoLidas() > 9 ? '9+' : naoLidas() }}</span> }
+                </button>
+
+                @if (isNotifOpen) {
+                  <div class="mobile-notif-lista" (click)="$event.stopPropagation()">
+                    @if (notificacoes().length === 0) {
+                      <p class="notif-vazio-mobile">Nenhuma notificação por enquanto.</p>
+                    } @else {
+                      @if (naoLidas() > 0) {
+                        <button type="button" class="notif-marcar" (click)="marcarTodasComoLidas($event)">Marcar todas como lidas</button>
+                      }
+                      @for (n of notificacoes(); track n.id) {
+                        <button type="button" class="notif-item" [class.nao-lida]="!n.lida" (click)="abrirNotificacao(n)">
+                          <span class="notif-icone" [class.recusada]="n.tipo === 'consulta_recusada'">
+                            <i [class]="iconeNotificacao(n.tipo)"></i>
+                          </span>
+                          <span class="notif-texto">
+                            <strong>{{ n.titulo }}</strong>
+                            <span class="notif-msg">{{ n.mensagem }}</span>
+                            <span class="notif-tempo">{{ tempoRelativo(n.criadoEm) }}</span>
+                          </span>
+                          @if (!n.lida) { <span class="notif-ponto" aria-hidden="true"></span> }
+                        </button>
+                      }
+                    }
+                  </div>
+                }
               </div>
 
               <!-- Seção de Acessibilidade e Tema no Mobile -->
