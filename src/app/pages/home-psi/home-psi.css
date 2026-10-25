@@ -6241,3 +6241,231 @@ header h1 { font-size: 24px; color: var(--primary-color-dark); font-weight: 800;
 #planos .pl-chip.pl-chip-premium { background: var(--s-ouro-claro); color: #B4610A; border: 1px solid var(--s-ouro-borda); }
 :host-context(body[data-theme="dark"]) #planos .pl-chip.pl-chip-premium { color: #FCD34D; }
 #documentos .doc-modelo-acao { white-space: nowrap; font-size: .82rem; padding: 10px 14px; }
+/* =========================================
+   DOCUMENTOS / PLANOS — CORREÇÕES
+========================================= */
+
+/* 4. As duas seções ocupam a largura toda (a de Planos ficava estreita) */
+#documentos,
+#planos {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* 1. Abas: a barra roxa vira sombra interna da própria aba (não depende de posicionamento) */
+#documentos .doc-tab::after { content: none !important; display: none !important; }
+#documentos .doc-tab { position: relative !important; }
+#documentos .doc-tab.ativo {
+  box-shadow: inset 0 -3px 0 #7C5CD6, 0 8px 20px rgba(91, 61, 153, .12) !important;
+}
+:host-context(body[data-theme="dark"]) #documentos .doc-tab.ativo {
+  box-shadow: inset 0 -3px 0 #BDAFFC, 0 8px 20px rgba(0, 0, 0, .35) !important;
+}
+
+/* 2. Cards bloqueados com cor normal + grade preenchendo a linha */
+#documentos .doc-modelo,
+#documentos .doc-modelo:disabled,
+#documentos .doc-modelo.bloqueado {
+  opacity: 1 !important;
+  filter: none !important;
+  color: inherit !important;
+}
+#documentos .doc-modelo:disabled p { color: #6E5FA0 !important; }
+#documentos .doc-modelo:disabled h3 { color: #24164A !important; }
+:host-context(body[data-theme="dark"]) #documentos .doc-modelo:disabled p { color: #B9AEE0 !important; }
+:host-context(body[data-theme="dark"]) #documentos .doc-modelo:disabled h3 { color: #F5F0FF !important; }
+#documentos .doc-modelos {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+}
+
+  /* =========================================================
+   PLANOS v2 — redesign (cole no FIM do home-psi.css)
+   Usa ".home-psi-page #planos" para ganhar de qualquer regra antiga.
+========================================================= */
+
+/* Ocupa a largura toda da área de conteúdo */
+.home-psi-page .main-container > #planos,
+.home-psi-page #planos {
+  flex: 1 1 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+.home-psi-page #planos > * { max-width: 1080px; box-sizing: border-box; }
+
+/* ---------- Cabeçalho ---------- */
+.home-psi-page #planos .pl-topo { margin-bottom: 22px !important; }
+
+/* ---------- Plano atual: faixa em degradê ---------- */
+.home-psi-page #planos .pl-atual {
+  position: relative !important; overflow: hidden !important;
+  display: flex !important; align-items: center !important; gap: 18px !important;
+  margin-bottom: 34px !important; padding: 26px 30px !important;
+  border: none !important; border-radius: 26px !important;
+  background: linear-gradient(120deg, #6A4BC4 0%, #8B6BD9 55%, #B39DED 100%) !important;
+  box-shadow: 0 18px 40px rgba(91, 61, 153, .28) !important;
+}
+.home-psi-page #planos .pl-atual.premium {
+  background: linear-gradient(120deg, #D97706 0%, #F59E0B 55%, #FCD34D 100%) !important;
+  box-shadow: 0 18px 40px rgba(217, 119, 6, .28) !important;
+}
+.home-psi-page #planos .pl-atual::before,
+.home-psi-page #planos .pl-atual::after {
+  content: ""; position: absolute; border-radius: 50%; pointer-events: none;
+  background: rgba(255, 255, 255, .12);
+}
+.home-psi-page #planos .pl-atual::before { width: 220px; height: 220px; right: -60px; top: -110px; }
+.home-psi-page #planos .pl-atual::after { width: 140px; height: 140px; right: 180px; bottom: -90px; background: rgba(255, 255, 255, .08); }
+.home-psi-page #planos .pl-atual-icone {
+  position: relative; z-index: 1; width: 60px !important; height: 60px !important; border-radius: 18px !important;
+  background: rgba(255, 255, 255, .22) !important; color: #FFFFFF !important; font-size: 1.4rem !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35) !important; backdrop-filter: blur(4px);
+}
+.home-psi-page #planos .pl-atual-icone i { color: #FFFFFF !important; }
+.home-psi-page #planos .pl-atual-texto { position: relative; z-index: 1; }
+.home-psi-page #planos .pl-atual-texto span { color: rgba(255, 255, 255, .8) !important; }
+.home-psi-page #planos .pl-atual-texto strong { color: #FFFFFF !important; font-size: 1.55rem !important; }
+.home-psi-page #planos .pl-atual-texto small { color: #FFFFFF !important; opacity: .9; }
+.home-psi-page #planos .pl-atual-ilustra {
+  position: absolute !important; right: 40px !important; top: 50% !important; bottom: auto !important;
+  transform: translateY(-50%); display: flex !important; align-items: flex-end !important; gap: 12px !important; z-index: 1;
+}
+.home-psi-page #planos .pl-atual-ilustra i {
+  color: rgba(255, 255, 255, .28) !important; line-height: 1 !important;
+}
+.home-psi-page #planos .pl-atual-ilustra .fa-calendar-days { font-size: 3.4rem !important; font-weight: 400 !important; }
+.home-psi-page #planos .pl-atual-ilustra .fa-seedling { font-size: 2.3rem !important; font-weight: 900 !important; color: rgba(255, 255, 255, .4) !important; }
+
+/* ---------- Grade dos planos ---------- */
+.home-psi-page #planos .pl-grid {
+  display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 28px !important; align-items: stretch !important;
+}
+.home-psi-page #planos .pl-card {
+  position: relative !important; display: flex !important; flex-direction: column !important; gap: 0 !important;
+  padding: 34px 32px 30px !important; border-radius: 28px !important;
+  background: #FFFFFF !important; border: 1px solid #ECE6F8 !important;
+  box-shadow: 0 14px 36px rgba(91, 61, 153, .09) !important;
+  outline: none !important; overflow: visible !important;
+}
+.home-psi-page #planos .pl-card:hover { transform: translateY(-4px); box-shadow: 0 22px 44px rgba(91, 61, 153, .14) !important; }
+.home-psi-page #planos .pl-card.atual { border: 2px solid #C9B8F2 !important; }
+
+/* Premium em destaque: borda em degradê e brilho */
+.home-psi-page #planos .pl-card-premium {
+  border: 2px solid transparent !important;
+  background:
+    linear-gradient(170deg, #FFFFFF 0%, #FFF9EE 100%) padding-box,
+    linear-gradient(135deg, #FCD34D, #F59E0B 50%, #FBBF24) border-box !important;
+  box-shadow: 0 20px 44px rgba(245, 158, 11, .18) !important;
+}
+.home-psi-page #planos .pl-card-premium:hover { box-shadow: 0 26px 52px rgba(245, 158, 11, .26) !important; }
+
+/* Cabeçalho do card */
+.home-psi-page #planos .pl-card-topo { margin-bottom: 6px !important; min-height: 40px; }
+.home-psi-page #planos .pl-card h3 { font-size: 1.35rem !important; color: #24164A !important; }
+.home-psi-page #planos .pl-card h3 i {
+  width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center;
+  background: #FFF1D6; color: #F59E0B !important; font-size: 1rem !important;
+}
+
+/* Selo "Recomendado" flutuando na borda de cima */
+.home-psi-page #planos .pl-card-premium .pl-chip-premium {
+  position: absolute !important; top: -15px !important; right: 28px !important;
+  padding: 7px 16px !important; border: none !important;
+  background: linear-gradient(135deg, #FBBF24, #F59E0B) !important; color: #FFFFFF !important;
+  box-shadow: 0 8px 18px rgba(245, 158, 11, .35) !important; letter-spacing: .06em !important;
+}
+.home-psi-page #planos .pl-card .pl-chip:not(.pl-chip-premium) {
+  background: #F1EBFF !important; color: #5B3D99 !important; padding: 6px 14px !important;
+}
+
+/* Preço com linha embaixo */
+.home-psi-page #planos .pl-preco {
+  display: flex; align-items: baseline; gap: 6px;
+  padding: 10px 0 22px !important; margin-bottom: 8px !important; border-bottom: 1px dashed #E4DCF5;
+}
+.home-psi-page #planos .pl-card-premium .pl-preco { border-bottom-color: #F8E2B8; }
+.home-psi-page #planos .pl-preco strong { font-size: 2.8rem !important; line-height: 1 !important; color: #6C4BBF !important; }
+.home-psi-page #planos .pl-card-premium .pl-preco strong {
+  background: linear-gradient(135deg, #D97706, #F59E0B); -webkit-background-clip: text; background-clip: text; color: transparent !important;
+}
+.home-psi-page #planos .pl-preco span { font-size: 1rem !important; color: #8B7DB8 !important; }
+
+/* Lista de recursos */
+.home-psi-page #planos .pl-card ul { margin: 0 0 24px !important; padding: 0 !important; flex: 1 !important; }
+.home-psi-page #planos .pl-card li {
+  align-items: center !important; gap: 14px !important; padding: 11px 0 !important;
+  border-bottom: none !important; color: #3D2F63 !important; font-size: .96rem !important;
+}
+.home-psi-page #planos .pl-check {
+  width: 26px !important; height: 26px !important; border-radius: 9px !important; font-size: .72rem !important;
+}
+.home-psi-page #planos .pl-check i { color: inherit !important; }
+.home-psi-page #planos .pl-card .pl-check { background: #E2F6EC !important; color: #159A5B !important; }
+.home-psi-page #planos .pl-card-premium .pl-check { background: #FFEFD4 !important; color: #E8890C !important; }
+
+/* Botões */
+.home-psi-page #planos .pl-btn { min-height: 58px !important; border-radius: 18px !important; font-size: 1.02rem !important; }
+.home-psi-page #planos .pl-btn i { color: inherit !important; }
+.home-psi-page #planos .pl-btn-premium {
+  background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 60%, #EA8A06 100%) !important; color: #FFFFFF !important;
+  box-shadow: 0 14px 28px rgba(245, 158, 11, .35), inset 0 1px 0 rgba(255, 255, 255, .35) !important;
+}
+.home-psi-page #planos .pl-btn-premium:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 18px 34px rgba(245, 158, 11, .42) !important; }
+.home-psi-page #planos .pl-btn-outline { border-radius: 18px !important; }
+
+/* Rodapé do card gratuito: texto no lugar vazio do botão */
+.home-psi-page #planos .pl-card.atual:not(.pl-card-premium)::after {
+  content: "Você já usa este plano";
+  display: flex; align-items: center; justify-content: center; min-height: 58px; border-radius: 18px;
+  background: #F6F2FF; color: #7B6AAE; font-weight: 800; font-size: .95rem;
+}
+
+/* Nota do selo */
+.home-psi-page #planos .pl-nota {
+  display: inline-flex !important; align-items: center !important; gap: 10px !important; flex-wrap: nowrap !important;
+  margin-top: 26px !important; padding: 12px 18px !important; border-radius: 999px !important;
+  background: #FFFFFF; border: 1px solid #ECE6F8; box-shadow: 0 6px 16px rgba(91, 61, 153, .06);
+  color: #6E5FA0 !important; font-size: .88rem !important; max-width: 100%;
+}
+.home-psi-page #planos .pl-nota i { color: #0F7A55 !important; flex-shrink: 0; }
+
+/* Confirmação do pagamento simulado */
+.home-psi-page #planos .pl-confirmar { border-radius: 18px !important; }
+
+/* ---------- Modo escuro ---------- */
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card {
+  background: #1B2336 !important; border-color: rgba(255, 255, 255, .08) !important; box-shadow: 0 14px 34px rgba(0, 0, 0, .35) !important;
+}
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card.atual { border-color: #6D5BB5 !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card-premium {
+  background:
+    linear-gradient(170deg, #1B2336 0%, #2A2416 100%) padding-box,
+    linear-gradient(135deg, #FCD34D, #F59E0B 50%, #FBBF24) border-box !important;
+}
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card h3 { color: #F5F0FF !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card h3 i { background: rgba(251, 191, 36, .15); }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card li { color: #D8CCFF !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-preco { border-bottom-color: rgba(255, 255, 255, .1); }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-preco strong { color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card .pl-check { background: rgba(74, 222, 128, .15) !important; color: #86EFAC !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card-premium .pl-check { background: rgba(251, 191, 36, .15) !important; color: #FCD34D !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card .pl-chip:not(.pl-chip-premium) { background: #2A2350 !important; color: #D8CCFF !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card.atual:not(.pl-card-premium)::after { background: #222B42; color: #B9AEE0; }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-nota { background: #1B2336; border-color: rgba(255, 255, 255, .08); color: #B9AEE0 !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-atual { box-shadow: 0 18px 40px rgba(0, 0, 0, .4) !important; }
+
+/* ---------- Telas menores ---------- */
+@media (max-width: 900px) {
+  .home-psi-page #planos .pl-grid { grid-template-columns: 1fr !important; gap: 34px !important; }
+  .home-psi-page #planos .pl-atual-ilustra { display: none !important; }
+}
+@media (max-width: 600px) {
+  .home-psi-page #planos .pl-card { padding: 28px 22px 22px !important; }
+  .home-psi-page #planos .pl-preco strong { font-size: 2.3rem !important; }
+  .home-psi-page #planos .pl-nota { border-radius: 16px !important; flex-wrap: wrap !important; }
+}
