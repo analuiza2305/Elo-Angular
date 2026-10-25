@@ -24,6 +24,8 @@ export interface ModeloDocumento {
   artigo: string;
   resumo: string;
   premium: boolean;
+  /** Ícone do Font Awesome mostrado no card do modelo. */
+  icone: string;
   /** Pede o campo "finalidade" na identificação (exigido em todos, destacado na declaração). */
   pedeSolicitante: boolean;
   /** Validade no último parágrafo (art. 17: atestado, relatório e laudo). */
@@ -34,6 +36,7 @@ export interface ModeloDocumento {
 export const MODELOS_PSICOLOGIA: ModeloDocumento[] = [
   {
     id: 'declaracao',
+    icone: 'fa-regular fa-file-lines',
     nome: 'Declaração',
     artigo: 'Art. 9º',
     resumo: 'Informa de forma objetiva o comparecimento: local, dias, horários e duração. Não registra sintomas nem estados psicológicos.',
@@ -52,6 +55,7 @@ export const MODELOS_PSICOLOGIA: ModeloDocumento[] = [
   },
   {
     id: 'atestado',
+    icone: 'fa-regular fa-clipboard',
     nome: 'Atestado psicológico',
     artigo: 'Art. 10',
     resumo: 'Certifica, com base em avaliação, uma condição que justifique afastamento, aptidão ou impedimento. Texto corrido, sem parágrafos.',
@@ -70,6 +74,7 @@ export const MODELOS_PSICOLOGIA: ModeloDocumento[] = [
   },
   {
     id: 'relatorio',
+    icone: 'fa-solid fa-brain',
     nome: 'Relatório psicológico',
     artigo: 'Art. 11',
     resumo: 'Comunica o trabalho realizado ou em andamento e pode embasar orientações, encaminhamentos ou intervenções.',
@@ -85,6 +90,7 @@ export const MODELOS_PSICOLOGIA: ModeloDocumento[] = [
   },
   {
     id: 'laudo',
+    icone: 'fa-regular fa-rectangle-list',
     nome: 'Laudo psicológico',
     artigo: 'Art. 13',
     resumo: 'Resultado de um processo de avaliação psicológica. Apresenta análise, conclusão e indicações para subsidiar decisões.',
@@ -101,6 +107,7 @@ export const MODELOS_PSICOLOGIA: ModeloDocumento[] = [
   },
   {
     id: 'parecer',
+    icone: 'fa-solid fa-shield-halved',
     nome: 'Parecer psicológico',
     artigo: 'Art. 14',
     resumo: 'Responde a uma questão técnica específica, de forma indicativa ou conclusiva. Exige competência na área consultada.',

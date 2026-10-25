@@ -582,8 +582,20 @@
     <!-- DOCUMENTOS: certificado de horas + modelos do CFP -->
     <section class="content" id="documentos" *ngIf="activeSection() === 'documentos'">
       <div class="doc-topo">
-        <h2>Documentos</h2>
-        <p>Emita o certificado de horas do mês e documentos psicológicos prontos para assinar.</p>
+        <div class="doc-topo-texto">
+          <h2>Documentos</h2>
+          <p>Emita o certificado de horas do mês e documentos psicológicos prontos para assinar.</p>
+        </div>
+        <div class="doc-ilustra" aria-hidden="true">
+          <i class="fa-solid fa-star doc-brilho b1"></i>
+          <i class="fa-solid fa-star doc-brilho b2"></i>
+          <span class="doc-ponto p1"></span><span class="doc-ponto p2"></span>
+          <div class="doc-ilustra-papel">
+            <span></span><span></span><span class="curta"></span>
+            <i class="fa-solid fa-signature"></i>
+          </div>
+          <div class="doc-ilustra-selo"><i class="fa-solid fa-shield-halved"></i></div>
+        </div>
       </div>
 
       <div class="doc-tabs" role="tablist">
@@ -592,7 +604,7 @@
         </button>
         <button type="button" class="doc-tab" role="tab" [class.ativo]="abaDocumentos() === 'modelos'" [attr.aria-selected]="abaDocumentos() === 'modelos'" (click)="abaDocumentos.set('modelos'); erroDocumento.set('')">
           <i class="fa-regular fa-file-lines"></i> Modelos de documentos
-          @if (!isPremium()) { <span class="doc-chip-premium">Premium</span> }
+          @if (!isPremium()) { <span class="doc-chip doc-chip-premium">Premium</span> }
         </button>
       </div>
 
@@ -607,41 +619,62 @@
       @if (abaDocumentos() === 'certificado') {
         <div class="doc-grid-cert">
           <div class="doc-card">
-            <h3>Período</h3>
+            <div class="doc-card-titulo">
+              <h3><i class="fa-regular fa-calendar"></i> Período</h3>
+              <p>Selecione o período para gerar o certificado.</p>
+            </div>
             <div class="doc-linha-campos">
               <label class="doc-campo">
                 <span>Mês</span>
-                <select [ngModel]="certMes()" (ngModelChange)="certMes.set(+$event)">
-                  <option *ngFor="let mes of nomesMeses; let i = index" [value]="i">{{ mes }}</option>
-                </select>
+                <div class="doc-input-icone">
+                  <i class="fa-regular fa-calendar"></i>
+                  <select [ngModel]="certMes()" (ngModelChange)="certMes.set(+$event)">
+                    <option *ngFor="let mes of nomesMeses; let i = index" [value]="i">{{ mes }}</option>
+                  </select>
+                </div>
               </label>
               <label class="doc-campo">
                 <span>Ano</span>
-                <select [ngModel]="certAno()" (ngModelChange)="certAno.set(+$event)">
-                  <option *ngFor="let ano of anosSelecionaveis" [value]="ano">{{ ano }}</option>
-                </select>
+                <div class="doc-input-icone">
+                  <i class="fa-regular fa-calendar"></i>
+                  <select [ngModel]="certAno()" (ngModelChange)="certAno.set(+$event)">
+                    <option *ngFor="let ano of anosSelecionaveis" [value]="ano">{{ ano }}</option>
+                  </select>
+                </div>
               </label>
             </div>
             <label class="doc-campo">
               <span>Duração padrão por sessão (min)</span>
-              <input type="number" min="10" max="180" [ngModel]="certDuracaoPadrao()" (ngModelChange)="certDuracaoPadrao.set(+$event || 50)">
-              <small>Usada só quando a chamada não registrou o horário de encerramento.</small>
+              <div class="doc-input-icone com-sufixo">
+                <i class="fa-regular fa-clock"></i>
+                <input type="number" min="10" max="180" [ngModel]="certDuracaoPadrao()" (ngModelChange)="certDuracaoPadrao.set(+$event || 50)">
+                <em>min</em>
+              </div>
             </label>
+            <p class="doc-dica"><i class="fa-solid fa-circle-info"></i> Usada só quando a chamada não registrou o horário de encerramento.</p>
           </div>
 
           <div class="doc-card doc-card-resumo">
-            <div class="doc-resumo-numeros">
-              <div><strong>{{ sessoesCertificado().length }}</strong><span>atendimentos</span></div>
-              <div><strong>{{ totalHorasCertificado() }}</strong><span>total de horas</span></div>
+            <div class="doc-stats">
+              <div class="doc-stat">
+                <span class="doc-stat-icone"><i class="fa-solid fa-user-group"></i></span>
+                <div><strong>{{ sessoesCertificado().length }}</strong><small>Atendimentos</small></div>
+              </div>
+              <div class="doc-stat">
+                <span class="doc-stat-icone"><i class="fa-regular fa-clock"></i></span>
+                <div><strong>{{ totalHorasCertificado() }}</strong><small>Total de horas</small></div>
+              </div>
             </div>
             <p class="doc-resumo-texto">
               Certificado de {{ nomesMeses[certMes()] | lowercase }} de {{ certAno() }}. As mães atendidas não aparecem no documento, em respeito ao sigilo.
             </p>
             <button type="button" class="doc-btn doc-btn-primario" [disabled]="gerandoPdf() || sessoesCertificado().length === 0" (click)="baixarCertificado()">
-              <i class="fa-solid fa-file-arrow-down"></i> {{ gerandoPdf() ? 'Gerando...' : 'Baixar certificado (PDF)' }}
+              <i class="fa-solid fa-download"></i> {{ gerandoPdf() ? 'Gerando...' : 'Baixar certificado (PDF)' }}
             </button>
             @if (sessoesCertificado().length === 0) {
-              <small class="doc-ajuda">Nenhuma consulta realizada neste mês.</small>
+              <p class="doc-seguro">Nenhuma consulta realizada neste mês.</p>
+            } @else {
+              <p class="doc-seguro"><i class="fa-solid fa-shield-halved"></i> Gerado no seu navegador: nada fica salvo na plataforma.</p>
             }
           </div>
         </div>
@@ -653,23 +686,24 @@
           @if (!isPremium()) {
             <div class="doc-premium-banner">
               <div class="doc-premium-icone"><i class="fa-solid fa-crown"></i></div>
-              <div>
+              <div class="doc-premium-texto">
                 <strong>Modelos completos no Premium</strong>
                 <p>Atestado, relatório, laudo e parecer já com a estrutura da Resolução CFP 06/2019, preenchidos com os dados das suas consultas. A declaração de comparecimento é gratuita.</p>
               </div>
-              <button type="button" class="doc-btn doc-btn-premium" (click)="conhecerPremium()">Conhecer o Premium</button>
+              <button type="button" class="doc-btn doc-btn-premium" (click)="conhecerPremium()"><i class="fa-solid fa-crown"></i> Conhecer o Premium</button>
             </div>
           }
 
           <div class="doc-modelos">
             @for (m of modelos; track m.id) {
               <button type="button" class="doc-modelo" [class.bloqueado]="!podeUsarModelo(m)" [disabled]="!podeUsarModelo(m)" (click)="escolherModelo(m)">
+                <span class="doc-modelo-icone"><i [class]="m.icone"></i></span>
                 <div class="doc-modelo-topo">
                   <span class="doc-modelo-artigo">{{ m.artigo }}</span>
                   @if (m.premium) {
-                    <span class="doc-chip-premium"><i class="fa-solid" [class.fa-lock]="!podeUsarModelo(m)" [class.fa-crown]="podeUsarModelo(m)"></i> Premium</span>
+                    <span class="doc-chip doc-chip-premium"><i class="fa-solid" [class.fa-lock]="!podeUsarModelo(m)" [class.fa-crown]="podeUsarModelo(m)"></i> Premium</span>
                   } @else {
-                    <span class="doc-chip-gratis">Gratuito</span>
+                    <span class="doc-chip doc-chip-gratis">Gratuito</span>
                   }
                 </div>
                 <h3>{{ m.nome }}</h3>
@@ -681,6 +715,7 @@
         } @else {
           <div class="doc-form-topo">
             <button type="button" class="doc-voltar" (click)="voltarParaModelos()"><i class="fa-solid fa-arrow-left"></i> Modelos</button>
+            <span class="doc-modelo-icone pequeno"><i [class]="modeloSelecionado()!.icone"></i></span>
             <div>
               <h3>{{ modeloSelecionado()!.nome }}</h3>
               <span>Resolução CFP 06/2019 · {{ modeloSelecionado()!.artigo }}</span>
@@ -689,14 +724,17 @@
 
           <div class="doc-form">
             <div class="doc-card">
-              <h4>1. Identificação</h4>
+              <div class="doc-card-titulo"><h3><i class="fa-regular fa-id-card"></i> 1. Identificação</h3></div>
               <div class="doc-linha-campos">
                 <label class="doc-campo">
                   <span>Paciente</span>
-                  <select [ngModel]="docForm().pacienteId" (ngModelChange)="escolherPacienteDoc($event)">
-                    <option value="">Escolha uma paciente…</option>
-                    <option *ngFor="let p of pacientes()" [value]="p.id">{{ p.nome }}</option>
-                  </select>
+                  <div class="doc-input-icone">
+                    <i class="fa-regular fa-user"></i>
+                    <select [ngModel]="docForm().pacienteId" (ngModelChange)="escolherPacienteDoc($event)">
+                      <option value="">Escolha uma paciente…</option>
+                      <option *ngFor="let p of pacientes()" [value]="p.id">{{ p.nome }}</option>
+                    </select>
+                  </div>
                 </label>
                 <label class="doc-campo">
                   <span>Interessado(a) <small>(nome ou nome social)</small></span>
@@ -717,11 +755,11 @@
 
             @if (modeloSelecionado()!.id === 'declaracao') {
               <div class="doc-card">
-                <h4>Atendimentos incluídos</h4>
+                <div class="doc-card-titulo"><h3><i class="fa-regular fa-calendar-check"></i> Atendimentos incluídos</h3></div>
                 @if (!docForm().pacienteId) {
-                  <p class="doc-ajuda">Escolha a paciente para listar as consultas realizadas.</p>
+                  <p class="doc-dica">Escolha a paciente para listar as consultas realizadas.</p>
                 } @else if (sessoesDoPaciente().length === 0) {
-                  <p class="doc-ajuda">Nenhuma consulta realizada com essa paciente.</p>
+                  <p class="doc-dica">Nenhuma consulta realizada com essa paciente.</p>
                 } @else {
                   <div class="doc-sessoes">
                     @for (c of sessoesDoPaciente(); track c.id) {
@@ -737,32 +775,38 @@
 
             @for (s of modeloSelecionado()!.secoes; track s.id; let i = $index) {
               <div class="doc-card">
-                <h4>{{ modeloSelecionado()!.secoes.length > 1 ? (i + 2) + '. ' : '' }}{{ s.titulo }}</h4>
+                <div class="doc-card-titulo"><h3><i class="fa-regular fa-pen-to-square"></i> {{ modeloSelecionado()!.secoes.length > 1 ? (i + 2) + '. ' : '' }}{{ s.titulo }}</h3></div>
                 <textarea [rows]="s.linhas" [placeholder]="s.ajuda" [ngModel]="docForm().secoes[s.id] || ''" (ngModelChange)="setSecaoDoc(s.id, $event)"></textarea>
               </div>
             }
 
             <div class="doc-card">
-              <h4>Fechamento</h4>
+              <div class="doc-card-titulo"><h3><i class="fa-solid fa-signature"></i> Fechamento</h3></div>
               <div class="doc-linha-campos">
                 <label class="doc-campo">
                   <span>Cidade</span>
-                  <input type="text" maxlength="60" placeholder="Ex.: São Paulo" [ngModel]="docForm().cidade" (ngModelChange)="setCampoDoc('cidade', $event)">
+                  <div class="doc-input-icone">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <input type="text" maxlength="60" placeholder="Ex.: São Paulo" [ngModel]="docForm().cidade" (ngModelChange)="setCampoDoc('cidade', $event)">
+                  </div>
                 </label>
                 @if (modeloSelecionado()!.pedeValidade) {
                   <label class="doc-campo">
                     <span>Validade</span>
-                    <input type="text" maxlength="40" placeholder="Ex.: 30 dias" [ngModel]="docForm().validade" (ngModelChange)="setCampoDoc('validade', $event)">
+                    <div class="doc-input-icone">
+                      <i class="fa-regular fa-hourglass-half"></i>
+                      <input type="text" maxlength="40" placeholder="Ex.: 30 dias" [ngModel]="docForm().validade" (ngModelChange)="setCampoDoc('validade', $event)">
+                    </div>
                   </label>
                 }
               </div>
-              <p class="doc-ajuda">O PDF sai com páginas numeradas, espaço para rubrica até a penúltima página e local, data, nome, CRP e assinatura na última.</p>
+              <p class="doc-dica"><i class="fa-solid fa-circle-info"></i> O PDF sai com páginas numeradas, espaço para rubrica até a penúltima página e local, data, nome, CRP e assinatura na última.</p>
             </div>
 
             <div class="doc-acoes-final">
               <p class="doc-privacidade"><i class="fa-solid fa-shield-halved"></i> O conteúdo não fica salvo na plataforma. Guarde o PDF assinado no prontuário por, no mínimo, 5 anos (art. 15).</p>
               <button type="button" class="doc-btn doc-btn-primario" [disabled]="gerandoPdf()" (click)="baixarDocumento()">
-                <i class="fa-solid fa-file-arrow-down"></i> {{ gerandoPdf() ? 'Gerando...' : 'Baixar PDF' }}
+                <i class="fa-solid fa-download"></i> {{ gerandoPdf() ? 'Gerando...' : 'Baixar PDF' }}
               </button>
             </div>
           </div>
@@ -783,12 +827,16 @@
 
       <div class="pl-atual" [class.premium]="isPremium()">
         <div class="pl-atual-icone"><i class="fa-solid" [class.fa-crown]="isPremium()" [class.fa-seedling]="!isPremium()"></i></div>
-        <div>
-          <span class="pl-atual-rotulo">Seu plano atual</span>
+        <div class="pl-atual-texto">
+          <span>Seu plano atual</span>
           <strong>{{ isPremium() ? 'Premium' : 'Gratuito' }}</strong>
           @if (isPremium() && validadePremiumTexto()) {
             <small>Ativo até {{ validadePremiumTexto() }}</small>
           }
+        </div>
+        <div class="pl-atual-ilustra" aria-hidden="true">
+          <i class="fa-regular fa-calendar-days"></i>
+          <i class="fa-solid fa-seedling"></i>
         </div>
       </div>
 
@@ -801,7 +849,7 @@
           <div class="pl-preco"><strong>R$ 0</strong><span>/mês</span></div>
           <ul>
             @for (r of recursosGratuito; track r) {
-              <li><i class="fa-solid fa-check"></i> {{ r }}</li>
+              <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> {{ r }}</li>
             }
           </ul>
           @if (isPremium()) {
@@ -814,18 +862,18 @@
         <div class="pl-card pl-card-premium" [class.atual]="isPremium()">
           <div class="pl-card-topo">
             <h3><i class="fa-solid fa-crown"></i> Premium</h3>
-            @if (isPremium()) { <span class="pl-chip pl-chip-premium">Seu plano</span> } @else { <span class="pl-chip pl-chip-premium">Recomendado</span> }
+            <span class="pl-chip pl-chip-premium">{{ isPremium() ? 'Seu plano' : 'Recomendado' }}</span>
           </div>
           <div class="pl-preco"><strong>{{ precoPremium }}</strong><span>/mês</span></div>
           <ul>
             @for (r of recursosPremium; track r) {
-              <li><i class="fa-solid fa-check"></i> {{ r }}</li>
+              <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> {{ r }}</li>
             }
           </ul>
 
           @if (!isPremium()) {
             @if (!confirmandoAssinatura()) {
-              <button type="button" class="pl-btn pl-btn-premium" (click)="confirmandoAssinatura.set(true); msgPlano.set(null)">Assinar Premium</button>
+              <button type="button" class="pl-btn pl-btn-premium" (click)="confirmandoAssinatura.set(true); msgPlano.set(null)"><i class="fa-solid fa-crown"></i> Assinar Premium</button>
             } @else {
               <div class="pl-confirmar">
                 <p><i class="fa-solid fa-circle-info"></i> Pagamento simulado: nenhuma cobrança será feita. O Premium fica ativo por 30 dias.</p>
@@ -846,7 +894,7 @@
       @if (msgPlano(); as m) {
         <p class="pl-msg" [class.erro]="m.tipo === 'erro'" role="status">{{ m.texto }}</p>
       }
-      <p class="pl-nota">O selo "Bem avaliado" não faz parte de nenhum plano: ele depende só das avaliações das mães.</p>
+      <p class="pl-nota"><i class="fa-solid fa-award"></i> O selo "Bem avaliado" não faz parte de nenhum plano: ele depende só das avaliações das mães.</p>
     </section>
 
     <!-- INFORMAÇÕES -->
