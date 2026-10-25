@@ -6,13 +6,16 @@ import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { LembreteService } from '../../services/lembrete';
 import { carregarReputacao, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
+import { PlanoService, Assinatura } from '../../services/plano';
+import { MODELOS_PSICOLOGIA, ModeloDocumento, IdModelo, modeloPorId } from '../../services/modelos-psicologia';
+import { gerarCertificadoHoras, gerarDocumentoPsicologico, formatarHoras, SessaoCertificado } from '../../services/documentos-pdf';
 
 import {
   doc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, onSnapshot, orderBy, limit,
   serverTimestamp, Timestamp, arrayUnion, arrayRemove, getCountFromServer, writeBatch,
 } from 'firebase/firestore';
 
-type SecaoHomePsi = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'informacoes';
+type SecaoHomePsi = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos' | 'informacoes';
 type AbaConsultas = 'Pendentes' | 'Agendadas' | 'Realizadas' | 'Negadas';
 type CategoriaArtigo = 'posts' | 'legislativos' | 'educacionais' | 'dicas';
 
@@ -30,6 +33,7 @@ interface ConsultaView {
   data: string;
   horario: string;
   motivo: string;
+  realizadoEm: Date | null;
   statusRaw: string;
   status: 'Pendente' | 'Agendada' | 'Realizada' | 'Negada';
 }
@@ -43,10 +47,34 @@ const NOMES_MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
 const DIAS_SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 const STATUS_LABEL: Record<string, ConsultaView['status']> = {
   pendente: 'Pendente',
-  aceito: 'Agendada',
-  realizado: 'Realizada',
-  negado: 'Negada',
+  aceito: 'Agendada', aceita: 'Agendada', agendada: 'Agendada',
+  realizado: 'Realizada', realizada: 'Realizada',
+  negado: 'Negada', negada: 'Negada',
 };
+const CHAVE_DURACAO = 'psi_duracao_sessao';
+const CHAVE_EXPEDIENTE = 'psi_expediente';
+
+/** localStorage pode não existir (SSR) ou estar bloqueado: nunca deixa a página quebrar. */
+function lerLocal(chave: string): string | null {
+  try { return typeof localStorage !== 'undefined' ? localStorage.getItem(chave) : null; } catch { return null; }
+}
+const EXPEDIENTE_SALVO: { inicio?: string; fim?: string } = (() => {
+  try { return JSON.parse(lerLocal(CHAVE_EXPEDIENTE) || '{}'); } catch { return {}; }
+})();
+interface DocForm {
+  pacienteId: string;
+  interessado: string;
+  solicitante: string;
+  finalidade: string;
+  validade: string;
+  cidade: string;
+  secoes: Record<string, string>;
+  atendimentosIds: string[];
+}
+const DOC_VAZIO: DocForm = {
+  pacienteId: '', interessado: '', solicitante: '', finalidade: '', validade: '30 dias', cidade: '', secoes: {}, atendimentosIds: [],
+};
+
 const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', categoria: 'posts', img: '', link: '' };
 
 @Component({
@@ -59,6 +87,7 @@ const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', catego
 export class HomePsi implements OnInit, OnDestroy {
   public router = inject(Router);
   private lembreteService = inject(LembreteService);
+  private planoService = inject(PlanoService);
   private readonly isBrowser: boolean;
 
   readonly menuItems: MenuItem[] = [
@@ -69,6 +98,8 @@ export class HomePsi implements OnInit, OnDestroy {
     { target: 'forum', label: 'Fórum', icon: 'fa-solid fa-comments' },
     { target: 'pacientes', label: 'Pacientes', icon: 'fa-solid fa-user-group' },
     { target: 'chats', label: 'Chats', icon: 'fa-solid fa-message' },
+    { target: 'documentos', label: 'Documentos', icon: 'fa-solid fa-file-signature' },
+    { target: 'planos', label: 'Planos', icon: 'fa-solid fa-crown' },
   ];
 
   readonly activeSection = signal<SecaoHomePsi>('dashboard');
@@ -87,14 +118,21 @@ export class HomePsi implements OnInit, OnDestroy {
   readonly carregandoConsultasHoje = signal(true);
   private uidAtual: string | null = null;
   private psiDocId: string | null = null;
+  readonly crp = signal('');
+  readonly cidadeProfissional = signal('');
+  readonly isPremium = signal(false);
+  readonly assinatura = signal<Assinatura | null>(null);
 
-  // Modais e Periodicidade da Agenda com o novo passo a passo de horário de atendimento
+  // Passo a passo da agenda: 1) período do dia  2) duração da sessão  3) escolher os horários
   readonly modalConfigPeriodoAberto = signal(false);
-  readonly horaInicioExpediente = signal<string>('08:00');
-  readonly horaFimExpediente = signal<string>('18:00');
+  readonly horaInicioExpediente = signal<string>(EXPEDIENTE_SALVO.inicio || '08:00');
+  readonly horaFimExpediente = signal<string>(EXPEDIENTE_SALVO.fim || '18:00');
+  readonly erroPeriodo = signal('');
   readonly modalConfigTempoAberto = signal(false);
-  readonly duracaoSessaoPsi = signal<number>(Number(localStorage.getItem('psi_duracao_sessao') || '45'));
+  readonly duracaoSessaoPsi = signal<number>(Number(lerLocal(CHAVE_DURACAO) || '45'));
   readonly manterProximosDias = signal<boolean>(true);
+  /** Dia que está sendo configurado (hoje pelo botão, ou o dia aberto antes de "Alterar período"). */
+  private diaEmConfiguracao: Date | null = null;
 
   readonly todasConsultas = signal<ConsultaView[]>([]);
   readonly abaConsultas = signal<AbaConsultas>('Pendentes');
@@ -277,6 +315,7 @@ export class HomePsi implements OnInit, OnDestroy {
       await this.carregarPerfilProfissional(user.uid);
       this.ouvirConsultas(user.uid);
       this.carregarMinhaReputacao(user.uid);
+      this.carregarPlano(user.uid);
       this.lembreteService.iniciarListenerDeConsultas(user.uid, 'psicologo');
       this.carregarArtigos();
       this.carregarForum();
@@ -313,6 +352,8 @@ export class HomePsi implements OnInit, OnDestroy {
       }
       if (dados) {
         this.nomeCompleto.set(dados['nome'] || 'Psicólogo(a)');
+        this.crp.set(String(dados['crp'] || '').trim());
+        this.cidadeProfissional.set(String(dados['cidade'] || '').trim());
         if (dados['avatar']) this.avatarUrl.set(dados['avatar']);
         this.disponibilidade.set(this.paraDatas(dados['disponibilidade']));
         this.agendados.set(this.paraDatas(dados['agendados']));
@@ -372,6 +413,7 @@ export class HomePsi implements OnInit, OnDestroy {
             data: dataObj ? dataObj.toLocaleDateString('pt-BR') : 'Sem data',
             horario: dataObj ? dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : 'A definir',
             motivo: raw['Motivo'] || 'Não informado',
+            realizadoEm: raw['realizadoEm']?.toDate ? raw['realizadoEm'].toDate() : null,
             statusRaw,
             status: STATUS_LABEL[statusRaw] || 'Pendente',
           };
@@ -444,7 +486,8 @@ export class HomePsi implements OnInit, OnDestroy {
 
   async marcarRealizada(c: ConsultaView) {
     try {
-      await updateDoc(doc(db, 'Consultas', c.id), { status: 'realizado' });
+      // realizadoEm = fim da sessão, usado no certificado de horas
+      await updateDoc(doc(db, 'Consultas', c.id), { status: 'realizado', realizadoEm: serverTimestamp(), encerradoPor: 'profissional' });
     } catch (err: any) {
       console.error(err);
       alert('Não foi possível marcar como realizada.');
@@ -479,40 +522,66 @@ export class HomePsi implements OnInit, OnDestroy {
   selecionarMes(valor: string): void { this.currentMonth.set(Number(valor)); }
   selecionarAno(valor: string): void { this.currentYear.set(Number(valor)); }
 
+  /** Botão "Definir horários de hoje": começa pelo período de atendimento. */
   adicionarConsulta(): void {
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    this.diaEmConfiguracao = hoje;
+    this.erroPeriodo.set('');
     this.modalConfigPeriodoAberto.set(true);
   }
 
   avancarParaDuracaoSessao() {
+    const inicio = this.paraMinutos(this.horaInicioExpediente());
+    const fim = this.paraMinutos(this.horaFimExpediente());
+    if (inicio === null || fim === null) { this.erroPeriodo.set('Preencha os dois horários.'); return; }
+    if (fim <= inicio) { this.erroPeriodo.set('O horário final precisa ser depois do inicial.'); return; }
+    this.erroPeriodo.set('');
     this.modalConfigPeriodoAberto.set(false);
     this.modalConfigTempoAberto.set(true);
   }
 
   ajustarMinutosPsi(delta: number) {
     const novo = this.duracaoSessaoPsi() + delta;
-    if (novo >= 1 && novo <= 60) {
-      this.duracaoSessaoPsi.set(novo);
-    }
+    if (novo >= 15 && novo <= 120) this.duracaoSessaoPsi.set(novo);
   }
 
   confirmarConfiguracaoTempo() {
-    if (this.manterProximosDias()) {
-      localStorage.setItem('psi_duracao_sessao', String(this.duracaoSessaoPsi()));
-    } else {
-      localStorage.removeItem('psi_duracao_sessao');
+    if (this.isBrowser) {
+      try {
+        if (this.manterProximosDias()) {
+          localStorage.setItem(CHAVE_DURACAO, String(this.duracaoSessaoPsi()));
+          localStorage.setItem(CHAVE_EXPEDIENTE, JSON.stringify({ inicio: this.horaInicioExpediente(), fim: this.horaFimExpediente() }));
+        } else {
+          localStorage.removeItem(CHAVE_DURACAO);
+          localStorage.removeItem(CHAVE_EXPEDIENTE);
+        }
+      } catch { /* sem armazenamento: vale só nesta sessão */ }
     }
     this.modalConfigTempoAberto.set(false);
-    this.abrirSelecaoHorarios(new Date().getDate());
+    const dia = this.diaEmConfiguracao || new Date();
+    this.abrirHorariosDoDia(new Date(dia.getFullYear(), dia.getMonth(), dia.getDate()));
   }
 
   abrirConfiguracaoNovamente() {
+    this.diaEmConfiguracao = this.diaSelecionado();
     this.fecharModalHorarios();
+    this.erroPeriodo.set('');
     this.modalConfigPeriodoAberto.set(true);
   }
 
+  private paraMinutos(h: string): number | null {
+    if (!h || !h.includes(':')) return null;
+    const [hh, mm] = h.split(':').map(Number);
+    return isNaN(hh) || isNaN(mm) ? null : hh * 60 + mm;
+  }
+
+  /** Clique num dia do calendário. */
   abrirSelecaoHorarios(dia: number | null): void {
     if (dia === null) return;
-    const dataClicada = new Date(this.currentYear(), this.currentMonth(), dia);
+    this.abrirHorariosDoDia(new Date(this.currentYear(), this.currentMonth(), dia));
+  }
+
+  private abrirHorariosDoDia(dataClicada: Date): void {
     const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
     if (dataClicada < hoje) {
       this.mensagemAgenda.set('Você não pode selecionar datas anteriores a hoje.');
@@ -529,25 +598,22 @@ export class HomePsi implements OnInit, OnDestroy {
     
     const agora = new Date();
     const duracaoMinutos = this.duracaoSessaoPsi() || 45;
+    const inicio = this.paraMinutos(this.horaInicioExpediente()) ?? 8 * 60;
+    const fim = this.paraMinutos(this.horaFimExpediente()) ?? 18 * 60;
 
-    const [hInicio, mInicio] = this.horaInicioExpediente().split(':').map(Number);
-    const [hFim, mFim] = this.horaFimExpediente().split(':').map(Number);
-
+    // Só entra o horário em que a sessão inteira cabe antes do fim do expediente
     const horariosDinamicos: string[] = [];
-    let horaAtual = hInicio;
-    let minAtual = mInicio;
-    const limiteMinutos = hFim * 60 + mFim;
-
-    while (horaAtual * 60 + minAtual <= limiteMinutos) {
-      const hh = String(horaAtual).padStart(2, '0');
-      const mm = String(minAtual).padStart(2, '0');
-      horariosDinamicos.push(`${hh}:${mm}`);
-      minAtual += duracaoMinutos;
-      while (minAtual >= 60) {
-        minAtual -= 60;
-        horaAtual++;
-      }
+    for (let m = inicio; m + duracaoMinutos <= fim; m += duracaoMinutos) {
+      horariosDinamicos.push(`${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
     }
+
+    // Horários já publicados/ocupados nesse dia que não batem com a grade atual continuam aparecendo
+    const doDia = (d: Date) => d.toDateString() === dataClicada.toDateString();
+    const hm = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    [...this.disponibilidade(), ...this.agendados()].filter(doDia).forEach((d) => {
+      if (!horariosDinamicos.includes(hm(d))) horariosDinamicos.push(hm(d));
+    });
+    horariosDinamicos.sort();
 
     const slots: HorarioSlot[] = horariosDinamicos.map((h) => {
       const [hh, mm] = h.split(':').map(Number);
@@ -895,6 +961,247 @@ export class HomePsi implements OnInit, OnDestroy {
     }
   }
 
+  // ==========================================================
+  // DOCUMENTOS: certificado de horas + modelos do CFP
+  // ==========================================================
+  readonly abaDocumentos = signal<'certificado' | 'modelos'>('certificado');
+  readonly gerandoPdf = signal(false);
+  readonly erroDocumento = signal('');
+
+  // ----- Certificado de horas -----
+  readonly certMes = signal(new Date().getMonth());
+  readonly certAno = signal(new Date().getFullYear());
+  readonly certDuracaoPadrao = signal(50);
+
+  /** Sessões realizadas no mês escolhido, com a duração real quando a chamada registrou o encerramento. */
+  readonly sessoesCertificado = computed<SessaoCertificado[]>(() => {
+    const mes = this.certMes();
+    const ano = this.certAno();
+    const padrao = this.certDuracaoPadrao() || 50;
+    return this.todasConsultas()
+      .filter((c) => c.status === 'Realizada' && c.dataObj && c.dataObj.getMonth() === mes && c.dataObj.getFullYear() === ano)
+      .sort((a, b) => a.dataObj!.getTime() - b.dataObj!.getTime())
+      .map((c) => {
+        const real = c.realizadoEm ? Math.round((c.realizadoEm.getTime() - c.dataObj!.getTime()) / 60000) : NaN;
+        const valida = real >= 10 && real <= 180;   // ignora encerramentos muito cedo ou esquecidos abertos
+        return { data: c.dataObj!, duracaoMin: valida ? real : padrao, duracaoEstimada: !valida };
+      });
+  });
+  readonly totalHorasCertificado = computed(() => formatarHoras(this.sessoesCertificado().reduce((s, x) => s + x.duracaoMin, 0)));
+
+  async baixarCertificado() {
+    if (!this.uidAtual || this.gerandoPdf()) return;
+    this.erroDocumento.set('');
+    if (!this.crp()) {
+      this.erroDocumento.set('Cadastre seu CRP no perfil para emitir o certificado.');
+      return;
+    }
+    this.gerandoPdf.set(true);
+    try {
+      await gerarCertificadoHoras({
+        uid: this.uidAtual,
+        nome: this.nomeCompleto(),
+        profissao: 'Psicólogo(a)',
+        registro: this.crp().toUpperCase().startsWith('CRP') ? this.crp() : `CRP ${this.crp()}`,
+        ano: this.certAno(),
+        mes: this.certMes(),
+        duracaoPadraoMin: this.certDuracaoPadrao(),
+        sessoes: this.sessoesCertificado(),
+      });
+    } catch (e) {
+      console.error('Erro ao gerar certificado:', e);
+      this.erroDocumento.set('Não foi possível gerar o PDF. Tente de novo.');
+    } finally {
+      this.gerandoPdf.set(false);
+    }
+  }
+
+  // ----- Modelos de documentos (Resolução CFP 06/2019) -----
+  readonly modelos = MODELOS_PSICOLOGIA;
+  readonly modeloSelecionado = signal<ModeloDocumento | null>(null);
+  readonly docForm = signal<DocForm>({ ...DOC_VAZIO });
+
+  /** Sessões realizadas com a paciente escolhida (para a declaração). */
+  readonly sessoesDoPaciente = computed(() => {
+    const id = this.docForm().pacienteId;
+    if (!id) return [];
+    return this.todasConsultas()
+      .filter((c) => c.maeId === id && c.status === 'Realizada' && c.dataObj)
+      .sort((a, b) => b.dataObj!.getTime() - a.dataObj!.getTime());
+  });
+
+  readonly camposFaltando = computed(() => {
+    const m = this.modeloSelecionado();
+    const f = this.docForm();
+    if (!m) return [];
+    const falta: string[] = [];
+    if (!f.interessado.trim()) falta.push('Interessado(a)');
+    if (!f.finalidade.trim()) falta.push('Finalidade');
+    m.secoes.filter((s) => s.obrigatoria && !(f.secoes[s.id] || '').trim()).forEach((s) => falta.push(s.titulo));
+    if (m.pedeValidade && !f.validade.trim()) falta.push('Validade');
+    return falta;
+  });
+
+  podeUsarModelo(m: ModeloDocumento): boolean {
+    return !m.premium || this.isPremium();
+  }
+
+  escolherModelo(m: ModeloDocumento) {
+    if (!this.podeUsarModelo(m)) return;
+    this.erroDocumento.set('');
+    this.modeloSelecionado.set(m);
+    this.docForm.set({ ...DOC_VAZIO, secoes: {}, cidade: this.cidadeProfissional() });
+  }
+
+  voltarParaModelos() {
+    this.modeloSelecionado.set(null);
+    this.erroDocumento.set('');
+  }
+
+  setCampoDoc<K extends keyof DocForm>(campo: K, valor: DocForm[K]) {
+    this.docForm.update((f) => ({ ...f, [campo]: valor }));
+  }
+
+  setSecaoDoc(id: string, valor: string) {
+    this.docForm.update((f) => ({ ...f, secoes: { ...f.secoes, [id]: valor } }));
+  }
+
+  /** Ao escolher a paciente, preenche o nome e (na declaração) já marca as sessões e sugere o texto. */
+  escolherPacienteDoc(id: string) {
+    const p = this.pacientes().find((x) => x.id === id);
+    const nome = p?.nome || '';
+    this.docForm.update((f) => ({ ...f, pacienteId: id, interessado: nome, atendimentosIds: [] }));
+    const m = this.modeloSelecionado();
+    if (m?.id === 'declaracao') {
+      this.docForm.update((f) => ({
+        ...f,
+        atendimentosIds: this.sessoesDoPaciente().slice(0, 4).map((c) => c.id),
+        secoes: f.secoes['texto']?.trim()
+          ? f.secoes
+          : { ...f.secoes, texto: `Declaro, para os devidos fins, que ${nome} compareceu a atendimento psicológico na modalidade on-line, por meio da plataforma EloMaterno, nos dias e horários abaixo.` },
+      }));
+    }
+  }
+
+  alternarAtendimentoDoc(id: string) {
+    this.docForm.update((f) => ({
+      ...f,
+      atendimentosIds: f.atendimentosIds.includes(id) ? f.atendimentosIds.filter((x) => x !== id) : [...f.atendimentosIds, id],
+    }));
+  }
+
+  async baixarDocumento() {
+    const m = this.modeloSelecionado();
+    if (!m || this.gerandoPdf()) return;
+    this.erroDocumento.set('');
+    if (!this.podeUsarModelo(m)) { this.erroDocumento.set('Este modelo faz parte do plano Premium.'); return; }
+    if (!this.crp()) { this.erroDocumento.set('Cadastre seu CRP no perfil: ele é obrigatório nos documentos (Resolução CFP 06/2019).'); return; }
+    const falta = this.camposFaltando();
+    if (falta.length) { this.erroDocumento.set(`Preencha: ${falta.join(', ')}.`); return; }
+
+    const f = this.docForm();
+    const atendimentos = this.todasConsultas()
+      .filter((c) => f.atendimentosIds.includes(c.id) && c.dataObj)
+      .map((c) => c.dataObj!)
+      .sort((a, b) => a.getTime() - b.getTime());
+
+    this.gerandoPdf.set(true);
+    try {
+      await gerarDocumentoPsicologico({
+        modelo: m,
+        profissional: { nome: this.nomeCompleto(), crp: this.crp().toUpperCase().startsWith('CRP') ? this.crp() : `CRP ${this.crp()}` },
+        interessado: f.interessado.trim(),
+        solicitante: f.solicitante.trim(),
+        finalidade: f.finalidade.trim(),
+        secoes: f.secoes,
+        atendimentos,
+        duracaoMin: this.duracaoSessaoPsi(),
+        validade: m.pedeValidade ? f.validade.trim() : undefined,
+        cidade: f.cidade.trim(),
+        data: new Date(),
+      });
+    } catch (e) {
+      console.error('Erro ao gerar documento:', e);
+      this.erroDocumento.set('Não foi possível gerar o PDF. Tente de novo.');
+    } finally {
+      this.gerandoPdf.set(false);
+    }
+  }
+
+  conhecerPremium() {
+    this.selecionarSecao('planos');
+  }
+
+  // ==========================================================
+  // PLANOS (Premium do psicólogo — pagamento simulado)
+  // ==========================================================
+  /** Valor exibido na tela. Pagamento simulado: nada é cobrado. Ajuste aqui se a equipe definir outro. */
+  readonly precoPremium = 'R$ 29,90';
+  readonly salvandoPlano = signal(false);
+  readonly confirmandoAssinatura = signal(false);
+  readonly msgPlano = signal<{ tipo: 'ok' | 'erro'; texto: string } | null>(null);
+
+  readonly recursosGratuito = [
+    'Perfil na busca de profissionais',
+    'Agenda, videochamada e chat com as mães',
+    'Lembretes de consulta por e-mail',
+    'Certificado de horas mensal',
+    'Declaração de comparecimento (CFP)',
+  ];
+  readonly recursosPremium = [
+    'Tudo do plano gratuito',
+    'Destaque na busca e selo Premium no perfil',
+    'Modelos de atestado, relatório, laudo e parecer (Resolução CFP 06/2019)',
+    'Preenchimento automático com os dados das consultas',
+    'Relatórios de atendimento em PDF (em breve)',
+  ];
+
+  private async carregarPlano(uid: string) {
+    const a = await this.planoService.assinatura(uid);
+    this.assinatura.set(a);
+    this.isPremium.set(await this.planoService.temPremium(uid));
+  }
+
+  validadePremiumTexto(): string {
+    const v = this.assinatura()?.validoAte;
+    return v ? v.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+  }
+
+  async assinarPremium() {
+    if (!this.uidAtual || this.salvandoPlano()) return;
+    this.salvandoPlano.set(true);
+    this.msgPlano.set(null);
+    try {
+      const a = await this.planoService.assinarPremiumTeste(this.uidAtual);
+      this.assinatura.set(a);
+      this.isPremium.set(true);
+      this.confirmandoAssinatura.set(false);
+      this.msgPlano.set({ tipo: 'ok', texto: 'Premium ativado! Os modelos de documentos já estão liberados.' });
+    } catch (e) {
+      console.error('Erro ao assinar:', e);
+      this.msgPlano.set({ tipo: 'erro', texto: 'Não foi possível ativar agora. Tente de novo.' });
+    } finally {
+      this.salvandoPlano.set(false);
+    }
+  }
+
+  async cancelarPremium() {
+    if (!this.uidAtual || this.salvandoPlano()) return;
+    this.salvandoPlano.set(true);
+    this.msgPlano.set(null);
+    try {
+      const a = await this.planoService.cancelarPremium(this.uidAtual);
+      this.assinatura.set(a);
+      this.isPremium.set(false);
+      this.msgPlano.set({ tipo: 'ok', texto: 'Você voltou para o plano gratuito.' });
+    } catch (e) {
+      console.error('Erro ao cancelar:', e);
+      this.msgPlano.set({ tipo: 'erro', texto: 'Não foi possível cancelar agora. Tente de novo.' });
+    } finally {
+      this.salvandoPlano.set(false);
+    }
+  }
+
   selecionarSecao(secao: SecaoHomePsi): void {
     this.activeSection.set(secao);
     if (this.isBrowser) {
@@ -910,7 +1217,7 @@ export class HomePsi implements OnInit, OnDestroy {
   private lerUltimaSecaoSalva(): SecaoHomePsi {
     if (!this.isBrowser) return 'dashboard';
     const salva = localStorage.getItem(CHAVE_ULTIMA_SECAO) as SecaoHomePsi | null;
-    const validas: SecaoHomePsi[] = ['dashboard', 'agenda', 'artigos', 'consultas', 'forum', 'pacientes', 'chats', 'informacoes'];
+    const validas: SecaoHomePsi[] = ['dashboard', 'agenda', 'artigos', 'consultas', 'forum', 'pacientes', 'chats', 'documentos', 'planos', 'informacoes'];
     return salva && validas.includes(salva) ? salva : 'dashboard';
   }
 

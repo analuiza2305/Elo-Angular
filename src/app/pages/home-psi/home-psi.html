@@ -145,7 +145,7 @@
       <div class="agenda-container">
         <div class="calendar-container">
           <div class="calendar-header">
-            <button type="button" class="calendar-nav-btn" (click)="mesAnterior()"><i class="fa-solid fa-chevron-left"></i></button>
+            <button type="button" class="calendar-nav-btn" (click)="mesAnterior()" aria-label="Mês anterior"><i class="fa-solid fa-chevron-left"></i></button>
             <div class="month-year-select">
               <select [ngModel]="currentMonth()" (ngModelChange)="selecionarMes($event)">
                 <option *ngFor="let mes of nomesMeses; let i = index" [value]="i">{{ mes }}</option>
@@ -154,7 +154,7 @@
                 <option *ngFor="let ano of anosSelecionaveis" [value]="ano">{{ ano }}</option>
               </select>
             </div>
-            <button type="button" class="calendar-nav-btn" (click)="mesSeguinte()"><i class="fa-solid fa-chevron-right"></i></button>
+            <button type="button" class="calendar-nav-btn" (click)="mesSeguinte()" aria-label="Próximo mês"><i class="fa-solid fa-chevron-right"></i></button>
           </div>
           <div class="calendar-days"><div *ngFor="let d of diasSemana">{{ d }}</div></div>
           <div class="calendar-dates">
@@ -183,7 +183,7 @@
       <div class="modal" *ngIf="modalConfigPeriodoAberto()">
         <div class="modal-content premium-modal-psi">
           <h3>Período de Atendimento</h3>
-          <p class="data-selecionada">Defina o intervalo de horas em que você deseja atender hoje:</p>
+          <p class="data-selecionada">Defina o intervalo de horas em que você deseja atender:</p>
           
           <div class="periodo-inputs-grid" style="display: flex; gap: 16px; margin: 20px 0;">
             <div style="flex: 1;">
@@ -195,6 +195,8 @@
               <input type="time" [ngModel]="horaFimExpediente()" (ngModelChange)="horaFimExpediente.set($event)" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #D6D1E9; font-size: 1rem;">
             </div>
           </div>
+
+          <p class="erro-periodo" *ngIf="erroPeriodo()" role="alert">{{ erroPeriodo() }}</p>
 
           <div class="modal-actions" style="margin-top: 24px;">
             <button type="button" class="contact-btn" (click)="avancarParaDuracaoSessao()">Avançar</button>
@@ -209,17 +211,17 @@
           <h3>Duração das Sessões</h3>
           <p class="data-selecionada">Quanto tempo você quer que dure cada sessão?</p>
           <div class="contador-minutos-container">
-            <button type="button" class="btn-contador" (click)="ajustarMinutosPsi(-5)"><i class="fa-solid fa-minus"></i></button>
+            <button type="button" class="btn-contador" (click)="ajustarMinutosPsi(-5)" aria-label="Diminuir 5 minutos"><i class="fa-solid fa-minus"></i></button>
             <div class="display-minutos">
               <strong>{{ duracaoSessaoPsi() }}</strong>
               <span>minutos</span>
             </div>
-            <button type="button" class="btn-contador" (click)="ajustarMinutosPsi(5)"><i class="fa-solid fa-plus"></i></button>
+            <button type="button" class="btn-contador" (click)="ajustarMinutosPsi(5)" aria-label="Aumentar 5 minutos"><i class="fa-solid fa-plus"></i></button>
           </div>
           <div style="margin-top: 20px; text-align: left;">
             <label class="checkbox-container-psi">
               <input type="checkbox" [checked]="manterProximosDias()" (change)="manterProximosDias.set(!manterProximosDias())">
-              Deseja manter essa mesma quantidade para os próximos dias?
+              Usar esse mesmo período e duração nos próximos dias
             </label>
           </div>
           <div class="modal-actions" style="margin-top: 24px;">
@@ -240,10 +242,12 @@
                     [class.selecionado]="slot.selecionado"
                     [class.ocupado]="slot.status !== 'livre'"
                     [disabled]="slot.status !== 'livre'"
+                    [title]="slot.status === 'ocupado' ? ('Sessão com ' + (slot.pacienteNome || 'paciente')) : (slot.status === 'passado' ? 'Horário já passou' : '')"
                     (click)="alternarHorario(slot)">
               {{ slot.horario }}
             </button>
           </div>
+          <p class="legenda-horarios">Roxo = disponível para as mães · Cinza = ocupado ou já passou</p>
           <div class="alterar-periodo-link" (click)="abrirConfiguracaoNovamente()">
             <i class="fa-solid fa-gear"></i> Alterar período e duração
           </div>
@@ -573,6 +577,276 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- DOCUMENTOS: certificado de horas + modelos do CFP -->
+    <section class="content" id="documentos" *ngIf="activeSection() === 'documentos'">
+      <div class="doc-topo">
+        <h2>Documentos</h2>
+        <p>Emita o certificado de horas do mês e documentos psicológicos prontos para assinar.</p>
+      </div>
+
+      <div class="doc-tabs" role="tablist">
+        <button type="button" class="doc-tab" role="tab" [class.ativo]="abaDocumentos() === 'certificado'" [attr.aria-selected]="abaDocumentos() === 'certificado'" (click)="abaDocumentos.set('certificado'); erroDocumento.set('')">
+          <i class="fa-regular fa-clock"></i> Certificado de horas
+        </button>
+        <button type="button" class="doc-tab" role="tab" [class.ativo]="abaDocumentos() === 'modelos'" [attr.aria-selected]="abaDocumentos() === 'modelos'" (click)="abaDocumentos.set('modelos'); erroDocumento.set('')">
+          <i class="fa-regular fa-file-lines"></i> Modelos de documentos
+          @if (!isPremium()) { <span class="doc-chip-premium">Premium</span> }
+        </button>
+      </div>
+
+      @if (!crp()) {
+        <div class="doc-aviso">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span>Seu CRP não está no cadastro. Ele é obrigatório no certificado e nos documentos. <button type="button" class="doc-link" (click)="irParaPerfil()">Completar perfil</button></span>
+        </div>
+      }
+
+      <!-- ===== CERTIFICADO DE HORAS ===== -->
+      @if (abaDocumentos() === 'certificado') {
+        <div class="doc-grid-cert">
+          <div class="doc-card">
+            <h3>Período</h3>
+            <div class="doc-linha-campos">
+              <label class="doc-campo">
+                <span>Mês</span>
+                <select [ngModel]="certMes()" (ngModelChange)="certMes.set(+$event)">
+                  <option *ngFor="let mes of nomesMeses; let i = index" [value]="i">{{ mes }}</option>
+                </select>
+              </label>
+              <label class="doc-campo">
+                <span>Ano</span>
+                <select [ngModel]="certAno()" (ngModelChange)="certAno.set(+$event)">
+                  <option *ngFor="let ano of anosSelecionaveis" [value]="ano">{{ ano }}</option>
+                </select>
+              </label>
+            </div>
+            <label class="doc-campo">
+              <span>Duração padrão por sessão (min)</span>
+              <input type="number" min="10" max="180" [ngModel]="certDuracaoPadrao()" (ngModelChange)="certDuracaoPadrao.set(+$event || 50)">
+              <small>Usada só quando a chamada não registrou o horário de encerramento.</small>
+            </label>
+          </div>
+
+          <div class="doc-card doc-card-resumo">
+            <div class="doc-resumo-numeros">
+              <div><strong>{{ sessoesCertificado().length }}</strong><span>atendimentos</span></div>
+              <div><strong>{{ totalHorasCertificado() }}</strong><span>total de horas</span></div>
+            </div>
+            <p class="doc-resumo-texto">
+              Certificado de {{ nomesMeses[certMes()] | lowercase }} de {{ certAno() }}. As mães atendidas não aparecem no documento, em respeito ao sigilo.
+            </p>
+            <button type="button" class="doc-btn doc-btn-primario" [disabled]="gerandoPdf() || sessoesCertificado().length === 0" (click)="baixarCertificado()">
+              <i class="fa-solid fa-file-arrow-down"></i> {{ gerandoPdf() ? 'Gerando...' : 'Baixar certificado (PDF)' }}
+            </button>
+            @if (sessoesCertificado().length === 0) {
+              <small class="doc-ajuda">Nenhuma consulta realizada neste mês.</small>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ===== MODELOS (CFP 06/2019) ===== -->
+      @if (abaDocumentos() === 'modelos') {
+        @if (!modeloSelecionado()) {
+          @if (!isPremium()) {
+            <div class="doc-premium-banner">
+              <div class="doc-premium-icone"><i class="fa-solid fa-crown"></i></div>
+              <div>
+                <strong>Modelos completos no Premium</strong>
+                <p>Atestado, relatório, laudo e parecer já com a estrutura da Resolução CFP 06/2019, preenchidos com os dados das suas consultas. A declaração de comparecimento é gratuita.</p>
+              </div>
+              <button type="button" class="doc-btn doc-btn-premium" (click)="conhecerPremium()">Conhecer o Premium</button>
+            </div>
+          }
+
+          <div class="doc-modelos">
+            @for (m of modelos; track m.id) {
+              <button type="button" class="doc-modelo" [class.bloqueado]="!podeUsarModelo(m)" [disabled]="!podeUsarModelo(m)" (click)="escolherModelo(m)">
+                <div class="doc-modelo-topo">
+                  <span class="doc-modelo-artigo">{{ m.artigo }}</span>
+                  @if (m.premium) {
+                    <span class="doc-chip-premium"><i class="fa-solid" [class.fa-lock]="!podeUsarModelo(m)" [class.fa-crown]="podeUsarModelo(m)"></i> Premium</span>
+                  } @else {
+                    <span class="doc-chip-gratis">Gratuito</span>
+                  }
+                </div>
+                <h3>{{ m.nome }}</h3>
+                <p>{{ m.resumo }}</p>
+                <span class="doc-modelo-acao">{{ podeUsarModelo(m) ? 'Usar modelo' : 'Disponível no Premium' }} <i class="fa-solid fa-arrow-right"></i></span>
+              </button>
+            }
+          </div>
+        } @else {
+          <div class="doc-form-topo">
+            <button type="button" class="doc-voltar" (click)="voltarParaModelos()"><i class="fa-solid fa-arrow-left"></i> Modelos</button>
+            <div>
+              <h3>{{ modeloSelecionado()!.nome }}</h3>
+              <span>Resolução CFP 06/2019 · {{ modeloSelecionado()!.artigo }}</span>
+            </div>
+          </div>
+
+          <div class="doc-form">
+            <div class="doc-card">
+              <h4>1. Identificação</h4>
+              <div class="doc-linha-campos">
+                <label class="doc-campo">
+                  <span>Paciente</span>
+                  <select [ngModel]="docForm().pacienteId" (ngModelChange)="escolherPacienteDoc($event)">
+                    <option value="">Escolha uma paciente…</option>
+                    <option *ngFor="let p of pacientes()" [value]="p.id">{{ p.nome }}</option>
+                  </select>
+                </label>
+                <label class="doc-campo">
+                  <span>Interessado(a) <small>(nome ou nome social)</small></span>
+                  <input type="text" maxlength="120" [ngModel]="docForm().interessado" (ngModelChange)="setCampoDoc('interessado', $event)">
+                </label>
+              </div>
+              <div class="doc-linha-campos">
+                <label class="doc-campo">
+                  <span>Solicitante <small>(opcional)</small></span>
+                  <input type="text" maxlength="120" placeholder="Ex.: a própria interessada, empregador, escola" [ngModel]="docForm().solicitante" (ngModelChange)="setCampoDoc('solicitante', $event)">
+                </label>
+                <label class="doc-campo">
+                  <span>Finalidade</span>
+                  <input type="text" maxlength="160" placeholder="Ex.: comprovação de comparecimento" [ngModel]="docForm().finalidade" (ngModelChange)="setCampoDoc('finalidade', $event)">
+                </label>
+              </div>
+            </div>
+
+            @if (modeloSelecionado()!.id === 'declaracao') {
+              <div class="doc-card">
+                <h4>Atendimentos incluídos</h4>
+                @if (!docForm().pacienteId) {
+                  <p class="doc-ajuda">Escolha a paciente para listar as consultas realizadas.</p>
+                } @else if (sessoesDoPaciente().length === 0) {
+                  <p class="doc-ajuda">Nenhuma consulta realizada com essa paciente.</p>
+                } @else {
+                  <div class="doc-sessoes">
+                    @for (c of sessoesDoPaciente(); track c.id) {
+                      <label class="doc-sessao" [class.marcada]="docForm().atendimentosIds.includes(c.id)">
+                        <input type="checkbox" [checked]="docForm().atendimentosIds.includes(c.id)" (change)="alternarAtendimentoDoc(c.id)">
+                        {{ c.data }} às {{ c.horario }}
+                      </label>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            @for (s of modeloSelecionado()!.secoes; track s.id; let i = $index) {
+              <div class="doc-card">
+                <h4>{{ modeloSelecionado()!.secoes.length > 1 ? (i + 2) + '. ' : '' }}{{ s.titulo }}</h4>
+                <textarea [rows]="s.linhas" [placeholder]="s.ajuda" [ngModel]="docForm().secoes[s.id] || ''" (ngModelChange)="setSecaoDoc(s.id, $event)"></textarea>
+              </div>
+            }
+
+            <div class="doc-card">
+              <h4>Fechamento</h4>
+              <div class="doc-linha-campos">
+                <label class="doc-campo">
+                  <span>Cidade</span>
+                  <input type="text" maxlength="60" placeholder="Ex.: São Paulo" [ngModel]="docForm().cidade" (ngModelChange)="setCampoDoc('cidade', $event)">
+                </label>
+                @if (modeloSelecionado()!.pedeValidade) {
+                  <label class="doc-campo">
+                    <span>Validade</span>
+                    <input type="text" maxlength="40" placeholder="Ex.: 30 dias" [ngModel]="docForm().validade" (ngModelChange)="setCampoDoc('validade', $event)">
+                  </label>
+                }
+              </div>
+              <p class="doc-ajuda">O PDF sai com páginas numeradas, espaço para rubrica até a penúltima página e local, data, nome, CRP e assinatura na última.</p>
+            </div>
+
+            <div class="doc-acoes-final">
+              <p class="doc-privacidade"><i class="fa-solid fa-shield-halved"></i> O conteúdo não fica salvo na plataforma. Guarde o PDF assinado no prontuário por, no mínimo, 5 anos (art. 15).</p>
+              <button type="button" class="doc-btn doc-btn-primario" [disabled]="gerandoPdf()" (click)="baixarDocumento()">
+                <i class="fa-solid fa-file-arrow-down"></i> {{ gerandoPdf() ? 'Gerando...' : 'Baixar PDF' }}
+              </button>
+            </div>
+          </div>
+        }
+      }
+
+      @if (erroDocumento()) {
+        <p class="doc-erro" role="alert"><i class="fa-solid fa-circle-exclamation"></i> {{ erroDocumento() }}</p>
+      }
+    </section>
+
+    <!-- PLANOS (Premium do psicólogo — pagamento simulado) -->
+    <section class="content" id="planos" *ngIf="activeSection() === 'planos'">
+      <div class="pl-topo">
+        <h2>Planos</h2>
+        <p>Compare o que cada plano oferece e veja o seu plano atual.</p>
+      </div>
+
+      <div class="pl-atual" [class.premium]="isPremium()">
+        <div class="pl-atual-icone"><i class="fa-solid" [class.fa-crown]="isPremium()" [class.fa-seedling]="!isPremium()"></i></div>
+        <div>
+          <span class="pl-atual-rotulo">Seu plano atual</span>
+          <strong>{{ isPremium() ? 'Premium' : 'Gratuito' }}</strong>
+          @if (isPremium() && validadePremiumTexto()) {
+            <small>Ativo até {{ validadePremiumTexto() }}</small>
+          }
+        </div>
+      </div>
+
+      <div class="pl-grid">
+        <div class="pl-card" [class.atual]="!isPremium()">
+          <div class="pl-card-topo">
+            <h3>Gratuito</h3>
+            @if (!isPremium()) { <span class="pl-chip">Seu plano</span> }
+          </div>
+          <div class="pl-preco"><strong>R$ 0</strong><span>/mês</span></div>
+          <ul>
+            @for (r of recursosGratuito; track r) {
+              <li><i class="fa-solid fa-check"></i> {{ r }}</li>
+            }
+          </ul>
+          @if (isPremium()) {
+            <button type="button" class="pl-btn pl-btn-outline" [disabled]="salvandoPlano()" (click)="cancelarPremium()">
+              {{ salvandoPlano() ? 'Salvando...' : 'Voltar para o gratuito' }}
+            </button>
+          }
+        </div>
+
+        <div class="pl-card pl-card-premium" [class.atual]="isPremium()">
+          <div class="pl-card-topo">
+            <h3><i class="fa-solid fa-crown"></i> Premium</h3>
+            @if (isPremium()) { <span class="pl-chip pl-chip-premium">Seu plano</span> } @else { <span class="pl-chip pl-chip-premium">Recomendado</span> }
+          </div>
+          <div class="pl-preco"><strong>{{ precoPremium }}</strong><span>/mês</span></div>
+          <ul>
+            @for (r of recursosPremium; track r) {
+              <li><i class="fa-solid fa-check"></i> {{ r }}</li>
+            }
+          </ul>
+
+          @if (!isPremium()) {
+            @if (!confirmandoAssinatura()) {
+              <button type="button" class="pl-btn pl-btn-premium" (click)="confirmandoAssinatura.set(true); msgPlano.set(null)">Assinar Premium</button>
+            } @else {
+              <div class="pl-confirmar">
+                <p><i class="fa-solid fa-circle-info"></i> Pagamento simulado: nenhuma cobrança será feita. O Premium fica ativo por 30 dias.</p>
+                <div class="pl-confirmar-acoes">
+                  <button type="button" class="pl-btn pl-btn-outline" (click)="confirmandoAssinatura.set(false)">Voltar</button>
+                  <button type="button" class="pl-btn pl-btn-premium" [disabled]="salvandoPlano()" (click)="assinarPremium()">{{ salvandoPlano() ? 'Ativando...' : 'Confirmar assinatura' }}</button>
+                </div>
+              </div>
+            }
+          } @else {
+            <button type="button" class="pl-btn pl-btn-premium" (click)="selecionarSecao('documentos'); abaDocumentos.set('modelos')">
+              <i class="fa-solid fa-file-signature"></i> Usar os modelos de documentos
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (msgPlano(); as m) {
+        <p class="pl-msg" [class.erro]="m.tipo === 'erro'" role="status">{{ m.texto }}</p>
+      }
+      <p class="pl-nota">O selo "Bem avaliado" não faz parte de nenhum plano: ele depende só das avaliações das mães.</p>
     </section>
 
     <!-- INFORMAÇÕES -->

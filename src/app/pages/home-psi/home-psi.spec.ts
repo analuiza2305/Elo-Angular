@@ -70,16 +70,28 @@ describe('HomePsi', () => {
       expect(component.mensagemAgenda()).toContain('anteriores a hoje');
     });
 
-    it('deve exigir ao menos um horário selecionado para confirmar disponibilidade', () => {
+    it('não deve avançar se o horário final for antes do inicial', () => {
+      component.adicionarConsulta();
+      component.horaInicioExpediente.set('18:00');
+      component.horaFimExpediente.set('08:00');
+
+      component.avancarParaDuracaoSessao();
+
+      expect(component.erroPeriodo()).toContain('depois do inicial');
+      expect(component.modalConfigPeriodoAberto()).toBe(true);
+    });
+
+    it('não deve gerar horário que termina depois do expediente', () => {
       const hoje = new Date();
       component.currentMonth.set(hoje.getMonth());
-      component.currentYear.set(hoje.getFullYear());
+      component.currentYear.set(hoje.getFullYear() + 1);
+      component.horaInicioExpediente.set('08:00');
+      component.horaFimExpediente.set('10:00');
+      component.duracaoSessaoPsi.set(45);
 
-      component.abrirSelecaoHorarios(hoje.getDate());
-      component.confirmarDisponibilidade();
+      component.abrirSelecaoHorarios(1);
 
-      expect(component.mensagemAgenda()).toContain('Selecione pelo menos um horário');
-      expect(component.modalHorariosAberto()).toBe(true);
+      expect(component.horariosDoDia().map((h) => h.horario)).toEqual(['08:00', '08:45']);
     });
 
     it('deve fechar o modal ao cancelar', () => {

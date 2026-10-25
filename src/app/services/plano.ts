@@ -16,7 +16,7 @@
  * consegue editar `psicologos/*`.
  */
 import { Injectable } from '@angular/core';
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '../core/firebase';
 
 export interface Assinatura {
@@ -53,6 +53,43 @@ export class PlanoService {
   async temSelo(uid: string, selo: string): Promise<boolean> {
     const a = await this.assinatura(uid);
     return !!a && this.estaAtiva(a) && (a.selos || []).includes(selo);
+  }
+
+  /**
+   * Pagamento SIMULADO (plano da equipe: sem cobrança real).
+   * Ativa o Premium por 30 dias para o próprio profissional logado.
+   * A regra do Firestore só deixa cada um gravar a própria assinatura.
+   */
+  async assinarPremiumTeste(uid: string, dias = 30): Promise<Assinatura> {
+    const atual = await this.assinatura(uid);
+    const validoAte = new Date(Date.now() + dias * 24 * 60 * 60 * 1000);
+    await setDoc(doc(db, 'assinaturas', uid), {
+      plano: 'premium',
+      ativo: true,
+      validoAte: Timestamp.fromDate(validoAte),
+      selos: atual?.selos || [],
+      pagamento: 'simulado',
+      atualizadoEm: serverTimestamp(),
+    });
+    const nova: Assinatura = { plano: 'premium', ativo: true, validoAte, selos: atual?.selos || [] };
+    this.cache.set(uid, nova);
+    return nova;
+  }
+
+  /** Volta para o plano gratuito (mantém o histórico no mesmo documento). */
+  async cancelarPremium(uid: string): Promise<Assinatura> {
+    const atual = await this.assinatura(uid);
+    await setDoc(doc(db, 'assinaturas', uid), {
+      plano: 'gratuito',
+      ativo: false,
+      validoAte: null,
+      selos: atual?.selos || [],
+      pagamento: 'simulado',
+      atualizadoEm: serverTimestamp(),
+    });
+    const nova: Assinatura = { plano: 'gratuito', ativo: false, validoAte: null, selos: atual?.selos || [] };
+    this.cache.set(uid, nova);
+    return nova;
   }
 
   /** Uids de todos os profissionais Premium ativos (uma leitura, para listas). */
