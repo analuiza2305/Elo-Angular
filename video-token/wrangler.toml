@@ -10,6 +10,11 @@ JAAS_APP_ID = "vpaas-magic-cookie-56e2dd309bfe43e9a537f61d1874b05b"
 JAAS_KEY_ID = "8e756b"
 # Sites que podem pedir token (separe por vírgula). Adicione o endereço do site publicado depois.
 ALLOWED_ORIGINS = "http://localhost:4200"
+   MAILJET_FROM_EMAIL = "samyraalves20007@gmail.com"
+   MAILJET_FROM_NAME = "EloMaterno"
+   APP_URL = "http://localhost:4200"
 
 # A chave privada NÃO fica aqui. Ela vai como segredo:
 #   Get-Content "C:\caminho\da\chave" -Raw | npx wrangler secret put JAAS_PRIVATE_KEY
+   [triggers]
+   crons = ["*/10 * * * *"]

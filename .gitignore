@@ -46,3 +46,5 @@ video-token/.wrangler/
 video-token/.dev.vars
 *.pk
 *.pem
+
+*adminsdk*.json

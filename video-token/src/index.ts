@@ -8,11 +8,14 @@
  *    segurança do Firestore continuam valendo (não precisa de chave de admin).
  * 4. Confere se ela é a profissional ou a mãe da consulta e se está "aceito".
  * 5. Devolve o token do JaaS (profissional = moderadora).
+ *
+ * Também roda, a cada 10 minutos, os lembretes de consulta por e-mail (src/lembretes.ts).
  */
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { assinarTokenJaas, lerChavePrivada, nomeDaSala } from './jaas';
+import { enviarLembretes, EnvLembretes } from './lembretes';
 
-export interface Env {
+export interface Env extends EnvLembretes {
   FIREBASE_PROJECT_ID: string;
   JAAS_APP_ID: string;
   JAAS_KEY_ID: string;
@@ -57,6 +60,16 @@ export default {
       console.error(e);
       return responder(500, { code: 'internal', message: 'Erro interno ao preparar a chamada.' });
     }
+  },
+
+  /** Cron a cada 10 min (wrangler.toml → [triggers]): lembretes de consulta por e-mail. */
+  async scheduled(_evento: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil(
+      enviarLembretes(env).then((r) => {
+        console.log(`Lembretes: ${r.analisadas} consultas, ${r.enviados} e-mails enviados`);
+        r.erros.forEach((e) => console.error('Lembrete com erro:', e));
+      })
+    );
   },
 };
 
