@@ -1,7 +1,6 @@
 @if (alerta.atual(); as a) {
   <div class="alerta-fundo" (click)="cancelar()">
     <div
-      class="alerta-card"
       [class]="'alerta-card tipo-' + a.tipo + (a.perigo ? ' perigo' : '')"
       role="alertdialog"
       aria-modal="true"
@@ -9,13 +8,19 @@
       aria-describedby="alerta-mensagem"
       (click)="$event.stopPropagation()"
     >
+      <div class="alerta-faixa" aria-hidden="true">
+        <span class="bolha bolha-1"></span>
+        <span class="bolha bolha-2"></span>
+        <img class="alerta-marca" src="./img/iconelogo.svg" alt="" />
+      </div>
+
       <div class="alerta-icone" aria-hidden="true">
         @switch (a.tipo) {
           @case ('sucesso') {
             <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
           }
           @case ('erro') {
-            <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17" /></svg>
+            <svg viewBox="0 0 24 24"><path d="M8 8l8 8M16 8l-8 8" /></svg>
           }
           @case ('aviso') {
             <svg viewBox="0 0 24 24"><path d="M12 7v6.5M12 17v.01" /></svg>
@@ -31,33 +36,35 @@
             <svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" /></svg>
           }
           @default {
-            <svg viewBox="0 0 24 24"><path d="M12 11v6M12 7v.01" /></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></svg>
           }
         }
       </div>
 
-      <h2 id="alerta-titulo" class="alerta-titulo">{{ a.titulo }}</h2>
-      <p id="alerta-mensagem" class="alerta-mensagem">{{ a.mensagem }}</p>
+      <div class="alerta-corpo">
+        <h2 id="alerta-titulo" class="alerta-titulo">{{ a.titulo }}</h2>
+        <p id="alerta-mensagem" class="alerta-mensagem">{{ a.mensagem }}</p>
 
-      @if (a.tipo === 'entrada') {
-        <input
-          #campo
-          class="alerta-campo"
-          type="text"
-          [value]="a.valorInicial ?? ''"
-          [placeholder]="a.placeholder ?? ''"
-        />
-      }
-
-      <div class="alerta-acoes">
-        @if (temCancelar()) {
-          <button type="button" class="alerta-btn secundario" (click)="cancelar()">
-            {{ a.textoCancelar ?? 'Cancelar' }}
-          </button>
+        @if (a.tipo === 'entrada') {
+          <input
+            #campo
+            class="alerta-campo"
+            type="text"
+            [value]="a.valorInicial ?? ''"
+            [placeholder]="a.placeholder ?? ''"
+          />
         }
-        <button #botaoOk type="button" class="alerta-btn principal" (click)="confirmar()">
-          {{ a.textoOk ?? (a.tipo === 'confirmar' ? 'Confirmar' : 'Entendi') }}
-        </button>
+
+        <div class="alerta-acoes">
+          @if (temCancelar()) {
+            <button type="button" class="alerta-btn secundario" (click)="cancelar()">
+              {{ a.textoCancelar ?? 'Cancelar' }}
+            </button>
+          }
+          <button #botaoOk type="button" class="alerta-btn principal" (click)="confirmar()">
+            {{ a.textoOk ?? (a.tipo === 'confirmar' ? 'Confirmar' : 'Entendi') }}
+          </button>
+        </div>
       </div>
     </div>
   </div>

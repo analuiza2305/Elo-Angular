@@ -1,105 +1,179 @@
 <app-header tipo="mae"></app-header>
 
-<div class="perfil-container">
+<main class="perfil-container perfil-mae">
+  <a class="back-link" routerLink="/home-mae">
+    <i class="ph ph-arrow-left"></i> Voltar para o início
+  </a>
 
   @if (isLoading()) {
-    <div class="loading-container" style="padding: 100px 0; text-align: center;">
-        <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="loading-card">
+      <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <p>Carregando perfil...</p>
     </div>
   } @else {
-
-    <section class="perfil-top">
-      <div class="avatar-wrapper">
-        <img class="perfil-avatar" id="perfil-foto" [src]="userData()?.avatar || userData()?.fotoURL || './img/avatar_usuario.png'" />
-        <button class="btn-edit-avatar" (click)="abrirModalAvatar()">
-          <i class="fa fa-pencil"></i>
+    <!-- Cartão de Perfil Principal -->
+    <section class="profile-hero-card">
+      <div class="profile-avatar-container">
+        <img class="profile-avatar"
+             [src]="userData()?.avatar || userData()?.fotoURL || './img/avatar_usuario.png'"
+             [alt]="userData()?.nome || 'Sua foto'">
+        <button class="btn-edit-avatar" (click)="abrirModalAvatar()" aria-label="Trocar avatar">
+          <i class="fa-solid fa-pen"></i>
         </button>
       </div>
 
-      <div class="perfil-info">
-        <h2>{{ userData()?.nome || 'Carregando...' }}</h2>
-        <span class="perfil-tag">{{ userData()?.tipo || 'Usuário' }}</span>
-      </div>
+      <div class="profile-header-info">
+        <span class="selo-mae"><i class="fa-solid fa-heart"></i> Mãe da rede Elo Materno</span>
+        <h1>{{ userData()?.nome || 'Seu nome' }}</h1>
+        <p class="profile-role">
+          <i class="ph ph-map-pin"></i> {{ userData()?.cidade || 'Cidade não informada' }}
+        </p>
 
-      <div class="perfil-acoes">
-        <button class="btn-editar" (click)="abrirModalEditar()">
-          <i class="fa fa-user-edit"></i> Editar Perfil
-        </button>
-        <a routerLink="/artigos-favoritos" class="btn-favoritos">
-          <i class="fa fa-bookmark"></i> Artigos Favoritos
-        </a>
-      </div>
-
-      <div class="perfil-layout">
-        <div class="card card-principal">
-          <h3><i class="fa fa-id-card"></i> Informações Principais:</h3>
-          <div class="info-grid"> 
-            <p><i class="fas fa-envelope"></i> Email: <span>{{ currentUser()?.email }}</span></p> 
-            <p><i class="fa fa-briefcase"></i> Emprego: <span>{{ userData()?.emprego || 'Não informado' }}</span></p> 
-            <p><i class="fas fa-baby"></i> Filhos: <span>{{ userData()?.filhos || 'Não informado' }}</span></p>
-            <p><i class="fas fa-location-dot"></i> Cidade: <span>{{ userData()?.cidade || 'Não informada' }}</span></p>
-          </div>
+        <div class="tags-container">
+          @if (userData()?.filhos) {
+            <span class="esp-tag"><i class="fa-solid fa-baby"></i> {{ userData()?.filhos }} {{ +userData()?.filhos === 1 ? 'filho(a)' : 'filhos' }}</span>
+          }
+          @if (userData()?.emprego) {
+            <span class="esp-tag"><i class="fa-solid fa-briefcase"></i> {{ userData()?.emprego }}</span>
+          }
         </div>
 
-        <div class="cards-secundarios">
-          <div class="card" id="consulta-card">
-            <h3><i class="fa fa-comments"></i> Consultorias agendadas:</h3>
-            <p>Ainda não existem consultas agendadas.</p>
-            <a routerLink="/consultas">Ver Histórico</a>
-          </div>
-
-          <div class="card" id="interacoes-card">
-            <h3><i class="fa fa-users"></i> Minhas interações:</h3>
-            @if (interacaoRecente()) {
-              <div class="card-item-preview">
-                <strong>{{ interacaoRecente().titulo || 'Sem título' }}</strong>
-                <span>{{ (interacaoRecente().conteudo | slice:0:100) }}{{ interacaoRecente().conteudo?.length > 100 ? '...' : '' }}</span>
-              </div>
-            } @else {
-              <p>Você ainda não publicou nada no fórum.</p>
-            }
-            <a routerLink="/forum">Ver Interações</a>
-          </div>
+        <div class="hero-acoes">
+          <button class="btn-primary" (click)="abrirModalEditar()">
+            <i class="ph ph-pencil-simple"></i> Editar perfil
+          </button>
+          <a routerLink="/artigos-favoritos" class="btn-ghost">
+            <i class="ph ph-bookmark-simple"></i> Artigos favoritos
+          </a>
         </div>
       </div>
     </section>
 
-    <div class="card card-perigo">
-      <h3><i class="fa fa-triangle-exclamation"></i> Encerrar conta:</h3>
-      <p>Isso apaga sua conta e seus dados de perfil permanentemente. Essa ação não pode ser desfeita.</p>
-      <button type="button" class="btn-apagar-conta" (click)="abrirModalApagarConta()">
-        <i class="fa fa-trash"></i> Apagar minha conta
-      </button>
-    </div>
+    <!-- Grid de Conteúdo -->
+    <div class="profile-grid-content">
 
-  }
+      <div class="profile-main-column">
+        <section class="content-box">
+          <h2>
+            Informações pessoais
+            <button class="btn-edit-profile" (click)="abrirModalEditar()"><i class="fa-solid fa-pen"></i> Editar</button>
+          </h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-icone"><i class="ph ph-envelope-simple"></i></span>
+              <div><small>E-mail</small><strong>{{ currentUser()?.email }}</strong></div>
+            </div>
+            <div class="info-item">
+              <span class="info-icone"><i class="ph ph-briefcase"></i></span>
+              <div><small>Emprego</small><strong>{{ userData()?.emprego || 'Não informado' }}</strong></div>
+            </div>
+            <div class="info-item">
+              <span class="info-icone"><i class="ph ph-baby"></i></span>
+              <div><small>Filhos</small><strong>{{ userData()?.filhos || 'Não informado' }}</strong></div>
+            </div>
+            <div class="info-item">
+              <span class="info-icone"><i class="ph ph-map-pin"></i></span>
+              <div><small>Cidade</small><strong>{{ userData()?.cidade || 'Não informada' }}</strong></div>
+            </div>
+          </div>
+        </section>
 
-</div>
+        <section class="content-box">
+          <h2>Minhas interações no fórum</h2>
+          @if (interacaoRecente()) {
+            <div class="post-preview">
+              <strong>{{ interacaoRecente().titulo || 'Sem título' }}</strong>
+              <p>{{ (interacaoRecente().conteudo | slice:0:140) }}{{ interacaoRecente().conteudo?.length > 140 ? '...' : '' }}</p>
+            </div>
+          } @else {
+            <p class="texto-vazio"><i class="ph ph-chat-circle-dots"></i> Você ainda não publicou nada no fórum.</p>
+          }
+          <a routerLink="/forum" class="link-seta">Ver interações <i class="ph ph-arrow-right"></i></a>
+        </section>
 
-<div class="modals" [class.show]="showModalEditar()" id="modal-editar">
-  <div class="modals-content">
-    <h3>Editar Perfil</h3>
-    <form (ngSubmit)="salvarPerfil()">
-      <label for="nome">Nome:</label>
-      <input type="text" [(ngModel)]="editForm().nome" name="nome" placeholder="Digite seu nome">
-
-      <label for="cidade">Cidade:</label>
-      <input type="text" [(ngModel)]="editForm().cidade" name="cidade" placeholder="Digite sua cidade">
-
-      <label for="emprego">Emprego:</label>
-      <input type="text" [(ngModel)]="editForm().emprego" name="emprego" placeholder="Ex: Atendente, Vendedora, ...">
-
-      <label for="filhos">Filhos:</label>
-      <input type="number" [(ngModel)]="editForm().filhos" name="filhos" placeholder="Quantos filhos?" min="0" step="1">
-
-      <div class="modals-actions">
-        <button type="button" (click)="showModalEditar.set(false)">Cancelar</button>
-        <button type="submit">Salvar</button>
+        <section class="content-box zona-perigo">
+          <h2><i class="ph ph-warning"></i> Encerrar conta</h2>
+          <p>Isso apaga sua conta e seus dados de perfil permanentemente. Essa ação não pode ser desfeita.</p>
+          <button type="button" class="btn-apagar-conta" (click)="abrirModalApagarConta()">
+            <i class="ph ph-trash"></i> Apagar minha conta
+          </button>
+        </section>
       </div>
-    </form>
-  </div>
-</div>
 
+      <div class="profile-side-column">
+        <div class="action-card">
+          <h3>Suas consultas</h3>
+          <p>Converse com psicólogos e advogados da rede de forma 100% gratuita, sigilosa e humanizada.</p>
+
+          <a routerLink="/consultas" class="btn-primary full-width">
+            <i class="ph ph-calendar-check"></i> Ver minhas consultas
+          </a>
+          <a routerLink="/consultas-lista-psi" class="btn-ghost full-width">
+            <i class="ph ph-magnifying-glass"></i> Encontrar profissional
+          </a>
+
+          <div class="support-info">
+            <div class="support-item">
+              <i class="ph ph-shield-check"></i>
+              <span>Ambiente seguro e protegido</span>
+            </div>
+            <div class="support-item">
+              <i class="ph ph-video"></i>
+              <span>Atendimento integrado via vídeo</span>
+            </div>
+            <div class="support-item">
+              <i class="ph ph-lock-simple"></i>
+              <span>Só você vê seus dados pessoais</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  }
+</main>
+
+<!-- MODAL EDITAR PERFIL -->
+@if (showModalEditar()) {
+  <div class="modal-wrapper perfil-mae">
+    <div class="modal-overlay" (click)="showModalEditar.set(false)"></div>
+    <div class="premium-modal" role="dialog" aria-modal="true" aria-labelledby="titulo-editar">
+      <div class="modal-header-fancy">
+        <h2 id="titulo-editar">Editar perfil</h2>
+        <button class="close-btn" (click)="showModalEditar.set(false)" aria-label="Fechar"><i class="ph ph-x"></i></button>
+      </div>
+      <p class="modal-subtitle">Mantenha suas informações atualizadas.</p>
+
+      <form (ngSubmit)="salvarPerfil()">
+        <div class="form-group">
+          <label for="nome">Nome</label>
+          <input id="nome" type="text" [(ngModel)]="editForm().nome" name="nome" placeholder="Digite seu nome">
+        </div>
+        <div class="form-group">
+          <label for="cidade">Cidade</label>
+          <input id="cidade" type="text" [(ngModel)]="editForm().cidade" name="cidade" placeholder="Digite sua cidade">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="emprego">Emprego</label>
+            <input id="emprego" type="text" [(ngModel)]="editForm().emprego" name="emprego" placeholder="Ex: Atendente">
+          </div>
+          <div class="form-group">
+            <label for="filhos">Filhos</label>
+            <input id="filhos" type="number" [(ngModel)]="editForm().filhos" name="filhos" placeholder="Quantos?" min="0" step="1">
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="showModalEditar.set(false)">Cancelar</button>
+          <button type="submit" class="btn-confirm">Salvar alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- MODAL ESCOLHA DE AVATAR -->
 <div class="modal" [class.show]="showModalAvatar()" id="modal-avatar">
   <div class="modal-content">
     <button class="btn-fechar-modal" (click)="showModalAvatar.set(false)">&times;</button>
@@ -201,30 +275,37 @@
   </div>
 </div>
 
-<div class="modals" [class.show]="showModalApagarConta()" id="modal-apagar-conta">
-  <div class="modals-content">
-    <h3>Apagar sua conta?</h3>
-    <p class="aviso-apagar-conta">
-      Essa ação é permanente. Seus dados de perfil serão apagados e você
-      não vai conseguir entrar de novo com essa conta.
-    </p>
+<!-- MODAL APAGAR CONTA -->
+@if (showModalApagarConta()) {
+  <div class="modal-wrapper perfil-mae">
+    <div class="modal-overlay" (click)="!apagandoConta() && showModalApagarConta.set(false)"></div>
+    <div class="premium-modal modal-perigo" role="dialog" aria-modal="true" aria-labelledby="titulo-apagar">
+      <div class="perigo-icone"><i class="ph ph-trash"></i></div>
+      <h2 id="titulo-apagar">Apagar sua conta?</h2>
+      <p class="modal-subtitle">
+        Essa ação é permanente. Seus dados de perfil serão apagados e você
+        não vai conseguir entrar de novo com essa conta.
+      </p>
 
-    @if (!ehContaGoogle()) {
-      <label for="senhaConfirmacao">Digite sua senha para confirmar:</label>
-      <input type="password" [(ngModel)]="senhaConfirmacao" name="senhaConfirmacao" placeholder="Sua senha">
-    }
+      @if (!ehContaGoogle()) {
+        <div class="form-group">
+          <label for="senhaConfirmacao">Digite sua senha para confirmar</label>
+          <input id="senhaConfirmacao" type="password" [(ngModel)]="senhaConfirmacao" name="senhaConfirmacao" placeholder="Sua senha">
+        </div>
+      }
 
-    @if (erroApagarConta()) {
-      <p class="erro-apagar-conta">{{ erroApagarConta() }}</p>
-    }
+      @if (erroApagarConta()) {
+        <p class="erro-apagar-conta"><i class="ph ph-warning-circle"></i> {{ erroApagarConta() }}</p>
+      }
 
-    <div class="modals-actions">
-      <button type="button" (click)="showModalApagarConta.set(false)" [disabled]="apagandoConta()">Cancelar</button>
-      <button type="button" class="btn-confirmar-apagar" (click)="confirmarApagarConta()" [disabled]="apagandoConta()">
-        {{ apagandoConta() ? 'Apagando...' : 'Sim, apagar' }}
-      </button>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showModalApagarConta.set(false)" [disabled]="apagandoConta()">Cancelar</button>
+        <button type="button" class="btn-confirm btn-confirmar-apagar" (click)="confirmarApagarConta()" [disabled]="apagandoConta()">
+          {{ apagandoConta() ? 'Apagando...' : 'Sim, apagar' }}
+        </button>
+      </div>
     </div>
   </div>
-</div>
+}
 
 <app-footer></app-footer>

@@ -1,28 +1,51 @@
+/* Paleta do Elo Materno (mesma do Soft UI das telas do profissional) */
 :host {
   --al-card: #ffffff;
-  --al-texto: #2e2648;
-  --al-texto-suave: #6b6385;
-  --al-borda: rgba(108, 75, 191, 0.16);
-  --al-roxo: #6c4bbf;
-  --al-roxo-escuro: #4b2c82;
+  --al-faixa: linear-gradient(135deg, #f9f7ff 0%, #f3ecff 55%, #e9e0ff 100%);
+  --al-bolha: rgba(124, 105, 169, 0.12);
+  --al-titulo: #2d1e4e;
+  --al-texto: #554d6b;
+  --al-borda: rgba(108, 75, 191, 0.14);
+  --al-roxo: #7c69a9;
+  --al-roxo-escuro: #52427d;
   --al-secundario-bg: #f3ecff;
+  --al-secundario-txt: #52427d;
   --al-campo-bg: #f9f7ff;
+  --al-marca-opacidade: 0.22;
 
-  /* cor do ícone e do botão principal por tipo */
-  --al-cor: var(--al-roxo);
-  --al-cor-fundo: #f0eaff;
+  /* gradiente do ícone e do botão principal, trocado por tipo */
+  --al-grad: linear-gradient(135deg, #7c69a9, #52427d);
+  --al-sombra: rgba(82, 66, 125, 0.32);
 }
 
 :host-context(body[data-theme='dark']) {
   --al-card: #1b2336;
-  --al-texto: #f4f1ff;
-  --al-texto-suave: #b8b0d6;
-  --al-borda: rgba(255, 255, 255, 0.1);
+  --al-faixa: linear-gradient(135deg, #2a2447 0%, #231f3d 55%, #1f2238 100%);
+  --al-bolha: rgba(157, 143, 231, 0.12);
+  --al-titulo: #f4f1ff;
+  --al-texto: #b8b0d6;
+  --al-borda: rgba(255, 255, 255, 0.08);
   --al-roxo: #9d8fe7;
   --al-roxo-escuro: #7d70b6;
   --al-secundario-bg: #232a3f;
+  --al-secundario-txt: #d9d2ff;
   --al-campo-bg: #0f1422;
-  --al-cor-fundo: rgba(157, 143, 231, 0.16);
+  --al-marca-opacidade: 0.3;
+  --al-grad: linear-gradient(135deg, #9d8fe7, #6c5bb0);
+  --al-sombra: rgba(0, 0, 0, 0.4);
+}
+
+/* Sucesso, info, confirmar e entrada ficam no roxo da marca.
+   Erro/perigo e aviso usam tons que conversam com o lilás. */
+.tipo-erro,
+.perigo {
+  --al-grad: linear-gradient(135deg, #c96b8e, #9c3f68);
+  --al-sombra: rgba(156, 63, 104, 0.3);
+}
+
+.tipo-aviso {
+  --al-grad: linear-gradient(135deg, #d9a07a, #b06f62);
+  --al-sombra: rgba(176, 111, 98, 0.3);
 }
 
 .alerta-fundo {
@@ -33,46 +56,70 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: rgba(30, 20, 60, 0.45);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  animation: al-fade 0.18s ease-out;
+  background: rgba(18, 10, 43, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: al-fade 0.2s ease-out;
 }
 
 .alerta-card {
+  position: relative;
   width: 100%;
-  max-width: 400px;
-  padding: 32px 28px 24px;
-  border-radius: 24px;
+  max-width: 410px;
+  overflow: hidden;
+  border-radius: 28px;
   background: var(--al-card);
   border: 1px solid var(--al-borda);
-  box-shadow: 0 24px 60px rgba(46, 26, 100, 0.28);
+  box-shadow: 0 30px 70px rgba(45, 30, 78, 0.3), 0 8px 30px rgba(108, 75, 191, 0.08);
   text-align: center;
-  font-family: var(--font-body, inherit);
-  animation: al-entrar 0.24s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  font-family: 'Nunito', var(--font-body, sans-serif);
+  animation: al-entrar 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.15);
 }
 
-.tipo-sucesso { --al-cor: #2e9e6b; --al-cor-fundo: rgba(46, 158, 107, 0.13); }
-.tipo-erro,
-.perigo       { --al-cor: #d64561; --al-cor-fundo: rgba(214, 69, 97, 0.12); }
-.tipo-aviso   { --al-cor: #d98a1c; --al-cor-fundo: rgba(217, 138, 28, 0.14); }
+/* faixa lavanda com a logo em marca d'água */
+.alerta-faixa {
+  position: relative;
+  height: 96px;
+  background: var(--al-faixa);
+  overflow: hidden;
+}
+
+.bolha {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--al-bolha);
+}
+.bolha-1 { width: 120px; height: 120px; top: -50px; left: -30px; }
+.bolha-2 { width: 70px; height: 70px; bottom: -28px; left: 38%; }
+
+.alerta-marca {
+  position: absolute;
+  right: 18px;
+  top: 10px;
+  width: 58px;
+  height: auto;
+  opacity: var(--al-marca-opacidade);
+  pointer-events: none;
+}
 
 .alerta-icone {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 16px;
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: -36px auto 0;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--al-cor-fundo);
-  color: var(--al-cor);
-  box-shadow: 0 0 0 8px color-mix(in srgb, var(--al-cor-fundo) 50%, transparent);
+  background: var(--al-grad);
+  color: #fff;
+  border: 5px solid var(--al-card);
+  box-shadow: 0 10px 24px var(--al-sombra);
 }
 
 .alerta-icone svg {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2.4;
@@ -83,33 +130,38 @@
 .tipo-sucesso .alerta-icone svg path {
   stroke-dasharray: 24;
   stroke-dashoffset: 24;
-  animation: al-check 0.4s 0.15s ease-out forwards;
+  animation: al-check 0.45s 0.18s ease-out forwards;
+}
+
+.alerta-corpo {
+  padding: 14px 28px 26px;
 }
 
 .alerta-titulo {
   margin: 0 0 8px;
-  font-family: var(--font-heading, inherit);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--al-texto);
+  font-family: 'Poppins', var(--font-heading, sans-serif);
+  font-size: 1.22rem;
+  font-weight: 600;
+  color: var(--al-titulo);
 }
 
 .alerta-mensagem {
   margin: 0;
-  font-size: 0.97rem;
-  line-height: 1.55;
-  color: var(--al-texto-suave);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--al-texto);
   white-space: pre-line;
 }
 
 .alerta-campo {
   width: 100%;
   margin-top: 18px;
-  padding: 12px 14px;
-  border-radius: 12px;
+  padding: 13px 16px;
+  border-radius: 14px;
   border: 1.5px solid var(--al-borda);
   background: var(--al-campo-bg);
-  color: var(--al-texto);
+  color: var(--al-titulo);
+  font-family: inherit;
   font-size: 0.95rem;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -128,16 +180,17 @@
 
 .alerta-btn {
   flex: 1;
-  height: 46px;
+  height: 48px;
   border: none;
   border-radius: 999px;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-family: inherit;
+  font-size: 0.97rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.12s, filter 0.15s, box-shadow 0.15s;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.2s;
 }
 
-.alerta-btn:hover { transform: translateY(-1px); }
+.alerta-btn:hover { transform: translateY(-2px); }
 .alerta-btn:active { transform: translateY(0); }
 .alerta-btn:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--al-roxo) 40%, transparent);
@@ -146,23 +199,22 @@
 
 .alerta-btn.principal {
   color: #fff;
-  background: linear-gradient(135deg, var(--al-roxo), var(--al-roxo-escuro));
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--al-roxo) 35%, transparent);
+  background: var(--al-grad);
+  box-shadow: 0 8px 22px var(--al-sombra);
 }
 
-.tipo-sucesso .alerta-btn.principal,
-.tipo-erro .alerta-btn.principal,
-.tipo-aviso .alerta-btn.principal,
-.perigo .alerta-btn.principal {
-  background: var(--al-cor);
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--al-cor) 35%, transparent);
+.alerta-btn.principal:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 12px 26px var(--al-sombra);
 }
-
-.alerta-btn.principal:hover { filter: brightness(1.07); }
 
 .alerta-btn.secundario {
-  color: var(--al-roxo);
+  color: var(--al-secundario-txt);
   background: var(--al-secundario-bg);
+}
+
+.alerta-btn.secundario:hover {
+  background: color-mix(in srgb, var(--al-secundario-bg) 80%, var(--al-roxo));
 }
 
 @keyframes al-fade {
@@ -171,7 +223,7 @@
 }
 
 @keyframes al-entrar {
-  from { opacity: 0; transform: translateY(12px) scale(0.95); }
+  from { opacity: 0; transform: translateY(14px) scale(0.95); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -180,7 +232,7 @@
 }
 
 @media (max-width: 420px) {
-  .alerta-card { padding: 28px 20px 20px; }
+  .alerta-corpo { padding: 12px 20px 22px; }
   .alerta-acoes { flex-direction: column-reverse; }
 }
 

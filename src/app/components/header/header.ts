@@ -1,6 +1,6 @@
 import { Component, Input, HostListener, OnInit, OnDestroy, PLATFORM_ID, inject, signal, computed, Output, EventEmitter, Injector, afterNextRender } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -21,7 +21,7 @@ export interface Notificacao {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })

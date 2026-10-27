@@ -11,8 +11,8 @@
 
       <nav class="nav-links" id="nav-menu" [class.active]="isMobileMenuOpen">
           <div class="mobile-nav-header">
-            <span class="mobile-nav-title">Navegação</span>
-            <button type="button" class="btn-close-mobile" (click)="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
+            <span class="mobile-nav-title"><img src="./img/logo_icon.png" alt="" class="mobile-nav-logo"> elomaterno</span>
+            <button type="button" class="btn-close-mobile" aria-label="Fechar menu" (click)="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
           </div>
 
           <!-- O Angular decide quais links mostrar baseado na página atual -->
@@ -312,8 +312,8 @@
           <!-- GAVETA LATERAL EXCLUSIVA DO MOBILE -->
           <nav class="mobile-drawer" [class.active]="isMobileMenuOpen">
               <div class="mobile-nav-header">
-                <span class="mobile-nav-title">Menu EloMaterno</span>
-                <button type="button" class="btn-close-mobile" (click)="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
+                <span class="mobile-nav-title"><img src="./img/logo_icon.png" alt="" class="mobile-nav-logo"> elomaterno</span>
+                <button type="button" class="btn-close-mobile" aria-label="Fechar menu" (click)="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
               </div>
 
               <!-- Card de Perfil no topo do menu mobile -->

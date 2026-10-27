@@ -1,7 +1,7 @@
 <div class="home-adv-page">
   <header class="header">
     <h1 id="boasVindas">Bem-vindo(a), Dr(a). {{ nomeCompleto() }}</h1>
-    <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" (click)="toggleSidebar()">☰</button>
+    <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" (click)="toggleSidebar()"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
     <div id="sidebar-overlay" class="sidebar-overlay" [class.active]="sidebarOpen()" (click)="closeSidebar()" aria-hidden="true"></div>
     <div class="right-section">
       <div class="accessibility-selector">
