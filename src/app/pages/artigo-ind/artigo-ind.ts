@@ -6,6 +6,7 @@ import { FooterComponent } from '../../components/footer/footer';
 import { auth, db } from '../../core/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import { AlertaService } from '../../core/services/alerta.service';
 
 @Component({
   selector: 'app-artigo-ind',
@@ -18,6 +19,7 @@ export class ArtigoInd implements OnInit, AfterViewInit {
   @ViewChild(HeaderComponent) headerComponent!: HeaderComponent;
 
   private router = inject(Router);
+  private readonly alerta = inject(AlertaService);
   private route = inject(ActivatedRoute);
   private location = inject(Location);
 
@@ -161,7 +163,7 @@ export class ArtigoInd implements OnInit, AfterViewInit {
   async toggleFavorito() {
     const user = auth.currentUser;
     if (!user) {
-      alert("Você precisa estar logada para salvar artigos nos favoritos.");
+      this.alerta.aviso('Você precisa estar logada para salvar artigos nos favoritos.', 'Faça login');
       this.router.navigate(['/login']);
       return;
     }

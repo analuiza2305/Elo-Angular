@@ -12,6 +12,7 @@ import {
 import { onAuthStateChanged } from 'firebase/auth';
 import { carregarReputacao, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
 import { PlanoService } from '../../services/plano';
+import { AlertaService } from '../../core/services/alerta.service';
 
 @Component({
   selector: 'app-perfil-profissional',
@@ -23,6 +24,7 @@ import { PlanoService } from '../../services/plano';
 export class PerfilProfissionalComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private readonly alerta = inject(AlertaService);
   private location = inject(Location);
   private planoService = inject(PlanoService);
   isBrowser = false;
@@ -302,7 +304,7 @@ export class PerfilProfissionalComponent implements OnInit {
         }
     } catch (e) {
       console.error(e);
-      alert('Erro ao salvar perfil.');
+      this.alerta.erro('Não foi possível salvar o perfil. Tente novamente.');
     } finally {
       this.isSavingProfile.set(false);
     }

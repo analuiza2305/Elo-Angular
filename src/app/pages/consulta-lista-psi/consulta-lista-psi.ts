@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore';
 import { carregarReputacoesDeTodos, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
 import { PlanoService } from '../../services/plano';
+import { AlertaService } from '../../core/services/alerta.service';
 
 interface Profissional {
   docId: string;
@@ -42,6 +43,7 @@ interface Profissional {
 })
 export class ConsultaListaPsiComponent implements OnInit {
   private router = inject(Router);
+  private readonly alerta = inject(AlertaService);
   private planoService = inject(PlanoService);
 
   profissionais = signal<Profissional[]>([]);
@@ -240,7 +242,7 @@ export class ConsultaListaPsiComponent implements OnInit {
 
   abrirModal(prof: Profissional) {
     if (!prof.dataSelecionada || !prof.horarioSelecionado) {
-      alert('Selecione uma data e um horário antes de agendar.');
+      this.alerta.aviso('Selecione uma data e um horário antes de agendar.', 'Escolha o horário');
       return;
     }
     this.modalInfo.set({
@@ -270,14 +272,14 @@ export class ConsultaListaPsiComponent implements OnInit {
   async confirmarAgendamento() {
     const motivo = this.motivoConsulta().trim();
     if (!motivo) {
-      alert('Por favor, informe o motivo da consulta.');
+      this.alerta.aviso('Conte brevemente o motivo da consulta para o profissional se preparar.', 'Informe o motivo');
       return;
     }
 
     const info = this.modalInfo();
     const currentUser = auth.currentUser;
     if (!currentUser) {
-      alert('Erro: usuário não autenticado.');
+      this.alerta.erro('Sua sessão expirou. Entre novamente para agendar.', 'Você não está logada');
       return;
     }
 
@@ -302,7 +304,7 @@ export class ConsultaListaPsiComponent implements OnInit {
       });
 
       if (!timestampOriginal) {
-        alert('Esse horário pode ter sido reservado por outra pessoa. Atualize a página.');
+        this.alerta.aviso('Esse horário pode ter sido reservado por outra pessoa. Atualize a página.', 'Horário indisponível');
         return;
       }
 
@@ -334,14 +336,16 @@ export class ConsultaListaPsiComponent implements OnInit {
         tx.update(profRef, { disponibilidade: arrayRemove(original), agendados: arrayUnion(original) });
       });
 
-      alert('Consulta agendada com sucesso!');
+      this.alerta.sucesso('Você será avisada quando o profissional confirmar.', 'Consulta agendada!');
       this.fecharModal();
       this.carregarProfissionais();
     } catch (err: any) {
       console.error('Erro ao salvar consulta:', err);
-      alert(err?.message === 'HORARIO_OCUPADO'
-        ? 'Esse horário acabou de ser reservado por outra pessoa. Escolha outro.'
-        : 'Erro ao agendar. Tente novamente.');
+      if (err?.message === 'HORARIO_OCUPADO') {
+        this.alerta.aviso('Esse horário acabou de ser reservado por outra pessoa. Escolha outro.', 'Horário indisponível');
+      } else {
+        this.alerta.erro('Não foi possível agendar. Tente novamente.');
+      }
       if (err?.message === 'HORARIO_OCUPADO') this.carregarProfissionais();
     } finally {
       this.salvando.set(false);

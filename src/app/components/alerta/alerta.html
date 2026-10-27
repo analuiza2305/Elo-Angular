@@ -1,0 +1,64 @@
+@if (alerta.atual(); as a) {
+  <div class="alerta-fundo" (click)="cancelar()">
+    <div
+      class="alerta-card"
+      [class]="'alerta-card tipo-' + a.tipo + (a.perigo ? ' perigo' : '')"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="alerta-titulo"
+      aria-describedby="alerta-mensagem"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="alerta-icone" aria-hidden="true">
+        @switch (a.tipo) {
+          @case ('sucesso') {
+            <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+          }
+          @case ('erro') {
+            <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17" /></svg>
+          }
+          @case ('aviso') {
+            <svg viewBox="0 0 24 24"><path d="M12 7v6.5M12 17v.01" /></svg>
+          }
+          @case ('confirmar') {
+            @if (a.perigo) {
+              <svg viewBox="0 0 24 24"><path d="M5 7h14M10 11v6M14 11v6M6.5 7l1 12h9l1-12M9.5 7V4.5h5V7" /></svg>
+            } @else {
+              <svg viewBox="0 0 24 24"><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17v.01" /></svg>
+            }
+          }
+          @case ('entrada') {
+            <svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" /></svg>
+          }
+          @default {
+            <svg viewBox="0 0 24 24"><path d="M12 11v6M12 7v.01" /></svg>
+          }
+        }
+      </div>
+
+      <h2 id="alerta-titulo" class="alerta-titulo">{{ a.titulo }}</h2>
+      <p id="alerta-mensagem" class="alerta-mensagem">{{ a.mensagem }}</p>
+
+      @if (a.tipo === 'entrada') {
+        <input
+          #campo
+          class="alerta-campo"
+          type="text"
+          [value]="a.valorInicial ?? ''"
+          [placeholder]="a.placeholder ?? ''"
+        />
+      }
+
+      <div class="alerta-acoes">
+        @if (temCancelar()) {
+          <button type="button" class="alerta-btn secundario" (click)="cancelar()">
+            {{ a.textoCancelar ?? 'Cancelar' }}
+          </button>
+        }
+        <button #botaoOk type="button" class="alerta-btn principal" (click)="confirmar()">
+          {{ a.textoOk ?? (a.tipo === 'confirmar' ? 'Confirmar' : 'Entendi') }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -11,6 +11,7 @@ import {
   doc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, onSnapshot, orderBy, limit,
   serverTimestamp, Timestamp, arrayUnion, arrayRemove, getCountFromServer, writeBatch,
 } from 'firebase/firestore';
+import { AlertaService } from '../../core/services/alerta.service';
 
 type SecaoHomeAdv = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'informacoes';
 type AbaConsultas = 'Pendentes' | 'Agendadas' | 'Realizadas' | 'Negadas';
@@ -68,6 +69,7 @@ const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', catego
 })
 export class HomeAdv implements OnInit, OnDestroy {
   public router = inject(Router);
+  private readonly alerta = inject(AlertaService);
   private lembreteService = inject(LembreteService);
   private readonly isBrowser: boolean;
 
@@ -409,7 +411,7 @@ export class HomeAdv implements OnInit, OnDestroy {
       await this.avisarMae(c, 'aceita');
     } catch (err: any) {
       console.error(err);
-      alert('Houve um erro ao aceitar a consulta.');
+      this.alerta.erro('Houve um erro ao aceitar a consulta. Tente novamente.');
     }
   }
 
@@ -424,7 +426,7 @@ export class HomeAdv implements OnInit, OnDestroy {
       await this.avisarMae(c, 'recusada');
     } catch (err: any) {
       console.error(err);
-      alert('Houve um erro ao recusar a consulta.');
+      this.alerta.erro('Houve um erro ao recusar a consulta. Tente novamente.');
     }
   }
 
@@ -460,7 +462,7 @@ export class HomeAdv implements OnInit, OnDestroy {
       await updateDoc(doc(db, 'Consultas', c.id), { status: 'realizado' });
     } catch (err: any) {
       console.error(err);
-      alert('Não foi possível marcar como realizada.');
+      this.alerta.erro('Não foi possível marcar a consulta como realizada.');
     }
   }
 
@@ -621,7 +623,7 @@ export class HomeAdv implements OnInit, OnDestroy {
     const dia = this.diaSelecionado();
     if (!dia) return;
     if (!this.advDocId) {
-      alert('Não encontramos seu cadastro de advogado(a) para salvar os horários.');
+      this.alerta.erro('Não encontramos seu cadastro de advogado(a) para salvar os horários.', 'Cadastro não encontrado');
       this.fecharModalHorarios();
       return;
     }
@@ -649,7 +651,7 @@ export class HomeAdv implements OnInit, OnDestroy {
       this.fecharModalHorarios();
     } catch (err: any) {
       console.error('Erro ao salvar disponibilidade:', err);
-      alert('Erro ao salvar os horários. Tente novamente.');
+      this.alerta.erro('Não foi possível salvar os horários. Tente novamente.');
     } finally {
       this.salvandoHorarios.set(false);
     }

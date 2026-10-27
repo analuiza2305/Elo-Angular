@@ -9,6 +9,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import {
   doc, getDoc, collection, getDocs, addDoc, serverTimestamp, query, orderBy, where, updateDoc
 } from 'firebase/firestore';
+import { AlertaService } from '../../core/services/alerta.service';
 
 @Component({
   selector: 'app-coment-resp',
@@ -20,6 +21,7 @@ import {
 export class ComentResp implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private readonly alerta = inject(AlertaService);
 
   currentUser = signal<any>(null);
   isProfissional = signal<boolean>(false); // NOVO: Identifica se é profissional
@@ -153,7 +155,7 @@ export class ComentResp implements OnInit {
 
   async enviarComentario() {
     if (!this.isProfissional()) {
-      alert('Apenas profissionais (psicólogos e advogados) podem responder às publicações.');
+      this.alerta.info('Apenas profissionais (psicólogos e advogados) podem responder às publicações.', 'Resposta restrita');
       return;
     }
 
@@ -198,7 +200,7 @@ export class ComentResp implements OnInit {
       await this.carregarComentarios(currentPost.id);
     } catch (err) {
       console.error('Erro ao enviar comentário:', err);
-      alert('Não foi possível enviar sua resposta. Tente novamente.');
+      this.alerta.erro('Não foi possível enviar sua resposta. Tente novamente.');
     }
   }
 

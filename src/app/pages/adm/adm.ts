@@ -28,6 +28,7 @@ import { HeaderComponent } from '../../components/header/header';
 
 // COLOQUE AQUI O CAMINHO REAL DO FIREBASE DO SEU PROJETO
 import { auth, db } from '../../core/firebase';
+import { AlertaService } from '../../core/services/alerta.service';
 
 Chart.register(...registerables);
 
@@ -1607,6 +1608,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   // NOVO — ADMIN LIGADO AO BANCO (aprovações, profissionais, parceiros, avisos, fórum)
   // ==========================================================================
   private router = inject(Router);
+  private readonly alerta = inject(AlertaService);
 
   private cadastrosBrutos: Record<string, any[]> = { psicologos: [], advogados: [], parceiros: [] };
   private primeiraCargaCadastros: Record<string, boolean> = { psicologos: false, advogados: false, parceiros: false };
@@ -2391,7 +2393,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       }
     );
 
-    alert('Profissional aprovado!');
+    this.alerta.sucesso('O profissional já pode acessar a plataforma.', 'Profissional aprovado!');
 
     await this.carregarSolicitacoes();
     await this.carregarUsuarios();
@@ -2421,7 +2423,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       }
     );
 
-    alert('Profissional recusado.');
+    this.alerta.info('O cadastro foi marcado como recusado.', 'Profissional recusado');
 
     await this.carregarSolicitacoes();
     await this.atualizarDashboard();
@@ -2531,8 +2533,9 @@ async carregarUsuarios(): Promise<void> {
   ): Promise<void> {
 
     const confirmar =
-      window.confirm(
-        'Tem certeza que deseja remover este usuário?'
+      await this.alerta.confirmar(
+        'Esta ação não pode ser desfeita.',
+        { titulo: 'Remover este usuário?', textoOk: 'Remover', perigo: true }
       );
 
     if (!confirmar) {
@@ -2544,7 +2547,7 @@ async carregarUsuarios(): Promise<void> {
 
     await deleteDoc(docRef);
 
-    alert('Usuário removido!');
+    this.alerta.sucesso('O usuário foi removido da plataforma.', 'Usuário removido');
 
     await this.carregarUsuarios();
     await this.atualizarDashboard();

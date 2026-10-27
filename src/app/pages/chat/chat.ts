@@ -19,6 +19,7 @@ import {
   writeBatch,
   serverTimestamp
 } from 'firebase/firestore';
+import { AlertaService } from '../../core/services/alerta.service';
 
 @Component({
   selector: 'app-chat',
@@ -30,6 +31,7 @@ import {
 export class Chat implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private readonly alerta = inject(AlertaService);
   @ViewChild('caixaMensagens') caixaMensagens?: ElementRef<HTMLDivElement>;
   private readonly LIMITE_AUDIO_SEG = 60;   // áudio vai em base64 no documento (limite de 1 MB do Firestore)
   private timerAudio: any = null;
@@ -319,7 +321,7 @@ export class Chat implements OnInit, OnDestroy {
           if (this.isRecording()) this.toggleGravacaoAudio();
         }, this.LIMITE_AUDIO_SEG * 1000);
       } catch (err) {
-        alert("Não foi possível acessar o microfone.");
+        this.alerta.erro('Verifique se o navegador tem permissão para usar o microfone.', 'Microfone indisponível');
       }
     } else {
       clearTimeout(this.timerAudio);

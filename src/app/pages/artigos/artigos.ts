@@ -6,6 +6,7 @@ import { FooterComponent } from '../../components/footer/footer';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { AlertaService } from '../../core/services/alerta.service';
 
 @Component({
   selector: 'app-artigos',
@@ -16,6 +17,7 @@ import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from 'fi
 })
 export class Artigos implements OnInit {
   private router = inject(Router);
+  private readonly alerta = inject(AlertaService);
 
   currentUser = signal<any>(null);
   isLoading = signal<boolean>(true);
@@ -133,7 +135,7 @@ export class Artigos implements OnInit {
   async toggleFavoritoRapido(artigo: any) {
     const user = this.currentUser();
     if (!user) {
-      alert("Faça login para salvar artigos.");
+      this.alerta.aviso('Entre na sua conta para salvar artigos.', 'Faça login');
       return;
     }
 

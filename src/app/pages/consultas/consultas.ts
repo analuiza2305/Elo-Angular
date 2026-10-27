@@ -6,6 +6,7 @@ import { FooterComponent } from '../../components/footer/footer';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, getDocs, collection, query, where, onSnapshot, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { AlertaService } from '../../core/services/alerta.service';
 
 @Component({
   selector: 'app-consultas',
@@ -16,6 +17,7 @@ import { doc, getDoc, getDocs, collection, query, where, onSnapshot, updateDoc, 
 })
 export class ConsultasComponent implements OnInit {
   private router = inject(Router);
+  private readonly alerta = inject(AlertaService);
 
   currentUser = signal<any>(null);
   
@@ -162,7 +164,7 @@ export class ConsultasComponent implements OnInit {
       const collectionName = tipo === "psicologo" ? "psicologos" : "advogados";
       const data = await this.buscarProfissional(uid, collectionName);
       if (!data) {
-        alert("Informações do profissional não encontradas.");
+        this.alerta.erro('Informações do profissional não encontradas.', 'Profissional não encontrado');
         return;
       }
 
@@ -223,7 +225,7 @@ export class ConsultasComponent implements OnInit {
       this.motivoCancelamento.set('');
     } catch (err) {
       console.error("Erro ao cancelar consulta:", err);
-      alert("Não foi possível cancelar a consulta. Tente novamente.");
+      this.alerta.erro('Não foi possível cancelar a consulta. Tente novamente.');
     } finally {
       this.isCancelando.set(false);
     }

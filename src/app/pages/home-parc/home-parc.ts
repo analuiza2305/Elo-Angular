@@ -32,6 +32,7 @@ import {
 } from 'firebase/firestore';
 import { Chart, registerables } from 'chart.js';
 import { auth, db } from '../../core/firebase';
+import { AlertaService } from '../../core/services/alerta.service';
 
 /**
  * Página do Parceiro (dashboard, calendário, fórum, artigos, relatórios,
@@ -55,6 +56,7 @@ import { auth, db } from '../../core/firebase';
 export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly router = inject(Router);
+  private readonly alerta = inject(AlertaService);
 
   private unsubscribeAuth: Unsubscribe | null = null;
   private unsubscribeForumAuth: Unsubscribe | null = null;
@@ -1495,26 +1497,26 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     document.getElementById('segAlterarSenhaBtn')?.addEventListener('click', async () => {
       try {
         await sendPasswordResetEmail(auth, this.dadosParceiroAtual?.['email'] || auth.currentUser?.email || '');
-        alert('Enviamos um e-mail para redefinição de senha.');
+        this.alerta.sucesso('Confira sua caixa de entrada para redefinir a senha.', 'E-mail enviado!');
       } catch (err) {
         console.error('Erro ao solicitar redefinição de senha:', err);
-        alert('Não foi possível enviar o e-mail de redefinição.');
+        this.alerta.erro('Não foi possível enviar o e-mail de redefinição.');
       }
     });
 
     document.getElementById('segSairContaBtn')?.addEventListener('click', async () => {
-      if (!confirm('Deseja realmente sair da sua conta?')) return;
+      if (!(await this.alerta.confirmar('Você precisará entrar novamente para acessar o painel.', { titulo: 'Sair da conta?', textoOk: 'Sair' }))) return;
       try {
         await signOut(auth);
         this.router.navigate(['/login-profissional']);
       } catch (err) {
         console.error('Erro ao sair da conta:', err);
-        alert('Não foi possível sair da conta. Tente novamente.');
+        this.alerta.erro('Não foi possível sair da conta. Tente novamente.');
       }
     });
 
     document.getElementById('cfgAlterarFotoBtn')?.addEventListener('click', async () => {
-      const url = prompt('Cole a URL da nova foto/logo da empresa:');
+      const url = (await this.alerta.solicitar('Cole a URL da nova foto ou logo da empresa.', { titulo: 'Alterar foto', placeholder: 'https://...', textoOk: 'Salvar' }))?.trim();
       if (!url) return;
       try {
         await updateDoc(doc(db, 'parceiros', this.parceiroDocId as string), { fotoURL: url });
@@ -1587,7 +1589,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         await deleteUser(user);
 
         fecharExcluirContaModal();
-        alert('Sua conta foi excluída com sucesso.');
+        this.alerta.sucesso('Sua conta foi excluída com sucesso.', 'Conta excluída');
         this.router.navigate(['/login-profissional']);
       } catch (err: any) {
         console.error('Erro ao excluir conta:', err);
@@ -1752,7 +1754,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     });
 
     const criarPost = async (titulo: string, conteudo: string) => {
-      if (!usuarioLogado) { alert('Você precisa estar logado para postar.'); return; }
+      if (!usuarioLogado) { this.alerta.aviso('Você precisa estar logado para postar.', 'Faça login'); return; }
       let autorId: string, autorNome: string, autorFoto: string;
       if (anonimoCheck && anonimoCheck.checked) {
         autorId = 'anonimo'; autorNome = 'Anônimo'; autorFoto = './img/account_icon.png';
@@ -1786,7 +1788,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       e.preventDefault();
       const titulo = inputTitulo.value.trim();
       const conteudo = inputConteudo.value.trim();
-      if (!titulo || !conteudo) { alert('Título e conteúdo são obrigatórios.'); return; }
+      if (!titulo || !conteudo) { this.alerta.aviso('Preencha o título e o conteúdo do post.', 'Campos obrigatórios'); return; }
       await criarPost(titulo, conteudo);
       modalForum.classList.add('hidden');
     });
@@ -1804,7 +1806,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
 
       if (target.classList.contains('like-icon')) {
         e.stopPropagation();
-        if (!usuarioLogado) { alert('É necessário estar logado para curtir.'); return; }
+        if (!usuarioLogado) { this.alerta.aviso('É necessário estar logado para curtir.', 'Faça login'); return; }
         const likeWrap = target.closest('.like-wrap') as HTMLElement;
         const countEl = likeWrap.querySelector('.like-count') as HTMLElement;
         const current = parseInt(countEl.textContent || '0', 10) || 0;
@@ -1827,7 +1829,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       }
 
       if (target.closest('.delete-btn')) {
-        if (confirm('Deseja realmente excluir este post?')) await deleteDoc(doc(db, 'posts', postId));
+        if (await this.alerta.confirmar('Esta ação não pode ser desfeita.', { titulo: 'Excluir este post?', textoOk: 'Excluir', perigo: true })) await deleteDoc(doc(db, 'posts', postId));
         return;
       }
     });
@@ -1884,7 +1886,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       const texto = (input?.value || '').trim();
       const user = this.usuarioComentario;
       if (!texto || !this.postAbertoId) return;
-      if (!user) { alert('Você precisa estar logado para responder.'); return; }
+      if (!user) { this.alerta.aviso('Você precisa estar logado para responder.', 'Faça login'); return; }
 
       const d = this.dadosParceiroComentario;
       const nome = d ? this.nomeExibicao(d) : (user.displayName || 'Parceiro');
@@ -1900,7 +1902,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         if (input) input.value = '';
       } catch (err) {
         console.error('Erro ao responder:', err);
-        alert('Não foi possível enviar sua resposta.');
+        this.alerta.erro('Não foi possível enviar sua resposta. Tente novamente.');
       }
     });
   }

@@ -14,6 +14,7 @@ import {
   GoogleAuthProvider,
 } from 'firebase/auth';
 import { doc, getDoc, updateDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { AlertaService } from '../../core/services/alerta.service';
 
 @Component({
   selector: 'app-perfil',
@@ -25,6 +26,7 @@ import { doc, getDoc, updateDoc, deleteDoc, collection, query, where, orderBy, l
 })
 export class Perfil implements OnInit {
   private router = inject(Router);
+  private readonly alerta = inject(AlertaService);
 
   currentUser = signal<any>(null);
   userData = signal<any>({});
@@ -166,9 +168,9 @@ export class Perfil implements OnInit {
       await updateDoc(userRef, { ...this.editForm() });
       this.userData.set({ ...this.userData(), ...this.editForm() });
       this.showModalEditar.set(false);
-      alert("Perfil updated!");
+      this.alerta.sucesso('Suas informações foram salvas.', 'Perfil atualizado!');
     } catch (err) {
-      alert("Erro ao salvar.");
+      this.alerta.erro('Não foi possível salvar seu perfil. Tente novamente.');
     }
   }
 
@@ -192,7 +194,7 @@ export class Perfil implements OnInit {
       window.location.reload(); // Atualiza a página imediatamente
       
     } catch (err) {
-      alert("Erro ao salvar avatar.");
+      this.alerta.erro('Não foi possível salvar sua foto. Tente novamente.');
     }
   }
 
@@ -273,7 +275,7 @@ export class Perfil implements OnInit {
       
     } catch (err) {
       console.error("Erro ao salvar avatar:", err);
-      alert("Erro ao salvar avatar.");
+      this.alerta.erro('Não foi possível salvar sua foto. Tente novamente.');
     }
   }
   abrirModalApagarConta() {
