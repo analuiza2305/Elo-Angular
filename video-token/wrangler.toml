@@ -12,7 +12,7 @@ JAAS_KEY_ID = "8e756b"
 ALLOWED_ORIGINS = "https://elomaterno.netlify.app"
    MAILJET_FROM_EMAIL = "samyraalves20007@gmail.com"
    MAILJET_FROM_NAME = "EloMaterno"
-   APP_URL = "http://localhost:4200"
+   APP_URL = "https://elomaterno.netlify.app"
 
 # A chave privada NÃO fica aqui. Ela vai como segredo:
 #   Get-Content "C:\caminho\da\chave" -Raw | npx wrangler secret put JAAS_PRIVATE_KEY
