@@ -9,7 +9,7 @@ JAAS_APP_ID = "vpaas-magic-cookie-56e2dd309bfe43e9a537f61d1874b05b"
 # Só a parte depois da barra do Key ID
 JAAS_KEY_ID = "8e756b"
 # Sites que podem pedir token (separe por vírgula). Adicione o endereço do site publicado depois.
-ALLOWED_ORIGINS = "https://elomaterno.netlify.app"
+ALLOWED_ORIGINS = "http://localhost:4200,https://elomaterno.netlify.app"
    MAILJET_FROM_EMAIL = "samyraalves20007@gmail.com"
    MAILJET_FROM_NAME = "EloMaterno"
    APP_URL = "https://elomaterno.netlify.app"
