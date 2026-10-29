@@ -56,8 +56,8 @@
           </div>
 
           <div class="mobile-menu-actions">
-            <a routerLink="/login" (click)="toggleMobileMenu()" class="mobile-menu-item"><i class="fa-solid fa-user"></i> <span data-i18n="login_mae">Acesso para Mães</span></a>
-            <a routerLink="/login-profissional" (click)="toggleMobileMenu()" class="mobile-menu-item"><i class="fa-solid fa-building"></i> <span data-i18n="login_parceiro">Acesso Parceiros</span></a>
+            <a routerLink="/login" (click)="toggleMobileMenu()" class="mobile-menu-item mobile-access-mae"><i class="fa-solid fa-user"></i> <span data-i18n="login_mae">Acesso para Mães</span></a>
+            <a routerLink="/login-profissional" (click)="toggleMobileMenu()" class="mobile-menu-item mobile-access-parceiro"><i class="fa-solid fa-building"></i> <span data-i18n="login_parceiro">Acesso Parceiros</span></a>
           </div>
       </nav>
 
@@ -303,7 +303,7 @@
           <!-- BOTÃO HAMBÚRGUER (APENAS NO MOBILE) -->
           <button class="menu-toggle" aria-label="Abrir menu" (click)="toggleMobileMenu()">
             <i class="fa" [class.fa-bars]="!isMobileMenuOpen" [class.fa-xmark]="isMobileMenuOpen"></i>
-            @if (naoLidas() > 0 && !isMobileMenuOpen) { <span class="notif-badge" aria-hidden="true"></span> }
+            @if (naoLidas() > 0 && !isMobileMenuOpen) { <span class="notif-badge" aria-hidden="true">{{ naoLidas() > 9 ? '9+' : naoLidas() }}</span> }
           </button>
 
           <!-- BACKDROP MOBILE -->
@@ -317,13 +317,14 @@
               </div>
 
               <!-- Card de Perfil no topo do menu mobile -->
-              <div class="mobile-profile-card">
+              <a routerLink="/perfil" (click)="toggleMobileMenu()" class="mobile-profile-card" aria-label="Ir para o meu perfil">
                   <img [src]="userAvatar()" alt="Avatar do usuário">
                   <div class="mobile-profile-info">
                       <strong>{{ userName() }}</strong>
                       <span>Mãe Conectada</span>
                   </div>
-              </div>
+                  <i class="fa-solid fa-chevron-right mobile-profile-arrow" aria-hidden="true"></i>
+              </a>
 
               <!-- Links de Navegação Mobile -->
               <div class="mobile-links-grid">

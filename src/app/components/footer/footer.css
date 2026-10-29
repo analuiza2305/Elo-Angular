@@ -1,0 +1,21 @@
+/* O footer já fica fora de qualquer container, então não precisa do truque
+   global de 100vw (que conta a barra de rolagem e alarga a página no mobile) */
+.modern-footer {
+    width: 100% !important;
+    left: auto !important;
+    right: auto !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* A regra global de mobile (img { width: 100% !important }) esmagava o logo */
+.footer-logo img {
+    width: 40px !important;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .footer-logo {
+        justify-content: center;
+    }
+}

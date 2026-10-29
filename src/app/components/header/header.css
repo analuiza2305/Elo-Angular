@@ -669,9 +669,17 @@ body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:h
   border-radius: 999px; border: 2px solid #FFFFFF;
   pointer-events: none;
 }
-/* No botão do menu mobile vira só uma bolinha */
-.menu-toggle { position: relative; }
-.menu-toggle .notif-badge { min-width: 12px; height: 12px; padding: 0; top: 4px; right: 4px; }
+/* No botão do menu mobile: contador preso no canto do botão.
+   bottom/right: auto anulam a regra global antiga (position: fixed; bottom/right: 15px),
+   que com position: relative deslocava o botão para cima e para a esquerda */
+.menu-toggle { position: relative; bottom: auto; right: auto; }
+.top-header .menu-toggle { position: relative !important; }
+.menu-toggle .notif-badge {
+  top: -3px; right: -3px;
+  min-width: 18px; height: 18px; padding: 0 4px;
+  font-size: 10px;
+  box-shadow: 0 2px 6px rgba(224, 68, 111, 0.35);
+}
 
 .notif-badge-inline {
   margin-left: auto; min-width: 22px; height: 22px; padding: 0 7px;
@@ -766,3 +774,79 @@ body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:h
 :host-context(body[data-theme="dark"]) .notif-icone.recusada { background: rgba(251, 113, 133, .15); color: #FDA4AF; }
 :host-context(body[data-theme="dark"]) .notif-ponto { background: #C4B5FD; }
 :host-context(body[data-theme="dark"]) .notif-badge { border-color: #1B2336; }
+
+/* A regra global de mobile (img { width: 100% !important }) espremia o ícone do logo */
+.logo-icon {
+  width: 40px !important;
+  flex-shrink: 0;
+}
+
+/* =========================================
+   GAVETA MOBILE: HIERARQUIA DOS BOTÕES
+   (vence as regras globais "body .nav-links a" do styles.css)
+========================================= */
+@media (max-width: 900px) {
+  /* "Sou Profissional" / "Sou Mãe": troca de landing, mais discreto */
+  .nav-links a.link-destaque {
+    background: var(--menu-icone-bg) !important;
+    color: var(--menu-texto) !important;
+    border: 1px solid var(--menu-borda) !important;
+    box-shadow: none !important;
+    min-height: 44px;
+  }
+
+  /* Acesso ao sistema: o destaque principal do menu */
+  .mobile-menu-actions { gap: 10px !important; }
+
+  .mobile-menu-actions .mobile-menu-item {
+    justify-content: center !important;
+    min-height: 52px;
+    border-radius: 999px !important;
+    font-size: 1rem !important;
+    font-weight: 800 !important;
+  }
+
+  .mobile-menu-actions .mobile-menu-item i {
+    width: auto !important;
+    height: auto !important;
+    flex: 0 0 auto;
+    background: transparent;
+    color: inherit !important;
+  }
+
+  .mobile-menu-actions .mobile-menu-item:hover { transform: translateY(-1px); }
+
+  .mobile-menu-actions .mobile-access-mae {
+    background: var(--menu-ativo) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 24px rgba(82, 66, 125, 0.3) !important;
+  }
+
+  .mobile-menu-actions .mobile-access-parceiro {
+    background: var(--menu-fundo) !important;
+    color: #52427D !important;
+    border: 2px solid #7C69A9 !important;
+  }
+
+  :host-context(body[data-theme="dark"]) .mobile-menu-actions .mobile-access-parceiro {
+    color: var(--menu-icone) !important;
+    border-color: var(--menu-icone) !important;
+  }
+
+  /* Card de perfil da mãe: clicável, leva para /perfil */
+  .mobile-profile-card {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .mobile-profile-card:hover { transform: translateY(-1px); }
+
+  .mobile-profile-card .mobile-profile-info { flex: 1; min-width: 0; }
+
+  .mobile-profile-arrow {
+    color: var(--menu-icone);
+    font-size: 0.85rem;
+  }
+}

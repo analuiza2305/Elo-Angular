@@ -1,129 +1,271 @@
 <app-header tipo="mae"></app-header>
-<main class="forum-container">
+<main class="forum-container fr-page">
 
-    <!-- PAINEL DE PESQUISA E FILTROS RESPONSIVOS -->
-    <div class="forum-header-moderno">
-        <div class="forum-search-moderno">
-            <i class="fa fa-search"></i>
-            <input 
-                type="text" 
-                [(ngModel)]="termoPesquisa" 
-                (input)="termoPesquisa = $event.target.value" 
-                placeholder="Pesquisar no fórum...">
-        </div>
-        
-        <!-- Filtros em pílulas (Visíveis no PC) -->
-        <div class="forum-filtros desktop-only-filtros">
-            <button class="filtro-btn" [class.ativo]="categoriaSelecionada() === 'Todos'" (click)="filtrarPorCategoria('Todos')">Todos</button>
-            <button class="filtro-btn" [class.ativo]="categoriaSelecionada() === 'Desabafos'" (click)="filtrarPorCategoria('Desabafos')">Desabafos</button>
-            <button class="filtro-btn" [class.ativo]="categoriaSelecionada() === 'Dúvidas'" (click)="filtrarPorCategoria('Dúvidas')">Dúvidas</button>
-            <button class="filtro-btn" [class.ativo]="categoriaSelecionada() === 'Dicas'" (click)="filtrarPorCategoria('Dicas')">Dicas</button>
+    <!-- HERO
+         Desktop: arte recomposta em banner (sem o texto) com o texto em HTML por cima.
+         Telas menores: texto + recorte só com as mães. -->
+    <section class="fr-hero">
+        <img src="/img/forum-hero-banner.webp" alt="" class="fr-hero-banner" width="2520" height="720">
+
+        <div class="fr-hero-texto">
+            <h1>Bem-vinda ao <br class="fr-hero-quebra">fórum <span>EloMaterno</span> 💜</h1>
+            <p>Um espaço seguro para compartilhar, <br class="fr-hero-quebra">aprender e crescer juntas.</p>
+            <p class="fr-hero-destaque">Aqui, toda mãe tem voz e encontra apoio.</p>
         </div>
 
-        <!-- Dropdown de Categorias exclusivo para Celular -->
-        <div class="ordenacao-dropdown-wrapper mobile-only-categorias" style="margin-top: 14px;">
-            <button class="btn-ordenar-forum" (click)="toggleDropdownCategoria($event)">
-                <i class="fa-solid fa-filter"></i> Categoria: {{ categoriaSelecionada() }} <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
-            </button>
-            
-            <ul class="dropdown-menu-ordenacao" [class.hidden]="!isDropdownCatOpen()">
-                <li (click)="filtrarPorCategoria('Todos')"><i class="fa-solid fa-table-cells-large"></i> Todos</li>
-                <li (click)="filtrarPorCategoria('Desabafos')"><i class="fa-solid fa-face-smile"></i> Desabafos</li>
-                <li (click)="filtrarPorCategoria('Dúvidas')"><i class="fa-solid fa-circle-question"></i> Dúvidas</li>
-                <li (click)="filtrarPorCategoria('Dicas')"><i class="fa-solid fa-lightbulb"></i> Dicas</li>
-            </ul>
-        </div>
-    </div>
+        <img src="/img/forum-hero-maes.webp" alt="Ilustração de quatro mães conversando e sorrindo" class="fr-hero-arte" width="880" height="740">
+    </section>
 
-    @if (isLoading()) {
-        <div class="loader" style="margin: 40px auto;"><div class="dot"></div><div class="dot"></div></div>
-    } @else {
-        <div id="posts-list">
-            @for (post of postsFiltrados; track post.id) {
-                <div class="forum-card-novo com-brilho" (click)="irParaDetalhes(post.id)">
-                    
-                    <div class="fc-header">
-                        <img [src]="post.autorFotoFinal" [alt]="post.autorNomeFinal" class="fc-avatar">
-                        <div class="fc-user-info">
-                            <strong class="fc-nome">{{ post.autorNomeFinal }}</strong>
-                            <span class="fc-dot">•</span>
-                            <span class="fc-data">{{ post.dataFormatada }}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="fc-body">
-                        <h3 class="fc-titulo">{{ post.titulo }}</h3>
-                        <p class="fc-texto">{{ post.conteudo }}</p>
-                    </div>
-                    
-                    <div class="fc-footer">
-                        <div style="display: flex; gap: 16px; align-items: center;">
-                            <div class="fc-like" [class.liked]="post.jaCurtiu" (click)="toggleLikePost(post, $event)">
-                                <i [ngClass]="post.jaCurtiu ? 'fa-solid fa-heart' : 'fa-regular fa-heart'" style="font-size: 18px;"></i>
-                                <span class="like-count">{{ post.likes || 0 }}</span>
-                            </div>
-                            
-                            <div class="fc-like">
-                                <i class="fa-regular fa-comment" style="font-size: 18px;"></i>
-                                <span class="comment-count">{{ post.totalComentarios || 0 }}</span>
-                            </div>
+    <div class="fr-layout">
 
-                            @if (currentUser() && currentUser().uid === post.autorId) {
-                                <button class="delete-btn action-btn" (click)="confirmarExclusao(post.id, $event)">Excluir</button>
-                            }
-                        </div>
-                        
-                      @if (post.totalComentarios > 0) {
-                            <div class="badge-respondido"><i class="fa-solid fa-check-circle"></i> Respondido por especialista</div>
-                        } @else {
-                            <div class="badge-aguardando"><i class="fa-regular fa-clock"></i> Aguardando especialista</div>
-                        }
-                    </div>
+        <!-- COLUNA PRINCIPAL: BUSCA, FILTROS E TÓPICOS -->
+        <section class="fr-main">
+            <div class="fr-painel">
+            <form class="fr-busca" (submit)="$event.preventDefault()" role="search">
+                <div class="fr-busca-campo">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input
+                        type="search"
+                        [(ngModel)]="termoPesquisa"
+                        name="busca"
+                        placeholder="Buscar por tópicos, palavras-chave ou dúvidas..."
+                        aria-label="Buscar no fórum">
                 </div>
-            } @empty {
-                <p class="no-posts" style="text-align: center; color: var(--text-muted); margin-top: 40px;">Nenhuma publicação encontrada.</p>
-            }
-        </div>
-    }
-</main>
+                <button type="submit" class="fr-busca-btn"><i class="fa-solid fa-magnifying-glass"></i> <span>Buscar</span></button>
+            </form>
 
-<button class="botao-nova" (click)="abrirModalNovoPost()">Nova Publicação</button>
+            <div class="fr-toolbar">
+                <!-- Temas: pílulas no desktop, dropdown no celular -->
+                <div class="fr-filtros fr-so-desktop" role="group" aria-label="Filtrar por tema">
+                    <button type="button" class="fr-filtro" [class.ativo]="categoriaSelecionada() === 'Todos'" [attr.aria-pressed]="categoriaSelecionada() === 'Todos'" (click)="filtrarPorCategoria('Todos')">Todos</button>
+                    @for (cat of categorias; track cat.nome) {
+                        <button type="button" class="fr-filtro" [class.ativo]="categoriaSelecionada() === cat.nome" [attr.aria-pressed]="categoriaSelecionada() === cat.nome" (click)="filtrarPorCategoria(cat.nome)">{{ cat.nome }}</button>
+                    }
+                </div>
 
-@if (showNewPostModal()) {
-    <div class="modal" style="display: flex; background: rgba(0,0,0,0.5);">
-        <div class="modal-content">
-            <h3>Nova Publicação</h3>
-            <form (submit)="criarPostagem()">
-                <label for="titulo">Título:</label>
-                <input type="text" id="titulo" [(ngModel)]="novoPostForm.titulo" name="titulo" placeholder="Digite o título" required>
-                
-                <label for="conteudo">Conteúdo:</label>
-                <textarea id="conteudo" [(ngModel)]="novoPostForm.conteudo" name="conteudo" rows="4" placeholder="Escreva sua mensagem..." required></textarea>
-                
-                <label for="anonimo-checkbox" style="display: flex; align-items: center; gap: 8px; margin-top: 14px; cursor: pointer;">
-                    <input type="checkbox" id="anonimo-checkbox" [(ngModel)]="novoPostForm.anonimo" name="anonimo">
-                    <span>Postar como anônimo</span>
+                <label class="fr-select fr-so-mobile">
+                    <i class="fa-solid fa-tags"></i>
+                    <select [ngModel]="categoriaSelecionada()" (ngModelChange)="filtrarPorCategoria($event)" name="tema" aria-label="Filtrar por tema">
+                        <option value="Todos">Todos os temas</option>
+                        @for (cat of categorias; track cat.nome) {
+                            <option [value]="cat.nome">{{ cat.nome }}</option>
+                        }
+                    </select>
+                    <i class="fa-solid fa-chevron-down fr-select-seta"></i>
                 </label>
 
-                <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 16px;">
-                    <button type="button" (click)="fecharModalNovoPost()" style="flex:1; background:#eee; border:none; padding:10px; border-radius:8px; cursor:pointer;">Cancelar</button>
-                    <button type="submit" style="flex:1; background:var(--primary-color); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">Publicar</button>
+                <label class="fr-select">
+                    <i class="fa-solid fa-arrow-down-wide-short"></i>
+                    <select [ngModel]="ordenacao()" (ngModelChange)="ordenarPor($event)" name="ordenacao" aria-label="Ordenar tópicos">
+                        <option value="recentes">Mais recentes</option>
+                        <option value="curtidos">Mais curtidos</option>
+                        <option value="comentados">Mais comentados</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down fr-select-seta"></i>
+                </label>
+            </div>
+            </div>
+
+            <h2 class="fr-lista-titulo">{{ tituloLista }}</h2>
+
+            @if (isLoading()) {
+                <div class="loader" style="margin: 40px auto;"><div class="dot"></div><div class="dot"></div></div>
+            } @else {
+                <div class="fr-lista">
+                    @for (post of postsVisiveis; track post.id) {
+                        <article class="fr-post" (click)="irParaDetalhes(post.id)">
+                            <img [src]="post.autorFotoFinal" [alt]="post.autorNomeFinal" class="fr-post-avatar">
+
+                            <div class="fr-post-corpo">
+                                <div class="fr-post-meta">
+                                    <strong>{{ post.autorNomeFinal }}</strong>
+                                    <span class="fr-post-ponto">•</span>
+                                    <span>{{ post.dataFormatada }}</span>
+                                </div>
+                                <h3 class="fr-post-titulo">{{ post.titulo }}</h3>
+                                <p class="fr-post-texto">{{ post.conteudo }}</p>
+
+                                <div class="fr-post-rodape">
+                                    @if (post.categoria) {
+                                        <span class="fr-tag">{{ post.categoria }}</span>
+                                    }
+                                    @if (currentUser() && currentUser().uid === post.autorId) {
+                                        <button type="button" class="fr-excluir" (click)="confirmarExclusao(post.id, $event)">
+                                            <i class="fa-regular fa-trash-can"></i> Excluir
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="fr-post-lateral">
+                                <div class="fr-post-acoes">
+                                    <button type="button" class="fr-acao" [class.curtido]="post.jaCurtiu" (click)="toggleLikePost(post, $event)" [attr.aria-label]="post.jaCurtiu ? 'Descurtir' : 'Curtir'">
+                                        <i [ngClass]="post.jaCurtiu ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
+                                        <span>{{ post.likes || 0 }}</span>
+                                    </button>
+                                    <span class="fr-acao" aria-label="Comentários">
+                                        <i class="fa-regular fa-comment"></i>
+                                        <span>{{ post.totalComentarios || 0 }}</span>
+                                    </span>
+                                </div>
+
+                                @if (post.totalComentarios > 0) {
+                                    <span class="fr-status respondido"><i class="fa-solid fa-circle-check"></i> Respondido por especialista</span>
+                                } @else {
+                                    <span class="fr-status aguardando"><i class="fa-regular fa-clock"></i> Aguardando especialista</span>
+                                }
+                            </div>
+                        </article>
+                    } @empty {
+                        <div class="fr-vazio">
+                            <i class="fa-regular fa-comments"></i>
+                            <p>Nenhuma publicação encontrada.</p>
+                            <button type="button" class="fr-btn-primario" (click)="abrirModalNovoPost()">Começar uma conversa</button>
+                        </div>
+                    }
                 </div>
-            </form>
-        </div>
+
+                @if (postsFiltrados.length > postsVisiveis.length) {
+                    <button type="button" class="fr-carregar-mais" (click)="carregarMais()">
+                        Carregar mais tópicos <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                }
+            }
+        </section>
+
+        <!-- COLUNA LATERAL -->
+        <aside class="fr-aside">
+            <div class="fr-card fr-ajuda">
+                <span class="fr-ajuda-icone" aria-hidden="true"><i class="fa-solid fa-hand-holding-heart"></i></span>
+                <div>
+                    <h3>Precisa de ajuda profissional?</h3>
+                    <p>Agende uma consultoria gratuita com nossas especialistas.</p>
+                    <a routerLink="/consultoria" class="fr-btn-primario">Ver consultorias</a>
+                </div>
+            </div>
+
+            <div class="fr-card">
+                <h3 class="fr-card-titulo">Explorar por tema</h3>
+                <ul class="fr-temas">
+                    @for (cat of categorias; track cat.nome) {
+                        <li>
+                            <button type="button" class="fr-tema" [class.ativo]="categoriaSelecionada() === cat.nome" [attr.aria-pressed]="categoriaSelecionada() === cat.nome" (click)="filtrarPorCategoria(categoriaSelecionada() === cat.nome ? 'Todos' : cat.nome)">
+                                <span class="fr-tema-icone"><i [class]="cat.icone"></i></span>
+                                <span class="fr-tema-texto">
+                                    <strong>{{ cat.nome }}</strong>
+                                    <small>{{ cat.descricao }}</small>
+                                </span>
+                                <i class="fa-solid fr-tema-seta" [class.fa-chevron-right]="categoriaSelecionada() !== cat.nome" [class.fa-xmark]="categoriaSelecionada() === cat.nome" aria-hidden="true"></i>
+                            </button>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+        </aside>
+    </div>
+</main>
+
+<button type="button" class="fr-fab" (click)="abrirModalNovoPost()">
+    <i class="fa-solid fa-pen"></i> <span>Nova publicação</span>
+</button>
+
+@if (showNewPostModal()) {
+    <div class="fr-modal" (click)="fecharModalNovoPost()">
+        <!-- O próprio card do tópico: o que a mãe digita já aparece como vai ficar publicado -->
+        <form class="fr-composer" role="dialog" aria-modal="true" aria-label="Nova publicação" (click)="$event.stopPropagation()" (submit)="$event.preventDefault(); criarPostagem()">
+            <div class="fr-composer-topo">
+                <span class="fr-composer-rotulo"><i class="fa-solid fa-pen"></i> Nova publicação</span>
+                <button type="button" class="fr-composer-fechar" aria-label="Fechar" (click)="fecharModalNovoPost()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="fr-composer-card">
+                <img [src]="novoPostForm.anonimo ? './img/account_icon.png' : minhaFoto()" alt="" class="fr-post-avatar">
+
+                <div class="fr-composer-corpo">
+                    <div class="fr-post-meta">
+                        <img [src]="novoPostForm.anonimo ? './img/account_icon.png' : minhaFoto()" alt="" class="fr-composer-avatar-mini">
+                        <strong>{{ novoPostForm.anonimo ? 'Anônimo' : meuNome() }}</strong>
+                        <span class="fr-post-ponto">•</span>
+                        <span>agora</span>
+                        @if (novoPostForm.anonimo) {
+                            <span class="fr-composer-anon-badge"><i class="fa-solid fa-user-secret"></i> sua identidade fica oculta</span>
+                        }
+                    </div>
+
+                    <textarea
+                        #campoTitulo
+                        class="fr-composer-titulo"
+                        [(ngModel)]="novoPostForm.titulo"
+                        (input)="ajustarAltura(campoTitulo)"
+                        (keydown.enter)="$event.preventDefault()"
+                        name="titulo"
+                        rows="1"
+                        maxlength="120"
+                        placeholder="Dê um título para a sua conversa"
+                        aria-label="Título"
+                        autofocus
+                        required></textarea>
+
+                    <textarea
+                        #campoTexto
+                        class="fr-composer-texto"
+                        [(ngModel)]="novoPostForm.conteudo"
+                        (input)="ajustarAltura(campoTexto)"
+                        name="conteudo"
+                        rows="3"
+                        placeholder="Escreva com calma, aqui é um espaço seguro..."
+                        aria-label="Mensagem"
+                        required></textarea>
+
+                    <div class="fr-composer-temas fr-so-desktop" role="radiogroup" aria-label="Tema">
+                        @for (cat of categorias; track cat.nome) {
+                            <button type="button" class="fr-tag fr-tag-opcao" role="radio" [attr.aria-checked]="novoPostForm.categoria === cat.nome" [class.ativo]="novoPostForm.categoria === cat.nome" (click)="novoPostForm.categoria = cat.nome">
+                                <i [class]="cat.icone"></i> {{ cat.nome }}
+                            </button>
+                        }
+                    </div>
+
+                    <label class="fr-select fr-composer-tema fr-so-mobile">
+                        <i class="fa-solid fa-tags"></i>
+                        <select [(ngModel)]="novoPostForm.categoria" name="categoria" aria-label="Tema da publicação">
+                            @for (cat of categorias; track cat.nome) {
+                                <option [value]="cat.nome">{{ cat.nome }}</option>
+                            }
+                        </select>
+                        <i class="fa-solid fa-chevron-down fr-select-seta"></i>
+                    </label>
+                </div>
+            </div>
+
+            <div class="fr-composer-rodape">
+                <label class="fr-switch">
+                    <input type="checkbox" [(ngModel)]="novoPostForm.anonimo" name="anonimo">
+                    <span class="fr-switch-trilho" aria-hidden="true"></span>
+                    Postar como anônima
+                </label>
+
+                <div class="fr-composer-acoes">
+                    <button type="button" class="fr-btn-secundario" (click)="fecharModalNovoPost()">Cancelar</button>
+                    <button type="submit" class="fr-btn-primario" [disabled]="!podePublicar() || publicando()">
+                        @if (publicando()) { Publicando... } @else { <i class="fa-solid fa-paper-plane"></i> Publicar }
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 }
 
 @if (showConfirmModal()) {
-    <div class="modal" style="display: flex; background: rgba(0,0,0,0.5);">
-        <div class="modal-content" style="text-align: center;">
-            <h3 style="color: #d9534f;">Confirmar Exclusão</h3>
-            <p>Você tem certeza que deseja excluir esta publicação?</p>
-            <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
-                <button type="button" style="flex:1; background:#eee; border:none; padding:10px; border-radius:8px; cursor:pointer;" (click)="showConfirmModal.set(false)">Cancelar</button>
-                <button type="button" style="flex:1; background:#d9534f; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;" (click)="excluirPost()">Excluir</button>
+    <div class="fr-modal" (click)="showConfirmModal.set(false)">
+        <div class="fr-modal-caixa fr-modal-confirmar" role="alertdialog" aria-modal="true" aria-labelledby="fr-confirmar-titulo" (click)="$event.stopPropagation()">
+            <span class="fr-confirmar-icone"><i class="fa-regular fa-trash-can"></i></span>
+            <h3 id="fr-confirmar-titulo">Excluir publicação?</h3>
+            <p>Essa ação não pode ser desfeita.</p>
+            <div class="fr-modal-acoes">
+                <button type="button" class="fr-btn-secundario" (click)="showConfirmModal.set(false)">Cancelar</button>
+                <button type="button" class="fr-btn-perigo" (click)="excluirPost()">Excluir</button>
             </div>
         </div>
     </div>
 }
-

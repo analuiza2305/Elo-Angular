@@ -10,6 +10,8 @@ import {
   collection, query, orderBy, limit, getDocs, doc, getDoc, addDoc, serverTimestamp, updateDoc, deleteDoc, setDoc, increment, getCountFromServer
 } from 'firebase/firestore';
 
+const POSTS_POR_PAGINA = 8;
+
 @Component({
   selector: 'app-forum',
   standalone: true,
@@ -28,26 +30,46 @@ export class ForumComponent implements OnInit {
   showNewPostModal = signal<boolean>(false);
   showConfirmModal = signal<boolean>(false);
   postParaExcluirId = signal<string | null>(null);
-  novoPostForm = { titulo: '', conteudo: '', anonimo: false };
+  novoPostForm = { titulo: '', conteudo: '', anonimo: false, categoria: 'Desabafos' };
+  publicando = signal<boolean>(false);
 
-  // Controles de Pesquisa, Filtros e Dropdown Mobile
+  // Perfil de quem está logada (usado na prévia do card de nova publicação)
+  meuNome = signal<string>('Você');
+  minhaFoto = signal<string>('./img/account_icon.png');
+
+  // Controles de Pesquisa, Filtros, Ordenação e Paginação
   termoPesquisa: string = '';
   categoriaSelecionada = signal<string>('Todos');
-  isDropdownCatOpen = signal<boolean>(false);
+  ordenacao = signal<'recentes' | 'curtidos' | 'comentados'>('recentes');
+  limiteVisiveis = signal<number>(POSTS_POR_PAGINA);
+
+  readonly categorias = [
+    { nome: 'Desabafos', icone: 'fa-solid fa-heart', descricao: 'Para falar do que pesa no coração' },
+    { nome: 'Dúvidas', icone: 'fa-solid fa-circle-question', descricao: 'Pergunte à comunidade e às especialistas' },
+    { nome: 'Dicas', icone: 'fa-solid fa-lightbulb', descricao: 'Compartilhe o que funcionou para você' }
+  ];
 
   ngOnInit() {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         this.currentUser.set(user);
+        this.carregarMeuPerfil(user);
         await this.carregarPosts();
       } else {
         this.router.navigate(['/login']);
       }
     });
+  }
 
-    document.addEventListener('click', () => {
-      this.isDropdownCatOpen.set(false);
-    });
+  private async carregarMeuPerfil(user: any) {
+    this.meuNome.set(user.displayName || 'Usuária');
+    try {
+      const uSnap = await getDoc(doc(db, 'usuarios', user.uid));
+      if (uSnap.exists()) {
+        this.meuNome.set(uSnap.data()['nome'] || this.meuNome());
+        this.minhaFoto.set(uSnap.data()['avatar'] || uSnap.data()['fotoURL'] || this.minhaFoto());
+      }
+    } catch (e) { console.error(e); }
   }
 
   get postsFiltrados() {
@@ -60,17 +82,35 @@ export class ForumComponent implements OnInit {
       const matchTermo = !termo || matchTitulo || matchConteudo || matchAutor;
       const matchCat = cat === 'Todos' || post.categoria === cat;
       return matchTermo && matchCat;
+    }).sort((a, b) => {
+      if (this.ordenacao() === 'curtidos') return (b.likes || 0) - (a.likes || 0);
+      if (this.ordenacao() === 'comentados') return (b.totalComentarios || 0) - (a.totalComentarios || 0);
+      return 0; // 'recentes': já vem ordenado do Firestore
     });
+  }
+
+  get postsVisiveis() {
+    return this.postsFiltrados.slice(0, this.limiteVisiveis());
+  }
+
+  get tituloLista() {
+    if (this.ordenacao() === 'curtidos') return 'Tópicos mais curtidos';
+    if (this.ordenacao() === 'comentados') return 'Tópicos mais comentados';
+    return 'Tópicos recentes';
   }
 
   filtrarPorCategoria(categoria: string) {
     this.categoriaSelecionada.set(categoria);
-    this.isDropdownCatOpen.set(false);
+    this.limiteVisiveis.set(POSTS_POR_PAGINA);
   }
 
-  toggleDropdownCategoria(event: Event) {
-    event.stopPropagation();
-    this.isDropdownCatOpen.update(v => !v);
+  ordenarPor(valor: string) {
+    this.ordenacao.set(valor as 'recentes' | 'curtidos' | 'comentados');
+    this.limiteVisiveis.set(POSTS_POR_PAGINA);
+  }
+
+  carregarMais() {
+    this.limiteVisiveis.update(n => n + POSTS_POR_PAGINA);
   }
 
   async carregarPosts() {
@@ -129,7 +169,9 @@ export class ForumComponent implements OnInit {
           ...p,
           autorNomeFinal: autorNome,
           autorFotoFinal: autorFoto,
-          dataFormatada: p['data']?.toDate ? p['data'].toDate().toLocaleString('pt-BR') : 'Agora',
+          dataFormatada: p['data']?.toDate
+            ? p['data'].toDate().toLocaleString('pt-BR', { dateStyle: 'medium', timeStyle: 'short' })
+            : 'Agora',
           jaCurtiu,
           totalComentarios
         };
@@ -147,7 +189,8 @@ export class ForumComponent implements OnInit {
   }
 
   abrirModalNovoPost() {
-    this.novoPostForm = { titulo: '', conteudo: '', anonimo: false };
+    const cat = this.categoriaSelecionada();
+    this.novoPostForm = { titulo: '', conteudo: '', anonimo: false, categoria: cat !== 'Todos' ? cat : 'Desabafos' };
     this.showNewPostModal.set(true);
   }
 
@@ -155,27 +198,31 @@ export class ForumComponent implements OnInit {
     this.showNewPostModal.set(false);
   }
 
+  podePublicar() {
+    return !!this.novoPostForm.titulo.trim() && !!this.novoPostForm.conteudo.trim();
+  }
+
+  // Faz o campo de texto crescer conforme a mãe escreve
+  ajustarAltura(campo: HTMLTextAreaElement) {
+    campo.style.height = 'auto';
+    campo.style.height = campo.scrollHeight + 'px';
+  }
+
   async criarPostagem() {
     const user = this.currentUser();
-    if (!user || !this.novoPostForm.titulo.trim() || !this.novoPostForm.conteudo.trim()) return;
+    if (!user || !this.podePublicar() || this.publicando()) return;
 
     let autorId = user.uid;
-    let autorNome = user.displayName || 'Usuária';
-    let autorFoto = './img/account_icon.png';
+    let autorNome = this.meuNome();
+    let autorFoto = this.minhaFoto();
 
     if (this.novoPostForm.anonimo) {
       autorId = 'anonimo';
       autorNome = 'Anônimo';
-    } else {
-      try {
-        const uSnap = await getDoc(doc(db, 'usuarios', user.uid));
-        if (uSnap.exists()) {
-          autorNome = uSnap.data()['nome'] || autorNome;
-          autorFoto = uSnap.data()['avatar'] || uSnap.data()['fotoURL'] || autorFoto;
-        }
-      } catch(e) {}
+      autorFoto = './img/account_icon.png';
     }
 
+    this.publicando.set(true);
     try {
       await addDoc(collection(db, 'posts'), {
         autorId,
@@ -185,13 +232,15 @@ export class ForumComponent implements OnInit {
         conteudo: this.novoPostForm.conteudo,
         likes: 0,
         respondido: false,
-        categoria: this.categoriaSelecionada() !== 'Todos' ? this.categoriaSelecionada() : 'Desabafos',
+        categoria: this.novoPostForm.categoria,
         data: serverTimestamp()
       });
       this.fecharModalNovoPost();
       await this.carregarPosts();
     } catch (err) {
       console.error('Erro ao criar post:', err);
+    } finally {
+      this.publicando.set(false);
     }
   }
 
