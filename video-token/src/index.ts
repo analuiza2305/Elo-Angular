@@ -84,8 +84,8 @@ export default {
   /** Cron a cada 10 min (wrangler.toml → [triggers]): lembretes de consulta e avisos de horário. */
   async scheduled(_evento: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
     ctx.waitUntil(
-      rodarTarefasAgendadas(env).then(({ lembretes: r, avisosHorario: a }) => {
-        console.log(`Lembretes: ${r.encontradas} consultas nas próximas 24h, ${r.analisadas} precisavam de lembrete, ${r.enviados} e-mails enviados`);
+      rodarTarefasAgendadas(env).then(({ provedor, lembretes: r, avisosHorario: a }) => {
+        console.log(`E-mail via ${provedor}. Lembretes: ${r.encontradas} consultas nas próximas 24h, ${r.analisadas} precisavam de lembrete, ${r.enviados} e-mails enviados`);
         r.detalhes.forEach((d) => console.log(d));
         r.erros.forEach((e) => console.error('Lembrete com erro:', e));
         if (a) {

@@ -1,5 +1,8 @@
 /**
- * Lembretes de consulta por e-mail (Mailjet, plano gratuito: 200 e-mails/dia).
+ * Lembretes de consulta por e-mail.
+ * Provedor: Brevo (300 e-mails/dia grátis) se o segredo BREVO_API_KEY existir;
+ * senão, Mailjet (200 e-mails/dia grátis). Para voltar ao Mailjet:
+ *   npx wrangler secret delete BREVO_API_KEY
  *
  * Roda sozinho a cada 10 minutos (Cron Trigger da Cloudflare, gratuito):
  * - 24 h antes: "sua consulta é amanhã"
@@ -13,9 +16,10 @@ import { verificarAvisosDeHorario } from './avisos-horario';
 export interface EnvLembretes {
   FIREBASE_PROJECT_ID: string;
   GOOGLE_SERVICE_ACCOUNT: string; // segredo: JSON da conta de serviço
-  MAILJET_API_KEY: string;        // segredo
-  MAILJET_API_SECRET: string;     // segredo
-  MAILJET_FROM_EMAIL: string;     // remetente verificado no Mailjet
+  MAILJET_API_KEY?: string;       // segredo (Mailjet)
+  MAILJET_API_SECRET?: string;    // segredo (Mailjet)
+  BREVO_API_KEY?: string;         // segredo (Brevo). Se existir, o Brevo é usado no lugar do Mailjet
+  MAILJET_FROM_EMAIL: string;     // remetente (precisa estar verificado no provedor em uso)
   MAILJET_FROM_NAME?: string;
   APP_URL?: string;               // ex.: http://localhost:4200 ou o site publicado
 }
@@ -39,8 +43,9 @@ export interface Resumo {
 /** simular = true: faz tudo menos enviar e marcar (para conferir o que aconteceria). */
 export async function enviarLembretes(env: EnvLembretes, agora = Date.now(), simular = false, dbPronto?: Firestore): Promise<Resumo> {
   const resumo: Resumo = { encontradas: 0, analisadas: 0, enviados: 0, erros: [], detalhes: [] };
-  if (!env.GOOGLE_SERVICE_ACCOUNT || !env.MAILJET_API_KEY || !env.MAILJET_API_SECRET || !env.MAILJET_FROM_EMAIL) {
-    resumo.erros.push('Faltam segredos: GOOGLE_SERVICE_ACCOUNT, MAILJET_API_KEY, MAILJET_API_SECRET ou MAILJET_FROM_EMAIL.');
+  const temProvedor = !!env.BREVO_API_KEY || (!!env.MAILJET_API_KEY && !!env.MAILJET_API_SECRET);
+  if (!env.GOOGLE_SERVICE_ACCOUNT || !temProvedor || !env.MAILJET_FROM_EMAIL) {
+    resumo.erros.push('Faltam segredos: GOOGLE_SERVICE_ACCOUNT, BREVO_API_KEY (ou MAILJET_API_KEY + MAILJET_API_SECRET) ou MAILJET_FROM_EMAIL.');
     return resumo;
   }
 
@@ -123,8 +128,12 @@ export async function enviarLembretes(env: EnvLembretes, agora = Date.now(), sim
       if (simular) continue;
 
       if (mensagens.length) {
-        await enviarMailjet(env, mensagens);
-        resumo.enviados += mensagens.length;
+        const falhas = await enviarEmails(env, mensagens);
+        resumo.enviados += mensagens.length - falhas.length;
+        falhas.forEach((f) => resumo.erros.push(`${c.id}: ${f}`));
+        // Se nenhum saiu (provedor fora do ar ou chave errada), tenta de novo na próxima rodada.
+        // Se pelo menos um saiu, marca como enviado para ninguém receber o mesmo lembrete duas vezes.
+        if (falhas.length === mensagens.length) continue;
       }
       // Marca mesmo se ninguém tinha e-mail, para não tentar de novo a cada 10 min
       const campo = c.tipo === '1h' ? 'lembrete1hEnviado' : 'lembrete24hEnviado';
@@ -145,13 +154,14 @@ export async function enviarLembretes(env: EnvLembretes, agora = Date.now(), sim
 export async function rodarTarefasAgendadas(env: EnvLembretes, agora = Date.now(), simular = false) {
   if (!env.GOOGLE_SERVICE_ACCOUNT) {
     const lembretes = await enviarLembretes(env, agora, simular);
-    return { lembretes, avisosHorario: null };
+    return { provedor: provedorDeEmail(env), lembretes, avisosHorario: null };
   }
   const db = new Firestore(env.FIREBASE_PROJECT_ID, await tokenDoGoogle(env.GOOGLE_SERVICE_ACCOUNT));
   const lembretes = await enviarLembretes(env, agora, simular, db);
-  const usadas = 2 + lembretes.analisadas * 5;
+  const usadas = 2 + lembretes.analisadas * (provedorDeEmail(env) === 'brevo' ? 6 : 5);
+  // Brevo manda um e-mail por chamada (Mailjet manda todos numa chamada só)
   const avisosHorario = await verificarAvisosDeHorario(env, db, 48 - usadas, agora, simular);
-  return { lembretes, avisosHorario };
+  return { provedor: provedorDeEmail(env), lembretes, avisosHorario };
 }
 
 /** Qual lembrete essa consulta ainda precisa agora (ou null). */
@@ -246,7 +256,52 @@ export function montarEmail(env: EnvLembretes, o: {
   };
 }
 
-export async function enviarMailjet(env: EnvLembretes, mensagens: any[]): Promise<void> {
+export function provedorDeEmail(env: EnvLembretes): 'brevo' | 'mailjet' {
+  return env.BREVO_API_KEY ? 'brevo' : 'mailjet';
+}
+
+/**
+ * Envia as mensagens (montadas no formato do Mailjet) pelo provedor em uso.
+ * Devolve a lista de falhas (vazia = tudo enviado). Nunca lança erro.
+ */
+export async function enviarEmails(env: EnvLembretes, mensagens: any[]): Promise<string[]> {
+  if (!mensagens.length) return [];
+  try {
+    if (provedorDeEmail(env) === 'brevo') await enviarBrevo(env, mensagens);
+    else await enviarMailjet(env, mensagens);
+    return [];
+  } catch (e: any) {
+    const texto = String(e?.message || e);
+    // Brevo: uma falha por e-mail, separadas por " | ". Mailjet: a chamada inteira falhou.
+    return provedorDeEmail(env) === 'brevo' ? texto.split(' | ') : mensagens.map(() => texto);
+  }
+}
+
+/** Brevo (api.brevo.com): uma chamada por e-mail. */
+async function enviarBrevo(env: EnvLembretes, mensagens: any[]): Promise<void> {
+  const falhas: string[] = [];
+  for (const m of mensagens) {
+    const resp = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'api-key': String(env.BREVO_API_KEY),
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { email: m.From.Email, name: m.From.Name },
+        to: m.To.map((d: any) => ({ email: d.Email, ...(d.Name ? { name: d.Name } : {}) })),
+        subject: m.Subject,
+        htmlContent: m.HTMLPart,
+        textContent: m.TextPart,
+      }),
+    });
+    if (!resp.ok) falhas.push(`Brevo ${resp.status} para ${m.To[0]?.Email}: ${(await resp.text()).slice(0, 300)}`);
+  }
+  if (falhas.length) throw new Error(falhas.join(' | '));
+}
+
+async function enviarMailjet(env: EnvLembretes, mensagens: any[]): Promise<void> {
   // A resposta do Mailjet diz, mensagem por mensagem, se foi aceita
 
   const resp = await fetch('https://api.mailjet.com/v3.1/send', {

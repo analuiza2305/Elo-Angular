@@ -4,13 +4,13 @@
  * A mãe clica no botão da lista de profissionais e o app grava
  * avisosHorario/{profissionalUid}_{maeUid}. A cada 10 minutos (mesmo cron dos lembretes)
  * este código confere se o profissional abriu algum horário futuro. Se abriu:
- *   1. manda um e-mail para a mãe (Mailjet);
+ *   1. manda um e-mail para a mãe (Brevo ou Mailjet, ver lembretes.ts);
  *   2. cria a notificação no sino dela (coleção notificacoes);
  *   3. apaga o pedido, para não avisar duas vezes.
  * Pedidos com mais de 60 dias são apagados sem aviso.
  */
 import { Firestore } from './google';
-import { EnvLembretes, enviarMailjet, escapar, perfil, primeiroNome } from './lembretes';
+import { EnvLembretes, enviarEmails, escapar, perfil, primeiroNome } from './lembretes';
 
 const DIA = 24 * 60 * 60 * 1000;
 const VALIDADE = 60 * DIA;
@@ -130,12 +130,10 @@ export async function verificarAvisosDeHorario(
 
   // E-mails primeiro, numa chamada só; se o Mailjet falhar, os pedidos ficam para a próxima rodada
   if (mensagens.length) {
-    try {
-      await enviarMailjet(env, mensagens);
-    } catch (e: any) {
-      r.erros.push(`E-mail dos avisos de horário: ${e?.message || e}`);
-      return r;
-    }
+    const falhas = await enviarEmails(env, mensagens);
+    falhas.forEach((f) => r.erros.push(`E-mail dos avisos de horário: ${f}`));
+    // Nenhum e-mail saiu (provedor fora do ar ou chave errada): os pedidos ficam para a próxima rodada
+    if (falhas.length === mensagens.length) return r;
   }
 
   for (const c of concluir) {
