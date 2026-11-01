@@ -8,6 +8,7 @@ import {
   doc, getDoc, collection, query, where, getDocs, updateDoc, serverTimestamp,
   runTransaction, arrayRemove, arrayUnion, Timestamp
 } from 'firebase/firestore';
+import { liberarQuestionarioPara } from '../../services/questionario-acesso';
 import { onAuthStateChanged } from 'firebase/auth';
 import { carregarReputacao, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
 import { PlanoService } from '../../services/plano';
@@ -388,6 +389,8 @@ export class PerfilProfissionalComponent implements OnInit {
           agendados: arrayUnion(original)
         });
       });
+
+      liberarQuestionarioPara(user.uid, prof.uid || prof.id, prof.tipo);
 
       // Tira o horário da tela sem precisar recarregar
       this.profissional.update((p) => ({

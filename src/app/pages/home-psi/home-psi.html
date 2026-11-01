@@ -425,7 +425,7 @@
 
             @if (questionarioDe(consulta); as q) {
               <button type="button" class="qb-atalho" [class.atencao]="q.atencao" (click)="abrirQuestionario(consulta)">
-                <span class="qb-atalho-icone"><i class="fa-solid" [class.fa-seedling]="!q.atencao" [class.fa-triangle-exclamation]="q.atencao"></i></span>
+                <span class="qb-atalho-icone"><i [class]="q.atencao ? 'fa-solid fa-triangle-exclamation' : 'fa-regular fa-clipboard'"></i></span>
                 <span class="qb-atalho-texto">
                   <strong>{{ q.atencao ? 'Questionário pede atenção' : 'Questionário de bem-estar' }}</strong>
                   <small>Respondido pela mãe · toque para ver</small>
@@ -479,7 +479,7 @@
               <div>
                 <span>Questionário de bem-estar</span>
                 <h3>{{ qa.consulta.nome }}</h3>
-                <small>Consulta de {{ qa.consulta.data }} às {{ qa.consulta.horario }}</small>
+                <small>Consulta de {{ qa.consulta.data }} às {{ qa.consulta.horario }}@if (qa.dados.atualizadoEm?.toDate) { · respostas de {{ qa.dados.atualizadoEm.toDate() | date:'dd/MM/yyyy' }} }</small>
               </div>
             </div>
 
@@ -499,7 +499,7 @@
               }
             </ul>
 
-            <p class="qb-modal-nota"><i class="fa-solid fa-lock"></i> Visível só para você. Não é um teste diagnóstico: são as impressões da mãe antes da consulta.</p>
+            <p class="qb-modal-nota"><i class="fa-solid fa-lock"></i> Visível só para as psicólogas que atendem esta mãe. Não é um teste diagnóstico: são as impressões dela, que ela pode atualizar quando mudar de fase.</p>
           </div>
         </div>
       }

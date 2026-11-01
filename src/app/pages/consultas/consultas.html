@@ -79,19 +79,18 @@
             </div>
 
             @if (c.tipoProf === 'psicologo') {
-              <a class="consulta-questionario" [class.respondido]="questionariosRespondidos().has(c.id)"
-                 [routerLink]="['/questionario']" [queryParams]="{ id: c.id }">
-                <span class="cq-icone"><i class="fa-solid" [class.fa-seedling]="!questionariosRespondidos().has(c.id)" [class.fa-circle-check]="questionariosRespondidos().has(c.id)"></i></span>
+              <a class="consulta-questionario" [class.respondido]="questionario().respondido" routerLink="/questionario">
+                <span class="cq-icone"><i class="fa-regular fa-clipboard"></i></span>
                 <span class="cq-texto">
-                  @if (questionariosRespondidos().has(c.id)) {
-                    <strong>Questionário respondido</strong>
-                    <small>Toque para revisar suas respostas</small>
+                  @if (questionario().respondido) {
+                    <strong>Questionário de bem-estar</strong>
+                    <small>Respondido{{ questionario().atualizadoEm ? ' em ' + questionario().atualizadoEm : '' }} · a psicóloga já pode ver</small>
                   } @else {
-                    <strong>Como você está? Responda antes da consulta</strong>
-                    <small>2 minutos · só seu(sua) psicólogo(a) vê</small>
+                    <strong>Conte como você está</strong>
+                    <small>Questionário de 2 minutos · só a psicóloga vê</small>
                   }
                 </span>
-                <i class="fa-solid fa-chevron-right cq-seta"></i>
+                <span class="cq-acao">{{ questionario().respondido ? 'Ver ou atualizar' : 'Responder' }}</span>
               </a>
             }
 

@@ -14,18 +14,18 @@
         <div class="qb-spinner" aria-hidden="true"></div>
         <p class="qb-texto-suave">Carregando o questionário…</p>
       </div>
-    } @else if (bloqueio()) {
+    } @else if (erroCarregar()) {
       <div class="qb-card qb-centro">
         <div class="qb-selo qb-selo-neutro"><i class="fa-regular fa-circle-xmark"></i></div>
-        <h1 class="qb-titulo">Não dá para responder agora</h1>
-        <p class="qb-texto-suave">{{ bloqueio() }}</p>
+        <h1 class="qb-titulo">Não deu para abrir agora</h1>
+        <p class="qb-texto-suave">{{ erroCarregar() }}</p>
         <button type="button" class="qb-btn qb-btn-primario" (click)="voltar()">Voltar para minhas consultas</button>
       </div>
     } @else if (enviado()) {
       <div class="qb-card qb-centro">
         <div class="qb-selo"><i class="fa-solid fa-check"></i></div>
-        <h1 class="qb-titulo">Obrigada por compartilhar</h1>
-        <p class="qb-texto-suave">Suas respostas foram enviadas para <b>{{ nomeProfissional() }}</b>. Elas ajudam a conversa a começar do jeito certo.</p>
+        <h1 class="qb-titulo">{{ jaRespondido() ? 'Respostas atualizadas' : 'Obrigada por compartilhar' }}</h1>
+        <p class="qb-texto-suave">As psicólogas das suas consultas vão ver como você está. Quando sua fase mudar, é só voltar aqui e atualizar.</p>
         @if (mostrarApoio()) {
           <div class="qb-apoio">
             <i class="fa-solid fa-hand-holding-heart"></i>
@@ -37,11 +37,40 @@
         }
         <button type="button" class="qb-btn qb-btn-primario" (click)="voltar()">Voltar para minhas consultas</button>
       </div>
+    } @else if (modo() === 'resumo') {
+      <!-- Já respondeu: mostra as respostas e a opção de atualizar -->
+      <header class="qb-topo">
+        <span class="qb-rotulo">Questionário de bem-estar</span>
+        <p>Respondido{{ atualizadoEm() ? ' · atualizado em ' + atualizadoEm() : '' }}</p>
+      </header>
+
+      <section class="qb-card qb-revisao">
+        <h1 class="qb-titulo">Suas respostas</h1>
+        <p class="qb-ajuda">Elas aparecem para as psicólogas com quem você marca consulta.</p>
+        <ul class="qb-resumo qb-resumo-lido">
+          @for (p of perguntas; track p.id) {
+            <li>
+              <div class="qb-resumo-item">
+                <span class="qb-resumo-pergunta">{{ p.curta }}</span>
+                <span class="qb-resumo-resposta">{{ resumo(p) }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+
+        <div class="qb-atualizar">
+          <div>
+            <strong>Sua fase mudou?</strong>
+            <small>O bebê nasceu, voltou ao trabalho, as coisas mudaram… Atualize para a psicóloga te conhecer melhor.</small>
+          </div>
+          <button type="button" class="qb-btn qb-btn-primario" (click)="atualizar()">Atualizar respostas</button>
+        </div>
+      </section>
     } @else {
       <!-- Cabeçalho discreto -->
       <header class="qb-topo">
-        <span class="qb-rotulo"><i class="fa-solid fa-seedling"></i> Antes da sua consulta</span>
-        <p>Com <b>{{ nomeProfissional() }}</b>@if (dataConsulta()) { · {{ dataConsulta() }} }</p>
+        <span class="qb-rotulo">{{ jaRespondido() ? 'Atualizando suas respostas' : 'Questionário de bem-estar' }}</span>
+        <p>Leva uns 2 minutos. Só as psicólogas das suas consultas veem.</p>
       </header>
 
       <!-- Progresso em segmentos -->
@@ -102,15 +131,21 @@
               <i class="fa-solid fa-hand-holding-heart"></i>
               <div>
                 <strong>Obrigada por contar. Você não está sozinha.</strong>
-                <p>Se sentir que está em perigo agora, ligue <b>188</b> (CVV, 24 horas, gratuito) ou <b>192</b> (SAMU), ou vá ao pronto-socorro mais próximo. Seu(sua) psicólogo(a) verá essa resposta antes da consulta.</p>
+                <p>Se sentir que está em perigo agora, ligue <b>188</b> (CVV, 24 horas, gratuito) ou <b>192</b> (SAMU), ou vá ao pronto-socorro mais próximo. A psicóloga da sua consulta verá essa resposta.</p>
               </div>
             </div>
           }
 
           <nav class="qb-nav">
-            <button type="button" class="qb-btn qb-btn-fantasma" [disabled]="passo() === 0" (click)="anterior()">
-              <i class="fa-solid fa-arrow-left"></i> Voltar
-            </button>
+            @if (jaRespondido() && passo() === 0) {
+              <button type="button" class="qb-btn qb-btn-fantasma" (click)="cancelarAtualizacao()">
+                <i class="fa-solid fa-xmark"></i> Cancelar
+              </button>
+            } @else {
+              <button type="button" class="qb-btn qb-btn-fantasma" [disabled]="passo() === 0" (click)="anterior()">
+                <i class="fa-solid fa-arrow-left"></i> Voltar
+              </button>
+            }
             <button type="button" class="qb-btn qb-btn-primario" [disabled]="!respondida(p.id) && p.obrigatoria" (click)="proxima()">
               {{ !p.obrigatoria && !respondida(p.id) ? 'Pular' : 'Continuar' }} <i class="fa-solid fa-arrow-right"></i>
             </button>
@@ -138,12 +173,12 @@
           <label class="qb-consentimento">
             <input type="checkbox" [checked]="consentimento()" (change)="consentimento.set(!consentimento())">
             <span class="qb-check"><i class="fa-solid fa-check"></i></span>
-            <span>Autorizo que <b>somente</b> {{ nomeProfissional() }}, psicólogo(a) desta consulta, veja estas respostas.</span>
+            <span>Autorizo que <b>somente</b> as psicólogas com quem eu tiver consulta vejam estas respostas.</span>
           </label>
 
           <nav class="qb-nav">
-            <button type="button" class="qb-btn qb-btn-fantasma" (click)="anterior()">
-              <i class="fa-solid fa-arrow-left"></i> Voltar
+            <button type="button" class="qb-btn qb-btn-fantasma" (click)="jaRespondido() && passo() === perguntas.length ? cancelarAtualizacao() : anterior()">
+              <i class="fa-solid fa-arrow-left"></i> {{ jaRespondido() ? 'Cancelar' : 'Voltar' }}
             </button>
             <button type="button" class="qb-btn qb-btn-primario" [disabled]="salvando() || !consentimento()" (click)="enviar()">
               {{ salvando() ? 'Enviando…' : (jaRespondido() ? 'Atualizar respostas' : 'Enviar respostas') }}

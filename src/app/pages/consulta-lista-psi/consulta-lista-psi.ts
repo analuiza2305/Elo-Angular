@@ -12,6 +12,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { carregarReputacoesDeTodos, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
 import { PlanoService } from '../../services/plano';
 import { AlertaService } from '../../core/services/alerta.service';
+import { liberarQuestionarioPara } from '../../services/questionario-acesso';
 
 interface Profissional {
   docId: string;
@@ -421,6 +422,7 @@ export class ConsultaListaPsiComponent implements OnInit {
         tx.update(profRef, { disponibilidade: arrayRemove(original), agendados: arrayUnion(original) });
       });
 
+      liberarQuestionarioPara(currentUser.uid, info.uid, info.tipo);
       this.alerta.sucesso('Você será avisada quando o profissional confirmar.', 'Consulta agendada!');
       this.fecharModal();
       this.carregarProfissionais();

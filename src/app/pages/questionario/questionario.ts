@@ -1,9 +1,9 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { auth, db } from '../../core/firebase';
 import { HeaderComponent } from '../../components/header/header';
 import { AlertaService } from '../../core/services/alerta.service';
@@ -17,9 +17,10 @@ import {
 } from '../../services/questionario-bem-estar';
 
 /**
- * Questionário de bem-estar que a mãe responde antes da consulta com o psicólogo.
- * Fica em questionarios/{consultaId} e só a mãe e o psicólogo da consulta conseguem ler.
- * Rota: /questionario?id=ID_DA_CONSULTA
+ * Questionário de bem-estar da mãe. É UM por mãe (questionarios/{uid da mãe}):
+ * ela responde uma vez e pode atualizar quando mudar de fase (ex.: o bebê nasceu).
+ * Só as psicólogas com quem ela tem consulta conseguem ler (campo "psicologos").
+ * Rota: /questionario
  */
 @Component({
   selector: 'app-questionario',
@@ -29,7 +30,6 @@ import {
   styleUrl: './questionario.css',
 })
 export class QuestionarioComponent implements OnInit {
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
   private alerta = inject(AlertaService);
 
@@ -37,32 +37,23 @@ export class QuestionarioComponent implements OnInit {
 
   readonly carregando = signal(true);
   readonly salvando = signal(false);
-  readonly bloqueio = signal('');
+  readonly erroCarregar = signal('');
   readonly enviado = signal(false);
   readonly jaRespondido = signal(false);
+  /** 'resumo' = mostra o que ela já respondeu; 'responder' = perguntas uma por vez. */
+  readonly modo = signal<'resumo' | 'responder'>('responder');
+  readonly atualizadoEm = signal('');
 
-  readonly nomeProfissional = signal('seu psicólogo(a)');
-  readonly dataConsulta = signal('');
   readonly respostas = signal<RespostasBemEstar>({ ...RESPOSTAS_VAZIAS, preocupacoes: [] });
+  private respostasSalvas: RespostasBemEstar = { ...RESPOSTAS_VAZIAS, preocupacoes: [] };
   readonly consentimento = signal(false);
 
-  private consultaId = '';
   private uid = '';
-  private profissionalId = '';
 
   /** Mostra o quadro de apoio assim que a mãe marca a resposta de risco. */
   readonly mostrarApoio = computed(() => respostaDeRisco(this.respostas()));
 
-  /** Quantas perguntas obrigatórias já têm resposta (barra de progresso). */
-  readonly progresso = computed(() => {
-    const r = this.respostas() as any;
-    const obrigatorias = this.perguntas.filter((p) => p.obrigatoria);
-    const feitas = obrigatorias.filter((p) => (Array.isArray(r[p.id]) ? r[p.id].length > 0 : !!r[p.id])).length;
-    return Math.round((feitas / obrigatorias.length) * 100);
-  });
-
   ngOnInit(): void {
-    this.consultaId = this.route.snapshot.queryParamMap.get('id') || '';
     onAuthStateChanged(auth, async (user) => {
       if (!user) { this.router.navigate(['/login']); return; }
       this.uid = user.uid;
@@ -73,55 +64,40 @@ export class QuestionarioComponent implements OnInit {
   private async carregar() {
     this.carregando.set(true);
     try {
-      if (!this.consultaId) { this.bloqueio.set('Link do questionário inválido.'); return; }
-
-      const snap = await getDoc(doc(db, 'Consultas', this.consultaId));
-      if (!snap.exists()) { this.bloqueio.set('Consulta não encontrada.'); return; }
-      const c: any = snap.data();
-
-      if ((c.maeId || c.Mae) !== this.uid) { this.bloqueio.set('Este questionário é de outra conta.'); return; }
-      if (c.tipoProfissional && c.tipoProfissional !== 'psicologo') {
-        this.bloqueio.set('O questionário de bem-estar é só para consultas com psicólogo(a).');
-        return;
-      }
-      const status = String(c.status || '').toLowerCase();
-      if (!['pendente', 'aceito', 'aceita', 'agendada'].includes(status)) {
-        this.bloqueio.set('Esta consulta já aconteceu ou foi cancelada, então o questionário não pode mais ser enviado.');
-        return;
-      }
-
-      this.profissionalId = c.profissionalId;
-      const data: Date | null = c.Datahora?.toDate ? c.Datahora.toDate() : c.Datahora ? new Date(c.Datahora) : null;
-      if (data) {
-        this.dataConsulta.set(
-          data.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }) +
-          ' às ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-        );
-      }
-      this.buscarNomeProfissional(c.profissionalId);
-
-      // Já respondeu antes? Carrega para ela poder revisar.
-      const existente = await getDoc(doc(db, 'questionarios', this.consultaId));
+      const existente = await getDoc(doc(db, 'questionarios', this.uid));
       if (existente.exists()) {
         const q: any = existente.data();
-        this.respostas.set({ ...RESPOSTAS_VAZIAS, ...(q.respostas || {}), preocupacoes: q.respostas?.preocupacoes || [] });
+        const r = { ...RESPOSTAS_VAZIAS, ...(q.respostas || {}), preocupacoes: q.respostas?.preocupacoes || [] };
+        this.respostas.set(r);
+        this.respostasSalvas = r;
         this.consentimento.set(true);
         this.jaRespondido.set(true);
-        this.passo.set(this.perguntas.length); // já respondeu: abre direto na revisão
+        const quando = q.atualizadoEm?.toDate ? q.atualizadoEm.toDate() : null;
+        this.atualizadoEm.set(quando ? quando.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : '');
+        this.modo.set('resumo');
+      } else {
+        this.modo.set('responder');
       }
     } catch (e) {
       console.error('Erro ao carregar o questionário:', e);
-      this.bloqueio.set('Não foi possível abrir o questionário agora. Tente de novo em instantes.');
+      this.erroCarregar.set('Não foi possível abrir o questionário agora. Tente de novo em instantes.');
     } finally {
       this.carregando.set(false);
     }
   }
 
-  private async buscarNomeProfissional(id: string) {
-    try {
-      const s = await getDoc(doc(db, 'psicologos', id));
-      if (s.exists() && s.data()['nome']) this.nomeProfissional.set(String(s.data()['nome']));
-    } catch { /* fica o texto padrão */ }
+  /** Começa a atualização a partir das respostas atuais. */
+  atualizar() {
+    this.passo.set(0);
+    this.modo.set('responder');
+    this.subir();
+  }
+
+  /** Desiste de atualizar e volta ao resumo sem mudar nada. */
+  cancelarAtualizacao() {
+    this.respostas.set({ ...this.respostasSalvas, preocupacoes: [...this.respostasSalvas.preocupacoes] });
+    this.modo.set('resumo');
+    this.subir();
   }
 
   // ---------- Uma pergunta por vez ----------
@@ -157,6 +133,7 @@ export class QuestionarioComponent implements OnInit {
 
   irPara(i: number) {
     this.passo.set(i);
+    this.modo.set('responder');
     this.subir();
   }
 
@@ -188,6 +165,17 @@ export class QuestionarioComponent implements OnInit {
     return Array.isArray(v) ? v.includes(valor) : v === valor;
   }
 
+  /** Psicólogas com quem a mãe tem ou teve consulta: só elas podem ler o questionário. */
+  private async psicologasDaMae(): Promise<string[]> {
+    const snap = await getDocs(query(collection(db, 'Consultas'), where('maeId', '==', this.uid)));
+    const ids = new Set<string>();
+    snap.forEach((d) => {
+      const c: any = d.data();
+      if (c.profissionalId && (c.tipoProfissional || 'psicologo') === 'psicologo') ids.add(String(c.profissionalId));
+    });
+    return [...ids];
+  }
+
   async enviar() {
     if (this.salvando()) return;
     const r = this.respostas() as any;
@@ -197,7 +185,7 @@ export class QuestionarioComponent implements OnInit {
       return;
     }
     if (!this.consentimento()) {
-      this.alerta.aviso('Para enviar, marque que autoriza o(a) psicólogo(a) desta consulta a ver suas respostas.');
+      this.alerta.aviso('Para enviar, marque que autoriza as psicólogas das suas consultas a ver suas respostas.');
       return;
     }
 
@@ -207,22 +195,24 @@ export class QuestionarioComponent implements OnInit {
         ...this.respostas(),
         expectativa: String(this.respostas().expectativa || '').trim().slice(0, 500),
       };
-      await setDoc(doc(db, 'questionarios', this.consultaId), {
-        consultaId: this.consultaId,
+      const dados: Record<string, any> = {
         maeId: this.uid,
-        profissionalId: this.profissionalId,
         respostas,
         atencao: precisaAtencao(respostas),
         consentimento: true,
-        versao: 1,
+        psicologos: await this.psicologasDaMae(),
+        versao: 2,
         atualizadoEm: serverTimestamp(),
-      });
+      };
+      if (!this.jaRespondido()) dados['respondidoEm'] = serverTimestamp();
+      await setDoc(doc(db, 'questionarios', this.uid), dados, { merge: true });
+      this.respostasSalvas = respostas;
       this.enviado.set(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      this.subir();
     } catch (e: any) {
       console.error('Erro ao enviar o questionário:', e);
       this.alerta.erro(e?.code === 'permission-denied'
-        ? 'Não foi possível salvar: esta consulta não aceita mais o questionário.'
+        ? 'Não foi possível salvar: confira se as regras novas do Firestore foram publicadas.'
         : 'Não foi possível enviar agora. Verifique sua conexão e tente de novo.');
     } finally {
       this.salvando.set(false);

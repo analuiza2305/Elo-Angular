@@ -142,7 +142,7 @@ export class HomePsi implements OnInit, OnDestroy {
   readonly abaConsultas = signal<AbaConsultas>('Pendentes');
   private unsubConsultas: (() => void) | null = null;
 
-  // Questionários de bem-estar que as mães responderam (questionarios/{consultaId})
+  // Questionários de bem-estar das mães (questionarios/{maeId}); a psicóloga só lê os das mães que atende
   readonly questionarios = signal<Map<string, any>>(new Map());
   readonly questionarioAberto = signal<{ consulta: ConsultaView; dados: any } | null>(null);
   readonly perguntasBemEstar = PERGUNTAS_BEM_ESTAR;
@@ -346,14 +346,14 @@ export class HomePsi implements OnInit, OnDestroy {
   private ouvirQuestionarios(uid: string) {
     this.unsubQuestionarios?.();
     this.unsubQuestionarios = onSnapshot(
-      query(collection(db, 'questionarios'), where('profissionalId', '==', uid)),
+      query(collection(db, 'questionarios'), where('psicologos', 'array-contains', uid)),
       (snap) => this.questionarios.set(new Map(snap.docs.map((d) => [d.id, d.data()]))),
       (err) => console.warn('Não foi possível ler os questionários:', err),
     );
   }
 
   questionarioDe(c: ConsultaView): any | null {
-    return this.questionarios().get(c.id) || null;
+    return this.questionarios().get(c.maeId) || null;
   }
 
   abrirQuestionario(c: ConsultaView) {

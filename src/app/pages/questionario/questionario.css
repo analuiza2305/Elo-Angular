@@ -224,3 +224,19 @@
 :host-context(body[data-theme="dark"]) .qb-apoio { background: #2A1820; border-color: #5A2A3A; color: #F6CBD7; }
 :host-context(body[data-theme="dark"]) .qb-apoio > i { color: #F08AA7; }
 :host-context(body[data-theme="dark"]) .qb-selo-neutro { background: #1D2333; color: #9C96AE; box-shadow: 0 0 0 10px #151B28; }
+
+/* =========================================================
+   RESUMO (já respondeu) + ATUALIZAR
+========================================================= */
+.qb-resumo-lido .qb-resumo-item {
+  display: flex; flex-direction: column; gap: 2px; padding: 14px 18px; border-radius: 16px; background: var(--q-lavanda);
+}
+.qb-atualizar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  margin-top: 24px; padding: 18px 20px; border-radius: 20px;
+  background: linear-gradient(135deg, #F4EFFF 0%, #FCEFF5 100%);
+}
+.qb-atualizar > div { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 220px; }
+.qb-atualizar strong { color: var(--q-texto); font-size: 1rem; }
+.qb-atualizar small { color: var(--q-suave); font-size: .88rem; line-height: 1.45; }
+:host-context(body[data-theme="dark"]) .qb-atualizar { background: linear-gradient(135deg, #1D2333 0%, #2A1823 100%); }

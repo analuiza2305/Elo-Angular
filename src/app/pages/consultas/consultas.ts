@@ -39,8 +39,8 @@ export class ConsultasComponent implements OnInit {
   motivoCancelamento = signal<string>('');
   isCancelando = signal<boolean>(false);
 
-  // Questionário de bem-estar (consultas com psicólogo)
-  questionariosRespondidos = signal<Set<string>>(new Set());
+  // Questionário de bem-estar: um por mãe (questionarios/{uid}), atualizável
+  questionario = signal<{ respondido: boolean; atualizadoEm: string }>({ respondido: false, atualizadoEm: '' });
 
   ngOnInit() {
     onAuthStateChanged(auth, async (user) => {
@@ -54,12 +54,19 @@ export class ConsultasComponent implements OnInit {
     });
   }
 
-  /** Quais consultas já têm o questionário de bem-estar respondido. */
+  /** A mãe já respondeu o questionário de bem-estar? (um só, que ela pode atualizar) */
   private ouvirQuestionarios(uidMae: string) {
     onSnapshot(
-      query(collection(db, 'questionarios'), where('maeId', '==', uidMae)),
-      (snap) => this.questionariosRespondidos.set(new Set(snap.docs.map((d) => d.id))),
-      (err) => console.warn('Não foi possível ler os questionários:', err),
+      doc(db, 'questionarios', uidMae),
+      (snap) => {
+        const d: any = snap.exists() ? snap.data() : null;
+        const quando = d?.atualizadoEm?.toDate ? d.atualizadoEm.toDate() : null;
+        this.questionario.set({
+          respondido: !!d,
+          atualizadoEm: quando ? quando.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '',
+        });
+      },
+      (err) => console.warn('Não foi possível ler o questionário:', err),
     );
   }
 
