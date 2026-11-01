@@ -117,6 +117,131 @@ export async function gerarCertificadoHoras(d: DadosCertificado): Promise<void> 
 }
 
 // ======================================================================
+//  Relatório de atendimentos (Premium)
+// ======================================================================
+
+export interface ConsultaRelatorio {
+  data: Date;
+  situacao: 'Realizada' | 'Agendada' | 'Pendente' | 'Recusada';
+  duracaoMin: number | null;   // só nas realizadas
+  duracaoEstimada: boolean;
+  iniciais: string;            // "M. S." (sem nome completo, por sigilo)
+}
+
+export interface DadosRelatorio {
+  nome: string;
+  profissao: 'Psicólogo(a)' | 'Advogado(a)';
+  registro: string;
+  periodoTexto: string;        // "agosto a outubro de 2026"
+  inicio: Date;
+  fim: Date;
+  consultas: ConsultaRelatorio[];
+  duracaoPadraoMin: number;
+  reputacao?: { media: string; total: number; recomendamPct: number | null; bemAvaliado: boolean };
+}
+
+export async function gerarRelatorioAtendimentos(d: DadosRelatorio): Promise<void> {
+  const pdf = await novoPdf();
+  const e = new Escritor(pdf);
+  const lista = [...d.consultas].sort((a, b) => a.data.getTime() - b.data.getTime());
+  const realizadas = lista.filter((c) => c.situacao === 'Realizada');
+  const recusadas = lista.filter((c) => c.situacao === 'Recusada').length;
+  const decididas = lista.filter((c) => c.situacao !== 'Pendente').length;
+  const totalMin = realizadas.reduce((s, c) => s + (c.duracaoMin || 0), 0);
+  const taxaAceite = decididas ? Math.round(((decididas - recusadas) / decididas) * 100) : null;
+  const mediaMin = realizadas.length ? Math.round(totalMin / realizadas.length) : 0;
+
+  e.cabecalho();
+  e.titulo('Relatório de atendimentos');
+  e.subtitulo(`${capitalizar(d.periodoTexto)}`);
+  e.espaco(6);
+
+  e.campo('Profissional', d.nome);
+  e.campo('Registro', `${d.profissao} · ${d.registro}`);
+  e.campo('Período', `${d.inicio.toLocaleDateString('pt-BR')} a ${d.fim.toLocaleDateString('pt-BR')}`);
+  e.espaco(4);
+
+  e.caixaTotais([
+    ['Pedidos recebidos', String(lista.length)],
+    ['Realizados', String(realizadas.length)],
+    ['Horas atendidas', formatarHoras(totalMin)],
+    ['Taxa de aceite', taxaAceite === null ? '–' : `${taxaAceite}%`],
+  ]);
+  e.espaco(7);
+
+  // ----- Por mês -----
+  e.subtituloSecao('Resumo por mês');
+  const porMes = new Map<string, { rotulo: string; pedidos: number; realizados: number; minutos: number; recusados: number }>();
+  for (const c of lista) {
+    const chave = `${c.data.getFullYear()}-${String(c.data.getMonth()).padStart(2, '0')}`;
+    if (!porMes.has(chave)) porMes.set(chave, { rotulo: capitalizar(`${MESES[c.data.getMonth()]} de ${c.data.getFullYear()}`), pedidos: 0, realizados: 0, minutos: 0, recusados: 0 });
+    const m = porMes.get(chave)!;
+    m.pedidos++;
+    if (c.situacao === 'Realizada') { m.realizados++; m.minutos += c.duracaoMin || 0; }
+    if (c.situacao === 'Recusada') m.recusados++;
+  }
+  e.tabela(
+    ['Mês', 'Pedidos', 'Realizados', 'Recusados', 'Horas'],
+    [52, 28, 32, 30, 28],
+    [...porMes.keys()].sort().map((k) => {
+      const m = porMes.get(k)!;
+      return [m.rotulo, String(m.pedidos), String(m.realizados), String(m.recusados), formatarHoras(m.minutos)];
+    }),
+    'Nenhum pedido de consulta no período.'
+  );
+  e.espaco(6);
+
+  // ----- Dias e horários mais procurados -----
+  if (lista.length) {
+    const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    const contDia = new Array(7).fill(0);
+    const contTurno: Record<string, number> = { Manhã: 0, Tarde: 0, Noite: 0 };
+    for (const c of lista) {
+      contDia[c.data.getDay()]++;
+      const h = c.data.getHours();
+      contTurno[h < 12 ? 'Manhã' : h < 18 ? 'Tarde' : 'Noite']++;
+    }
+    const diaTop = contDia.indexOf(Math.max(...contDia));
+    const turnoTop = Object.entries(contTurno).sort((a, b) => b[1] - a[1])[0][0];
+    e.subtituloSecao('Indicadores');
+    e.campo('Duração média', realizadas.length ? `${mediaMin} min por atendimento` : '–');
+    e.campo('Dia de pico', `${dias[diaTop]} (${contDia[diaTop]} ${contDia[diaTop] === 1 ? 'pedido' : 'pedidos'})`);
+    e.campo('Turno de pico', `${turnoTop} (${contTurno[turnoTop]} ${contTurno[turnoTop] === 1 ? 'pedido' : 'pedidos'})`);
+    if (d.reputacao && d.reputacao.total > 0) {
+      const rec = d.reputacao.recomendamPct !== null ? `, ${d.reputacao.recomendamPct}% recomendam` : '';
+      e.campo('Avaliação', `${d.reputacao.media} de 5 (${d.reputacao.total} avaliações${rec})${d.reputacao.bemAvaliado ? ' · selo Bem avaliado' : ''}`);
+    }
+    e.espaco(6);
+  }
+
+  // ----- Lista -----
+  e.subtituloSecao('Atendimentos do período');
+  e.tabela(
+    ['Nº', 'Data', 'Início', 'Situação', 'Duração', 'Atendida'],
+    [12, 30, 22, 34, 30, 42],
+    lista.map((c, i) => [
+      String(i + 1),
+      c.data.toLocaleDateString('pt-BR'),
+      hm(c.data),
+      c.situacao,
+      c.duracaoMin ? `${c.duracaoMin} min${c.duracaoEstimada ? '*' : ''}` : '–',
+      c.iniciais || '–',
+    ]),
+    'Nenhum atendimento no período.'
+  );
+  if (lista.some((c) => c.duracaoEstimada)) {
+    e.nota(`* Duração padrão de ${d.duracaoPadraoMin} min, usada quando a chamada não registrou o horário de encerramento.`);
+  }
+  e.nota('As pessoas atendidas aparecem só pelas iniciais, em respeito ao sigilo profissional. Guarde este relatório em local seguro.');
+  e.espaco(4);
+  e.paragrafo(`Emitido em ${new Date().toLocaleString('pt-BR', { dateStyle: 'long', timeStyle: 'short' })}.`, { tamanho: 9.5, cor: CINZA });
+
+  e.rodapes({ rubrica: false, texto: 'Relatório gerado pela plataforma EloMaterno para uso do(a) profissional.' });
+  const ini = d.inicio;
+  pdf.save(`relatorio-atendimentos-${ini.getFullYear()}-${String(ini.getMonth() + 1).padStart(2, '0')}.pdf`);
+}
+
+// ======================================================================
 //  Documentos psicológicos (Resolução CFP 06/2019)
 // ======================================================================
 
@@ -330,7 +455,7 @@ class Escritor {
     this.y += altura;
   }
 
-  tabela(cabecalho: string[], larguras: number[], linhas: string[][]) {
+  tabela(cabecalho: string[], larguras: number[], linhas: string[][], vazio = 'Nenhum atendimento realizado neste mês.') {
     const p = this.pdf;
     const alt = 6.2;
     const desenharCabecalho = () => {
@@ -344,7 +469,7 @@ class Escritor {
     desenharCabecalho();
     p.setFont('helvetica', 'normal').setFontSize(9.5).setTextColor(...TEXTO);
     if (!linhas.length) {
-      p.text('Nenhum atendimento realizado neste mês.', MARGEM + 2, this.y);
+      p.text(vazio, MARGEM + 2, this.y);
       this.y += alt;
       return;
     }

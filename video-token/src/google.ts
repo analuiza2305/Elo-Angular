@@ -84,6 +84,26 @@ export class Firestore {
       .map((l) => ({ id: String(l.document.name).split('/').pop()!, dados: camposSimples(l.document.fields) }));
   }
 
+  /** Cria um documento com id automático. */
+  async criar(colecao: string, campos: Record<string, any>): Promise<string> {
+    const fields: Record<string, any> = {};
+    for (const [k, v] of Object.entries(campos)) fields[k] = valorFirestore(v);
+    const resp = await fetch(`${this.base}/${colecao}`, {
+      method: 'POST',
+      headers: this.headers(),
+      body: JSON.stringify({ fields }),
+    });
+    if (!resp.ok) throw new Error(`Firestore POST ${resp.status}: ${await resp.text()}`);
+    const doc: any = await resp.json();
+    return String(doc.name).split('/').pop()!;
+  }
+
+  /** Apaga um documento (não dá erro se já não existir). */
+  async apagar(caminho: string): Promise<void> {
+    const resp = await fetch(`${this.base}/${caminho}`, { method: 'DELETE', headers: this.headers() });
+    if (!resp.ok && resp.status !== 404) throw new Error(`Firestore DELETE ${resp.status}: ${await resp.text()}`);
+  }
+
   /** Grava só os campos indicados (os outros ficam como estão). */
   async marcar(caminho: string, campos: Record<string, boolean | string>): Promise<void> {
     const mascara = Object.keys(campos).map((c) => `updateMask.fieldPaths=${encodeURIComponent(c)}`).join('&');
@@ -115,5 +135,22 @@ function valorSimples(v: any): any {
   if ('timestampValue' in v) return v.timestampValue;
   if ('referenceValue' in v) return String(v.referenceValue).split('/').pop();
   if ('nullValue' in v) return null;
+  if ('arrayValue' in v) return (v.arrayValue.values || []).map(valorSimples);
+  if ('mapValue' in v) return camposSimples(v.mapValue.fields);
   return null;
+}
+
+/** Valor JS -> formato da API REST do Firestore. */
+function valorFirestore(v: any): any {
+  if (v === null || v === undefined) return { nullValue: null };
+  if (v instanceof Date) return { timestampValue: v.toISOString() };
+  if (typeof v === 'boolean') return { booleanValue: v };
+  if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(valorFirestore) } };
+  if (typeof v === 'object') {
+    const fields: Record<string, any> = {};
+    for (const [k, x] of Object.entries(v)) fields[k] = valorFirestore(x);
+    return { mapValue: { fields } };
+  }
+  return { stringValue: String(v) };
 }

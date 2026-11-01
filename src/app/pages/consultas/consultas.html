@@ -78,6 +78,23 @@
               }
             </div>
 
+            @if (c.tipoProf === 'psicologo') {
+              <a class="consulta-questionario" [class.respondido]="questionariosRespondidos().has(c.id)"
+                 [routerLink]="['/questionario']" [queryParams]="{ id: c.id }">
+                <span class="cq-icone"><i class="fa-solid" [class.fa-seedling]="!questionariosRespondidos().has(c.id)" [class.fa-circle-check]="questionariosRespondidos().has(c.id)"></i></span>
+                <span class="cq-texto">
+                  @if (questionariosRespondidos().has(c.id)) {
+                    <strong>Questionário respondido</strong>
+                    <small>Toque para revisar suas respostas</small>
+                  } @else {
+                    <strong>Como você está? Responda antes da consulta</strong>
+                    <small>2 minutos · só seu(sua) psicólogo(a) vê</small>
+                  }
+                </span>
+                <i class="fa-solid fa-chevron-right cq-seta"></i>
+              </a>
+            }
+
             <div class="consulta-area-secundaria">
               <button class="btn-cancelar-consulta" (click)="abrirModalCancelar(c)">
                 <i class="fa-regular fa-circle-xmark"></i> Cancelar consulta

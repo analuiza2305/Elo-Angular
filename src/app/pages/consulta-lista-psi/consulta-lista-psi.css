@@ -1017,3 +1017,126 @@ body {
     linear-gradient(135deg, #52427D, #9d8fe7, #C9A24A) border-box !important;
   border-color: transparent !important;
 }
+/* =========================================================
+   FILTRO POR TIPO (abaixo da busca) + AVISE-ME
+========================================================= */
+.search-bar-wrapper { display: flex; flex-direction: column; gap: 16px; }
+.tipo-filtros { display: flex; flex-wrap: wrap; gap: 10px; padding-left: 8px; }
+.tipo-chip {
+  display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 18px; border-radius: 999px;
+  border: 1px solid rgba(132, 113, 177, .18); background: #FFFFFF; color: #52427D;
+  font-family: inherit; font-size: .95rem; font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(108, 75, 191, .06); transition: all .2s ease;
+}
+.tipo-chip i { font-size: .9rem; opacity: .85; }
+.tipo-chip span {
+  min-width: 24px; height: 22px; padding: 0 7px; border-radius: 999px; display: grid; place-items: center;
+  background: #F3ECFF; color: #7B6AAE; font-size: .78rem; font-weight: 800;
+}
+.tipo-chip:hover { background: #F8F4FF; border-color: rgba(108, 75, 191, .35); }
+.tipo-chip.ativo {
+  background: linear-gradient(135deg, #7C69A9 0%, #52427D 100%); color: #FFFFFF; border-color: transparent;
+  box-shadow: 0 8px 20px rgba(82, 66, 125, .28);
+}
+.tipo-chip.ativo span { background: rgba(255, 255, 255, .22); color: #FFFFFF; }
+
+.btn-notify:disabled { opacity: .6; cursor: wait; }
+.aviso-ativo {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+  padding: 14px 18px; border-radius: 14px; background: #E9F7EF; border: 1px solid #C9EAD7; color: #1E6B47;
+  font-weight: 600; font-size: .95rem;
+}
+.aviso-ativo > span { display: inline-flex; align-items: center; gap: 8px; }
+.aviso-ativo i { font-size: 1.15rem; }
+.btn-cancelar-aviso {
+  border: none; background: transparent; color: #1E6B47; font-family: inherit; font-weight: 700; font-size: .9rem;
+  text-decoration: underline; cursor: pointer; padding: 4px;
+}
+.btn-cancelar-aviso:disabled { opacity: .6; cursor: wait; }
+
+:host-context(body[data-theme="dark"]) .tipo-chip { background: #151B28; border-color: rgba(255, 255, 255, .1); color: #D8D0F5; box-shadow: none; }
+:host-context(body[data-theme="dark"]) .tipo-chip span { background: #262D42; color: #B3A8D6; }
+:host-context(body[data-theme="dark"]) .tipo-chip:hover { background: #1D2333; }
+:host-context(body[data-theme="dark"]) .tipo-chip.ativo { background: linear-gradient(135deg, #7C5CD6 0%, #5B3D99 100%); color: #FFFFFF; }
+:host-context(body[data-theme="dark"]) .tipo-chip.ativo span { background: rgba(255, 255, 255, .2); color: #FFFFFF; }
+:host-context(body[data-theme="dark"]) .aviso-ativo { background: #14291F; border-color: #24503A; color: #8FE0B5; }
+:host-context(body[data-theme="dark"]) .btn-cancelar-aviso { color: #8FE0B5; }
+/* =========================================================
+   TOPO EM SOFT UI (banner com a ilustração + busca encaixada)
+   Também anula o .hero-section:hover global do styles.css
+========================================================= */
+.hero-section,
+.hero-section:hover {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  height: auto;
+  margin: 0;
+  padding: 40px 48px 76px;
+  transform: none;
+  border-radius: 36px;
+  border: 1px solid rgba(255, 255, 255, .9);
+  background:
+    radial-gradient(360px 260px at 82% 40%, rgba(255, 255, 255, .75) 0%, transparent 70%),
+    linear-gradient(125deg, #EEE6FF 0%, #F6EEFF 50%, #FCE9F1 100%);
+  box-shadow:
+    -12px -12px 30px rgba(255, 255, 255, .9),
+    16px 20px 44px rgba(124, 105, 169, .14);
+}
+
+/* bolinha decorativa no canto */
+.hero-section::before {
+  content: "";
+  position: absolute;
+  width: 260px; height: 260px; left: -90px; bottom: -150px;
+  border-radius: 50%;
+  background: rgba(124, 105, 169, .10);
+  pointer-events: none;
+}
+
+.hero-section .page-header { position: relative; z-index: 1; max-width: 640px; }
+.hero-section .page-header h1 { font-size: 2.6rem; line-height: 1.15; }
+.hero-section .page-header p { font-size: 1.12rem; }
+
+.hero-image-wrapper {
+  position: relative;
+  z-index: 1;
+  align-self: flex-end;
+  width: 380px;
+  max-width: 380px;
+  height: 226px;
+  margin: -20px 0 -40px;          /* a ilustração termina logo acima da busca */
+}
+.hero-section:hover .hero-img { object-fit: contain; }
+
+/* busca "encaixada" na base do banner */
+.search-bar-wrapper {
+  margin-top: -36px;
+  padding: 0 32px;
+}
+.search-bar {
+  box-shadow:
+    -6px -6px 16px rgba(255, 255, 255, .8),
+    10px 14px 30px rgba(108, 75, 191, .14);
+}
+
+@media (max-width: 900px) {
+  .hero-section,
+  .hero-section:hover { padding: 32px 26px 64px; border-radius: 28px; }
+  .hero-section .page-header h1 { font-size: 2rem; }
+  .search-bar-wrapper { padding: 0 14px; margin-top: -30px; }
+}
+
+/* modo escuro */
+:host-context(body[data-theme="dark"]) .hero-section {
+  border-color: rgba(255, 255, 255, .06);
+  background:
+    radial-gradient(360px 260px at 82% 40%, rgba(124, 92, 214, .22) 0%, transparent 70%),
+    linear-gradient(125deg, #1E1A38 0%, #231C3D 50%, #2A1823 100%);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, .35);
+}
+:host-context(body[data-theme="dark"]) .hero-section::before { background: rgba(157, 143, 231, .10); }
+:host-context(body[data-theme="dark"]) .search-bar { box-shadow: 0 14px 30px rgba(0, 0, 0, .4); }

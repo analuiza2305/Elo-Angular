@@ -13407,3 +13407,22 @@ body .top-header .menu-toggle:hover { transform: translateY(-1px); box-shadow: 0
   body .mobile-acc-btn:hover,
   body .btn-close-mobile:hover { transform: none !important; }
 }
+/* =========================================================
+   TOPO PARADO: anula o .hero-section:hover global do styles.css
+========================================================= */
+.hero-section,
+.hero-section:hover {
+  transform: none;
+  height: auto;
+}
+
+.hero-section:hover .hero-img {
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .hero-section,
+  .hero-section:hover {
+    height: auto;
+  }
+}

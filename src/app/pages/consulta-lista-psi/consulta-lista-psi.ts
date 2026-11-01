@@ -1,13 +1,14 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import {
   collection, getDocs, doc, arrayRemove, arrayUnion,
-  Timestamp, runTransaction
+  Timestamp, runTransaction, setDoc, deleteDoc, query, where, serverTimestamp
 } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 import { carregarReputacoesDeTodos, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
 import { PlanoService } from '../../services/plano';
 import { AlertaService } from '../../core/services/alerta.service';
@@ -44,6 +45,7 @@ export class ConsultaListaPsiComponent implements OnInit {
   private router = inject(Router);
   private readonly alerta = inject(AlertaService);
   private planoService = inject(PlanoService);
+  private route = inject(ActivatedRoute);
 
   profissionais = signal<Profissional[]>([]);
   termoBusca = signal<string>('');
@@ -59,6 +61,21 @@ export class ConsultaListaPsiComponent implements OnInit {
   filtroEspecialidade = signal<string>('todos');
   filtroOrdem = signal<string>('relevancia');
   filtroBemAvaliados = signal<boolean>(false);
+  /** Chips abaixo da busca: todos, só psicólogos ou só advogados. */
+  filtroTipo = signal<'todos' | 'psicologo' | 'advogado'>('todos');
+
+  /** "Avise-me quando houver horário": uids dos profissionais que a mãe pediu para ser avisada. */
+  avisosPedidos = signal<Set<string>>(new Set());
+  avisoSalvando = signal<string | null>(null);
+
+  contagemTipo = computed(() => {
+    const lista = this.profissionais();
+    return {
+      todos: lista.length,
+      psicologo: lista.filter(p => p.tipo === 'psicologo').length,
+      advogado: lista.filter(p => p.tipo === 'advogado').length,
+    };
+  });
 
   profissionaisFiltrados = computed(() => {
     const termo = this.termoBusca().toLowerCase().trim();
@@ -66,6 +83,7 @@ export class ConsultaListaPsiComponent implements OnInit {
     const espFiltro = this.filtroEspecialidade();
     const ordem = this.filtroOrdem();
     const soBemAvaliados = this.filtroBemAvaliados();
+    const tipo = this.filtroTipo();
 
     let lista = this.profissionais().filter(p => {
       const matchTermo = !termo || 
@@ -80,8 +98,9 @@ export class ConsultaListaPsiComponent implements OnInit {
         p.especializacoes.some(esp => esp.toLowerCase().includes(espFiltro.toLowerCase()));
 
       const matchSelo = !soBemAvaliados || p.reputacao.bemAvaliado;
+      const matchTipo = tipo === 'todos' || p.tipo === tipo;
 
-      return matchTermo && matchDisp && matchEsp && matchSelo;
+      return matchTermo && matchDisp && matchEsp && matchSelo && matchTipo;
     });
 
     if (ordem === 'relevancia') {
@@ -99,7 +118,75 @@ export class ConsultaListaPsiComponent implements OnInit {
   });
 
   ngOnInit() {
+    const tipo = this.route.snapshot.queryParamMap.get('tipo');
+    if (tipo === 'psicologo' || tipo === 'advogado') this.filtroTipo.set(tipo);
     this.carregarProfissionais();
+    onAuthStateChanged(auth, (user) => { if (user) this.carregarAvisos(user.uid); });
+  }
+
+  // ---------- Avise-me quando houver horário ----------
+  // Grava avisosHorario/{profissional}_{mae}. O Worker da Cloudflare confere a cada 10 min
+  // se o profissional abriu horário e, se abriu, manda e-mail + notificação e apaga o pedido.
+
+  private idAviso(prof: Profissional, maeId: string) {
+    return `${prof.uid}_${maeId}`;
+  }
+
+  private async carregarAvisos(maeId: string) {
+    try {
+      const snap = await getDocs(query(collection(db, 'avisosHorario'), where('maeId', '==', maeId)));
+      this.avisosPedidos.set(new Set(snap.docs.map(d => String(d.data()['profissionalId']))));
+    } catch (e) {
+      console.warn('Não foi possível carregar os avisos de horário:', e);
+    }
+  }
+
+  avisoPedido(prof: Profissional): boolean {
+    return this.avisosPedidos().has(prof.uid);
+  }
+
+  async pedirAviso(prof: Profissional) {
+    const user = auth.currentUser;
+    if (!user) {
+      this.alerta.erro('Sua sessão expirou. Entre novamente para pedir o aviso.', 'Você não está logada');
+      return;
+    }
+    this.avisoSalvando.set(prof.uid);
+    try {
+      await setDoc(doc(db, 'avisosHorario', this.idAviso(prof, user.uid)), {
+        maeId: user.uid,
+        profissionalId: prof.uid,
+        profDocId: prof.docId,
+        tipoProfissional: prof.tipo,
+        nomeProfissional: prof.nome,
+        criadoEm: serverTimestamp(),
+      });
+      this.avisosPedidos.update(s => new Set(s).add(prof.uid));
+      this.alerta.sucesso(
+        `Assim que ${prof.nome} abrir horário, você recebe um e-mail e um aviso no sino.`,
+        'Pronto, vamos te avisar'
+      );
+    } catch (e) {
+      console.error('Erro ao pedir aviso de horário:', e);
+      this.alerta.erro('Não foi possível salvar o pedido agora. Tente de novo em instantes.');
+    } finally {
+      this.avisoSalvando.set(null);
+    }
+  }
+
+  async cancelarAviso(prof: Profissional) {
+    const user = auth.currentUser;
+    if (!user) return;
+    this.avisoSalvando.set(prof.uid);
+    try {
+      await deleteDoc(doc(db, 'avisosHorario', this.idAviso(prof, user.uid)));
+      this.avisosPedidos.update(s => { const n = new Set(s); n.delete(prof.uid); return n; });
+    } catch (e) {
+      console.error('Erro ao cancelar aviso de horário:', e);
+      this.alerta.erro('Não foi possível cancelar o aviso agora.');
+    } finally {
+      this.avisoSalvando.set(null);
+    }
   }
 
   /**
@@ -315,7 +402,6 @@ export class ConsultaListaPsiComponent implements OnInit {
         Motivo: motivo,
         status: 'pendente',
         criadoEm: Timestamp.now(),
-        primeiraGratuita: true,
         relatorioGerado: false
       };
 

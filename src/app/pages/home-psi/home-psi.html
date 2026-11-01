@@ -423,6 +423,19 @@
               </div>
             </div>
 
+            @if (questionarioDe(consulta); as q) {
+              <button type="button" class="qb-atalho" [class.atencao]="q.atencao" (click)="abrirQuestionario(consulta)">
+                <span class="qb-atalho-icone"><i class="fa-solid" [class.fa-seedling]="!q.atencao" [class.fa-triangle-exclamation]="q.atencao"></i></span>
+                <span class="qb-atalho-texto">
+                  <strong>{{ q.atencao ? 'Questionário pede atenção' : 'Questionário de bem-estar' }}</strong>
+                  <small>Respondido pela mãe · toque para ver</small>
+                </span>
+                <i class="fa-solid fa-chevron-right qb-atalho-seta"></i>
+              </button>
+            } @else if (consulta.status === 'Pendente' || consulta.status === 'Agendada') {
+              <p class="qb-atalho-vazio"><i class="fa-regular fa-clock"></i> A mãe ainda não respondeu o questionário de bem-estar.</p>
+            }
+
             @if (consulta.status === 'Pendente') {
               <div class="cs-acoes">
                 <button type="button" class="cs-btn cs-btn-primario" (click)="aceitarConsulta(consulta)"><i class="fa-solid fa-check"></i> Aceitar</button>
@@ -455,6 +468,41 @@
           </div>
         }
       </div>
+
+      <!-- MODAL: respostas do questionário de bem-estar -->
+      @if (questionarioAberto(); as qa) {
+        <div class="qb-modal-fundo" (click)="fecharQuestionario()">
+          <div class="qb-modal" role="dialog" aria-modal="true" aria-label="Questionário de bem-estar" (click)="$event.stopPropagation()">
+            <button type="button" class="qb-modal-fechar" (click)="fecharQuestionario()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            <div class="qb-modal-topo">
+              <img [src]="qa.consulta.avatar" alt="">
+              <div>
+                <span>Questionário de bem-estar</span>
+                <h3>{{ qa.consulta.nome }}</h3>
+                <small>Consulta de {{ qa.consulta.data }} às {{ qa.consulta.horario }}</small>
+              </div>
+            </div>
+
+            @if (qa.dados.atencao) {
+              <div class="qb-modal-alerta">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Algumas respostas pedem atenção. Se houver risco, considere contato antes da consulta. A mãe recebeu na tela os contatos do CVV (188) e do SAMU (192).</span>
+              </div>
+            }
+
+            <ul class="qb-modal-lista">
+              @for (p of perguntasBemEstar; track p.id) {
+                <li [class.preocupa]="respostaPreocupa(p, qa.dados.respostas)">
+                  <span class="qb-modal-pergunta">{{ p.curta }}</span>
+                  <span class="qb-modal-resposta">{{ respostaTexto(p, qa.dados.respostas) }}</span>
+                </li>
+              }
+            </ul>
+
+            <p class="qb-modal-nota"><i class="fa-solid fa-lock"></i> Visível só para você. Não é um teste diagnóstico: são as impressões da mãe antes da consulta.</p>
+          </div>
+        </div>
+      }
     </section>
 
     <!-- FÓRUM (Padronizado com estilo da Mãe) -->
@@ -584,7 +632,7 @@
       <div class="doc-topo">
         <div class="doc-topo-texto">
           <h2>Documentos</h2>
-          <p>Emita o certificado de horas do mês e documentos psicológicos prontos para assinar.</p>
+          <p>Emita o certificado de horas, o relatório de atendimentos e documentos psicológicos prontos para assinar.</p>
         </div>
         <div class="doc-ilustra" aria-hidden="true">
           <i class="fa-solid fa-star doc-brilho b1"></i>
@@ -601,6 +649,10 @@
       <div class="doc-tabs" role="tablist">
         <button type="button" class="doc-tab" role="tab" [class.ativo]="abaDocumentos() === 'certificado'" [attr.aria-selected]="abaDocumentos() === 'certificado'" (click)="abaDocumentos.set('certificado'); erroDocumento.set('')">
           <i class="fa-regular fa-clock"></i> Certificado de horas
+        </button>
+        <button type="button" class="doc-tab" role="tab" [class.ativo]="abaDocumentos() === 'relatorio'" [attr.aria-selected]="abaDocumentos() === 'relatorio'" (click)="abaDocumentos.set('relatorio'); erroDocumento.set('')">
+          <i class="fa-solid fa-chart-column"></i> Relatório de atendimentos
+          @if (!isPremium()) { <span class="doc-chip doc-chip-premium">Premium</span> }
         </button>
         <button type="button" class="doc-tab" role="tab" [class.ativo]="abaDocumentos() === 'modelos'" [attr.aria-selected]="abaDocumentos() === 'modelos'" (click)="abaDocumentos.set('modelos'); erroDocumento.set('')">
           <i class="fa-regular fa-file-lines"></i> Modelos de documentos
@@ -673,6 +725,67 @@
             </button>
             @if (sessoesCertificado().length === 0) {
               <p class="doc-seguro">Nenhuma consulta realizada neste mês.</p>
+            } @else {
+              <p class="doc-seguro"><i class="fa-solid fa-shield-halved"></i> Gerado no seu navegador: nada fica salvo na plataforma.</p>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ===== RELATÓRIO DE ATENDIMENTOS (Premium) ===== -->
+      @if (abaDocumentos() === 'relatorio') {
+        @if (!isPremium()) {
+          <div class="doc-premium-banner">
+            <div class="doc-premium-icone"><i class="fa-solid fa-crown"></i></div>
+            <div class="doc-premium-texto">
+              <strong>Relatório de atendimentos no Premium</strong>
+              <p>Veja quantos pedidos recebeu, quantos atendeu, suas horas e os dias mais procurados, e baixe tudo em PDF.</p>
+            </div>
+            <button type="button" class="doc-btn doc-btn-premium" (click)="conhecerPremium()"><i class="fa-solid fa-crown"></i> Conhecer o Premium</button>
+          </div>
+        }
+        <div class="doc-grid-cert">
+          <div class="doc-card">
+            <div class="doc-card-titulo">
+              <h3><i class="fa-regular fa-calendar"></i> Período</h3>
+              <p>Escolha o período do relatório.</p>
+            </div>
+            <div class="rel-periodos" role="radiogroup" aria-label="Período do relatório">
+              @for (o of opcoesPeriodoRelatorio; track o.valor) {
+                <button type="button" class="rel-periodo" role="radio" [class.ativo]="relPeriodo() === o.valor" [attr.aria-checked]="relPeriodo() === o.valor" (click)="relPeriodo.set(o.valor)">{{ o.rotulo }}</button>
+              }
+            </div>
+            <p class="doc-dica"><i class="fa-solid fa-circle-info"></i> {{ periodoRelatorioTexto() | titlecase }}. Usa a mesma duração padrão do certificado quando a chamada não registrou o encerramento.</p>
+          </div>
+
+          <div class="doc-card doc-card-resumo">
+            <div class="doc-stats rel-stats">
+              <div class="doc-stat">
+                <span class="doc-stat-icone"><i class="fa-regular fa-envelope-open"></i></span>
+                <div><strong>{{ resumoRelatorio().pedidos }}</strong><small>Pedidos</small></div>
+              </div>
+              <div class="doc-stat">
+                <span class="doc-stat-icone"><i class="fa-solid fa-user-check"></i></span>
+                <div><strong>{{ resumoRelatorio().realizadas }}</strong><small>Realizados</small></div>
+              </div>
+              <div class="doc-stat">
+                <span class="doc-stat-icone"><i class="fa-regular fa-clock"></i></span>
+                <div><strong>{{ resumoRelatorio().horas }}</strong><small>Horas</small></div>
+              </div>
+              <div class="doc-stat">
+                <span class="doc-stat-icone"><i class="fa-solid fa-percent"></i></span>
+                <div><strong>{{ resumoRelatorio().taxa }}</strong><small>Aceite</small></div>
+              </div>
+            </div>
+            <p class="doc-resumo-texto">
+              O PDF traz o resumo por mês, os dias e turnos mais procurados, sua avaliação e a lista de atendimentos. As mães aparecem só pelas iniciais.
+            </p>
+            <button type="button" class="doc-btn doc-btn-primario" [disabled]="gerandoPdf() || !isPremium() || resumoRelatorio().pedidos === 0" (click)="baixarRelatorio()">
+              <i class="fa-solid" [class.fa-download]="isPremium()" [class.fa-lock]="!isPremium()"></i>
+              {{ gerandoPdf() ? 'Gerando...' : (isPremium() ? 'Baixar relatório (PDF)' : 'Disponível no Premium') }}
+            </button>
+            @if (resumoRelatorio().pedidos === 0) {
+              <p class="doc-seguro">Nenhum pedido de consulta neste período.</p>
             } @else {
               <p class="doc-seguro"><i class="fa-solid fa-shield-halved"></i> Gerado no seu navegador: nada fica salvo na plataforma.</p>
             }

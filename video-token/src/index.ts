@@ -9,17 +9,19 @@
  * 4. Confere se ela é a profissional ou a mãe da consulta e se está "aceito".
  * 5. Devolve o token do JaaS (profissional = moderadora).
  *
- * Também roda, a cada 10 minutos, os lembretes de consulta por e-mail (src/lembretes.ts).
+ * Também roda, a cada 10 minutos, os lembretes de consulta por e-mail (src/lembretes.ts)
+ * e o "Avise-me quando houver horário" (src/avisos-horario.ts).
  */
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { assinarTokenJaas, lerChavePrivada, nomeDaSala } from './jaas';
-import { enviarLembretes, EnvLembretes } from './lembretes';
+import { rodarTarefasAgendadas, EnvLembretes } from './lembretes';
 
 export interface Env extends EnvLembretes {
   FIREBASE_PROJECT_ID: string;
   JAAS_APP_ID: string;
   JAAS_KEY_ID: string;
   JAAS_PRIVATE_KEY: string;   // segredo (wrangler secret put)
+  CHAVE_TESTE?: string;       // segredo opcional: libera /lembretes/testar
   ALLOWED_ORIGINS: string;    // ex.: "http://localhost:4200,https://elo-materno.web.app"
 }
 
@@ -33,6 +35,23 @@ class ErroApi extends Error {
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    // Teste manual dos lembretes (abre no navegador):
+    //   /lembretes/testar?chave=SUA_CHAVE            -> roda de verdade agora
+    //   /lembretes/testar?chave=SUA_CHAVE&simular=1  -> só mostra o que faria
+    const url = new URL(request.url);
+    if (url.pathname === '/lembretes/testar') {
+      const json = (status: number, corpo: unknown) =>
+        new Response(JSON.stringify(corpo, null, 2), { status, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+      if (!env.CHAVE_TESTE || url.searchParams.get('chave') !== env.CHAVE_TESTE) {
+        return json(403, { erro: 'Chave de teste ausente ou errada.' });
+      }
+      try {
+        return json(200, await rodarTarefasAgendadas(env, Date.now(), url.searchParams.get('simular') === '1'));
+      } catch (e: any) {
+        return json(500, { erro: String(e?.message || e) });
+      }
+    }
+
     const origem = request.headers.get('Origin') || '';
     const permitidas = env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean);
     const cors: Record<string, string> = {
@@ -62,12 +81,18 @@ export default {
     }
   },
 
-  /** Cron a cada 10 min (wrangler.toml → [triggers]): lembretes de consulta por e-mail. */
+  /** Cron a cada 10 min (wrangler.toml → [triggers]): lembretes de consulta e avisos de horário. */
   async scheduled(_evento: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
     ctx.waitUntil(
-      enviarLembretes(env).then((r) => {
-        console.log(`Lembretes: ${r.analisadas} consultas, ${r.enviados} e-mails enviados`);
+      rodarTarefasAgendadas(env).then(({ lembretes: r, avisosHorario: a }) => {
+        console.log(`Lembretes: ${r.encontradas} consultas nas próximas 24h, ${r.analisadas} precisavam de lembrete, ${r.enviados} e-mails enviados`);
+        r.detalhes.forEach((d) => console.log(d));
         r.erros.forEach((e) => console.error('Lembrete com erro:', e));
+        if (a) {
+          console.log(`Avisos de horário: ${a.pedidos} pedidos, ${a.avisadas} mães avisadas, ${a.expirados} expirados`);
+          a.detalhes.forEach((d) => console.log(d));
+          a.erros.forEach((e) => console.error('Aviso de horário com erro:', e));
+        }
       })
     );
   },

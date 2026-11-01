@@ -8,13 +8,14 @@ import { LembreteService } from '../../services/lembrete';
 import { carregarReputacao, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
 import { PlanoService, Assinatura } from '../../services/plano';
 import { MODELOS_PSICOLOGIA, ModeloDocumento, IdModelo, modeloPorId } from '../../services/modelos-psicologia';
-import { gerarCertificadoHoras, gerarDocumentoPsicologico, formatarHoras, SessaoCertificado } from '../../services/documentos-pdf';
+import { gerarCertificadoHoras, gerarDocumentoPsicologico, gerarRelatorioAtendimentos, formatarHoras, SessaoCertificado, ConsultaRelatorio } from '../../services/documentos-pdf';
 
 import {
   doc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, onSnapshot, orderBy, limit,
   serverTimestamp, Timestamp, arrayUnion, arrayRemove, getCountFromServer, writeBatch,
 } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
+import { PERGUNTAS_BEM_ESTAR, PerguntaBemEstar, rotuloDaResposta, respostaDeRisco } from '../../services/questionario-bem-estar';
 
 type SecaoHomePsi = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos' | 'informacoes';
 type AbaConsultas = 'Pendentes' | 'Agendadas' | 'Realizadas' | 'Negadas';
@@ -139,6 +140,12 @@ export class HomePsi implements OnInit, OnDestroy {
   readonly todasConsultas = signal<ConsultaView[]>([]);
   readonly abaConsultas = signal<AbaConsultas>('Pendentes');
   private unsubConsultas: (() => void) | null = null;
+
+  // Questionários de bem-estar que as mães responderam (questionarios/{consultaId})
+  readonly questionarios = signal<Map<string, any>>(new Map());
+  readonly questionarioAberto = signal<{ consulta: ConsultaView; dados: any } | null>(null);
+  readonly perguntasBemEstar = PERGUNTAS_BEM_ESTAR;
+  private unsubQuestionarios: (() => void) | null = null;
   private cacheMaes = new Map<string, { nome: string; avatar: string }>();
 
   readonly consultasFiltradas = computed(() => {
@@ -316,6 +323,7 @@ export class HomePsi implements OnInit, OnDestroy {
       this.carregandoConsultasHoje.set(true);
       await this.carregarPerfilProfissional(user.uid);
       this.ouvirConsultas(user.uid);
+      this.ouvirQuestionarios(user.uid);
       this.carregarMinhaReputacao(user.uid);
       this.carregarPlano(user.uid);
       this.lembreteService.iniciarListenerDeConsultas(user.uid, 'psicologo');
@@ -327,7 +335,46 @@ export class HomePsi implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.timers.forEach((t) => clearTimeout(t));
     this.unsubConsultas?.();
+    this.unsubQuestionarios?.();
     this.chatUnsubscribe?.();
+  }
+
+  // ==========================================================
+  // QUESTIONÁRIO DE BEM-ESTAR (respondido pela mãe antes da consulta)
+  // ==========================================================
+  private ouvirQuestionarios(uid: string) {
+    this.unsubQuestionarios?.();
+    this.unsubQuestionarios = onSnapshot(
+      query(collection(db, 'questionarios'), where('profissionalId', '==', uid)),
+      (snap) => this.questionarios.set(new Map(snap.docs.map((d) => [d.id, d.data()]))),
+      (err) => console.warn('Não foi possível ler os questionários:', err),
+    );
+  }
+
+  questionarioDe(c: ConsultaView): any | null {
+    return this.questionarios().get(c.id) || null;
+  }
+
+  abrirQuestionario(c: ConsultaView) {
+    const dados = this.questionarioDe(c);
+    if (dados) this.questionarioAberto.set({ consulta: c, dados });
+  }
+
+  fecharQuestionario() {
+    this.questionarioAberto.set(null);
+  }
+
+  respostaTexto(p: PerguntaBemEstar, respostas: any): string {
+    return rotuloDaResposta(p, respostas?.[p.id]);
+  }
+
+  respostaPreocupa(p: PerguntaBemEstar, respostas: any): boolean {
+    if (!respostas) return false;
+    if (p.id === 'pensamentos') return respostaDeRisco(respostas);
+    if (p.id === 'humor' || p.id === 'sono') return respostas[p.id] === '1' || respostas[p.id] === '2';
+    if (p.id === 'apoio') return respostas.apoio === 'nenhum';
+    if (p.id === 'sobrecarga') return respostas.sobrecarga === 'sempre';
+    return false;
   }
 
   irParaPerfil() {
@@ -966,7 +1013,7 @@ export class HomePsi implements OnInit, OnDestroy {
   // ==========================================================
   // DOCUMENTOS: certificado de horas + modelos do CFP
   // ==========================================================
-  readonly abaDocumentos = signal<'certificado' | 'modelos'>('certificado');
+  readonly abaDocumentos = signal<'certificado' | 'relatorio' | 'modelos'>('certificado');
   readonly gerandoPdf = signal(false);
   readonly erroDocumento = signal('');
 
@@ -1012,6 +1059,109 @@ export class HomePsi implements OnInit, OnDestroy {
       });
     } catch (e) {
       console.error('Erro ao gerar certificado:', e);
+      this.erroDocumento.set('Não foi possível gerar o PDF. Tente de novo.');
+    } finally {
+      this.gerandoPdf.set(false);
+    }
+  }
+
+  // ----- Relatório de atendimentos (Premium) -----
+  readonly relPeriodo = signal<'mes' | 'mes-passado' | '3m' | '6m' | 'ano'>('mes');
+  readonly opcoesPeriodoRelatorio = [
+    { valor: 'mes', rotulo: 'Este mês' },
+    { valor: 'mes-passado', rotulo: 'Mês passado' },
+    { valor: '3m', rotulo: 'Últimos 3 meses' },
+    { valor: '6m', rotulo: 'Últimos 6 meses' },
+    { valor: 'ano', rotulo: 'Este ano' },
+  ] as const;
+
+  /** Início e fim do período escolhido. */
+  readonly intervaloRelatorio = computed(() => {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = hoje.getMonth();
+    const fimDoMes = (a: number, m: number) => new Date(a, m + 1, 0, 23, 59, 59, 999);
+    switch (this.relPeriodo()) {
+      case 'mes-passado': return { inicio: new Date(ano, mes - 1, 1), fim: fimDoMes(ano, mes - 1) };
+      case '3m': return { inicio: new Date(ano, mes - 2, 1), fim: fimDoMes(ano, mes) };
+      case '6m': return { inicio: new Date(ano, mes - 5, 1), fim: fimDoMes(ano, mes) };
+      case 'ano': return { inicio: new Date(ano, 0, 1), fim: new Date(ano, 11, 31, 23, 59, 59, 999) };
+      default: return { inicio: new Date(ano, mes, 1), fim: fimDoMes(ano, mes) };
+    }
+  });
+
+  readonly periodoRelatorioTexto = computed(() => {
+    const { inicio, fim } = this.intervaloRelatorio();
+    const m = (d: Date) => NOMES_MESES[d.getMonth()].toLowerCase();
+    if (inicio.getMonth() === fim.getMonth() && inicio.getFullYear() === fim.getFullYear()) return `${m(inicio)} de ${inicio.getFullYear()}`;
+    if (inicio.getFullYear() === fim.getFullYear()) return `${m(inicio)} a ${m(fim)} de ${fim.getFullYear()}`;
+    return `${m(inicio)} de ${inicio.getFullYear()} a ${m(fim)} de ${fim.getFullYear()}`;
+  });
+
+  readonly consultasRelatorio = computed<ConsultaRelatorio[]>(() => {
+    const { inicio, fim } = this.intervaloRelatorio();
+    const padrao = this.certDuracaoPadrao() || 50;
+    const situacao: Record<ConsultaView['status'], ConsultaRelatorio['situacao']> = {
+      Realizada: 'Realizada', Agendada: 'Agendada', Pendente: 'Pendente', Negada: 'Recusada',
+    };
+    return this.todasConsultas()
+      .filter((c) => c.dataObj && c.dataObj >= inicio && c.dataObj <= fim)
+      .map((c) => {
+        let duracaoMin: number | null = null;
+        let estimada = false;
+        if (c.status === 'Realizada') {
+          const real = c.realizadoEm ? Math.round((c.realizadoEm.getTime() - c.dataObj!.getTime()) / 60000) : NaN;
+          const valida = real >= 10 && real <= 180;
+          duracaoMin = valida ? real : padrao;
+          estimada = !valida;
+        }
+        const iniciais = String(c.nome || '').trim().split(/\s+/).filter(Boolean).slice(0, 2)
+          .map((p) => p.charAt(0).toUpperCase() + '.').join(' ');
+        return { data: c.dataObj!, situacao: situacao[c.status] || 'Pendente', duracaoMin, duracaoEstimada: estimada, iniciais };
+      });
+  });
+
+  readonly resumoRelatorio = computed(() => {
+    const l = this.consultasRelatorio();
+    const realizadas = l.filter((c) => c.situacao === 'Realizada');
+    const recusadas = l.filter((c) => c.situacao === 'Recusada').length;
+    const decididas = l.filter((c) => c.situacao !== 'Pendente').length;
+    return {
+      pedidos: l.length,
+      realizadas: realizadas.length,
+      horas: formatarHoras(realizadas.reduce((s, c) => s + (c.duracaoMin || 0), 0)),
+      taxa: decididas ? Math.round(((decididas - recusadas) / decididas) * 100) + '%' : '–',
+    };
+  });
+
+  async baixarRelatorio() {
+    if (!this.uidAtual || this.gerandoPdf()) return;
+    this.erroDocumento.set('');
+    if (!this.isPremium()) {
+      this.erroDocumento.set('O relatório de atendimentos faz parte do Premium.');
+      return;
+    }
+    if (!this.crp()) {
+      this.erroDocumento.set('Cadastre seu CRP no perfil para emitir o relatório.');
+      return;
+    }
+    this.gerandoPdf.set(true);
+    try {
+      const { inicio, fim } = this.intervaloRelatorio();
+      const r = this.reputacao();
+      await gerarRelatorioAtendimentos({
+        nome: this.nomeCompleto(),
+        profissao: 'Psicólogo(a)',
+        registro: this.crp().toUpperCase().startsWith('CRP') ? this.crp() : `CRP ${this.crp()}`,
+        periodoTexto: this.periodoRelatorioTexto(),
+        inicio,
+        fim,
+        consultas: this.consultasRelatorio(),
+        duracaoPadraoMin: this.certDuracaoPadrao() || 50,
+        reputacao: { media: r.mediaTexto, total: r.total, recomendamPct: r.recomendamPct, bemAvaliado: r.bemAvaliado },
+      });
+    } catch (e) {
+      console.error('Erro ao gerar relatório:', e);
       this.erroDocumento.set('Não foi possível gerar o PDF. Tente de novo.');
     } finally {
       this.gerandoPdf.set(false);
@@ -1155,7 +1305,7 @@ export class HomePsi implements OnInit, OnDestroy {
     'Destaque na busca e selo Premium no perfil',
     'Modelos de atestado, relatório, laudo e parecer (Resolução CFP 06/2019)',
     'Preenchimento automático com os dados das consultas',
-    'Relatórios de atendimento em PDF (em breve)',
+    'Relatório de atendimentos em PDF',
   ];
 
   private async carregarPlano(uid: string) {

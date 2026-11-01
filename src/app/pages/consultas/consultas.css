@@ -2135,3 +2135,33 @@ body[data-theme="dark"] .estado-vazio::before {
 }
 body[data-theme="dark"] .estado-vazio h2 { color: #F5F0FF !important; }
 body[data-theme="dark"] .estado-vazio p { color: #C7BBEB !important; }
+
+/* =========================================
+   QUESTIONÁRIO DE BEM-ESTAR (atalho no card)
+========================================= */
+.consulta-questionario {
+  display: flex; align-items: center; gap: 14px; margin-top: 16px; padding: 14px 16px;
+  border-radius: 16px; text-decoration: none; cursor: pointer;
+  background: linear-gradient(120deg, #F4EFFF 0%, #FBF8FF 100%); border: 1px dashed #C9B8F2;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.consulta-questionario:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(91, 61, 153, .12); }
+.consulta-questionario .cq-icone {
+  flex-shrink: 0; width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center;
+  background: linear-gradient(135deg, #7C5CD6, #5B3D99); color: #FFFFFF; font-size: 1rem;
+}
+.consulta-questionario .cq-icone i { color: #FFFFFF !important; }
+.consulta-questionario .cq-texto { flex: 1; display: flex; flex-direction: column; gap: 2px; text-align: left; }
+.consulta-questionario strong { color: #2D1E4E; font-size: .95rem; font-weight: 800; }
+.consulta-questionario small { color: #7B6AAE; font-size: .8rem; font-weight: 700; }
+.consulta-questionario .cq-seta { color: #8B6BD9; font-size: .85rem; }
+.consulta-questionario.respondido { background: #EFFAF4; border: 1px solid #C9EEDA; }
+.consulta-questionario.respondido .cq-icone { background: #16A34A; }
+.consulta-questionario.respondido strong { color: #146C43; }
+
+body[data-theme="dark"] .consulta-questionario,
+:host-context(body[data-theme="dark"]) .consulta-questionario { background: #1F2640; border-color: rgba(189, 175, 252, .35); }
+:host-context(body[data-theme="dark"]) .consulta-questionario strong { color: #F5F0FF; }
+:host-context(body[data-theme="dark"]) .consulta-questionario small { color: #B9AEE0; }
+:host-context(body[data-theme="dark"]) .consulta-questionario.respondido { background: rgba(74, 222, 128, .1); border-color: rgba(74, 222, 128, .3); }
+:host-context(body[data-theme="dark"]) .consulta-questionario.respondido strong { color: #86EFAC; }

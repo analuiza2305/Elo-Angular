@@ -1,0 +1,158 @@
+<app-header tipo="mae"></app-header>
+
+<main class="qb-pagina">
+  <div class="qb-blob qb-blob-1" aria-hidden="true"></div>
+  <div class="qb-blob qb-blob-2" aria-hidden="true"></div>
+
+  <div class="qb-coluna">
+    <button type="button" class="qb-voltar" (click)="voltar()">
+      <i class="fa-solid fa-chevron-left"></i> Minhas consultas
+    </button>
+
+    @if (carregando()) {
+      <div class="qb-card qb-centro">
+        <div class="qb-spinner" aria-hidden="true"></div>
+        <p class="qb-texto-suave">Carregando o questionário…</p>
+      </div>
+    } @else if (bloqueio()) {
+      <div class="qb-card qb-centro">
+        <div class="qb-selo qb-selo-neutro"><i class="fa-regular fa-circle-xmark"></i></div>
+        <h1 class="qb-titulo">Não dá para responder agora</h1>
+        <p class="qb-texto-suave">{{ bloqueio() }}</p>
+        <button type="button" class="qb-btn qb-btn-primario" (click)="voltar()">Voltar para minhas consultas</button>
+      </div>
+    } @else if (enviado()) {
+      <div class="qb-card qb-centro">
+        <div class="qb-selo"><i class="fa-solid fa-check"></i></div>
+        <h1 class="qb-titulo">Obrigada por compartilhar</h1>
+        <p class="qb-texto-suave">Suas respostas foram enviadas para <b>{{ nomeProfissional() }}</b>. Elas ajudam a conversa a começar do jeito certo.</p>
+        @if (mostrarApoio()) {
+          <div class="qb-apoio">
+            <i class="fa-solid fa-hand-holding-heart"></i>
+            <div>
+              <strong>Você não está sozinha.</strong>
+              <p>Se sentir que está em perigo agora, ligue <b>188</b> (CVV, 24 horas, gratuito) ou <b>192</b> (SAMU), ou vá ao pronto-socorro mais próximo. As respostas deste questionário não são acompanhadas em tempo real.</p>
+            </div>
+          </div>
+        }
+        <button type="button" class="qb-btn qb-btn-primario" (click)="voltar()">Voltar para minhas consultas</button>
+      </div>
+    } @else {
+      <!-- Cabeçalho discreto -->
+      <header class="qb-topo">
+        <span class="qb-rotulo"><i class="fa-solid fa-seedling"></i> Antes da sua consulta</span>
+        <p>Com <b>{{ nomeProfissional() }}</b>@if (dataConsulta()) { · {{ dataConsulta() }} }</p>
+      </header>
+
+      <!-- Progresso em segmentos -->
+      <div class="qb-passos" aria-hidden="true">
+        @for (p of perguntas; track p.id; let i = $index) {
+          <span class="qb-seg" [class.feito]="i < passo()" [class.atual]="i === passo()"></span>
+        }
+        <span class="qb-seg" [class.atual]="naRevisao()"></span>
+      </div>
+
+      @if (!naRevisao()) {
+        @let p = perguntaAtual();
+        <section class="qb-card qb-pergunta" [class.qb-sensivel]="p.id === 'pensamentos'">
+          <span class="qb-contador-passo">Pergunta {{ passo() + 1 }} de {{ perguntas.length }}</span>
+          <h1 class="qb-titulo">{{ p.titulo }}</h1>
+          @if (p.ajuda) { <p class="qb-ajuda">{{ p.ajuda }}</p> }
+
+          @if (p.tipo === 'escala') {
+            <div class="qb-escala" role="radiogroup" [attr.aria-label]="p.titulo">
+              @for (o of p.opcoes; track o.valor) {
+                <button type="button" class="qb-escala-item" role="radio"
+                        [class.ativo]="marcado(p.id, o.valor)" [attr.aria-checked]="marcado(p.id, o.valor)"
+                        (click)="escolherEAvancar(p.id, o.valor)">
+                  <span class="qb-ponto">{{ o.valor }}</span>
+                  <span class="qb-escala-rotulo">{{ o.rotulo }}</span>
+                </button>
+              }
+            </div>
+          } @else if (p.tipo === 'unica') {
+            <div class="qb-opcoes" role="radiogroup" [attr.aria-label]="p.titulo">
+              @for (o of p.opcoes; track o.valor) {
+                <button type="button" class="qb-opcao" role="radio"
+                        [class.ativo]="marcado(p.id, o.valor)" [attr.aria-checked]="marcado(p.id, o.valor)"
+                        (click)="escolherEAvancar(p.id, o.valor)">
+                  <span>{{ o.rotulo }}</span>
+                  <span class="qb-marca"><i class="fa-solid fa-check"></i></span>
+                </button>
+              }
+            </div>
+          } @else if (p.tipo === 'multipla') {
+            <div class="qb-chips">
+              @for (o of p.opcoes; track o.valor) {
+                <button type="button" class="qb-chip" [class.ativo]="marcado(p.id, o.valor)"
+                        [attr.aria-pressed]="marcado(p.id, o.valor)" (click)="alternarMultipla(p.id, o.valor)">
+                  @if (marcado(p.id, o.valor)) { <i class="fa-solid fa-check"></i> }
+                  {{ o.rotulo }}
+                </button>
+              }
+            </div>
+          } @else {
+            <textarea rows="5" maxlength="500" placeholder="Ex.: tenho me sentido muito cansada desde que voltei a trabalhar…"
+                      [ngModel]="valor(p.id)" (ngModelChange)="escolher(p.id, $event)"></textarea>
+            <span class="qb-contador">{{ (valor(p.id) || '').length }}/500</span>
+          }
+
+          @if (p.id === 'pensamentos' && mostrarApoio()) {
+            <div class="qb-apoio">
+              <i class="fa-solid fa-hand-holding-heart"></i>
+              <div>
+                <strong>Obrigada por contar. Você não está sozinha.</strong>
+                <p>Se sentir que está em perigo agora, ligue <b>188</b> (CVV, 24 horas, gratuito) ou <b>192</b> (SAMU), ou vá ao pronto-socorro mais próximo. Seu(sua) psicólogo(a) verá essa resposta antes da consulta.</p>
+              </div>
+            </div>
+          }
+
+          <nav class="qb-nav">
+            <button type="button" class="qb-btn qb-btn-fantasma" [disabled]="passo() === 0" (click)="anterior()">
+              <i class="fa-solid fa-arrow-left"></i> Voltar
+            </button>
+            <button type="button" class="qb-btn qb-btn-primario" [disabled]="!respondida(p.id) && p.obrigatoria" (click)="proxima()">
+              {{ !p.obrigatoria && !respondida(p.id) ? 'Pular' : 'Continuar' }} <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </nav>
+        </section>
+      } @else {
+        <!-- Revisão e envio -->
+        <section class="qb-card qb-revisao">
+          <span class="qb-contador-passo">Quase lá</span>
+          <h1 class="qb-titulo">Confira suas respostas</h1>
+          <p class="qb-ajuda">Toque em uma resposta para mudar.</p>
+
+          <ul class="qb-resumo">
+            @for (p of perguntas; track p.id; let i = $index) {
+              <li>
+                <button type="button" (click)="irPara(i)">
+                  <span class="qb-resumo-pergunta">{{ p.curta }}</span>
+                  <span class="qb-resumo-resposta">{{ resumo(p) }}</span>
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+              </li>
+            }
+          </ul>
+
+          <label class="qb-consentimento">
+            <input type="checkbox" [checked]="consentimento()" (change)="consentimento.set(!consentimento())">
+            <span class="qb-check"><i class="fa-solid fa-check"></i></span>
+            <span>Autorizo que <b>somente</b> {{ nomeProfissional() }}, psicólogo(a) desta consulta, veja estas respostas.</span>
+          </label>
+
+          <nav class="qb-nav">
+            <button type="button" class="qb-btn qb-btn-fantasma" (click)="anterior()">
+              <i class="fa-solid fa-arrow-left"></i> Voltar
+            </button>
+            <button type="button" class="qb-btn qb-btn-primario" [disabled]="salvando() || !consentimento()" (click)="enviar()">
+              {{ salvando() ? 'Enviando…' : (jaRespondido() ? 'Atualizar respostas' : 'Enviar respostas') }}
+            </button>
+          </nav>
+        </section>
+      }
+
+      <p class="qb-rodape"><i class="fa-solid fa-lock"></i> Não é um teste de diagnóstico. Só serve para a conversa começar do jeito certo.</p>
+    }
+  </div>
+</main>

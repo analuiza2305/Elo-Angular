@@ -8,6 +8,7 @@
  * (lembrete24hEnviado / lembrete1hEnviado) para nunca sair duplicado.
  */
 import { Firestore, tokenDoGoogle } from './google';
+import { verificarAvisosDeHorario } from './avisos-horario';
 
 export interface EnvLembretes {
   FIREBASE_PROJECT_ID: string;
@@ -27,16 +28,23 @@ const JANELA_24H = 24 * 60 * MIN;
 const MIN_PARA_24H = 3 * 60 * MIN;   // consulta marcada em cima da hora só recebe o de 1 h
 const MAX_CONSULTAS_POR_RODADA = 8;  // o plano gratuito da Cloudflare permite 50 chamadas por execução
 
-export interface Resumo { analisadas: number; enviados: number; erros: string[] }
+export interface Resumo {
+  encontradas: number;   // consultas "aceito" nas próximas 24 h
+  analisadas: number;    // dessas, quantas precisavam de lembrete agora
+  enviados: number;
+  erros: string[];
+  detalhes: string[];    // diagnóstico legível (aparece no teste manual e no wrangler tail)
+}
 
-export async function enviarLembretes(env: EnvLembretes, agora = Date.now()): Promise<Resumo> {
-  const resumo: Resumo = { analisadas: 0, enviados: 0, erros: [] };
+/** simular = true: faz tudo menos enviar e marcar (para conferir o que aconteceria). */
+export async function enviarLembretes(env: EnvLembretes, agora = Date.now(), simular = false, dbPronto?: Firestore): Promise<Resumo> {
+  const resumo: Resumo = { encontradas: 0, analisadas: 0, enviados: 0, erros: [], detalhes: [] };
   if (!env.GOOGLE_SERVICE_ACCOUNT || !env.MAILJET_API_KEY || !env.MAILJET_API_SECRET || !env.MAILJET_FROM_EMAIL) {
     resumo.erros.push('Faltam segredos: GOOGLE_SERVICE_ACCOUNT, MAILJET_API_KEY, MAILJET_API_SECRET ou MAILJET_FROM_EMAIL.');
     return resumo;
   }
 
-  const db = new Firestore(env.FIREBASE_PROJECT_ID, await tokenDoGoogle(env.GOOGLE_SERVICE_ACCOUNT));
+  const db = dbPronto ?? new Firestore(env.FIREBASE_PROJECT_ID, await tokenDoGoogle(env.GOOGLE_SERVICE_ACCOUNT));
 
   // Consultas confirmadas que começam nas próximas 24 h
   // (precisa do índice composto Consultas: status ↑ + Datahora ↑; o erro do Firestore traz o link para criar)
@@ -55,6 +63,17 @@ export async function enviarLembretes(env: EnvLembretes, agora = Date.now()): Pr
     orderBy: [{ field: { fieldPath: 'Datahora' }, direction: 'ASCENDING' }],
     limit: 40,
   });
+
+  resumo.encontradas = consultas.length;
+  for (const c of consultas) {
+    const quando = new Date(c.dados['Datahora']);
+    const tipo = tipoDeLembrete(c.dados, agora);
+    resumo.detalhes.push(
+      `Consulta ${c.id} em ${quando.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}: ` +
+      (tipo ? `precisa do lembrete de ${tipo}` : 'nenhum lembrete pendente agora') +
+      ` (24h: ${c.dados['lembrete24hEnviado'] ? 'já enviado' : 'não'}; 1h: ${c.dados['lembrete1hEnviado'] ? 'já enviado' : 'não'})`
+    );
+  }
 
   const pendentes = consultas
     .map((c) => ({ ...c, tipo: tipoDeLembrete(c.dados, agora) }))
@@ -97,6 +116,12 @@ export async function enviarLembretes(env: EnvLembretes, agora = Date.now()): Pr
         }));
       }
 
+      if (!mae?.['email']) resumo.detalhes.push(`Consulta ${c.id}: a mãe (${maeId}) não tem o campo "email" em usuarios.`);
+      if (!prof?.['email']) resumo.detalhes.push(`Consulta ${c.id}: o profissional (${profId}) não tem o campo "email" em ${tipoProf === 'advogado' ? 'advogados' : 'psicologos'}.`);
+      resumo.detalhes.push(`Consulta ${c.id}: ${mensagens.length} e-mail(s) para ${mensagens.map((m) => m.To[0].Email).join(', ') || 'ninguém'}.`);
+
+      if (simular) continue;
+
       if (mensagens.length) {
         await enviarMailjet(env, mensagens);
         resumo.enviados += mensagens.length;
@@ -111,6 +136,22 @@ export async function enviarLembretes(env: EnvLembretes, agora = Date.now()): Pr
     }
   }
   return resumo;
+}
+
+/**
+ * Tudo que o cron faz a cada 10 minutos: lembretes de consulta e avisos de horário.
+ * Usa um único acesso ao Firestore e divide o limite de 50 chamadas por execução.
+ */
+export async function rodarTarefasAgendadas(env: EnvLembretes, agora = Date.now(), simular = false) {
+  if (!env.GOOGLE_SERVICE_ACCOUNT) {
+    const lembretes = await enviarLembretes(env, agora, simular);
+    return { lembretes, avisosHorario: null };
+  }
+  const db = new Firestore(env.FIREBASE_PROJECT_ID, await tokenDoGoogle(env.GOOGLE_SERVICE_ACCOUNT));
+  const lembretes = await enviarLembretes(env, agora, simular, db);
+  const usadas = 2 + lembretes.analisadas * 5;
+  const avisosHorario = await verificarAvisosDeHorario(env, db, 48 - usadas, agora, simular);
+  return { lembretes, avisosHorario };
 }
 
 /** Qual lembrete essa consulta ainda precisa agora (ou null). */
@@ -130,7 +171,7 @@ export function tipoDeLembrete(dados: Record<string, any>, agora: number): Tipo 
   return null;
 }
 
-async function perfil(
+export async function perfil(
   db: Firestore,
   cache: Map<string, Record<string, any> | null>,
   colecao: string,
@@ -152,11 +193,11 @@ async function perfil(
   return dados;
 }
 
-function primeiroNome(nome: unknown): string {
+export function primeiroNome(nome: unknown): string {
   return String(nome || '').trim().split(/\s+/)[0] || '';
 }
 
-function escapar(t: string): string {
+export function escapar(t: string): string {
   return t.replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]!));
 }
 
@@ -205,7 +246,9 @@ export function montarEmail(env: EnvLembretes, o: {
   };
 }
 
-async function enviarMailjet(env: EnvLembretes, mensagens: any[]): Promise<void> {
+export async function enviarMailjet(env: EnvLembretes, mensagens: any[]): Promise<void> {
+  // A resposta do Mailjet diz, mensagem por mensagem, se foi aceita
+
   const resp = await fetch('https://api.mailjet.com/v3.1/send', {
     method: 'POST',
     headers: {
@@ -214,5 +257,12 @@ async function enviarMailjet(env: EnvLembretes, mensagens: any[]): Promise<void>
     },
     body: JSON.stringify({ Messages: mensagens }),
   });
-  if (!resp.ok) throw new Error(`Mailjet ${resp.status}: ${(await resp.text()).slice(0, 300)}`);
+  const corpo = await resp.text();
+  if (!resp.ok) throw new Error(`Mailjet ${resp.status}: ${corpo.slice(0, 400)}`);
+  try {
+    const falhas = (JSON.parse(corpo).Messages || []).filter((m: any) => m.Status !== 'success');
+    if (falhas.length) throw new Error(`Mailjet recusou: ${JSON.stringify(falhas).slice(0, 400)}`);
+  } catch (e: any) {
+    if (String(e?.message || '').startsWith('Mailjet recusou')) throw e;
+  }
 }

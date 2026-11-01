@@ -381,7 +381,6 @@ export class PerfilProfissionalComponent implements OnInit {
           Motivo: motivo,
           status: 'pendente',
           criadoEm: serverTimestamp(),
-          primeiraGratuita: true,
           relatorioGerado: false
         });
         tx.update(profRef, {

@@ -25,6 +25,18 @@
         <i class="ph ph-funnel"></i>
       </button>
     </div>
+
+    <div class="tipo-filtros" role="group" aria-label="Tipo de profissional">
+      <button type="button" class="tipo-chip" [class.ativo]="filtroTipo() === 'todos'" [attr.aria-pressed]="filtroTipo() === 'todos'" (click)="filtroTipo.set('todos')">
+        Todos <span>{{ contagemTipo().todos }}</span>
+      </button>
+      <button type="button" class="tipo-chip" [class.ativo]="filtroTipo() === 'psicologo'" [attr.aria-pressed]="filtroTipo() === 'psicologo'" (click)="filtroTipo.set('psicologo')">
+        Psicólogos <span>{{ contagemTipo().psicologo }}</span>
+      </button>
+      <button type="button" class="tipo-chip" [class.ativo]="filtroTipo() === 'advogado'" [attr.aria-pressed]="filtroTipo() === 'advogado'" (click)="filtroTipo.set('advogado')">
+        Advogados <span>{{ contagemTipo().advogado }}</span>
+      </button>
+    </div>
   </div>
 
   @if (isLoading()) {
@@ -74,7 +86,6 @@
                   <span class="badge-online">Online</span>
                 </div>
                 <p class="role">
-                  <i class="fa-solid" [ngClass]="prof.tipo === 'psicologo' ? 'fa-brain' : 'fa-scale-balanced'"></i>
                   {{ prof.cargoLabel }}
                   <span class="role-sep"></span>
                   <span class="role-id">{{ registro(prof) }}</span>
@@ -124,9 +135,16 @@
                   <p>No momento não há horários disponíveis para este profissional.</p>
                 </div>
               </div>
-              <button class="btn-notify">
-                <i class="ph ph-bell"></i> Avise-me quando houver horário
-              </button>
+              @if (avisoPedido(prof)) {
+                <div class="aviso-ativo">
+                  <span><i class="ph ph-bell-ringing"></i> Você será avisada por e-mail e no sino quando abrir horário.</span>
+                  <button type="button" class="btn-cancelar-aviso" [disabled]="avisoSalvando() === prof.uid" (click)="cancelarAviso(prof)">Cancelar aviso</button>
+                </div>
+              } @else {
+                <button type="button" class="btn-notify" [disabled]="avisoSalvando() === prof.uid" (click)="pedirAviso(prof)">
+                  <i class="ph ph-bell"></i> {{ avisoSalvando() === prof.uid ? 'Salvando…' : 'Avise-me quando houver horário' }}
+                </button>
+              }
             } @else {
               <div class="schedule-available-container">
                 <div class="icon-box primary-box"><i class="ph ph-calendar-check"></i></div>
@@ -253,7 +271,7 @@
         <div class="dados-mini">
           <h3>{{ modalInfo().nome }}</h3>
           <p class="cargo-mini">{{ modalInfo().cargo }}</p>
-          <span class="area-mini"><i class="ph ph-stethoscope"></i> {{ modalInfo().area }}</span>
+          <span class="area-mini">{{ modalInfo().area }}</span>
         </div>
       </div>
 

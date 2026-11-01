@@ -287,9 +287,8 @@ export class AgendaMae implements OnInit, OnDestroy {
     if (ev.type === 'evento') return 'fa-regular fa-calendar-check';
     if (ev.type === 'artigo') return 'fa-solid fa-book-open';
     if (ev.type === 'consulta') {
-      if (ev.collectionName === 'psicologos') return 'fa-solid fa-brain';
-      if (ev.collectionName === 'advogados') return 'fa-solid fa-scale-balanced';
-      return 'fa-solid fa-stethoscope';
+      // Mesmo ícone para psicólogo e advogado (a cor do card já diferencia)
+      return 'fa-solid fa-video';
     }
     return 'fa-regular fa-star';
   }

@@ -6469,3 +6469,96 @@ header h1 { font-size: 24px; color: var(--primary-color-dark); font-weight: 800;
   .home-psi-page #planos .pl-preco strong { font-size: 2.3rem !important; }
   .home-psi-page #planos .pl-nota { border-radius: 16px !important; flex-wrap: wrap !important; }
 }
+
+/* =========================================================
+   QUESTIONÁRIO DE BEM-ESTAR — atalho no card + modal
+========================================================= */
+#consultas .qb-atalho {
+  display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 14px; padding: 12px 14px;
+  border: 1px dashed #C9B8F2; border-radius: 16px; cursor: pointer; text-align: left; font-family: inherit;
+  background: linear-gradient(120deg, #F4EFFF 0%, #FBF8FF 100%); transition: transform .2s ease, box-shadow .2s ease;
+}
+#consultas .qb-atalho:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(91, 61, 153, .12); }
+#consultas .qb-atalho-icone {
+  flex-shrink: 0; width: 40px; height: 40px; border-radius: 13px; display: grid; place-items: center;
+  background: linear-gradient(135deg, #7C5CD6, #5B3D99);
+}
+#consultas .qb-atalho-icone i { color: #FFFFFF !important; }
+#consultas .qb-atalho-texto { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+#consultas .qb-atalho-texto strong { color: #2D1E4E; font-size: .93rem; font-weight: 800; }
+#consultas .qb-atalho-texto small { color: #7B6AAE; font-size: .78rem; font-weight: 700; }
+#consultas .qb-atalho-seta { color: #8B6BD9 !important; font-size: .8rem; }
+#consultas .qb-atalho.atencao { background: #FFF4F2; border: 1px solid #F9D2CB; }
+#consultas .qb-atalho.atencao .qb-atalho-icone { background: linear-gradient(135deg, #F28B6B, #E0624B); }
+#consultas .qb-atalho.atencao strong { color: #9A2E1C; }
+#consultas .qb-atalho-vazio { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; color: #8B7DB8; font-size: .84rem; font-weight: 700; }
+
+#consultas .qb-modal-fundo {
+  position: fixed; inset: 0; z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 20px;
+  background: rgba(36, 22, 74, .45); backdrop-filter: blur(6px);
+}
+#consultas .qb-modal {
+  position: relative; width: min(100%, 560px); max-height: calc(100vh - 40px); overflow-y: auto; box-sizing: border-box;
+  padding: 30px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 30px 70px rgba(36, 22, 74, .3);
+  animation: qbEntrar .25s cubic-bezier(.2, .8, .2, 1);
+}
+@keyframes qbEntrar { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: none; } }
+#consultas .qb-modal-fechar {
+  position: absolute; top: 18px; right: 18px; width: 38px; height: 38px; border-radius: 50%; border: 1px solid #ECE6F8;
+  background: #FAF8FF; color: #6E5FA0; cursor: pointer;
+}
+#consultas .qb-modal-topo { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; padding-right: 40px; }
+#consultas .qb-modal-topo img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 3px solid #E5D5FF; }
+#consultas .qb-modal-topo span { font-size: .72rem; font-weight: 800; color: #8B6BD9; text-transform: uppercase; letter-spacing: .05em; }
+#consultas .qb-modal-topo h3 { margin: 2px 0; font-size: 1.25rem; font-weight: 800; color: #24164A; }
+#consultas .qb-modal-topo small { color: #7B6AAE; font-weight: 700; }
+#consultas .qb-modal-alerta {
+  display: flex; gap: 10px; margin-bottom: 16px; padding: 12px 14px; border-radius: 14px;
+  background: #FFF4F2; border: 1px solid #F9D2CB; color: #7A2E22; font-size: .88rem; line-height: 1.5;
+}
+#consultas .qb-modal-alerta i { margin-top: 3px; color: #E0624B; }
+#consultas .qb-modal-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+#consultas .qb-modal-lista li {
+  display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; border-radius: 14px; background: #FAF8FF; border: 1px solid #F0EBFA;
+}
+#consultas .qb-modal-lista li.preocupa { background: #FFF7F5; border-color: #F9D2CB; }
+#consultas .qb-modal-pergunta { font-size: .74rem; font-weight: 800; color: #8B7DB8; text-transform: uppercase; letter-spacing: .04em; }
+#consultas .qb-modal-resposta { color: #24164A; font-weight: 700; line-height: 1.45; white-space: pre-line; }
+#consultas .qb-modal-lista li.preocupa .qb-modal-resposta { color: #9A2E1C; }
+#consultas .qb-modal-nota { display: flex; gap: 8px; align-items: center; margin: 16px 0 0; color: #8B7DB8; font-size: .8rem; }
+
+:host-context(body[data-theme="dark"]) #consultas .qb-atalho { background: #1F2640; border-color: rgba(189, 175, 252, .35); }
+:host-context(body[data-theme="dark"]) #consultas .qb-atalho-texto strong { color: #F5F0FF; }
+:host-context(body[data-theme="dark"]) #consultas .qb-atalho-texto small,
+:host-context(body[data-theme="dark"]) #consultas .qb-atalho-vazio { color: #B9AEE0; }
+:host-context(body[data-theme="dark"]) #consultas .qb-atalho.atencao { background: rgba(248, 113, 113, .12); border-color: rgba(248, 113, 113, .3); }
+:host-context(body[data-theme="dark"]) #consultas .qb-atalho.atencao strong { color: #FCA5A5; }
+:host-context(body[data-theme="dark"]) #consultas .qb-modal { background: #1B2336; }
+:host-context(body[data-theme="dark"]) #consultas .qb-modal-topo h3,
+:host-context(body[data-theme="dark"]) #consultas .qb-modal-resposta { color: #F5F0FF; }
+:host-context(body[data-theme="dark"]) #consultas .qb-modal-lista li { background: #141A26; border-color: rgba(255, 255, 255, .08); }
+:host-context(body[data-theme="dark"]) #consultas .qb-modal-lista li.preocupa { background: rgba(248, 113, 113, .1); border-color: rgba(248, 113, 113, .3); }
+:host-context(body[data-theme="dark"]) #consultas .qb-modal-lista li.preocupa .qb-modal-resposta { color: #FCA5A5; }
+:host-context(body[data-theme="dark"]) #consultas .qb-modal-alerta { background: rgba(248, 113, 113, .12); border-color: rgba(248, 113, 113, .3); color: #FECACA; }
+:host-context(body[data-theme="dark"]) #consultas .qb-modal-fechar { background: #141A26; border-color: rgba(255, 255, 255, .14); color: #D8CCFF; }
+
+/* =========================================================
+   DOCUMENTOS > RELATÓRIO DE ATENDIMENTOS
+========================================================= */
+#documentos .doc-tab { min-width: 0; }
+#documentos .rel-periodos { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0 14px; }
+#documentos .rel-periodo {
+  height: 42px; padding: 0 18px; border-radius: 999px; border: 1px solid #E3DCF3; background: #FFFFFF; color: #5B3D99;
+  font-family: inherit; font-weight: 700; font-size: .92rem; cursor: pointer; transition: all .2s ease;
+}
+#documentos .rel-periodo:hover { background: #F7F3FF; }
+#documentos .rel-periodo.ativo { background: linear-gradient(135deg, #7C5CD6 0%, #5B3D99 100%); border-color: transparent; color: #FFFFFF; box-shadow: 0 8px 18px rgba(91, 61, 153, .25); }
+#documentos .rel-stats { grid-template-columns: 1fr 1fr; }
+#documentos .rel-stats .doc-stat strong { white-space: nowrap; }
+@media (max-width: 900px) {
+  #documentos .doc-tabs { flex-wrap: wrap; }
+  #documentos .doc-tab { flex: 1 1 45%; }
+}
+:host-context(body[data-theme="dark"]) #documentos .rel-periodo { background: #1B2336; border-color: rgba(255, 255, 255, .1); color: #CFC4F5; }
+:host-context(body[data-theme="dark"]) #documentos .rel-periodo:hover { background: #222B40; }
+:host-context(body[data-theme="dark"]) #documentos .rel-periodo.ativo { background: linear-gradient(135deg, #7C5CD6 0%, #5B3D99 100%); color: #FFFFFF; }
