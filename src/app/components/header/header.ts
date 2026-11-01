@@ -196,6 +196,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     switch (tipo) {
       case 'consulta_confirmada': return 'fa-solid fa-calendar-check';
       case 'consulta_recusada': return 'fa-solid fa-calendar-xmark';
+      case 'horario_disponivel': return 'fa-solid fa-calendar-plus';
       default: return 'fa-solid fa-bell';
     }
   }

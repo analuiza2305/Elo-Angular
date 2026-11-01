@@ -79,6 +79,17 @@
         <i class="fa fa-envelope icon"></i>
         <input type="email" placeholder="E-mail:" [(ngModel)]="email" name="email" required>
       </div>
+
+      <!-- Data de nascimento: a plataforma é só para maiores de 18 anos -->
+      <div class="campo-nascimento">
+        <label for="dataNascimento">Data de nascimento</label>
+        <div class="input-group">
+          <i class="fa fa-cake-candles icon"></i>
+          <input type="date" id="dataNascimento" [(ngModel)]="dataNascimento" name="dataNascimento"
+                 [max]="dataMaxima" [min]="dataMinima" required>
+        </div>
+        <small class="aviso-idade"><i class="fa fa-circle-info"></i> O EloMaterno é exclusivo para maiores de 18 anos.</small>
+      </div>
     }
 
     <div class="senha-linha">
@@ -103,7 +114,7 @@
     @if (acao === 'cadastro' && publico === 'profissional') {
       <div class="aceite-termos">
         <input type="checkbox" id="termos" [(ngModel)]="termos" name="termos">
-        <label for="termos"> Li e aceito os termos de parceria</label>
+        <label for="termos"> Li e aceito os termos de parceria e declaro ter 18 anos ou mais</label>
         <p>Receba apoio, visibilidade e participe de nossa rede de impacto social.</p>
       </div>
     }

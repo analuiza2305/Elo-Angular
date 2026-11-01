@@ -470,3 +470,15 @@ body[data-theme="dark"] .esqueci-senha-link a {
     color: #7a5fe8;
     margin: -6px 0 8px 4px;
 }
+
+
+/* ---------- Data de nascimento (cadastro de mãe) ---------- */
+.campo-nascimento { display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.campo-nascimento label { font-size: .82rem; font-weight: 800; color: #4B2C82; padding-left: 4px; }
+.campo-nascimento .input-group { margin-bottom: 0; }
+.campo-nascimento input[type="date"] { color: #2D1E4E; font-family: inherit; }
+.campo-nascimento input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .7; }
+.aviso-idade { display: flex; align-items: center; gap: 6px; padding-left: 4px; margin-bottom: 6px; font-size: .78rem; color: #7B6AAE; }
+:host-context(body[data-theme="dark"]) .campo-nascimento label { color: #D8CCFF; }
+:host-context(body[data-theme="dark"]) .campo-nascimento input[type="date"] { color: #F5F0FF; color-scheme: dark; }
+:host-context(body[data-theme="dark"]) .aviso-idade { color: #B9AEE0; }

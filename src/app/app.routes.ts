@@ -64,6 +64,7 @@ export const routes: Routes = [
   // Rotas Atualizadas (Videochamada e Pós Consulta)
   { path: 'videochamada', loadComponent: () => import('./pages/videochamada/videochamada').then(m => m.VideochamadaComponent) },
   { path: 'pos-consulta', loadComponent: () => import('./pages/pos-consulta/pos-consulta').then(m => m.PosConsultaComponent) },
+  { path: 'questionario', loadComponent: () => import('./pages/questionario/questionario').then(m => m.QuestionarioComponent) },
 
   { path: '**', redirectTo: '' }
 ];

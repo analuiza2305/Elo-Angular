@@ -10,7 +10,7 @@ import {
   signInWithPopup,
   UserCredential,
 } from 'firebase/auth';
-import { collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs, limit, Timestamp } from 'firebase/firestore';
 import { auth, db } from '../../core/firebase';
 import { EmailVerificationService } from '../../core/services/email-verification.service';
 
@@ -33,6 +33,11 @@ export class AuthFormComponent {
   tipoDocumento = '';
   numeroDocumento = '';
   termos = false;
+  /** Data de nascimento (AAAA-MM-DD). Obrigatória no cadastro de mãe: a plataforma é só para maiores de 18. */
+  dataNascimento = '';
+  /** Maior data aceita no campo (hoje menos 18 anos). */
+  readonly dataMaxima = AuthFormComponent.hojeMenosAnos(18);
+  readonly dataMinima = AuthFormComponent.hojeMenosAnos(110);
 
   isDropdownOpen = false;
 
@@ -48,6 +53,39 @@ export class AuthFormComponent {
     private router: Router,
     private emailVerificationService: EmailVerificationService,
   ) {}
+
+  private static hojeMenosAnos(anos: number): string {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - anos);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  /** Idade completa em anos para uma data AAAA-MM-DD (null se inválida). */
+  private idade(data: string): number | null {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(data || '');
+    if (!m) return null;
+    const [ano, mes, dia] = [Number(m[1]), Number(m[2]), Number(m[3])];
+    const nasc = new Date(ano, mes - 1, dia);
+    if (nasc.getFullYear() !== ano || nasc.getMonth() !== mes - 1 || nasc.getDate() !== dia) return null;
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - ano;
+    if (hoje.getMonth() < mes - 1 || (hoje.getMonth() === mes - 1 && hoje.getDate() < dia)) idade--;
+    return idade;
+  }
+
+  /** Confere a data de nascimento e devolve a mensagem de erro (ou '' se estiver tudo certo). */
+  private validarMaioridade(): string {
+    if (!this.dataNascimento) return 'Informe sua data de nascimento.';
+    const idade = this.idade(this.dataNascimento);
+    if (idade === null || idade > 110) return 'Data de nascimento inválida.';
+    if (idade < 18) return 'O EloMaterno é exclusivo para maiores de 18 anos.';
+    return '';
+  }
+
+  private dataNascimentoTimestamp(): Timestamp {
+    const [ano, mes, dia] = this.dataNascimento.split('-').map(Number);
+    return Timestamp.fromDate(new Date(ano, mes - 1, dia, 12, 0, 0));
+  }
 
   /** Gera o caminho de um avatar aleatório (1.png a 19.png) para o tipo de profissional. */
   private gerarAvatarAleatorio(tipoDocumento: string): string {
@@ -202,6 +240,10 @@ export class AuthFormComponent {
         this.errorMessage.set('Selecione o tipo de documento e informe o número.');
         return;
       }
+      if (this.publico === 'mae') {
+        const erroIdade = this.validarMaioridade();
+        if (erroIdade) { this.errorMessage.set(erroIdade); return; }
+      }
     }
 
     if (this.acao === 'login' && this.publico === 'profissional') {
@@ -237,6 +279,7 @@ export class AuthFormComponent {
         if (this.publico === 'mae') {
           await setDoc(doc(db, 'usuarios', uid), {
             nome: this.nome, email: this.email, telefone: '', tipo: 'mae', avatar: null, emailVerificado: false,
+            dataNascimento: this.dataNascimentoTimestamp(), maiorDeIdade: true,
             extras: { login_load: { mae: true, parceiro: false, advogado: false, psicologo: false }, consult_load: false, termos_load: false, fonte_number: 1, dark_mode: false, espacamento_number: 1, filtro_daltonismo: 'Filtros_daltonismo', leitura_voz: false, letras_destaque: false, mascara_leitura: false }
           });
 
@@ -377,16 +420,36 @@ export class AuthFormComponent {
 
   async loginGoogle() {
     if (this.loading()) return;
-    this.loading.set(true);
     this.errorMessage.set('');
+
+    // No cadastro, a data de nascimento vem antes da janela do Google
+    if (this.acao === 'cadastro') {
+      const erroIdade = this.validarMaioridade();
+      if (erroIdade) {
+        this.errorMessage.set(erroIdade === 'Informe sua data de nascimento.'
+          ? 'Antes de continuar com o Google, informe sua data de nascimento.'
+          : erroIdade);
+        return;
+      }
+    }
+
+    this.loading.set(true);
     try {
       const result = await signInWithPopup(auth, new GoogleAuthProvider());
       const ref = doc(db, 'usuarios', result.user.uid);
       const snap = await getDoc(ref);
 
       if (!snap.exists()) {
+        // Conta nova pelo botão do Google na tela de LOGIN: sem a data de nascimento
+        // não dá para confirmar a maioridade, então manda para o cadastro.
+        if (this.acao !== 'cadastro') {
+          await auth.signOut();
+          this.errorMessage.set('Ainda não existe conta com esse Google. Faça o cadastro e informe sua data de nascimento (a plataforma é para maiores de 18 anos).');
+          return;
+        }
         await setDoc(ref, {
           nome: result.user.displayName, email: result.user.email, telefone: '', tipo: 'mae', avatar: null,
+          dataNascimento: this.dataNascimentoTimestamp(), maiorDeIdade: true,
           extras: { login_load: { mae: true, parceiro: false, advogado: false, psicologo: false }, consult_load: false, termos_load: false, fonte_number: 1, dark_mode: false, espacamento_number: 1, filtro_daltonismo: 'Filtros_daltonismo', leitura_voz: false, letras_destaque: false, mascara_leitura: false }
         });
       } else {
