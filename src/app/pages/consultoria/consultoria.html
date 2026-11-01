@@ -1,41 +1,54 @@
 <app-header tipo="mae"></app-header>
 
-<main class="consultoria-section">
-    <div class="consultoria-card">
-        <div class="consultoria-image">
-            <img src="./img/Imagem-Consultorias.jpg" alt="Sessões de Consultoria EloMaterno">
-        </div>
-        
-        <div class="consultoria-text">
-            <h2>Sessões rápidas de escuta com<br>psicólogas voluntárias</h2>
-            <div class="consultoria-buttons">
-                <!-- Botão alterado para chamar a função de navegação programática -->
-                <button class="agendar-btn" (click)="irParaConsultas()">Agendar Consultoria</button>
-                <button class="funciona-btn" (click)="abrirModal()">Como Funciona</button>
-            </div>
-        </div>
+<main class="ct-pagina">
+  <!-- ===== BANNER ===== -->
+  <section class="ct-banner">
+    <img class="ct-banner-img" src="./img/Imagem-Consultorias.jpg" alt="" aria-hidden="true">
+    <div class="ct-banner-texto">
+      <h1>Um espaço seguro para você <span>ser ouvida</span></h1>
+      <p>Escuta com psicólogas voluntárias, direto pelo site.</p>
     </div>
+  </section>
 
-    <!-- Modal Soft UI "Como Funciona" -->
-    @if (showModal()) {
-        <div class="modal-overlay" style="display: flex;">
-            <div class="modal-content">
-                <span class="close-modal" (click)="fecharModal()">&times;</span>
-                <h2>Como Funciona a Consultoria</h2>
-                <p>
-                    A consultoria EloMaterno é um espaço aconchegante e seguro para mães e responsáveis que buscam apoio emocional e acolhimento.
-                    Nossas psicólogas voluntárias oferecem escuta ativa, empatia e orientação breve em encontros online humanizados.
-                </p>
-                <p>
-                    As sessões duram em torno de 30 minutos e podem ser agendadas de forma simples através do botão <strong>"Agendar Consultoria"</strong>.
-                    Após a marcação, você receberá o link e todas as orientações necessárias.
-                </p>
-                <p>
-                    Nosso propósito é fortalecer o elo familiar e construir uma rede de apoio sólida.
-                    Lembramos que a consultoria é um valioso primeiro passo de cuidado, não substituindo processos psicoterápicos contínuos.
-                </p>
-            </div>
-        </div>
-    }
+  <!-- ===== 3 BOTÕES ===== -->
+  <section class="ct-botoes">
+    <button type="button" class="ct-botao ct-botao-principal" (click)="agendar()">
+      <span class="ct-botao-icone"><i class="fa-regular fa-calendar-plus"></i></span>
+      <strong>Agendar consultoria</strong>
+      <small>Escolha psicóloga e horário</small>
+    </button>
+
+    <button type="button" class="ct-botao" (click)="minhasConsultas()">
+      <span class="ct-botao-icone">
+        <i class="fa-regular fa-calendar-check"></i>
+        @if (proximas() > 0) { <em>{{ proximas() }}</em> }
+      </span>
+      <strong>Minhas consultas</strong>
+      <small>Veja e entre nas suas consultas</small>
+    </button>
+
+    <button type="button" class="ct-botao" (click)="abrirComoFunciona()">
+      <span class="ct-botao-icone"><i class="fa-regular fa-lightbulb"></i></span>
+      <strong>Como funciona</strong>
+      <small>Do agendamento à conversa</small>
+    </button>
+  </section>
+
+  <!-- ===== MODAL COMO FUNCIONA ===== -->
+  @if (comoFuncionaAberto()) {
+    <div class="ct-modal-fundo" (click)="fecharComoFunciona()">
+      <div class="ct-modal" role="dialog" aria-modal="true" aria-labelledby="ct-modal-titulo" (click)="$event.stopPropagation()">
+        <button type="button" class="ct-fechar" aria-label="Fechar" (click)="fecharComoFunciona()"><i class="fa-solid fa-xmark"></i></button>
+        <h2 id="ct-modal-titulo">Como funciona</h2>
+        <ol class="ct-passos">
+          <li><span><i class="fa-solid fa-user-doctor"></i></span><div><strong>Escolha a psicóloga</strong><small>Veja o perfil e as avaliações.</small></div></li>
+          <li><span><i class="fa-regular fa-calendar"></i></span><div><strong>Marque o horário</strong><small>Ela confirma o pedido.</small></div></li>
+          <li><span><i class="fa-regular fa-clipboard"></i></span><div><strong>Conte como você está</strong><small>Um questionário de 2 minutos.</small></div></li>
+          <li><span><i class="fa-solid fa-video"></i></span><div><strong>Entre na chamada</strong><small>Você recebe lembrete por e-mail.</small></div></li>
+        </ol>
+        <p class="ct-modal-nota">A consultoria é uma escuta breve e não substitui uma terapia contínua.</p>
+        <button type="button" class="ct-modal-btn" (click)="agendar()">Agendar consultoria</button>
+      </div>
+    </div>
+  }
 </main>
-

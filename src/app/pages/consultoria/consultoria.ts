@@ -1,10 +1,10 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, HostListener, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 
 @Component({
   selector: 'app-consultoria',
@@ -15,14 +15,17 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 })
 export class Consultoria implements OnInit {
   private router = inject(Router);
-  
+
   currentUser = signal<any>(null);
-  showModal = signal<boolean>(false);
+  /** Quantas consultas futuras a mãe já tem (aparece no botão "Minhas consultas"). */
+  proximas = signal(0);
+  comoFuncionaAberto = signal(false);
 
   ngOnInit() {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         this.currentUser.set(user);
+        this.contarProximas(user.uid);
         await this.atualizarConsultLoad(user.uid);
       } else {
         this.router.navigate(['/login']);
@@ -34,12 +37,8 @@ export class Consultoria implements OnInit {
     try {
       const userRef = doc(db, 'usuarios', uid);
       const snap = await getDoc(userRef);
-
       if (!snap.exists()) return;
-
-      const data = snap.data();
-      const consultLoad = data?.['extras']?.['consult_load'];
-
+      const consultLoad = snap.data()?.['extras']?.['consult_load'];
       if (consultLoad !== true) {
         await updateDoc(userRef, { 'extras.consult_load': true });
       }
@@ -48,16 +47,42 @@ export class Consultoria implements OnInit {
     }
   }
 
-  // Função programática para ir direto para as consultas
-  irParaConsultas() {
+  private async contarProximas(uid: string) {
+    try {
+      const snap = await getDocs(query(collection(db, 'Consultas'), where('maeId', '==', uid)));
+      const agora = Date.now();
+      const ativos = ['pendente', 'aceito', 'aceita', 'agendada'];
+      let total = 0;
+      snap.forEach((d) => {
+        const c: any = d.data();
+        const quando = c.Datahora?.toDate ? c.Datahora.toDate().getTime() : c.Datahora ? new Date(c.Datahora).getTime() : 0;
+        if (ativos.includes(String(c.status || '').toLowerCase()) && quando >= agora - 60 * 60 * 1000) total++;
+      });
+      this.proximas.set(total);
+    } catch {
+      /* sem contador, a página continua funcionando */
+    }
+  }
+
+  abrirComoFunciona() {
+    this.comoFuncionaAberto.set(true);
+  }
+
+  fecharComoFunciona() {
+    this.comoFuncionaAberto.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  aoApertarEsc() {
+    this.fecharComoFunciona();
+  }
+
+  agendar() {
+    this.router.navigate(['/consultas-lista-psi']);
+  }
+
+  minhasConsultas() {
     this.router.navigate(['/consultas']);
   }
 
-  abrirModal() {
-    this.showModal.set(true);
-  }
-
-  fecharModal() {
-    this.showModal.set(false);
-  }
 }
