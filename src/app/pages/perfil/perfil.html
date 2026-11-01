@@ -78,6 +78,32 @@
           </div>
         </section>
 
+        <section class="content-box bem-estar-box">
+          <h2>Meu bem-estar</h2>
+          @if (questionario().respondido) {
+            <p class="bem-estar-texto">
+              As psicólogas das suas consultas veem estas respostas.
+              @if (questionario().atualizadoEm) { Atualizado em {{ questionario().atualizadoEm }}. }
+            </p>
+            <div class="bem-estar-itens">
+              @for (item of questionario().itens; track item.rotulo) {
+                <div class="bem-estar-item"><small>{{ item.rotulo }}</small><strong>{{ item.valor }}</strong></div>
+              }
+            </div>
+            <div class="bem-estar-acoes">
+              <a routerLink="/questionario" class="btn-primary">Ver ou atualizar respostas</a>
+              <span class="bem-estar-dica">Sua fase mudou? Atualize quando quiser.</span>
+            </div>
+          } @else {
+            <p class="bem-estar-texto">
+              Um questionário rápido, de uns 2 minutos, sobre como você tem se sentido. Ele ajuda a psicóloga a te conhecer antes da primeira conversa, e só as psicólogas das suas consultas veem.
+            </p>
+            <div class="bem-estar-acoes">
+              <a routerLink="/questionario" class="btn-primary">Responder questionário</a>
+            </div>
+          }
+        </section>
+
         <section class="content-box">
           <h2>Minhas interações no fórum</h2>
           @if (interacaoRecente()) {

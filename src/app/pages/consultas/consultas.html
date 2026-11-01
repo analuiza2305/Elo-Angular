@@ -78,21 +78,6 @@
               }
             </div>
 
-            @if (c.tipoProf === 'psicologo') {
-              <a class="consulta-questionario" [class.respondido]="questionario().respondido" routerLink="/questionario">
-                <span class="cq-icone"><i class="fa-regular fa-clipboard"></i></span>
-                <span class="cq-texto">
-                  @if (questionario().respondido) {
-                    <strong>Questionário de bem-estar</strong>
-                    <small>Respondido{{ questionario().atualizadoEm ? ' em ' + questionario().atualizadoEm : '' }} · a psicóloga já pode ver</small>
-                  } @else {
-                    <strong>Conte como você está</strong>
-                    <small>Questionário de 2 minutos · só a psicóloga vê</small>
-                  }
-                </span>
-                <span class="cq-acao">{{ questionario().respondido ? 'Ver ou atualizar' : 'Responder' }}</span>
-              </a>
-            }
 
             <div class="consulta-area-secundaria">
               <button class="btn-cancelar-consulta" (click)="abrirModalCancelar(c)">

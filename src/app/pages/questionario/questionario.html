@@ -6,7 +6,7 @@
 
   <div class="qb-coluna">
     <button type="button" class="qb-voltar" (click)="voltar()">
-      <i class="fa-solid fa-chevron-left"></i> Minhas consultas
+      <i class="fa-solid fa-chevron-left"></i> Meu perfil
     </button>
 
     @if (carregando()) {
@@ -19,7 +19,7 @@
         <div class="qb-selo qb-selo-neutro"><i class="fa-regular fa-circle-xmark"></i></div>
         <h1 class="qb-titulo">Não deu para abrir agora</h1>
         <p class="qb-texto-suave">{{ erroCarregar() }}</p>
-        <button type="button" class="qb-btn qb-btn-primario" (click)="voltar()">Voltar para minhas consultas</button>
+        <button type="button" class="qb-btn qb-btn-primario" (click)="voltar()">Voltar para o meu perfil</button>
       </div>
     } @else if (enviado()) {
       <div class="qb-card qb-centro">
@@ -35,7 +35,7 @@
             </div>
           </div>
         }
-        <button type="button" class="qb-btn qb-btn-primario" (click)="voltar()">Voltar para minhas consultas</button>
+        <button type="button" class="qb-btn qb-btn-primario" (click)="voltar()">Voltar para o meu perfil</button>
       </div>
     } @else if (modo() === 'resumo') {
       <!-- Já respondeu: mostra as respostas e a opção de atualizar -->

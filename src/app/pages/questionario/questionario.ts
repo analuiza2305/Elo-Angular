@@ -220,6 +220,6 @@ export class QuestionarioComponent implements OnInit {
   }
 
   voltar() {
-    this.router.navigate(['/consultas']);
+    this.router.navigate(['/perfil']);
   }
 }

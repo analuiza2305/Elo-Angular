@@ -1021,3 +1021,21 @@ body[data-theme="dark"] .perfil-mae .form-group input { border-color: var(--pm-b
   
 
 }
+
+/* =========================================================
+   MEU BEM-ESTAR (questionário)
+========================================================= */
+.perfil-mae .bem-estar-texto { margin: 0 0 18px; color: var(--pm-texto); line-height: 1.6; }
+.perfil-mae .bem-estar-itens { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.perfil-mae .bem-estar-item {
+  display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 18px;
+  background: var(--pm-lilas);
+}
+.perfil-mae .bem-estar-item small { font-size: .74rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--pm-roxo); }
+.perfil-mae .bem-estar-item strong { font-size: .98rem; color: var(--pm-titulo); }
+.perfil-mae .bem-estar-acoes { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.perfil-mae .bem-estar-acoes .btn-primary { text-decoration: none; }
+.perfil-mae .bem-estar-dica { font-size: .88rem; color: var(--pm-suave); }
+@media (max-width: 640px) {
+  .perfil-mae .bem-estar-itens { grid-template-columns: 1fr; }
+}

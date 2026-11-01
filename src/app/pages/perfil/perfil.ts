@@ -14,6 +14,7 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, updateDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
+import { PERGUNTAS_BEM_ESTAR, rotuloDaResposta } from '../../services/questionario-bem-estar';
 
 @Component({
   selector: 'app-perfil',
@@ -115,11 +116,36 @@ export class Perfil implements OnInit {
     };
   });
 
+  // Questionário de bem-estar (um por mãe, questionarios/{uid})
+  questionario = signal<{ respondido: boolean; atualizadoEm: string; itens: { rotulo: string; valor: string }[] }>(
+    { respondido: false, atualizadoEm: '', itens: [] }
+  );
+
+  private async carregarQuestionario(uid: string) {
+    try {
+      const snap = await getDoc(doc(db, 'questionarios', uid));
+      if (!snap.exists()) return;
+      const q: any = snap.data();
+      const quando = q.atualizadoEm?.toDate ? q.atualizadoEm.toDate() : null;
+      const itens = PERGUNTAS_BEM_ESTAR
+        .filter((p) => ['fase', 'humor', 'sono'].includes(p.id))
+        .map((p) => ({ rotulo: p.curta, valor: rotuloDaResposta(p, q.respostas?.[p.id]) }));
+      this.questionario.set({
+        respondido: true,
+        atualizadoEm: quando ? quando.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : '',
+        itens,
+      });
+    } catch (e) {
+      console.warn('Não foi possível ler o questionário:', e);
+    }
+  }
+
   ngOnInit() {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         this.isLoading.set(true);
         this.currentUser.set(user);
+        this.carregarQuestionario(user.uid);
         await this.carregarPerfil(user.uid);
         await this.carregarInteracoes(user.uid);
         this.isLoading.set(false);

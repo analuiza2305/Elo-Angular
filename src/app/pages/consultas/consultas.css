@@ -2136,39 +2136,3 @@ body[data-theme="dark"] .estado-vazio::before {
 body[data-theme="dark"] .estado-vazio h2 { color: #F5F0FF !important; }
 body[data-theme="dark"] .estado-vazio p { color: #C7BBEB !important; }
 
-/* =========================================
-   QUESTIONÁRIO DE BEM-ESTAR (atalho no card)
-========================================= */
-.consulta-questionario {
-  display: flex; align-items: center; gap: 14px; margin-top: 16px; padding: 14px 16px;
-  border-radius: 18px; text-decoration: none; cursor: pointer;
-  background: #FFFFFF; border: 1px solid rgba(132, 113, 177, .14);
-  box-shadow: -4px -4px 12px rgba(255, 255, 255, .9), 6px 8px 20px rgba(108, 75, 191, .08);
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-.consulta-questionario:hover { transform: translateY(-2px); box-shadow: -4px -4px 12px rgba(255, 255, 255, .9), 8px 12px 26px rgba(108, 75, 191, .14); }
-.consulta-questionario .cq-icone {
-  flex-shrink: 0; width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center;
-  background: #F1EBFF; font-size: 1.05rem;
-}
-.consulta-questionario .cq-icone i { color: #5B3D99 !important; }
-.consulta-questionario .cq-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; text-align: left; }
-.consulta-questionario strong { color: #2D1E4E; font-size: .95rem; font-weight: 800; }
-.consulta-questionario small { color: #7B6AAE; font-size: .8rem; font-weight: 700; }
-.consulta-questionario .cq-acao {
-  flex-shrink: 0; padding: 8px 14px; border-radius: 999px; white-space: nowrap;
-  background: #52427D; color: #FFFFFF; font-size: .8rem; font-weight: 800;
-}
-.consulta-questionario.respondido .cq-icone { background: #E7F7EE; }
-.consulta-questionario.respondido .cq-icone i { color: #1E7A4F !important; }
-.consulta-questionario.respondido .cq-acao { background: #F1EBFF; color: #52427D; }
-
-:host-context(body[data-theme="dark"]) .consulta-questionario { background: #1B2236; border-color: rgba(255, 255, 255, .08); box-shadow: 0 8px 20px rgba(0, 0, 0, .3); }
-:host-context(body[data-theme="dark"]) .consulta-questionario .cq-icone { background: #262D42; }
-:host-context(body[data-theme="dark"]) .consulta-questionario .cq-icone i { color: #BDAFFC !important; }
-:host-context(body[data-theme="dark"]) .consulta-questionario strong { color: #F5F0FF; }
-:host-context(body[data-theme="dark"]) .consulta-questionario small { color: #B9AEE0; }
-:host-context(body[data-theme="dark"]) .consulta-questionario .cq-acao { background: #6C4BBF; color: #FFFFFF; }
-:host-context(body[data-theme="dark"]) .consulta-questionario.respondido .cq-acao { background: #262D42; color: #D8D0F5; }
-:host-context(body[data-theme="dark"]) .consulta-questionario.respondido { background: rgba(74, 222, 128, .1); border-color: rgba(74, 222, 128, .3); }
-:host-context(body[data-theme="dark"]) .consulta-questionario.respondido strong { color: #86EFAC; }

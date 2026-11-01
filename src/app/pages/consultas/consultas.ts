@@ -39,35 +39,15 @@ export class ConsultasComponent implements OnInit {
   motivoCancelamento = signal<string>('');
   isCancelando = signal<boolean>(false);
 
-  // Questionário de bem-estar: um por mãe (questionarios/{uid}), atualizável
-  questionario = signal<{ respondido: boolean; atualizadoEm: string }>({ respondido: false, atualizadoEm: '' });
-
   ngOnInit() {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         this.currentUser.set(user);
         this.ouvirConsultasDaMae(user.uid);
-        this.ouvirQuestionarios(user.uid);
       } else {
         this.router.navigate(['/login']);
       }
     });
-  }
-
-  /** A mãe já respondeu o questionário de bem-estar? (um só, que ela pode atualizar) */
-  private ouvirQuestionarios(uidMae: string) {
-    onSnapshot(
-      doc(db, 'questionarios', uidMae),
-      (snap) => {
-        const d: any = snap.exists() ? snap.data() : null;
-        const quando = d?.atualizadoEm?.toDate ? d.atualizadoEm.toDate() : null;
-        this.questionario.set({
-          respondido: !!d,
-          atualizadoEm: quando ? quando.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '',
-        });
-      },
-      (err) => console.warn('Não foi possível ler o questionário:', err),
-    );
   }
 
   mudarAba(aba: string) {
