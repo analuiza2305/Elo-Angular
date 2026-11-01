@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, afterNextRender, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { AlertaComponent } from './components/alerta/alerta';
 import { FooterSimplesComponent } from './components/footer-simples/footer-simples';
+import { AnimacoesService } from './core/services/animacoes.service';
 
 // Telas sem o footer simples: landing page (tem o footer completo), autenticação e videochamada (tela cheia)
 const ROTAS_SEM_FOOTER = new Set([
@@ -35,4 +36,9 @@ export class AppComponent {
     ),
     { initialValue: false }
   );
+
+  constructor() {
+    const animacoes = inject(AnimacoesService);
+    afterNextRender(() => animacoes.iniciar());
+  }
 }

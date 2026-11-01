@@ -3259,7 +3259,7 @@ body {
     order: 2; /* Aparece em segundo */
     margin: 0 0 20px 0;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     flex-grow: 1; /* Empurra o que vier depois para o fundo do card */
@@ -3764,7 +3764,7 @@ body {
     font-size: 14px;
     line-height: 1.6;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -3954,7 +3954,7 @@ body {
     font-size: 13px;
     line-height: 1.5;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* Limita o resumo a 2 linhas */
+    line-clamp: 2; /* Limita o resumo a 2 linhas */
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -4062,7 +4062,7 @@ body {
     color: var(--primary-color-darker);
     line-height: 1.2;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -7657,7 +7657,7 @@ a {
     font-size: 0.95rem;
     line-height: 1.5;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -8196,7 +8196,7 @@ body[data-theme="dark"] .data-badge {
     height: 2.6em !important;        /* Reserva o espaço de até 2 linhas sempre */
     margin: 0 0 8px 0 !important;
     display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
 }
@@ -8208,7 +8208,7 @@ body[data-theme="dark"] .data-badge {
     height: 2.9em !important;        /* Reserva o espaço do texto sempre */
     margin: 0 0 12px 0 !important;
     display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
 }
@@ -12067,7 +12067,7 @@ body[data-theme="dark"] .event-list .event-title {
   font-size: 0.95rem;
   line-height: 1.5;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   flex-grow: 1;
@@ -12719,7 +12719,7 @@ label[for="anonimo-checkbox"] {
   font-size: 0.95rem;
   line-height: 1.6;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

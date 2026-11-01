@@ -1,0 +1,259 @@
+/* =========================================
+   ANIMAÇÕES E MICROINTERAÇÕES GLOBAIS
+   Ativadas pelo AnimacoesService (src/app/core/services/animacoes.service.ts).
+   Usam :where() (especificidade zero) para nunca sobrescrever o estilo próprio de cada página.
+========================================= */
+
+:root {
+  --anim-suave: cubic-bezier(0.22, 1, 0.36, 1);
+  --anim-mola: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ---------- Foco visível (teclado) ---------- */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid rgba(124, 105, 169, 0.55);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* ---------- Transição entre páginas ---------- */
+  ::view-transition-old(root) {
+    animation: vt-sair 0.18s ease-in both;
+  }
+
+  ::view-transition-new(root) {
+    animation: vt-entrar 0.38s var(--anim-suave) both;
+  }
+
+  /* O header fica parado enquanto o conteúdo troca */
+  :where(.header, .adm-header, .top-header) {
+    view-transition-name: cabecalho;
+  }
+
+  ::view-transition-group(cabecalho) {
+    animation-duration: 0.25s;
+  }
+
+  @keyframes vt-sair {
+    to { opacity: 0; transform: translateY(-6px); }
+  }
+
+  @keyframes vt-entrar {
+    from { opacity: 0; transform: translateY(14px); }
+  }
+
+  /* ---------- Cards entrando ao rolar ---------- */
+  [data-rv="oculto"] {
+    opacity: 0;
+  }
+
+  /* Usa "translate"/"scale" (e não "transform") para não brigar com os efeitos de hover das páginas */
+  [data-rv="entrando"] {
+    animation: rv-entrar 0.65s var(--anim-suave) var(--rv-atraso, 0ms) both;
+  }
+
+  @keyframes rv-entrar {
+    from {
+      opacity: 0;
+      translate: 0 26px;
+      scale: 0.97;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+      scale: 1;
+    }
+  }
+
+  /* ---------- Imagens surgindo ao carregar ---------- */
+  img[data-img="carregando"] {
+    opacity: 0;
+  }
+
+  img[data-img="ok"] {
+    animation: img-surgir 0.45s ease-out both;
+  }
+
+  @keyframes img-surgir {
+    from { opacity: 0; }
+  }
+
+  /* ---------- Botões: afundar ao pressionar ---------- */
+  :where(button, [role="button"], .btn, [class*="btn"], input[type="submit"]) {
+    transition: scale 0.15s var(--anim-mola);
+  }
+
+  :where(button, [role="button"], .btn, [class*="btn"], input[type="submit"]):not(:disabled):active {
+    scale: 0.96;
+  }
+
+  /* ---------- Ripple ao clicar ---------- */
+  .ripple-camada {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .ripple-onda {
+    position: absolute;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.22;
+    transform: scale(0);
+    animation: ripple-expandir 0.6s ease-out forwards;
+  }
+
+  @keyframes ripple-expandir {
+    to { transform: scale(1); opacity: 0; }
+  }
+
+  /* ---------- Header ganha sombra ao rolar ---------- */
+  :where(.header, .adm-header, .top-header) {
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+  }
+
+  html[data-rolou] :where(.header, .adm-header, .top-header) {
+    box-shadow: 0 6px 24px rgba(88, 62, 142, 0.12);
+  }
+
+  html[data-rolou] body[data-theme="dark"] :where(.header, .adm-header, .top-header) {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* ---------- Barra de progresso de leitura ---------- */
+.progresso-rolagem {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 1001;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(90deg, #b9a6ea, var(--primary-color, #7c69a9), var(--primary-color-dark, #4B2C82));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.progresso-rolagem.visivel {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .progresso-rolagem {
+    transition: opacity 0.3s ease;
+  }
+
+  /* ---------- Variações da entrada ao rolar ---------- */
+  [data-rv="entrando"][data-rv-tipo="titulo"] {
+    animation-name: rv-titulo;
+  }
+
+  [data-rv="entrando"][data-rv-tipo="linha"] {
+    animation-name: rv-linha;
+    animation-duration: 0.5s;
+  }
+
+  @keyframes rv-titulo {
+    from {
+      opacity: 0;
+      translate: -24px 0;
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+      filter: blur(0);
+    }
+  }
+
+  @keyframes rv-linha {
+    from {
+      opacity: 0;
+      translate: -14px 0;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* ---------- Modais ---------- */
+  :where(.modal-overlay, [class*="modal-backdrop"]) {
+    animation: modal-fundo 0.25s ease-out both;
+  }
+
+  :where([class*="modal-content"], [class*="modal-box"], [class*="modal-card"], [role="dialog"]) {
+    animation: modal-entrar 0.35s var(--anim-suave) both;
+  }
+
+  @keyframes modal-fundo {
+    from { opacity: 0; }
+  }
+
+  @keyframes modal-entrar {
+    from {
+      opacity: 0;
+      translate: 0 14px;
+    }
+  }
+
+  /* No celular os modais viram "bottom sheet": sobem de baixo */
+  @media (max-width: 768px) {
+    :where([class*="modal-content"], [class*="modal-box"], [class*="modal-card"]) {
+      animation-name: modal-subir;
+      animation-timing-function: var(--anim-suave);
+    }
+
+    @keyframes modal-subir {
+      from { translate: 0 100%; }
+    }
+  }
+
+  /* ---------- Menus suspensos ---------- */
+  :where([class*="dropdown-menu"], .mod-opcoes-menu, #accessibility-menu, [class*="notif-dropdown"], [class*="notif-panel"]) {
+    animation: menu-abrir 0.22s var(--anim-suave) both;
+    transform-origin: top right;
+  }
+
+  @keyframes menu-abrir {
+    from {
+      opacity: 0;
+      scale: 0.95;
+      translate: 0 -8px;
+    }
+  }
+
+  /* ---------- Ícones balançam ao passar o mouse em botões e links ---------- */
+  :where(button, a, [role="button"]):hover > :where(i[class*="fa-"]):not([class*="fa-spin"], [class*="fa-spinner"]) {
+    animation: icone-balanco 0.5s var(--anim-mola);
+  }
+
+  @keyframes icone-balanco {
+    0%   { rotate: 0deg; scale: 1; }
+    30%  { rotate: -12deg; scale: 1.15; }
+    60%  { rotate: 8deg; scale: 1.08; }
+    100% { rotate: 0deg; scale: 1; }
+  }
+
+  /* ---------- Campo inválido treme ---------- */
+  :where(input, select, textarea).ng-invalid.ng-touched.ng-dirty {
+    animation: campo-tremer 0.4s ease-in-out;
+  }
+
+  @keyframes campo-tremer {
+    0%, 100% { translate: 0 0; }
+    20%      { translate: -6px 0; }
+    40%      { translate: 5px 0; }
+    60%      { translate: -3px 0; }
+    80%      { translate: 2px 0; }
+  }
+}

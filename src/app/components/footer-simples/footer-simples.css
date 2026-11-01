@@ -1,3 +1,9 @@
+/* Empurra o footer para o fim da tela quando a página tem pouco conteúdo */
+:host {
+    display: block;
+    margin-top: auto;
+}
+
 .footer-simples {
     display: flex;
     align-items: center;

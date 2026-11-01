@@ -1,6 +1,6 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 
-import { provideRouter } from '@angular/router';
+import { provideRouter, withViewTransitions } from '@angular/router';
 
 
 
@@ -28,7 +28,7 @@ export const appConfig: ApplicationConfig = {
 
     provideBrowserGlobalErrorListeners(),
 
-    provideRouter(routes),
+    provideRouter(routes, withViewTransitions({ skipInitialTransition: true })),
 
     provideClientHydration(withEventReplay()),
 
