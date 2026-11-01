@@ -10,7 +10,7 @@ describe('LoginProfissionalComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LoginProfissionalComponent],
-      providers: [provideRouter([])],
+      providers: [provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginProfissionalComponent);

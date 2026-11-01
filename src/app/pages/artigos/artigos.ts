@@ -2,7 +2,6 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
-import { FooterComponent } from '../../components/footer/footer';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
@@ -11,7 +10,7 @@ import { AlertaService } from '../../core/services/alerta.service';
 @Component({
   selector: 'app-artigos',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent],
   templateUrl: './artigos.html',
   styleUrls: ['./artigos.css']
 })

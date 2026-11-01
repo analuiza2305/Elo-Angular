@@ -1,0 +1,56 @@
+.footer-simples {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 18px 32px;
+    margin-top: 40px;
+    background: var(--card-bg, #ffffff);
+    border-top: 1px solid var(--border-color, rgba(108, 75, 191, 0.18));
+    font-family: 'Nunito', sans-serif;
+    box-sizing: border-box;
+}
+
+.footer-simples-marca {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--accent-color, #583E8E);
+}
+
+/* A regra global de mobile (img { width: 100% !important }) esmagava o logo */
+.footer-simples-marca img {
+    width: 28px !important;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.footer-simples-creditos {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-color2, #555555);
+}
+
+:host-context(body[data-theme="dark"]) .footer-simples {
+    background: #141a26;
+    border-top-color: rgba(157, 143, 231, 0.3);
+}
+
+:host-context(body[data-theme="dark"]) .footer-simples-marca {
+    color: #e2dafc;
+}
+
+:host-context(body[data-theme="dark"]) .footer-simples-creditos {
+    color: #b8b0d6;
+}
+
+@media (max-width: 768px) {
+    .footer-simples {
+        flex-direction: column;
+        text-align: center;
+        padding: 16px;
+    }
+}

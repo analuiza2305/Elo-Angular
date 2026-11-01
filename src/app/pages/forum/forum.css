@@ -152,7 +152,7 @@ i {
     color: #2A1B5C;
   }
 
-  .fr-hero-texto h1 span { color: #7B4FD8; }
+  .fr-hero-texto h1 span { color: #7c69a9; }
 
   .fr-hero-texto p {
     max-width: none;
@@ -161,7 +161,7 @@ i {
     color: #3E3656;
   }
 
-  .fr-hero-texto .fr-hero-destaque { color: #5B2FB2; }
+  .fr-hero-texto .fr-hero-destaque { color: #7c69a9; }
 }
 
 /* =========================================

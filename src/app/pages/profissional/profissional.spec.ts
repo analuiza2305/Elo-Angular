@@ -8,9 +8,17 @@ describe('ProfissionalComponent', () => {
   let fixture: ComponentFixture<ProfissionalComponent>;
 
   beforeEach(async () => {
+    // jsdom não implementa IntersectionObserver
+    globalThis.IntersectionObserver ??= class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+      takeRecords() { return []; }
+    } as unknown as typeof IntersectionObserver;
+
     await TestBed.configureTestingModule({
       imports: [ProfissionalComponent],
-      providers: [provideRouter([])],
+      providers: [provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProfissionalComponent);

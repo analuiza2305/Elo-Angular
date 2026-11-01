@@ -2,7 +2,6 @@ import { Component, OnInit, signal, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
-import { FooterComponent } from '../../components/footer/footer';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, updateDoc, arrayRemove, collection, getDocs } from 'firebase/firestore';
@@ -10,7 +9,7 @@ import { doc, getDoc, updateDoc, arrayRemove, collection, getDocs } from 'fireba
 @Component({
   selector: 'app-artigos-favoritos',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent],
   templateUrl: './artigos-favoritos.html',
   styleUrls: ['./artigos-favoritos.css']
 })

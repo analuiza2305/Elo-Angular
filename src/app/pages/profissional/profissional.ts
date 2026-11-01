@@ -2,12 +2,11 @@ import { Component, AfterViewInit, Inject, PLATFORM_ID, ViewEncapsulation } from
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
-import { FooterComponent } from '../../components/footer/footer';
 
 @Component({
   selector: 'app-profissional',
   standalone: true,
-  imports: [HeaderComponent, FooterComponent],
+  imports: [HeaderComponent],
   templateUrl: './profissional.html',
   // 1. A MÁGICA: Importa o CSS da Landing Page junto com o do profissional
   styleUrls: ['../landing-page/landing-page.css', './profissional.css'],

@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { Lembrete } from './lembrete';
+import { LembreteService } from './lembrete';
 
-describe('Lembrete', () => {
-  let service: Lembrete;
+describe('LembreteService', () => {
+  let service: LembreteService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(Lembrete);
+    service = TestBed.inject(LembreteService);
   });
 
   it('should be created', () => {

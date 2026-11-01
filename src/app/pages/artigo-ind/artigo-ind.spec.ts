@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { ArtigoInd } from './artigo-ind';
 
@@ -9,6 +10,7 @@ describe('ArtigoInd', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ArtigoInd],
+      providers: [provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ArtigoInd);

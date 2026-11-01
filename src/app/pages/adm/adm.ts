@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { CommonModule } from '@angular/common';
+import { CommonModule, registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
 import { FormsModule } from '@angular/forms';
 import {
   collection,
@@ -433,6 +434,9 @@ interface RespostaForumAdm {
   conteudo: string;
   dataFormatada: string;
 }
+
+// Necessário para o pipe `number:...:'pt-BR'` usado no template
+registerLocaleData(localePt, 'pt-BR');
 
 @Component({
   selector: 'app-adm',

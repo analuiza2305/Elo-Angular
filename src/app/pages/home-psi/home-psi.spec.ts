@@ -12,7 +12,7 @@ describe('HomePsi', () => {
 
     await TestBed.configureTestingModule({
       imports: [HomePsi],
-      providers: [provideRouter([])],
+      providers: [provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomePsi);

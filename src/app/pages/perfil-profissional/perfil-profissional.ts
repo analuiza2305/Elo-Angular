@@ -3,7 +3,6 @@ import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../components/header/header';
-import { FooterComponent } from '../../components/footer/footer';
 import { db, auth } from '../../core/firebase';
 import {
   doc, getDoc, collection, query, where, getDocs, updateDoc, serverTimestamp,
@@ -17,7 +16,7 @@ import { AlertaService } from '../../core/services/alerta.service';
 @Component({
   selector: 'app-perfil-profissional',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent],
   templateUrl: './perfil-profissional.html',
   styleUrls: ['./perfil-profissional.css']
 })

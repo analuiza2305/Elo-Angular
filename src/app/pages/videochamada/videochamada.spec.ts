@@ -1,17 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
-import { Videochamada } from './videochamada';
+import { VideochamadaComponent } from './videochamada';
 
-describe('Videochamada', () => {
-  let component: Videochamada;
-  let fixture: ComponentFixture<Videochamada>;
+describe('VideochamadaComponent', () => {
+  let component: VideochamadaComponent;
+  let fixture: ComponentFixture<VideochamadaComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Videochamada],
+      imports: [VideochamadaComponent],
+      providers: [provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Videochamada);
+    fixture = TestBed.createComponent(VideochamadaComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

@@ -1,17 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
-import { PosConsulta } from './pos-consulta';
+import { PosConsultaComponent } from './pos-consulta';
 
-describe('PosConsulta', () => {
-  let component: PosConsulta;
-  let fixture: ComponentFixture<PosConsulta>;
+describe('PosConsultaComponent', () => {
+  let component: PosConsultaComponent;
+  let fixture: ComponentFixture<PosConsultaComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PosConsulta],
+      imports: [PosConsultaComponent],
+      providers: [provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(PosConsulta);
+    fixture = TestBed.createComponent(PosConsultaComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

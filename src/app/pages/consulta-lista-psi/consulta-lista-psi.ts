@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
-import { FooterComponent } from '../../components/footer/footer';
 import { auth, db } from '../../core/firebase';
 import {
   collection, getDocs, doc, arrayRemove, arrayUnion,
@@ -37,7 +36,7 @@ interface Profissional {
 @Component({
   selector: 'app-consulta-lista-psi',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, RouterModule, HeaderComponent],
   templateUrl: './consulta-lista-psi.html',
   styleUrls: ['./consulta-lista-psi.css']
 })

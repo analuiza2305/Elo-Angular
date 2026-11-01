@@ -2,7 +2,6 @@ import { Component, OnInit, AfterViewInit, signal, inject, ViewChild } from '@an
 import { CommonModule, Location } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
-import { FooterComponent } from '../../components/footer/footer';
 import { auth, db } from '../../core/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -11,7 +10,7 @@ import { AlertaService } from '../../core/services/alerta.service';
 @Component({
   selector: 'app-artigo-ind',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent],
   templateUrl: './artigo-ind.html',
   styleUrls: ['./artigo-ind.css']
 })

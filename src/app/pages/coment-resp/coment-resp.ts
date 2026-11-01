@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../components/header/header';
-import { FooterComponent } from '../../components/footer/footer';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
@@ -14,7 +13,7 @@ import { AlertaService } from '../../core/services/alerta.service';
 @Component({
   selector: 'app-coment-resp',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent],
   templateUrl: './coment-resp.html',
   styleUrls: ['./coment-resp.css']
 })

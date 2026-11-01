@@ -1,19 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import * as landingModule from './landing-page';
+import { provideRouter } from '@angular/router';
 
-describe('LandingPage', () => {
-  let component: any;
-  let fixture: ComponentFixture<any>;
+import { LandingPageComponent } from './landing-page';
+
+describe('LandingPageComponent', () => {
+  let component: LandingPageComponent;
+  let fixture: ComponentFixture<LandingPageComponent>;
 
   beforeEach(async () => {
-    // resolve exported component from the module (try common export names)
-    const LandingComp = (landingModule as any).LandingPage || (landingModule as any).LandingPageComponent || (landingModule as any).default || Object.values(landingModule)[0];
+    // jsdom não implementa IntersectionObserver
+    globalThis.IntersectionObserver ??= class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+      takeRecords() { return []; }
+    } as unknown as typeof IntersectionObserver;
 
     await TestBed.configureTestingModule({
-      declarations: [LandingComp],
+      imports: [LandingPageComponent],
+      providers: [provideRouter([{ path: '**', children: [] }])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LandingComp);
+    fixture = TestBed.createComponent(LandingPageComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
