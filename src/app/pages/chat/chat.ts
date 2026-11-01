@@ -20,6 +20,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
+import { cartaoDoLembrete } from '../../services/lembrete-chat';
 
 @Component({
   selector: 'app-chat',
@@ -208,7 +209,9 @@ export class Chat implements OnInit, OnDestroy {
           mine: m['enviadoPor'] === user.uid,
           texto: m['texto'],
           audio: m['audio'],
-          hora
+          hora,
+          // Lembrete automático da consulta (vem do Worker, enviadoPor = 'sistema')
+          lembrete: cartaoDoLembrete(m)
         });
       });
       this.mensagens.set(msgs);

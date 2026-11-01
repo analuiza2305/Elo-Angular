@@ -42,6 +42,18 @@
 
     <div id="messages" class="chat-messages" #caixaMensagens>
       @for (msg of mensagens(); track msg.id) {
+        @if (msg.lembrete) {
+          <div class="msg-lembrete">
+            <span class="ml-rotulo"><i class="fa-regular fa-bell"></i> Lembrete</span>
+            <strong class="ml-horario">{{ msg.lembrete.horario }}</strong>
+            <span class="ml-sub">{{ msg.lembrete.sub }}</span>
+            <p class="ml-texto">{{ msg.lembrete.texto }}</p>
+            @if (msg.lembrete.consultaId) {
+              <button type="button" class="ml-btn" [routerLink]="['/videochamada']" [queryParams]="{ id: msg.lembrete.consultaId }"><i class="fa-solid fa-video"></i> Entrar na chamada</button>
+            }
+            <span class="ml-hora">{{ msg.hora }}</span>
+          </div>
+        } @else {
         <div class="message" [class.sent]="msg.mine" [class.received]="!msg.mine">
           @if (msg.audio) {
             <div class="audio-message">
@@ -52,6 +64,7 @@
           }
           <div class="msg-time">{{ msg.hora }}</div>
         </div>
+        }
       } @empty {
         <div style="margin: auto; text-align: center; color: #7B6AAE; opacity: 0.7;">
           <p>Nenhuma mensagem trocada ainda.</p>

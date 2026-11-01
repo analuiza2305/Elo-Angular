@@ -7,7 +7,8 @@
  * Roda sozinho a cada 10 minutos (Cron Trigger da Cloudflare, gratuito):
  * - 24 h antes: "sua consulta é amanhã"
  * - 1 h antes:  "sua consulta começa em 1 hora"
- * Vai para a mãe e para o profissional. Cada lembrete é marcado na consulta
+ * Vai para a mãe e para o profissional, por e-mail e também como mensagem no chat
+ * dos dois (com o botão "Entrar na chamada"). Cada lembrete é marcado na consulta
  * (lembrete24hEnviado / lembrete1hEnviado) para nunca sair duplicado.
  */
 import { Firestore, tokenDoGoogle } from './google';
@@ -30,12 +31,13 @@ const MIN = 60 * 1000;
 const JANELA_1H = 70 * MIN;          // até 70 min antes conta como "1 hora antes"
 const JANELA_24H = 24 * 60 * MIN;
 const MIN_PARA_24H = 3 * 60 * MIN;   // consulta marcada em cima da hora só recebe o de 1 h
-const MAX_CONSULTAS_POR_RODADA = 8;  // o plano gratuito da Cloudflare permite 50 chamadas por execução
+const MAX_CONSULTAS_POR_RODADA = 4;  // o plano gratuito da Cloudflare permite 50 chamadas por execução (cada consulta usa ~9)
 
 export interface Resumo {
   encontradas: number;   // consultas "aceito" nas próximas 24 h
   analisadas: number;    // dessas, quantas precisavam de lembrete agora
   enviados: number;
+  chat?: number;         // mensagens de lembrete postadas no chat
   erros: string[];
   detalhes: string[];    // diagnóstico legível (aparece no teste manual e no wrangler tail)
 }
@@ -125,6 +127,7 @@ export async function enviarLembretes(env: EnvLembretes, agora = Date.now(), sim
       if (!prof?.['email']) resumo.detalhes.push(`Consulta ${c.id}: o profissional (${profId}) não tem o campo "email" em ${tipoProf === 'advogado' ? 'advogados' : 'psicologos'}.`);
       resumo.detalhes.push(`Consulta ${c.id}: ${mensagens.length} e-mail(s) para ${mensagens.map((m) => m.To[0].Email).join(', ') || 'ninguém'}.`);
 
+      resumo.detalhes.push(`Consulta ${c.id}: mensagem de lembrete no chat da mãe com o profissional.`);
       if (simular) continue;
 
       if (mensagens.length) {
@@ -135,6 +138,17 @@ export async function enviarLembretes(env: EnvLembretes, agora = Date.now(), sim
         // Se pelo menos um saiu, marca como enviado para ninguém receber o mesmo lembrete duas vezes.
         if (falhas.length === mensagens.length) continue;
       }
+      // Mensagem no chat (se falhar, só registra: o e-mail já foi e o lembrete é marcado mesmo assim)
+      try {
+        await postarLembreteNoChat(db, {
+          consultaId: c.id, maeId: String(maeId || ''), profId: String(profId || ''), tipo: c.tipo, quando,
+          nomeMae, nomeProf,
+        });
+        resumo.chat = (resumo.chat || 0) + 1;
+      } catch (e: any) {
+        resumo.erros.push(`${c.id} (chat): ${e?.message || e}`);
+      }
+
       // Marca mesmo se ninguém tinha e-mail, para não tentar de novo a cada 10 min
       const campo = c.tipo === '1h' ? 'lembrete1hEnviado' : 'lembrete24hEnviado';
       const marcar: Record<string, boolean> = { [campo]: true };
@@ -158,10 +172,59 @@ export async function rodarTarefasAgendadas(env: EnvLembretes, agora = Date.now(
   }
   const db = new Firestore(env.FIREBASE_PROJECT_ID, await tokenDoGoogle(env.GOOGLE_SERVICE_ACCOUNT));
   const lembretes = await enviarLembretes(env, agora, simular, db);
-  const usadas = 2 + lembretes.analisadas * (provedorDeEmail(env) === 'brevo' ? 6 : 5);
+  const usadas = 2 + lembretes.analisadas * (provedorDeEmail(env) === 'brevo' ? 10 : 9);
   // Brevo manda um e-mail por chamada (Mailjet manda todos numa chamada só)
   const avisosHorario = await verificarAvisosDeHorario(env, db, 48 - usadas, agora, simular);
   return { provedor: provedorDeEmail(env), lembretes, avisosHorario };
+}
+
+/**
+ * Posta o lembrete como mensagem do sistema no chat da mãe com o profissional
+ * (cria a conversa se ainda não existir). O app mostra essa mensagem como um cartão
+ * com o botão "Entrar na chamada".
+ */
+async function postarLembreteNoChat(db: Firestore, o: {
+  consultaId: string; maeId: string; profId: string; tipo: Tipo; quando: Date; nomeMae: string; nomeProf: string;
+}): Promise<void> {
+  if (!o.maeId || !o.profId) throw new Error('consulta sem maeId ou profissionalId');
+
+  const conversas = await db.consultar({
+    from: [{ collectionId: 'chats' }],
+    where: { fieldFilter: { field: { fieldPath: 'participantes' }, op: 'ARRAY_CONTAINS', value: { stringValue: o.maeId } } },
+    limit: 50,
+  });
+  let chatId = conversas.find((c) => Array.isArray(c.dados['participantes']) && c.dados['participantes'].includes(o.profId))?.id;
+  const agora = new Date();
+  if (!chatId) {
+    chatId = await db.criar('chats', {
+      participantes: [o.profId, o.maeId],
+      criadoEm: agora,
+      ultimoMensagem: '',
+      ultimoEnviadoPor: '',
+      ultimaAtualizacao: agora,
+    });
+  }
+
+  const hora = o.quando.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
+  const texto = o.tipo === '1h'
+    ? `Olá, ${o.nomeMae} e ${o.nomeProf}! A consulta de vocês começa já já. Procurem um lugar tranquilo e confiram a internet antes de entrar.`
+    : `Olá, ${o.nomeMae} e ${o.nomeProf}! A consulta de vocês é amanhã. Se precisar desmarcar, avise por aqui.`;
+
+  await db.criar(`chats/${chatId}/mensagens`, {
+    tipo: 'lembrete',
+    lembrete: o.tipo,
+    consultaId: o.consultaId,
+    inicio: o.quando,
+    texto,
+    enviadoPor: 'sistema',
+    enviadoEm: agora,
+    lido: false,
+  });
+  await db.atualizar(`chats/${chatId}`, {
+    ultimoMensagem: o.tipo === '1h' ? `Lembrete: consulta hoje às ${hora}` : `Lembrete: consulta amanhã às ${hora}`,
+    ultimoEnviadoPor: 'sistema',
+    ultimaAtualizacao: agora,
+  });
 }
 
 /** Qual lembrete essa consulta ainda precisa agora (ou null). */

@@ -608,11 +608,23 @@
                 <div><h4>{{ chatSelecionado().nome }}</h4><span class="status-online">Online</span></div>
               </div>
               <div class="chat-history">
-                <div class="chat-bubble" *ngFor="let msg of mensagensChat()" [class.sent]="msg.sender === 'sent'" [class.received]="msg.sender === 'received'">
+                <ng-container *ngFor="let msg of mensagensChat()">
+                <div class="msg-lembrete" *ngIf="msg.lembrete; else bolha">
+                  <span class="ml-rotulo"><i class="fa-regular fa-bell"></i> Lembrete</span>
+                  <strong class="ml-horario">{{ msg.lembrete.horario }}</strong>
+                  <span class="ml-sub">{{ msg.lembrete.sub }}</span>
+                  <p class="ml-texto">{{ msg.lembrete.texto }}</p>
+                  <button *ngIf="msg.lembrete.consultaId" type="button" class="ml-btn" [routerLink]="['/videochamada']" [queryParams]="{ id: msg.lembrete.consultaId }"><i class="fa-solid fa-video"></i> Entrar na chamada</button>
+                  <span class="ml-hora">{{ msg.time }}</span>
+                </div>
+                <ng-template #bolha>
+                <div class="chat-bubble" [class.sent]="msg.sender === 'sent'" [class.received]="msg.sender === 'received'">
                   <audio *ngIf="msg.audio" [src]="msg.audio" controls style="max-width: 220px; height: 36px;"></audio>
                   <p *ngIf="msg.text">{{ msg.text }}</p>
                   <span class="chat-time">{{ msg.time }}</span>
                 </div>
+                </ng-template>
+                </ng-container>
               </div>
               <div class="chat-input-bar">
                 <input type="text" placeholder="Digite sua mensagem..." [ngModel]="novaMensagem()" (ngModelChange)="novaMensagem.set($event)" (keyup.enter)="enviarMensagem()">

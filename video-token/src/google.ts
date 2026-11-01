@@ -104,6 +104,19 @@ export class Firestore {
     if (!resp.ok && resp.status !== 404) throw new Error(`Firestore DELETE ${resp.status}: ${await resp.text()}`);
   }
 
+  /** Atualiza só os campos indicados, com qualquer tipo de valor (texto, data, número...). */
+  async atualizar(caminho: string, campos: Record<string, any>): Promise<void> {
+    const mascara = Object.keys(campos).map((c) => `updateMask.fieldPaths=${encodeURIComponent(c)}`).join('&');
+    const fields: Record<string, any> = {};
+    for (const [k, v] of Object.entries(campos)) fields[k] = valorFirestore(v);
+    const resp = await fetch(`${this.base}/${caminho}?${mascara}&currentDocument.exists=true`, {
+      method: 'PATCH',
+      headers: this.headers(),
+      body: JSON.stringify({ fields }),
+    });
+    if (!resp.ok) throw new Error(`Firestore PATCH ${resp.status}: ${await resp.text()}`);
+  }
+
   /** Grava só os campos indicados (os outros ficam como estão). */
   async marcar(caminho: string, campos: Record<string, boolean | string>): Promise<void> {
     const mascara = Object.keys(campos).map((c) => `updateMask.fieldPaths=${encodeURIComponent(c)}`).join('&');

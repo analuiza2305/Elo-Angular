@@ -9,6 +9,7 @@ import { carregarReputacao, Reputacao, REPUTACAO_VAZIA } from '../../services/re
 import { PlanoService, Assinatura } from '../../services/plano';
 import { MODELOS_PSICOLOGIA, ModeloDocumento, IdModelo, modeloPorId } from '../../services/modelos-psicologia';
 import { gerarCertificadoHoras, gerarDocumentoPsicologico, gerarRelatorioAtendimentos, formatarHoras, SessaoCertificado, ConsultaRelatorio } from '../../services/documentos-pdf';
+import { cartaoDoLembrete } from '../../services/lembrete-chat';
 
 import {
   doc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, onSnapshot, orderBy, limit,
@@ -970,6 +971,7 @@ export class HomePsi implements OnInit, OnDestroy {
                 sender: m['enviadoPor'] === meuId ? 'sent' : 'received',
                 text: m['texto'] || '',
                 audio: m['audio'] || null,
+                lembrete: cartaoDoLembrete(m),
                 time: m['enviadoEm']?.toDate ? m['enviadoEm'].toDate().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : 'Agora',
               };
             }),

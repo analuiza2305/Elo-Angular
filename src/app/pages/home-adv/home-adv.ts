@@ -12,6 +12,7 @@ import {
   serverTimestamp, Timestamp, arrayUnion, arrayRemove, getCountFromServer, writeBatch,
 } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
+import { cartaoDoLembrete } from '../../services/lembrete-chat';
 
 type SecaoHomeAdv = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'informacoes';
 type AbaConsultas = 'Pendentes' | 'Agendadas' | 'Realizadas' | 'Negadas';
@@ -893,6 +894,7 @@ export class HomeAdv implements OnInit, OnDestroy {
                 sender: m['enviadoPor'] === meuId ? 'sent' : 'received',
                 text: m['texto'] || '',
                 audio: m['audio'] || null,
+                lembrete: cartaoDoLembrete(m),
                 time: m['enviadoEm']?.toDate ? m['enviadoEm'].toDate().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : 'Agora',
               };
             }),

@@ -61,7 +61,6 @@
               <div class="avatar">
                 <img [src]="prof.foto" [alt]="prof.tipo" onerror="this.src='img/account_icon.png'">
               </div>
-              <div class="online-indicator"></div>
             </div>
             
             <div class="details">
@@ -83,7 +82,6 @@
               <div class="name-block">
                 <div class="name-row">
                   <h3>{{ prof.nome }}</h3>
-                  <span class="badge-online">Online</span>
                 </div>
                 <p class="role">
                   {{ prof.cargoLabel }}
@@ -102,7 +100,7 @@
                     <span class="rating-total">{{ prof.reputacao.total }} avaliações</span>
                   </span>
                   @if (prof.reputacao.recomendamPct !== null) {
-                   
+                   <br>
                   }
                 } @else {
                   <span class="rating-novo"><i class="fa-solid fa-seedling"></i> Novo na rede</span>
