@@ -1081,3 +1081,30 @@ body[data-theme="dark"] #modal-avatar .confirmar-btn { background: linear-gradie
 body[data-theme="dark"] #modal-avatar .confirmar-btn:disabled { background: rgba(157, 143, 231, .22); color: #D2C9EE; }
 body[data-theme="dark"] #modal-avatar .confirmar-btn:disabled i { color: #D2C9EE !important; }
 body[data-theme="dark"] #modal-avatar .avatar-grid::-webkit-scrollbar-thumb { background: #9D8FE7; }
+
+/* =========================================================
+   AJUSTE 02/11: janela "Apagar sua conta" com contraste
+   (uma regra global deixava o botão de confirmar branco com texto branco)
+========================================================= */
+.perfil-mae .modal-perigo .btn-confirmar-apagar {
+  background: linear-gradient(135deg, #C0344F, #9C2340) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 10px 22px rgba(156, 35, 64, .3) !important;
+  border: none !important;
+}
+.perfil-mae .modal-perigo .btn-confirmar-apagar:hover:not(:disabled) { filter: brightness(1.06); }
+.perfil-mae .modal-perigo .btn-cancel {
+  background: #F3ECFF !important;
+  color: #4B2C82 !important;
+  border: none !important;
+}
+/* Ícone: círculo rosa-claro com a lixeira num vermelho mais escuro (regra de cor do site) */
+.perfil-mae .perigo-icone { background: #FDE8EC !important; box-shadow: 0 10px 24px rgba(192, 52, 79, .18) !important; }
+.perfil-mae .perigo-icone i { color: #A3243F !important; }
+
+body[data-theme="dark"] .perfil-mae .modal-perigo .btn-cancel { background: rgba(157, 143, 231, .16) !important; color: #E5DCFF !important; }
+body[data-theme="dark"] .perfil-mae .modal-perigo .btn-confirmar-apagar { background: linear-gradient(135deg, #E05475, #B8304F) !important; }
+body[data-theme="dark"] .perfil-mae .perigo-icone { background: rgba(240, 108, 138, .16) !important; box-shadow: none !important; }
+body[data-theme="dark"] .perfil-mae .perigo-icone i { color: #FFB8C8 !important; }
+body[data-theme="dark"] .perfil-mae .modal-perigo h2 { color: #F4F1FF !important; }
+body[data-theme="dark"] .perfil-mae .modal-perigo .modal-subtitle { color: #D2C9EE !important; }
