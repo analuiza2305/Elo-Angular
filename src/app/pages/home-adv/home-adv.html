@@ -155,7 +155,7 @@
     <section class="content" id="agenda" *ngIf="activeSection() === 'agenda'">
       <h2>Minha agenda</h2>
       <p class="secao-sub">Clique em um dia para marcar os horários em que você atende. As mães veem essas vagas na hora de agendar.</p>
-      
+
       <div class="agenda-container">
         <div class="calendar-container">
           <div class="calendar-header">
@@ -198,7 +198,7 @@
         <div class="modal-content premium-modal-psi">
           <h3>Período de Atendimento</h3>
           <p class="data-selecionada">Defina o intervalo de horas em que você deseja atender:</p>
-          
+
           <div class="periodo-inputs-grid" style="display: flex; gap: 16px; margin: 20px 0;">
             <div style="flex: 1;">
               <label style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 6px;">Das horas:</label>
@@ -632,6 +632,330 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- DOCUMENTOS (modelos jurídicos + relatório de atendimentos) -->
+    <section class="content" id="documentos" *ngIf="activeSection() === 'documentos'">
+      <div class="doc-topo">
+        <div class="doc-topo-texto">
+          <h2>Documentos</h2>
+          <p>Emita documentos jurídicos prontos para assinar e o relatório dos seus atendimentos. Tudo é gerado no seu navegador.</p>
+        </div>
+        <div class="doc-ilustra" aria-hidden="true">
+          <i class="fa-solid fa-star doc-brilho b1"></i>
+          <i class="fa-solid fa-star doc-brilho b2"></i>
+          <span class="doc-ponto p1"></span><span class="doc-ponto p2"></span>
+          <div class="doc-ilustra-papel">
+            <span></span><span></span><span class="curta"></span>
+            <i class="fa-solid fa-signature"></i>
+          </div>
+          <div class="doc-ilustra-selo"><i class="fa-solid fa-scale-balanced"></i></div>
+        </div>
+      </div>
+
+      <div class="doc-tabs" role="tablist">
+        <button type="button" class="doc-tab" role="tab" [class.ativo]="abaDocumentos() === 'modelos'" [attr.aria-selected]="abaDocumentos() === 'modelos'" (click)="abaDocumentos.set('modelos'); erroDocumento.set('')">
+          <i class="fa-regular fa-file-lines"></i> Modelos de documentos
+        </button>
+        <button type="button" class="doc-tab" role="tab" [class.ativo]="abaDocumentos() === 'relatorio'" [attr.aria-selected]="abaDocumentos() === 'relatorio'" (click)="abaDocumentos.set('relatorio'); erroDocumento.set('')">
+          <i class="fa-solid fa-chart-column"></i> Relatório de atendimentos
+          @if (!isPremium()) { <span class="doc-chip doc-chip-premium">Premium</span> }
+        </button>
+      </div>
+
+      @if (!oab()) {
+        <div class="doc-aviso">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span>Sua OAB não está no cadastro. Ela é obrigatória nos documentos e no relatório. <button type="button" class="doc-link" (click)="irParaPerfil()">Completar perfil</button></span>
+        </div>
+      }
+
+      <!-- ===== RELATÓRIO DE ATENDIMENTOS (Premium) ===== -->
+      @if (abaDocumentos() === 'relatorio') {
+        @if (!isPremium()) {
+          <div class="doc-premium-banner">
+            <div class="doc-premium-icone"><i class="fa-solid fa-crown"></i></div>
+            <div class="doc-premium-texto">
+              <strong>Relatório de atendimentos no Premium</strong>
+              <p>Veja quantos pedidos recebeu, quantos atendeu, suas horas e os dias mais procurados, e baixe tudo em PDF.</p>
+            </div>
+            <button type="button" class="doc-btn doc-btn-premium" (click)="conhecerPremium()"><i class="fa-solid fa-crown"></i> Conhecer o Premium</button>
+          </div>
+        }
+        <div class="doc-grid-cert">
+          <div class="doc-card">
+            <div class="doc-card-titulo">
+              <h3><i class="fa-regular fa-calendar"></i> Período</h3>
+              <p>Escolha o período do relatório.</p>
+            </div>
+            <div class="rel-periodos" role="radiogroup" aria-label="Período do relatório">
+              @for (o of opcoesPeriodoRelatorio; track o.valor) {
+                <button type="button" class="rel-periodo" role="radio" [class.ativo]="relPeriodo() === o.valor" [attr.aria-checked]="relPeriodo() === o.valor" (click)="relPeriodo.set(o.valor)">{{ o.rotulo }}</button>
+              }
+            </div>
+            <p class="doc-dica"><i class="fa-solid fa-circle-info"></i> {{ periodoRelatorioTexto() | titlecase }}. Quando a chamada não registrou o encerramento, usa a duração padrão das suas consultas ({{ duracaoSessao() }} min).</p>
+          </div>
+
+          <div class="doc-card doc-card-resumo">
+            <div class="doc-stats rel-stats">
+              <div class="doc-stat">
+                <span class="doc-stat-icone"><i class="fa-regular fa-envelope-open"></i></span>
+                <div><strong>{{ resumoRelatorio().pedidos }}</strong><small>Pedidos</small></div>
+              </div>
+              <div class="doc-stat">
+                <span class="doc-stat-icone"><i class="fa-solid fa-user-check"></i></span>
+                <div><strong>{{ resumoRelatorio().realizadas }}</strong><small>Realizados</small></div>
+              </div>
+              <div class="doc-stat">
+                <span class="doc-stat-icone"><i class="fa-regular fa-clock"></i></span>
+                <div><strong>{{ resumoRelatorio().horas }}</strong><small>Horas</small></div>
+              </div>
+              <div class="doc-stat">
+                <span class="doc-stat-icone"><i class="fa-solid fa-percent"></i></span>
+                <div><strong>{{ resumoRelatorio().taxa }}</strong><small>Aceite</small></div>
+              </div>
+            </div>
+            <p class="doc-resumo-texto">
+              O PDF traz o resumo por mês, os dias e turnos mais procurados, sua avaliação e a lista de atendimentos. Os clientes aparecem só pelas iniciais, por causa do sigilo.
+            </p>
+            <button type="button" class="doc-btn doc-btn-primario" [disabled]="gerandoPdf() || !isPremium() || resumoRelatorio().pedidos === 0" (click)="baixarRelatorio()">
+              <i class="fa-solid" [class.fa-download]="isPremium()" [class.fa-lock]="!isPremium()"></i>
+              {{ gerandoPdf() ? 'Gerando...' : (isPremium() ? 'Baixar relatório (PDF)' : 'Disponível no Premium') }}
+            </button>
+            @if (resumoRelatorio().pedidos === 0) {
+              <p class="doc-seguro">Nenhum pedido de consulta neste período.</p>
+            } @else {
+              <p class="doc-seguro"><i class="fa-solid fa-shield-halved"></i> Gerado no seu navegador: nada fica salvo na plataforma.</p>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ===== MODELOS JURÍDICOS ===== -->
+      @if (abaDocumentos() === 'modelos') {
+        @if (!modeloSelecionado()) {
+          @if (!isPremium()) {
+            <div class="doc-premium-banner">
+              <div class="doc-premium-icone"><i class="fa-solid fa-crown"></i></div>
+              <div class="doc-premium-texto">
+                <strong>Modelos completos no Premium</strong>
+                <p>Procuração, contrato de honorários, notificação extrajudicial, parecer e termo de consentimento, com os dados dos seus atendimentos. A declaração de comparecimento é gratuita.</p>
+              </div>
+              <button type="button" class="doc-btn doc-btn-premium" (click)="conhecerPremium()"><i class="fa-solid fa-crown"></i> Conhecer o Premium</button>
+            </div>
+          }
+
+          <div class="doc-modelos">
+            @for (m of modelos; track m.id) {
+              <button type="button" class="doc-modelo" [class.bloqueado]="!podeUsarModelo(m)" [disabled]="!podeUsarModelo(m)" (click)="escolherModelo(m)">
+                <span class="doc-modelo-icone"><i [class]="m.icone"></i></span>
+                <div class="doc-modelo-topo">
+                  <span class="doc-modelo-artigo">{{ m.baseLegal }}</span>
+                  @if (m.premium) {
+                    <span class="doc-chip doc-chip-premium"><i class="fa-solid" [class.fa-lock]="!podeUsarModelo(m)" [class.fa-crown]="podeUsarModelo(m)"></i> Premium</span>
+                  } @else {
+                    <span class="doc-chip doc-chip-gratis">Gratuito</span>
+                  }
+                </div>
+                <h3>{{ m.nome }}</h3>
+                <p>{{ m.resumo }}</p>
+                <span class="doc-modelo-acao">{{ podeUsarModelo(m) ? 'Usar modelo' : 'Disponível no Premium' }} <i class="fa-solid fa-arrow-right"></i></span>
+              </button>
+            }
+          </div>
+          <p class="doc-dica"><i class="fa-solid fa-circle-info"></i> São modelos de apoio: o conteúdo é seu. Revise tudo antes de assinar e de entregar ao cliente.</p>
+        } @else {
+          <div class="doc-form-topo">
+            <button type="button" class="doc-voltar" (click)="voltarParaModelos()"><i class="fa-solid fa-arrow-left"></i> Modelos</button>
+            <span class="doc-modelo-icone pequeno"><i [class]="modeloSelecionado()!.icone"></i></span>
+            <div>
+              <h3>{{ modeloSelecionado()!.nome }}</h3>
+              <span>{{ modeloSelecionado()!.baseLegal }}</span>
+            </div>
+          </div>
+
+          <div class="doc-form">
+            <div class="doc-card">
+              <div class="doc-card-titulo"><h3><i class="fa-regular fa-id-card"></i> 1. Identificação</h3></div>
+              <div class="doc-linha-campos">
+                <label class="doc-campo">
+                  <span>Cliente</span>
+                  <div class="doc-input-icone">
+                    <i class="fa-regular fa-user"></i>
+                    <select [ngModel]="docForm().pacienteId" (ngModelChange)="escolherClienteDoc($event)">
+                      <option value="">Escolha um(a) cliente…</option>
+                      <option *ngFor="let p of pacientes()" [value]="p.id">{{ p.nome }}</option>
+                    </select>
+                  </div>
+                </label>
+                <label class="doc-campo">
+                  <span>{{ modeloSelecionado()!.papelCliente }} <small>(nome completo)</small></span>
+                  <input type="text" maxlength="120" [ngModel]="docForm().interessado" (ngModelChange)="setCampoDoc('interessado', $event)">
+                </label>
+              </div>
+              @if (modeloSelecionado()!.rotuloSolicitante || modeloSelecionado()!.rotuloFinalidade) {
+                <div class="doc-linha-campos">
+                  @if (modeloSelecionado()!.rotuloSolicitante) {
+                    <label class="doc-campo">
+                      <span>{{ modeloSelecionado()!.rotuloSolicitante }} @if (!modeloSelecionado()!.solicitanteObrigatorio) { <small>(opcional)</small> }</span>
+                      <input type="text" maxlength="160" [ngModel]="docForm().solicitante" (ngModelChange)="setCampoDoc('solicitante', $event)">
+                    </label>
+                  }
+                  @if (modeloSelecionado()!.rotuloFinalidade) {
+                    <label class="doc-campo">
+                      <span>{{ modeloSelecionado()!.rotuloFinalidade }}</span>
+                      <input type="text" maxlength="160" [ngModel]="docForm().finalidade" (ngModelChange)="setCampoDoc('finalidade', $event)">
+                    </label>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (modeloSelecionado()!.id === 'declaracao') {
+              <div class="doc-card">
+                <div class="doc-card-titulo"><h3><i class="fa-regular fa-calendar-check"></i> Atendimentos incluídos</h3></div>
+                @if (!docForm().pacienteId) {
+                  <p class="doc-dica">Escolha o(a) cliente para listar as consultas realizadas.</p>
+                } @else if (sessoesDoCliente().length === 0) {
+                  <p class="doc-dica">Nenhuma consulta realizada com esse(a) cliente.</p>
+                } @else {
+                  <div class="doc-sessoes">
+                    @for (c of sessoesDoCliente(); track c.id) {
+                      <label class="doc-sessao" [class.marcada]="docForm().atendimentosIds.includes(c.id)">
+                        <input type="checkbox" [checked]="docForm().atendimentosIds.includes(c.id)" (change)="alternarAtendimentoDoc(c.id)">
+                        {{ c.data }} às {{ c.horario }}
+                      </label>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            @for (s of modeloSelecionado()!.secoes; track s.id; let i = $index) {
+              <div class="doc-card">
+                <div class="doc-card-titulo"><h3><i class="fa-regular fa-pen-to-square"></i> {{ modeloSelecionado()!.secoes.length > 1 ? (i + 2) + '. ' : '' }}{{ s.titulo }}</h3></div>
+                <textarea [rows]="s.linhas" [placeholder]="s.ajuda" [ngModel]="docForm().secoes[s.id] || ''" (ngModelChange)="setSecaoDoc(s.id, $event)"></textarea>
+              </div>
+            }
+
+            <div class="doc-card">
+              <div class="doc-card-titulo"><h3><i class="fa-solid fa-signature"></i> Fechamento</h3></div>
+              <div class="doc-linha-campos">
+                <label class="doc-campo">
+                  <span>Cidade</span>
+                  <div class="doc-input-icone">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <input type="text" maxlength="60" placeholder="Ex.: São Paulo" [ngModel]="docForm().cidade" (ngModelChange)="setCampoDoc('cidade', $event)">
+                  </div>
+                </label>
+              </div>
+              <p class="doc-dica"><i class="fa-solid fa-circle-info"></i> O PDF sai com páginas numeradas, espaço para rubrica até a penúltima página e, na última, local, data e assinatura{{ modeloSelecionado()!.assinaturaCliente ? ' do(a) cliente e do(a) advogado(a)' : ' do(a) advogado(a)' }}.</p>
+            </div>
+
+            <div class="doc-acoes-final">
+              <p class="doc-privacidade"><i class="fa-solid fa-shield-halved"></i> O conteúdo não fica salvo na plataforma. Guarde o PDF assinado no arquivo do seu escritório.</p>
+              <button type="button" class="doc-btn doc-btn-primario" [disabled]="gerandoPdf()" (click)="baixarDocumento()">
+                <i class="fa-solid fa-download"></i> {{ gerandoPdf() ? 'Gerando...' : 'Baixar PDF' }}
+              </button>
+            </div>
+          </div>
+        }
+      }
+
+      @if (erroDocumento()) {
+        <p class="doc-erro" role="alert"><i class="fa-solid fa-circle-exclamation"></i> {{ erroDocumento() }}</p>
+      }
+    </section>
+
+    <!-- PLANOS (Premium do advogado — pagamento simulado) -->
+    <section class="content" id="planos" *ngIf="activeSection() === 'planos'">
+      <div class="pl-topo">
+        <h2>Planos</h2>
+        <p>Compare o que cada plano oferece e veja o seu plano atual.</p>
+      </div>
+
+      <div class="pl-atual" [class.premium]="isPremium()">
+        <div class="pl-atual-icone"><i class="fa-solid" [class.fa-crown]="isPremium()" [class.fa-seedling]="!isPremium()"></i></div>
+        <div class="pl-atual-texto">
+          <span>Seu plano atual</span>
+          <strong>{{ isPremium() ? (assinatura()?.planoNome || 'Premium') : 'Gratuito' }}</strong>
+          @if (isPremium() && validadePremiumTexto()) {
+            <small>Ativo até {{ validadePremiumTexto() }}</small>
+          }
+        </div>
+        <div class="pl-atual-ilustra" aria-hidden="true">
+          <i class="fa-regular fa-calendar-days"></i>
+          <i class="fa-solid fa-seedling"></i>
+        </div>
+      </div>
+
+      <div class="pl-grid">
+        <div class="pl-card" [class.atual]="!isPremium()">
+          <div class="pl-card-topo">
+            <h3>{{ planoGratuito().nome }}</h3>
+            @if (!isPremium()) { <span class="pl-chip">Seu plano</span> }
+          </div>
+          <div class="pl-preco"><strong>R$ 0</strong><span>/mês</span></div>
+          <ul>
+            @for (r of planoGratuito().beneficios; track $index) {
+              <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> {{ r }}</li>
+            }
+          </ul>
+          @if (isPremium()) {
+            <button type="button" class="pl-btn pl-btn-outline" [disabled]="salvandoPlano()" (click)="cancelarPremium()">
+              {{ salvandoPlano() ? 'Salvando...' : 'Voltar para o gratuito' }}
+            </button>
+          }
+        </div>
+
+        @for (plano of planosPremium(); track plano.id) {
+          <div class="pl-card pl-card-premium" [class.atual]="ehPlanoAtual(plano)">
+            <div class="pl-card-topo">
+              <h3><i class="fa-solid fa-crown"></i> {{ plano.nome }}</h3>
+              @if (ehPlanoAtual(plano)) {
+                <span class="pl-chip pl-chip-premium">Seu plano</span>
+              } @else if (plano.destaque) {
+                <span class="pl-chip pl-chip-premium">Recomendado</span>
+              }
+            </div>
+            @if (plano.descricao) { <p class="pl-descricao-plano">{{ plano.descricao }}</p> }
+            <div class="pl-preco"><strong>{{ brl(plano.preco) }}</strong><span>{{ sufixo(plano.periodicidade) }}</span></div>
+            <ul>
+              @for (r of plano.beneficios; track $index) {
+                <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> {{ r }}</li>
+              }
+            </ul>
+
+            @if (!ehPlanoAtual(plano)) {
+              @if (confirmandoPlanoId() !== plano.id) {
+                <button type="button" class="pl-btn pl-btn-premium" (click)="confirmandoPlanoId.set(plano.id); msgPlano.set(null)"><i class="fa-solid fa-crown"></i> Assinar {{ plano.nome }}</button>
+              } @else {
+                <div class="pl-confirmar">
+                  <p><i class="fa-solid fa-circle-info"></i> Pagamento simulado: nenhuma cobrança será feita. O plano fica ativo por {{ plano.duracaoDias }} dias.</p>
+                  <div class="pl-confirmar-acoes">
+                    <button type="button" class="pl-btn pl-btn-outline" (click)="confirmandoPlanoId.set(null)">Voltar</button>
+                    <button type="button" class="pl-btn pl-btn-premium" [disabled]="salvandoPlano()" (click)="assinarPremium(plano)">{{ salvandoPlano() ? 'Ativando...' : 'Confirmar assinatura' }}</button>
+                  </div>
+                </div>
+              }
+            } @else {
+              <button type="button" class="pl-btn pl-btn-premium" (click)="selecionarSecao('documentos'); abaDocumentos.set('modelos')">
+                <i class="fa-solid fa-file-signature"></i> Usar os modelos de documentos
+              </button>
+            }
+          </div>
+        } @empty {
+          <div class="pl-card">
+            <div class="pl-card-topo"><h3><i class="fa-solid fa-crown"></i> Premium</h3></div>
+            <p class="pl-descricao-plano">Nenhum plano pago está disponível no momento. Volte em breve!</p>
+          </div>
+        }
+      </div>
+
+      @if (msgPlano(); as m) {
+        <p class="pl-msg" [class.erro]="m.tipo === 'erro'" role="status">{{ m.texto }}</p>
+      }
+      <p class="pl-nota"><i class="fa-solid fa-award"></i> O selo "Bem avaliado" não faz parte de nenhum plano: ele depende só das avaliações das mães.</p>
     </section>
 
     <!-- INFORMAÇÕES -->

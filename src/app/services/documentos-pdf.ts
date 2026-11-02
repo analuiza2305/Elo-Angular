@@ -7,6 +7,7 @@
  */
 import type { jsPDF } from 'jspdf';
 import { ModeloDocumento } from './modelos-psicologia';
+import { ModeloJuridico } from './modelos-juridicos';
 
 const ROXO: [number, number, number] = [75, 44, 130];
 const CINZA: [number, number, number] = [110, 104, 128];
@@ -49,6 +50,19 @@ export interface DadosDocumento {
   atendimentos?: Date[];     // usado na declaração
   duracaoMin?: number;
   validade?: string;
+  cidade: string;
+  data: Date;
+}
+
+export interface DadosDocumentoJuridico {
+  modelo: ModeloJuridico;
+  profissional: { nome: string; oab: string };
+  interessado: string;       // nome da pessoa atendida (outorgante, contratante, notificante...)
+  solicitante: string;       // 2ª pessoa do documento (ex.: notificado) ou quem pediu a declaração
+  finalidade: string;
+  secoes: Record<string, string>;
+  atendimentos?: Date[];     // usado na declaração de comparecimento
+  duracaoMin?: number;
   cidade: string;
   data: Date;
 }
@@ -300,6 +314,66 @@ export async function gerarDocumentoPsicologico(d: DadosDocumento): Promise<void
   e.assinatura(d.profissional.nome, `Psicólogo(a) — ${d.profissional.crp}`);
 
   e.rodapes({ rubrica: true, texto: `${m.nome} elaborado conforme a Resolução CFP nº 06/2019 (${m.artigo}). Documento sigiloso.` });
+  const nomeArquivo = `${m.id}-${(d.interessado || 'documento').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}.pdf`;
+  pdf.save(nomeArquivo);
+}
+
+// ======================================================================
+//  Documentos jurídicos (área do advogado)
+// ======================================================================
+
+export async function gerarDocumentoJuridico(d: DadosDocumentoJuridico): Promise<void> {
+  const pdf = await novoPdf();
+  const e = new Escritor(pdf);
+  const m = d.modelo;
+
+  e.cabecalho();
+  e.titulo(m.nome.toUpperCase());
+  e.nota(`Base: ${m.baseLegal}`);
+  e.espaco(5);
+
+  // 1. Identificação
+  let n = 1;
+  e.subtituloSecao(`${n}. Identificação`);
+  e.campo('Advogado(a)', `${d.profissional.nome} — ${d.profissional.oab}`);
+  e.campo(m.papelCliente, d.interessado || '—');
+  if (d.solicitante) e.campo(m.rotuloSolicitante || 'Solicitante', d.solicitante);
+  if (m.rotuloFinalidade) e.campo(m.rotuloFinalidade, d.finalidade || '—');
+  e.espaco(3);
+
+  if (m.id === 'declaracao') {
+    // Documento curto: texto corrido, sem seções numeradas
+    e.espaco(2);
+    e.paragrafo(d.secoes['texto'] || '', { tamanho: 11.5, entrelinha: 1.6, justificar: true });
+    if (d.atendimentos?.length) {
+      e.espaco(2);
+      const dur = d.duracaoMin || 30;
+      e.paragrafo('Atendimentos (modalidade on-line):', { negrito: true });
+      d.atendimentos.forEach((a) => {
+        const fim = new Date(a.getTime() + dur * 60000);
+        e.paragrafo(`•  ${a.toLocaleDateString('pt-BR')}, das ${hm(a)} às ${hm(fim)}`, { recuo: 4 });
+      });
+    }
+  } else {
+    for (const s of m.secoes) {
+      n++;
+      e.espaco(3);
+      e.subtituloSecao(`${n}. ${s.titulo}`);
+      e.paragrafo(d.secoes[s.id] || '', { justificar: true, entrelinha: 1.55 });
+    }
+  }
+
+  e.espaco(10);
+  e.manterJunto(m.assinaturaCliente ? 90 : 45);
+  e.paragrafo(`${d.cidade || '__________'}, ${dataPorExtenso(d.data)}.`);
+  e.espaco(16);
+  if (m.assinaturaCliente) {
+    e.assinatura(d.interessado || '____________________', m.papelCliente);
+    e.espaco(14);
+  }
+  e.assinatura(d.profissional.nome, `Advogado(a) — ${d.profissional.oab}`);
+
+  e.rodapes({ rubrica: true, texto: `${m.nome} · modelo de apoio EloMaterno · Documento sigiloso.` });
   const nomeArquivo = `${m.id}-${(d.interessado || 'documento').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}.pdf`;
   pdf.save(nomeArquivo);
 }

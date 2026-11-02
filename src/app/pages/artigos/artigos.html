@@ -88,7 +88,7 @@
                         <h4 class="ac-title">{{ artigo.titulo }}</h4>
                         <p class="ac-excerpt">{{ artigo.resumo || artigo.conteudo | slice:0:90 }}...</p>
                         <div class="ac-footer">
-                            <span class="ac-author"><i class="fa-solid fa-book-open"></i> {{ artigo.fonte || 'ELOMATERNO' }}</span>
+                            <span class="ac-author"><i class="fa-solid fa-book-open"></i> {{ artigo.fonte || 'ELOMATERNO' }}<app-selos-autor [uid]="artigo.autorId || artigo.parceiroId" [compacto]="true"></app-selos-autor></span>
                             <span class="ac-ler">Ler <i class="fa-solid fa-arrow-right"></i></span>
                         </div>
                     </div>

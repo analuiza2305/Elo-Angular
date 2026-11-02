@@ -36,6 +36,7 @@ import { AlertaService } from '../../core/services/alerta.service';
 import { PlanoService } from '../../services/plano';
 import { SeloService } from '../../services/selo';
 
+import { ParcPlanosComponent, EVENTO_PLANO_ALTERADO } from './parc-planos/parc-planos';
 /**
  * Página do Parceiro (dashboard, calendário, fórum, artigos, relatórios,
  * configurações e perfil).
@@ -51,7 +52,7 @@ import { SeloService } from '../../services/selo';
 @Component({
   selector: 'app-home-parc',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ParcPlanosComponent],
   templateUrl: './home-parc.html',
   styleUrl: './home-parc.css',
 })
@@ -130,6 +131,11 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   // ---- estado que antes eram variáveis soltas no topo do arquivo js ----
   private nomeEmpresaAtual = '';
   private uidAtual: string | null = null;
+
+  /** A aba Planos avisa quando o plano muda, para o selo Apoiador da lateral aparecer/sumir na hora. */
+  private readonly aoMudarPlano = (): void => {
+    if (this.uidAtual) void this.mostrarSeloApoiador(this.uidAtual);
+  };
   // ID real do documento do parceiro na coleção 'parceiros'. Para cadastros
   // feitos ANTES da correção do cadastro (que usava addDoc — ID aleatório,
   // diferente do uid), esse ID pode ser diferente de uidAtual. Usamos esse
@@ -178,6 +184,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener(EVENTO_PLANO_ALTERADO, this.aoMudarPlano);
     this.observadorDinamico?.disconnect();
     this.unsubscribeComentarios?.();
     this.unsubscribeAuth?.();
@@ -240,6 +247,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     this.initSidebarToggle();
     this.observarConteudoDinamico();
     this.initAuth();
+    window.addEventListener(EVENTO_PLANO_ALTERADO, this.aoMudarPlano);
     this.initArtigos();
     this.initEventos();
     this.configurarTecladoModais();

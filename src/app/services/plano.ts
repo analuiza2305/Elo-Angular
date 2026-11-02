@@ -11,7 +11,8 @@
  * com a mesma assinatura: as telas que já usam o serviço não mudam.
  *
  * Onde fica gravado:
- *   planos/{id}                = { nome, descricao, nivel: 'gratuito' | 'premium', preco, periodicidade,
+ *   planos/{id}                = { nome, descricao, publico: 'psicologo' | 'advogado' | 'parceiro',
+ *                                  nivel: 'gratuito' | 'premium', preco, periodicidade,
  *                                  duracaoDias, beneficios[], ativo, destaque, ordem, criadoEm, atualizadoEm }
  *   assinaturas/{uid}          = { plano: 'premium' | 'gratuito', ativo, validoAte, selos[],
  *                                  planoId, planoNome, valor, periodicidade, nome, email, tipo,
@@ -37,6 +38,27 @@ import { db } from '../core/firebase';
 export type NivelPlano = 'gratuito' | 'premium';
 export type Periodicidade = 'mensal' | 'trimestral' | 'semestral' | 'anual';
 export type TipoProfissional = 'psicologo' | 'advogado';
+
+/**
+ * Para quem o plano é. Cada público tem o seu próprio catálogo (gratuito + pagos):
+ * psicólogos e advogados (profissionais) e empresas parceiras.
+ * Planos antigos, gravados antes deste campo existir, valem para 'psicologo'.
+ */
+export type PublicoPlano = 'psicologo' | 'advogado' | 'parceiro';
+
+export const PUBLICOS_PLANO: { valor: PublicoPlano; rotulo: string; singular: string }[] = [
+  { valor: 'psicologo', rotulo: 'Psicólogos', singular: 'Psicólogo(a)' },
+  { valor: 'advogado', rotulo: 'Advogados', singular: 'Advogado(a)' },
+  { valor: 'parceiro', rotulo: 'Parceiros', singular: 'Empresa parceira' },
+];
+
+export function rotuloPublico(p: string): string {
+  return PUBLICOS_PLANO.find((x) => x.valor === p)?.singular ?? 'Psicólogo(a)';
+}
+
+export function ehPublicoPlano(v: unknown): v is PublicoPlano {
+  return v === 'psicologo' || v === 'advogado' || v === 'parceiro';
+}
 
 export const PERIODICIDADES: { valor: Periodicidade; rotulo: string; dias: number; sufixo: string }[] = [
   { valor: 'mensal', rotulo: 'Mensal', dias: 30, sufixo: '/mês' },
@@ -70,6 +92,8 @@ export interface Plano {
   id: string;
   nome: string;
   descricao: string;
+  /** Para quem o plano é (psicólogo, advogado ou parceiro). */
+  publico: PublicoPlano;
   nivel: NivelPlano;
   preco: number;
   periodicidade: Periodicidade;
@@ -85,13 +109,13 @@ export interface Plano {
 }
 
 /** Campos que o ADM edita no formulário. */
-export type PlanoForm = Pick<Plano, 'nome' | 'descricao' | 'nivel' | 'preco' | 'periodicidade' | 'beneficios' | 'ativo' | 'destaque'>;
+export type PlanoForm = Pick<Plano, 'nome' | 'descricao' | 'publico' | 'nivel' | 'preco' | 'periodicidade' | 'beneficios' | 'ativo' | 'destaque'>;
 
 export interface PerfilProfissional {
   uid: string;
   nome: string;
   email: string;
-  tipo: TipoProfissional;
+  tipo: PublicoPlano;
   aprovado: boolean;
 }
 
@@ -100,7 +124,7 @@ export interface PagamentoPlano {
   uid: string;
   nome: string;
   email: string;
-  tipo: TipoProfissional;
+  tipo: PublicoPlano;
   planoId: string;
   planoNome: string;
   valor: number;
@@ -118,7 +142,7 @@ export interface Assinante {
   uid: string;
   nome: string;
   email: string;
-  tipo: TipoProfissional;
+  tipo: PublicoPlano;
   planoId: string;
   planoNome: string;
   valor: number;
@@ -152,8 +176,10 @@ export interface RelatorioFinanceiro {
 }
 
 // ============================================================
-// PLANOS PADRÃO (os mesmos textos que já existiam na tela do psicólogo)
+// PLANOS PADRÃO (um par Gratuito + Premium para cada público)
 // ============================================================
+
+type PlanoPadrao = Omit<Plano, 'id' | 'criadoEm' | 'atualizadoEm'>;
 
 const BENEFICIOS_GRATUITO = [
   'Perfil na busca de profissionais',
@@ -171,18 +197,65 @@ const BENEFICIOS_PREMIUM = [
   'Relatório de atendimentos em PDF',
 ];
 
-export const PLANOS_PADRAO: Omit<Plano, 'id' | 'criadoEm' | 'atualizadoEm'>[] = [
-  {
-    nome: 'Gratuito', descricao: 'Para começar a atender pela plataforma.', nivel: 'gratuito',
-    preco: 0, periodicidade: 'mensal', duracaoDias: 30, beneficios: BENEFICIOS_GRATUITO,
-    ativo: true, destaque: false, ordem: 1,
-  },
-  {
-    nome: 'Premium', descricao: 'Mais visibilidade e ferramentas para o seu consultório.', nivel: 'premium',
-    preco: 29.9, periodicidade: 'mensal', duracaoDias: 30, beneficios: BENEFICIOS_PREMIUM,
-    ativo: true, destaque: true, ordem: 2,
-  },
+const BENEFICIOS_GRATUITO_ADV = [
+  'Perfil na busca de profissionais',
+  'Agenda, videochamada e chat com as mães',
+  'Lembretes de consulta por e-mail',
+  'Declaração de comparecimento a atendimento jurídico',
 ];
+
+const BENEFICIOS_PREMIUM_ADV = [
+  'Tudo do plano gratuito',
+  'Destaque na busca e selo Premium no perfil',
+  'Modelos de procuração, contrato de honorários, notificação extrajudicial, parecer e termo de consentimento',
+  'Preenchimento automático com os dados das consultas',
+  'Relatório de atendimentos em PDF',
+];
+
+// Os benefícios das empresas parceiras serão refinados junto com a aba de Planos do parceiro.
+const BENEFICIOS_GRATUITO_PARC = [
+  'Perfil da empresa na plataforma',
+  'Publicação de artigos e eventos',
+];
+
+const BENEFICIOS_PREMIUM_PARC = [
+  'Tudo do plano gratuito',
+  'Selo Apoiador no perfil da empresa',
+  'Mais visibilidade nas publicações e nos eventos',
+];
+
+function par(publico: PublicoPlano, gratuito: string[], premium: string[], descGratuito: string, descPremium: string, preco: number): PlanoPadrao[] {
+  return [
+    {
+      nome: 'Gratuito', descricao: descGratuito, publico, nivel: 'gratuito',
+      preco: 0, periodicidade: 'mensal', duracaoDias: 30, beneficios: gratuito,
+      ativo: true, destaque: false, ordem: 1,
+    },
+    {
+      nome: 'Premium', descricao: descPremium, publico, nivel: 'premium',
+      preco, periodicidade: 'mensal', duracaoDias: 30, beneficios: premium,
+      ativo: true, destaque: true, ordem: 2,
+    },
+  ];
+}
+
+export const PLANOS_PADRAO_POR_PUBLICO: Record<PublicoPlano, PlanoPadrao[]> = {
+  psicologo: par('psicologo', BENEFICIOS_GRATUITO, BENEFICIOS_PREMIUM,
+    'Para começar a atender pela plataforma.', 'Mais visibilidade e ferramentas para o seu consultório.', 29.9),
+  advogado: par('advogado', BENEFICIOS_GRATUITO_ADV, BENEFICIOS_PREMIUM_ADV,
+    'Para começar a atender pela plataforma.', 'Mais visibilidade e documentos prontos para o seu escritório.', 29.9),
+  parceiro: par('parceiro', BENEFICIOS_GRATUITO_PARC, BENEFICIOS_PREMIUM_PARC,
+    'Para a sua empresa aparecer na plataforma.', 'Mais destaque e o selo Apoiador para a sua empresa.', 49.9),
+};
+
+/** Planos padrão dos psicólogos (mantido porque a tela do psicólogo já importa este nome). */
+export const PLANOS_PADRAO: PlanoPadrao[] = PLANOS_PADRAO_POR_PUBLICO.psicologo;
+
+/** Id "de mentira" dos planos padrão. Os do psicólogo mantêm os ids antigos. */
+function idPadrao(publico: PublicoPlano, nivel: NivelPlano): string {
+  const base = nivel === 'gratuito' ? 'padrao-gratuito' : 'padrao-premium';
+  return publico === 'psicologo' ? base : `${base}-${publico}`;
+}
 
 // ============================================================
 // SERVIÇO
@@ -238,6 +311,27 @@ export class PlanoService {
   }
 
   /**
+   * Uids com plano Premium ativo e o tipo de cada um (psicólogo, advogado ou parceiro).
+   * Serve para decidir qual selo mostrar: Premium de profissional = "Destaque",
+   * Premium de empresa parceira = "Apoiador". Assinaturas antigas, sem tipo, são de psicólogos.
+   */
+  async premiumAtivosPorTipo(): Promise<Map<string, PublicoPlano>> {
+    const mapa = new Map<string, PublicoPlano>();
+    try {
+      const snap = await getDocs(query(collection(db, 'assinaturas'), where('ativo', '==', true)));
+      snap.docs.forEach((d) => {
+        const x = d.data();
+        const a = this.normalizar(x);
+        this.cache.set(d.id, a);
+        if (this.estaAtiva(a, 'premium')) mapa.set(d.id, ehPublicoPlano(x['tipo']) ? x['tipo'] : 'psicologo');
+      });
+    } catch (e) {
+      console.warn('Não foi possível ler as assinaturas', e);
+    }
+    return mapa;
+  }
+
+  /**
    * Compra de um plano pelo profissional logado.
    * Pagamento SIMULADO (sem cobrança real): grava a assinatura e registra a
    * compra em `pagamentosPlanos` na mesma operação, para o ADM controlar quem
@@ -246,8 +340,8 @@ export class PlanoService {
    */
   async assinarPlano(
     uid: string,
-    plano: Pick<Plano, 'id' | 'nome' | 'nivel' | 'preco' | 'periodicidade' | 'duracaoDias'>,
-    perfil: { nome?: string; email?: string; tipo?: TipoProfissional } = {},
+    plano: Pick<Plano, 'id' | 'nome' | 'nivel' | 'preco' | 'periodicidade' | 'duracaoDias'> & { publico?: PublicoPlano },
+    perfil: { nome?: string; email?: string; tipo?: PublicoPlano } = {},
   ): Promise<Assinatura> {
     if (plano.nivel !== 'premium') throw new Error('Só planos pagos podem ser assinados.');
     const atual = await this.assinatura(uid);
@@ -269,7 +363,7 @@ export class PlanoService {
       periodicidade: plano.periodicidade,
       nome: perfil.nome || '',
       email: perfil.email || '',
-      tipo: perfil.tipo || 'psicologo',
+      tipo: perfil.tipo || plano.publico || 'psicologo',
       iniciadaEm: serverTimestamp(),
       canceladaEm: null,
       pagamento: 'simulado',
@@ -279,7 +373,7 @@ export class PlanoService {
       uid,
       nome: perfil.nome || '',
       email: perfil.email || '',
-      tipo: perfil.tipo || 'psicologo',
+      tipo: perfil.tipo || plano.publico || 'psicologo',
       planoId: plano.id,
       planoNome: plano.nome,
       valor: plano.preco,
@@ -302,9 +396,9 @@ export class PlanoService {
   }
 
   /** @deprecated use assinarPlano(). Mantido para quem ainda chama o método antigo. */
-  async assinarPremiumTeste(uid: string, dias = 30): Promise<Assinatura> {
-    const padrao = PLANOS_PADRAO[1];
-    return this.assinarPlano(uid, { ...padrao, id: 'padrao-premium', duracaoDias: dias });
+  async assinarPremiumTeste(uid: string, dias = 30, publico: PublicoPlano = 'psicologo'): Promise<Assinatura> {
+    const padrao = PLANOS_PADRAO_POR_PUBLICO[publico].find((p) => p.nivel === 'premium')!;
+    return this.assinarPlano(uid, { ...padrao, id: idPadrao(publico, 'premium'), duracaoDias: dias }, { tipo: publico });
   }
 
   /** Volta para o plano gratuito (mantém o histórico no mesmo documento). */
@@ -341,18 +435,18 @@ export class PlanoService {
   }
 
   /**
-   * Planos que a área do profissional deve mostrar.
-   * Catálogo vazio (ADM ainda não cadastrou nada) → planos padrão, para a tela
-   * não quebrar. Catálogo com planos → só os ativos.
+   * Planos que a área de cada público (psicólogo, advogado ou parceiro) deve mostrar.
+   * Se o ADM ainda não cadastrou nenhum plano PARA ESSE PÚBLICO, usa os planos padrão,
+   * para a tela não quebrar. Com planos cadastrados, só os ativos.
    */
-  async planosParaOfertar(): Promise<Plano[]> {
+  async planosParaOfertar(publico: PublicoPlano = 'psicologo'): Promise<Plano[]> {
     try {
-      const todos = await this.planos();
-      if (!todos.length) return this.planosPadraoComoLista();
-      return todos.filter((p) => p.ativo);
+      const doPublico = (await this.planos()).filter((p) => p.publico === publico);
+      if (!doPublico.length) return this.planosPadraoComoLista(publico);
+      return doPublico.filter((p) => p.ativo);
     } catch (e) {
       console.warn('Não foi possível ler os planos, usando os padrões', e);
-      return this.planosPadraoComoLista();
+      return this.planosPadraoComoLista(publico);
     }
   }
 
@@ -376,7 +470,7 @@ export class PlanoService {
       return id;
     }
     const ref = doc(collection(db, 'planos'));
-    await setDoc(ref, { ...dados, ordem: ordem ?? 99, criadoEm: serverTimestamp() });
+    await setDoc(ref, { ...dados, publico: ehPublicoPlano(form.publico) ? form.publico : 'psicologo', ordem: ordem ?? 99, criadoEm: serverTimestamp() });
     return ref.id;
   }
 
@@ -385,10 +479,10 @@ export class PlanoService {
     await updateDoc(doc(db, 'planos', id), { ativo, atualizadoEm: serverTimestamp() });
   }
 
-  /** Grava os planos padrão (Gratuito + Premium) quando o catálogo está vazio. */
-  async criarPlanosPadrao(): Promise<void> {
+  /** Grava os planos padrão (Gratuito + Premium) de um público quando ele ainda não tem planos. */
+  async criarPlanosPadrao(publico: PublicoPlano = 'psicologo'): Promise<void> {
     const lote = writeBatch(db);
-    PLANOS_PADRAO.forEach((p) => {
+    PLANOS_PADRAO_POR_PUBLICO[publico].forEach((p) => {
       lote.set(doc(collection(db, 'planos')), { ...p, criadoEm: serverTimestamp(), atualizadoEm: serverTimestamp() });
     });
     await lote.commit();
@@ -401,9 +495,10 @@ export class PlanoService {
   /** Perfis de psicólogos e advogados, indexados por uid (para mostrar nome/e-mail do assinante). */
   async perfisProfissionais(): Promise<Map<string, PerfilProfissional>> {
     const mapa = new Map<string, PerfilProfissional>();
-    const colecoes: { nome: string; tipo: TipoProfissional }[] = [
+    const colecoes: { nome: string; tipo: PublicoPlano }[] = [
       { nome: 'psicologos', tipo: 'psicologo' },
       { nome: 'advogados', tipo: 'advogado' },
+      { nome: 'parceiros', tipo: 'parceiro' },
     ];
     await Promise.all(colecoes.map(async (c) => {
       try {
@@ -412,7 +507,7 @@ export class PlanoService {
           const x = d.data();
           const uid = (x['uid'] as string) || d.id;
           mapa.set(uid, {
-            uid, tipo: c.tipo, nome: x['nome'] || '', email: x['email'] || '',
+            uid, tipo: c.tipo, nome: x['nomeEmpresa'] || x['nome'] || '', email: x['email'] || '',
             aprovado: x['status'] === 'aprovado',
           });
         });
@@ -444,7 +539,7 @@ export class PlanoService {
       this.pagamentos(),
       planos ? Promise.resolve(planos) : this.planos(),
     ]);
-    const premiumPadrao = catalogo.find((p) => p.nivel === 'premium');
+    const premiumDoTipo = (tipo: PublicoPlano) => catalogo.find((p) => p.nivel === 'premium' && p.publico === tipo);
     const porUid = new Map<string, PagamentoPlano[]>();
     pagamentos.forEach((p) => porUid.set(p.uid, [...(porUid.get(p.uid) || []), p]));
 
@@ -457,7 +552,8 @@ export class PlanoService {
       if (a.plano !== 'premium' && !a.canceladaEm && !compras.length) return;
 
       const perfil = perfis.get(d.id);
-      const planoId = a.planoId || premiumPadrao?.id || '';
+      const tipo: PublicoPlano = ehPublicoPlano(x['tipo']) ? x['tipo'] : (perfil?.tipo || 'psicologo');
+      const planoId = a.planoId || premiumDoTipo(tipo)?.id || '';
       const planoCat = catalogo.find((p) => p.id === planoId);
       let situacao: SituacaoAssinante;
       if (this.estaAtiva(a, 'premium')) situacao = 'ativa';
@@ -469,7 +565,7 @@ export class PlanoService {
         uid: d.id,
         nome: (x['nome'] as string) || perfil?.nome || 'Profissional sem nome',
         email: (x['email'] as string) || perfil?.email || '—',
-        tipo: (x['tipo'] as TipoProfissional) || perfil?.tipo || 'psicologo',
+        tipo,
         planoId,
         planoNome: a.planoNome || planoCat?.nome || 'Premium',
         valor: a.valor ?? planoCat?.preco ?? 0,
@@ -578,8 +674,8 @@ export class PlanoService {
   // INTERNOS
   // ----------------------------------------------------------
 
-  private planosPadraoComoLista(): Plano[] {
-    return PLANOS_PADRAO.map((p, i) => ({ ...p, id: i === 0 ? 'padrao-gratuito' : 'padrao-premium', padrao: true }));
+  private planosPadraoComoLista(publico: PublicoPlano = 'psicologo'): Plano[] {
+    return PLANOS_PADRAO_POR_PUBLICO[publico].map((p) => ({ ...p, id: idPadrao(publico, p.nivel), padrao: true }));
   }
 
   private estaAtiva(a: Assinatura | null, plano?: Assinatura['plano']): boolean {
@@ -616,6 +712,7 @@ export class PlanoService {
       id,
       nome: d['nome'] || 'Plano sem nome',
       descricao: d['descricao'] || '',
+      publico: ehPublicoPlano(d['publico']) ? d['publico'] : 'psicologo',
       nivel: d['nivel'] === 'gratuito' ? 'gratuito' : 'premium',
       preco: Number(d['preco']) || 0,
       periodicidade,
@@ -635,7 +732,7 @@ export class PlanoService {
       uid: d['uid'] || '',
       nome: d['nome'] || '',
       email: d['email'] || '',
-      tipo: d['tipo'] === 'advogado' ? 'advogado' : 'psicologo',
+      tipo: ehPublicoPlano(d['tipo']) ? d['tipo'] : 'psicologo',
       planoId: d['planoId'] || '',
       planoNome: d['planoNome'] || 'Premium',
       valor: Number(d['valor']) || 0,

@@ -10,10 +10,11 @@ import {
 } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
 
+import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 @Component({
   selector: 'app-coment-resp',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent],
+  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, SelosAutorComponent],
   templateUrl: './coment-resp.html',
   styleUrls: ['./coment-resp.css']
 })

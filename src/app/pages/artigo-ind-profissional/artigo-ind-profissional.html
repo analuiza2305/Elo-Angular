@@ -88,7 +88,7 @@
             }
 
             <footer class="artigo-footer-info">
-                Por: <strong>{{ artigo().postadoPor || artigo().autorNome || 'Equipe EloMaterno' }}</strong>
+                Por: <strong>{{ artigo().postadoPor || artigo().autorNome || 'Equipe EloMaterno' }}</strong><app-selos-autor [uid]="artigo().autorId || artigo().parceiroId"></app-selos-autor>
             </footer>
         </article>
     }

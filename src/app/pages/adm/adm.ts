@@ -32,7 +32,7 @@ import { HeaderComponent } from '../../components/header/header';
 // COLOQUE AQUI O CAMINHO REAL DO FIREBASE DO SEU PROJETO
 import { auth, db } from '../../core/firebase';
 import { AlertaService } from '../../core/services/alerta.service';
-import { Assinante, PagamentoPlano, PlanoService, RelatorioFinanceiro, formatarBRL } from '../../services/plano';
+import { Assinante, PagamentoPlano, PlanoService, RelatorioFinanceiro, formatarBRL, rotuloPublico } from '../../services/plano';
 import { AdmPlanosComponent } from './adm-planos/adm-planos';
 import { AdmSelosComponent } from './adm-selos/adm-selos';
 
@@ -1497,7 +1497,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       [],
       ['Compras do mês'],
       ['Data', 'Profissional', 'E-mail', 'Tipo', 'Plano', 'Valor (R$)'],
-      ...r.pagamentosDoMes.map((p) => [dataBR(p.criadoEm), p.nome || p.uid, p.email, p.tipo === 'advogado' ? 'Advogado(a)' : 'Psicólogo(a)', p.planoNome, num(p.valor)]),
+      ...r.pagamentosDoMes.map((p) => [dataBR(p.criadoEm), p.nome || p.uid, p.email, rotuloPublico(p.tipo), p.planoNome, num(p.valor)]),
     ];
     const csv = '\uFEFF' + linhas.map((l) => l.map(cel).join(';')).join('\r\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));

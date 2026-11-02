@@ -7,10 +7,11 @@ import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
 
+import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 @Component({
   selector: 'app-eventos',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent],
   templateUrl: './eventos.html',
   styleUrls: ['./eventos.css']
 })

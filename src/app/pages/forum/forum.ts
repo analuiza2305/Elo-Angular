@@ -6,6 +6,7 @@ import { DenunciarComponent } from '../../components/denunciar/denunciar';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 import {
   collection, query, orderBy, limit, getDocs, doc, getDoc, addDoc, serverTimestamp, updateDoc, deleteDoc, setDoc, increment, getCountFromServer, writeBatch
 } from 'firebase/firestore';
@@ -15,7 +16,7 @@ const POSTS_POR_PAGINA = 8;
 @Component({
   selector: 'app-forum',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, DenunciarComponent],
+  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, DenunciarComponent, SelosAutorComponent],
   templateUrl: './forum.html',
   styleUrls: ['./forum.css']
 })

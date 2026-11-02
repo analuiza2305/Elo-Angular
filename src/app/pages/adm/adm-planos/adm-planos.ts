@@ -5,11 +5,14 @@ import {
   Assinante,
   NivelPlano,
   PERIODICIDADES,
+  PUBLICOS_PLANO,
   Plano,
   PlanoForm,
   PlanoService,
+  PublicoPlano,
   SituacaoAssinante,
   formatarBRL,
+  rotuloPublico,
   sufixoPeriodicidade,
 } from '../../../services/plano';
 
@@ -41,6 +44,8 @@ export class AdmPlanosComponent implements OnInit {
   private readonly svc = inject(PlanoService);
 
   readonly periodicidades = PERIODICIDADES;
+  readonly publicos = PUBLICOS_PLANO;
+  readonly rotuloPublico = rotuloPublico;
   readonly sugestoes = SUGESTOES_BENEFICIOS;
   readonly brl = formatarBRL;
   readonly sufixo = sufixoPeriodicidade;
@@ -49,6 +54,9 @@ export class AdmPlanosComponent implements OnInit {
   readonly carregando = signal(true);
   readonly erroCarga = signal('');
   readonly planos = signal<Plano[]>([]);
+  /** Qual catálogo a aba "Planos" mostra: cada público (psicólogo, advogado, parceiro) tem o seu. */
+  readonly filtroPublico = signal<PublicoPlano>('psicologo');
+  readonly planosDoPublico = computed(() => this.planos().filter((p) => p.publico === this.filtroPublico()));
   readonly assinantes = signal<Assinante[]>([]);
   readonly aviso = signal<{ tipo: 'ok' | 'erro'; texto: string } | null>(null);
   private avisoTimer: any = null;
@@ -101,8 +109,14 @@ export class AdmPlanosComponent implements OnInit {
       && (!termo || a.nome.toLowerCase().includes(termo) || a.email.toLowerCase().includes(termo)));
   });
 
-  readonly catalogoVazio = computed(() => !this.carregando() && !this.erroCarga() && this.planos().length === 0);
-  readonly jaExisteGratuito = computed(() => this.planos().some((p) => p.nivel === 'gratuito' && p.id !== this.editandoId));
+  /** O público selecionado ainda não tem nenhum plano cadastrado (ele usa os planos padrão). */
+  readonly catalogoVazio = computed(() => !this.carregando() && !this.erroCarga() && this.planosDoPublico().length === 0);
+  readonly rotuloPublicoFiltro = computed(() => this.publicos.find((x) => x.valor === this.filtroPublico())?.rotulo ?? '');
+
+  /** Cada público tem no máximo um plano gratuito. */
+  jaExisteGratuito(): boolean {
+    return this.planos().some((p) => p.publico === this.form.publico && p.nivel === 'gratuito' && p.id !== this.editandoId);
+  }
 
   ngOnInit(): void {
     this.carregar();
@@ -127,8 +141,8 @@ export class AdmPlanosComponent implements OnInit {
 
   async criarPlanosPadrao(): Promise<void> {
     try {
-      await this.svc.criarPlanosPadrao();
-      this.mostrarAviso('ok', 'Planos Gratuito e Premium criados. Agora é só ajustar valores e benefícios.');
+      await this.svc.criarPlanosPadrao(this.filtroPublico());
+      this.mostrarAviso('ok', `Planos Gratuito e Premium de ${this.rotuloPublicoFiltro().toLowerCase()} criados. Agora é só ajustar valores e benefícios.`);
       await this.carregar();
     } catch (e) {
       console.error(e);
@@ -139,6 +153,7 @@ export class AdmPlanosComponent implements OnInit {
   abrirNovo(): void {
     this.editandoId = null;
     this.form = this.formVazio();
+    this.form.publico = this.filtroPublico();
     if (this.jaExisteGratuito()) this.form.nivel = 'premium';
     this.erroForm.set('');
     this.modalAberto.set(true);
@@ -147,7 +162,7 @@ export class AdmPlanosComponent implements OnInit {
   abrirEdicao(p: Plano): void {
     this.editandoId = p.id;
     this.form = {
-      nome: p.nome, descricao: p.descricao, nivel: p.nivel, preco: p.preco,
+      nome: p.nome, descricao: p.descricao, publico: p.publico, nivel: p.nivel, preco: p.preco,
       periodicidade: p.periodicidade, beneficios: [...p.beneficios], ativo: p.ativo, destaque: p.destaque,
     };
     if (!this.form.beneficios.length) this.form.beneficios = [''];
@@ -158,6 +173,12 @@ export class AdmPlanosComponent implements OnInit {
   fecharModal(): void {
     if (this.salvando()) return;
     this.modalAberto.set(false);
+  }
+
+  mudarPublico(publico: PublicoPlano): void {
+    this.form.publico = publico;
+    // se o novo público já tem plano gratuito, só dá para criar um plano pago
+    if (this.form.nivel === 'gratuito' && this.jaExisteGratuito()) this.form.nivel = 'premium';
   }
 
   mudarNivel(nivel: NivelPlano): void {
@@ -216,10 +237,10 @@ export class AdmPlanosComponent implements OnInit {
     const f = this.form;
     const nome = f.nome.trim();
     if (nome.length < 2) return 'Dê um nome ao plano (mínimo 2 letras).';
-    if (this.planos().some((p) => p.id !== this.editandoId && p.nome.trim().toLowerCase() === nome.toLowerCase())) {
-      return 'Já existe um plano com esse nome.';
+    if (this.planos().some((p) => p.id !== this.editandoId && p.publico === f.publico && p.nome.trim().toLowerCase() === nome.toLowerCase())) {
+      return 'Já existe um plano com esse nome para este público.';
     }
-    if (f.nivel === 'gratuito' && this.jaExisteGratuito()) return 'Já existe um plano gratuito. Edite o existente.';
+    if (f.nivel === 'gratuito' && this.jaExisteGratuito()) return 'Esse público já tem um plano gratuito. Edite o existente.';
     if (f.nivel === 'premium' && !(Number(f.preco) > 0)) return 'Informe um valor maior que zero para o plano pago.';
     if (!f.beneficios.some((b) => b.trim())) return 'Adicione pelo menos um benefício.';
     return '';
@@ -266,7 +287,7 @@ export class AdmPlanosComponent implements OnInit {
   }
 
   rotuloTipo(t: string): string {
-    return t === 'advogado' ? 'Advogado(a)' : 'Psicólogo(a)';
+    return rotuloPublico(t);
   }
 
   rotuloPeriodo(p: Plano): string {
@@ -289,7 +310,7 @@ export class AdmPlanosComponent implements OnInit {
 
   private formVazio(): PlanoForm {
     return {
-      nome: '', descricao: '', nivel: 'premium', preco: 0, periodicidade: 'mensal',
+      nome: '', descricao: '', publico: 'psicologo', nivel: 'premium', preco: 0, periodicidade: 'mensal',
       beneficios: [''], ativo: true, destaque: false,
     };
   }

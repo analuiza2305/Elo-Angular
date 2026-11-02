@@ -89,6 +89,11 @@
                         <span class="evento-meta">
                             <i class="fa-regular fa-clock"></i> {{ evento.dataFormatada || 'Data a definir' }}
                         </span>
+                        @if (evento.enviadoPor) {
+                            <span class="evento-meta">
+                                <i class="fa-regular fa-building"></i> {{ evento.enviadoPor }}<app-selos-autor [uid]="evento.parceiroId"></app-selos-autor>
+                            </span>
+                        }
                         <p class="evento-descricao">{{ evento.descricao }}</p>
                         
                         <div class="evento-acoes">
@@ -140,6 +145,10 @@
                     <span><i class="fa-solid fa-location-dot"></i> {{ eventoSelecionado()?.local || 'Online / Presencial' }}</span>
                     <span>•</span>
                     <span><i class="fa-regular fa-calendar"></i> {{ eventoSelecionado()?.dataFormatada }}</span>
+                    @if (eventoSelecionado()?.enviadoPor) {
+                        <span>•</span>
+                        <span><i class="fa-regular fa-building"></i> {{ eventoSelecionado()?.enviadoPor }}<app-selos-autor [uid]="eventoSelecionado()?.parceiroId"></app-selos-autor></span>
+                    }
                 </div>
                 
                 <p class="modal-descricao" [innerHTML]="eventoSelecionado()?.descricao"></p>

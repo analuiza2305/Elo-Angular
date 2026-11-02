@@ -63,11 +63,19 @@
 
   <!-- ===================== ABA: PLANOS ===================== -->
   @if (aba() === 'planos') {
+    <div class="pl-opcoes" role="tablist" aria-label="Público dos planos" style="margin-bottom: 18px">
+      @for (pub of publicos; track pub.valor) {
+        <button type="button" role="tab" class="pl-opcao" [class.sel]="filtroPublico() === pub.valor" [attr.aria-selected]="filtroPublico() === pub.valor" (click)="filtroPublico.set(pub.valor)">
+          {{ pub.rotulo }}
+        </button>
+      }
+    </div>
+
     @if (catalogoVazio()) {
       <div class="pl-estado vazio">
         <span class="pl-estado-icone"><i class="fa-solid fa-seedling"></i></span>
-        <h3>Nenhum plano cadastrado ainda</h3>
-        <p>Enquanto isso, os profissionais veem os planos padrão (Gratuito e Premium a R$ 29,90). Crie-os aqui para poder editar valores e benefícios.</p>
+        <h3>Nenhum plano de {{ rotuloPublicoFiltro() | lowercase }} cadastrado ainda</h3>
+        <p>Enquanto isso, esse público vê os planos padrão (Gratuito e Premium). Crie-os aqui para poder editar valores e benefícios.</p>
         <div class="pl-estado-acoes">
           <button type="button" class="pl-btn pl-btn-primario" (click)="criarPlanosPadrao()"><i class="fa-solid fa-wand-magic-sparkles"></i> Criar planos padrão</button>
           <button type="button" class="pl-btn pl-btn-secundario" (click)="abrirNovo()">Criar do zero</button>
@@ -75,7 +83,7 @@
       </div>
     } @else {
       <div class="pl-grid">
-        @for (p of planos(); track p.id) {
+        @for (p of planosDoPublico(); track p.id) {
           <article class="pl-card" [class.inativo]="!p.ativo" [class.destaque]="p.destaque && p.ativo">
             <div class="pl-card-topo">
               <span class="pl-nivel" [class.premium]="p.nivel === 'premium'">
@@ -142,7 +150,7 @@
       </label>
       <select [ngModel]="filtroPlano()" (ngModelChange)="filtroPlano.set($event)" aria-label="Filtrar por plano">
         <option value="todos">Todos os planos</option>
-        @for (p of planos(); track p.id) { <option [value]="p.id">{{ p.nome }}</option> }
+        @for (p of planos(); track p.id) { <option [value]="p.id">{{ p.nome }} ({{ rotuloPublico(p.publico) }})</option> }
       </select>
       <select [ngModel]="filtroSituacao()" (ngModelChange)="filtroSituacao.set($event)" aria-label="Filtrar por situação">
         <option value="todas">Todas as situações</option>
@@ -231,6 +239,17 @@
         <div class="pl-campo">
           <label for="plDescricao">Descrição curta <span class="opcional">(opcional)</span></label>
           <input id="plDescricao" type="text" maxlength="90" [(ngModel)]="form.descricao" placeholder="Uma frase que explique para quem é o plano">
+        </div>
+
+        <div class="pl-campo">
+          <span class="pl-label">Para quem é o plano</span>
+          <div class="pl-opcoes">
+            @for (pub of publicos; track pub.valor) {
+              <button type="button" class="pl-opcao" [class.sel]="form.publico === pub.valor" [disabled]="!!editandoId" [title]="editandoId ? 'O público não pode ser alterado depois de criado' : ''" (click)="mudarPublico(pub.valor)">
+                {{ pub.rotulo }}
+              </button>
+            }
+          </div>
         </div>
 
         @if (!editandoId) {

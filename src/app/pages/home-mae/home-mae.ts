@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase'; 
 import { onAuthStateChanged } from 'firebase/auth';
+import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 import { 
   collection, query, orderBy, limit, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove 
 } from 'firebase/firestore';
@@ -12,7 +13,7 @@ import {
 @Component({
   selector: 'app-home-mae',
   standalone: true,
-  imports: [HeaderComponent, CommonModule, RouterModule, FormsModule],
+  imports: [HeaderComponent, CommonModule, RouterModule, FormsModule, SelosAutorComponent],
   templateUrl: './home-mae.html',
   styleUrls: ['./home-mae.css']
 })

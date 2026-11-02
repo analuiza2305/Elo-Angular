@@ -5,10 +5,11 @@ import { auth, db } from '../../core/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, query, where, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
+import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 @Component({
   selector: 'app-artigo-ind-profissional',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, SelosAutorComponent],
   templateUrl: './artigo-ind-profissional.html',
   styleUrls: ['./artigo-ind-profissional.css']
 })

@@ -78,7 +78,7 @@
 
                             <div class="fr-post-corpo">
                                 <div class="fr-post-meta">
-                                    <strong>{{ post.autorNomeFinal }}</strong>
+                                    <strong>{{ post.autorNomeFinal }}</strong><app-selos-autor [uid]="post.autorId"></app-selos-autor>
                                     <span class="fr-post-ponto">•</span>
                                     <span>{{ post.dataFormatada }}</span>
                                 </div>

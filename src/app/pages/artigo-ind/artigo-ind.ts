@@ -8,10 +8,11 @@ import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firest
 import { onAuthStateChanged } from 'firebase/auth';
 import { AlertaService } from '../../core/services/alerta.service';
 
+import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 @Component({
   selector: 'app-artigo-ind',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent],
   templateUrl: './artigo-ind.html',
   styleUrls: ['./artigo-ind.css']
 })

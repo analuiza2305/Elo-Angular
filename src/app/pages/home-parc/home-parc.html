@@ -272,6 +272,10 @@
                 <i class="fa-solid fa-book-open"></i>
                 <span>Artigos</span>
             </button>
+            <button type="button" class="menu-btn" role="tab" data-target="planos" aria-selected="false">
+                <i class="fa-solid fa-crown"></i>
+                <span>Planos</span>
+            </button>
 
             <div class="sidebar-group-label">Analíticos</div>
             <button type="button" class="menu-btn" role="tab" data-target="relatorios" aria-selected="false">
@@ -514,6 +518,10 @@
                 </div>
             </div>
 
+        </section>
+
+        <section class="content hidden" id="planos">
+            <app-parc-planos></app-parc-planos>
         </section>
 
         <section class="content hidden" id="notificacoes">
