@@ -1,38 +1,101 @@
-:host { display: inline-block; font-family: 'Nunito', sans-serif; }
+:host {
+  --den-vermelho: #C0344F;          /* bandeira e destaque (modo claro) */
+  --den-vermelho-bg: #FDECEF;
+  display: inline-block;
+  font-family: 'Nunito', sans-serif;
+}
+:host-context(body[data-theme="dark"]) {
+  --den-vermelho: #F06C8A;          /* vermelho um tiquinho mais frio no escuro */
+  --den-vermelho-bg: rgba(240, 108, 138, .14);
+}
 
+/* ---------- Botão ---------- */
 .den-btn {
   display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px;
   border: none; border-radius: 999px; background: transparent; color: #7B6AAE;
   font-family: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
-.den-btn:hover { background: #fdecef; color: #c0344f; }
+.den-btn i { color: var(--den-vermelho) !important; }
+.den-btn:hover { background: var(--den-vermelho-bg); color: var(--den-vermelho); }
+:host-context(body[data-theme="dark"]) .den-btn { color: #C9C0EA; }
+:host-context(body[data-theme="dark"]) .den-btn:hover { color: var(--den-vermelho); }
 
-/* <dialog> nativo: o fundo escuro (::backdrop) cobre a TELA INTEIRA, em qualquer lugar da página */
+/* Só o ícone (cards de evento): mesmo tamanho dos outros botões quadradinhos */
+.den-btn-icone {
+  width: 45px; height: 45px; padding: 0; justify-content: center;
+  border-radius: 14px; background: #FFF5F7; border: 1px solid rgba(192, 52, 79, .18);
+}
+.den-btn-icone:hover { background: var(--den-vermelho-bg); }
+:host-context(body[data-theme="dark"]) .den-btn-icone { background: rgba(240, 108, 138, .08); border-color: rgba(240, 108, 138, .25); }
+
+/* ---------- Janela (sempre clara, com contraste garantido também no modo escuro) ---------- */
 .den-caixa {
   position: fixed; inset: 0; margin: auto; height: fit-content;
-  width: min(460px, calc(100vw - 32px)); max-height: 90vh; overflow-y: auto; padding: 0; border: none;
-  border-radius: 24px; background: #fff; color: #333; text-align: left;
-  box-shadow: 0 24px 60px rgba(30, 18, 56, 0.3);
+  width: min(480px, calc(100vw - 32px)); max-height: 92vh; overflow-y: auto; padding: 0; border: none;
+  border-radius: 28px; background: #FFFFFF; color: #2D1E4E; text-align: left;
+  box-shadow: 0 30px 70px rgba(30, 18, 56, 0.32);
 }
 .den-caixa::backdrop { background: rgba(30, 18, 56, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-.den-conteudo { position: relative; padding: 28px; }
-.den-caixa h3 { margin: 0 0 6px; color: #3E2A72; font-weight: 800; font-size: 1.2rem; }
-.den-alvo { margin: 0 0 16px; color: #555; font-size: 0.9rem; overflow-wrap: anywhere; }
-.den-caixa label { display: block; margin: 14px 0 6px; font-weight: 700; font-size: 0.85rem; color: #3E2A72; }
-.den-caixa select, .den-caixa textarea {
-  width: 100%; padding: 12px 14px; border: 1.5px solid #d6d1e9; border-radius: 12px;
-  font-family: inherit; font-size: 0.95rem; color: #333; background: #fff; box-sizing: border-box;
+.den-conteudo { position: relative; padding: 28px 28px 24px; }
+
+.den-topo { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-right: 36px; }
+.den-topo-icone {
+  flex-shrink: 0; width: 50px; height: 50px; border-radius: 16px; display: grid; place-items: center;
+  background: #FDECEF; font-size: 1.15rem;
 }
-.den-caixa textarea { resize: vertical; }
-.den-erro { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: #fdecef; color: #a02a45; font-size: 0.88rem; }
+.den-topo-icone i { color: #C0344F !important; }
+.den-caixa h3 { margin: 0; color: #2D1E4E !important; font-weight: 800 !important; font-size: 1.2rem; font-family: 'Poppins', 'Nunito', sans-serif; }
+.den-alvo { margin: 4px 0 0 !important; color: #6B5E8E !important; font-size: 0.9rem; overflow-wrap: anywhere; }
+
+.den-rotulo { display: block; margin: 0 0 10px !important; font-weight: 800; font-size: 0.86rem; color: #3E2A72 !important; }
+.den-rotulo small { font-weight: 600; color: #8A7FB0; }
+
+.den-motivos { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.den-motivo {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px;
+  border: 1.5px solid transparent; border-radius: 14px; background: #F6F2FF; color: #2D1E4E;
+  font-family: inherit; font-size: 0.93rem; font-weight: 700; text-align: left; cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+.den-motivo:hover { background: #EFE8FF; }
+.den-radio {
+  flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; border: 2px solid #C9BDEB; background: #FFFFFF;
+  transition: all .2s ease;
+}
+.den-motivo.ativo { background: #FFF5F7; border-color: #C0344F; color: #8E1F38; }
+.den-motivo.ativo .den-radio { border-color: #C0344F; box-shadow: inset 0 0 0 4px #FFFFFF; background: #C0344F; }
+
+.den-caixa textarea {
+  width: 100%; padding: 12px 14px; border: 1.5px solid #E2DAF5; border-radius: 14px;
+  font-family: inherit; font-size: 0.95rem; color: #2D1E4E; background: #FBF9FF; box-sizing: border-box; resize: vertical; outline: none;
+}
+.den-caixa textarea:focus { border-color: #7C69A9; box-shadow: 0 0 0 4px rgba(124, 105, 169, .14); background: #FFFFFF; }
+
+.den-erro { display: flex; align-items: center; gap: 8px; margin: 12px 0 0 !important; padding: 10px 12px; border-radius: 12px; background: #FDECEF; color: #A02A45 !important; font-size: 0.88rem; }
+.den-erro i { color: #C0344F !important; }
+.den-sigilo { display: flex; align-items: center; gap: 8px; margin: 14px 0 0 !important; font-size: .82rem; color: #7B6AAE !important; }
+.den-sigilo i { color: #7B6AAE !important; font-size: .78rem; }
+
 .den-acoes { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
-.den-primario, .den-secundario { padding: 12px 20px; border-radius: 12px; border: none; font-family: inherit; font-weight: 800; font-size: 0.95rem; cursor: pointer; }
-.den-primario { background: #52427D; color: #fff; }
-.den-primario:hover:not(:disabled) { background: #3E2A72; }
-.den-secundario { background: #F3ECFF; color: #3E2A72; }
+.den-primario, .den-secundario { height: 46px; padding: 0 22px; border-radius: 999px; border: none; font-family: inherit; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+.den-primario { background: #C0344F; color: #FFFFFF !important; box-shadow: 0 8px 18px rgba(192, 52, 79, .25); }
+.den-primario:hover:not(:disabled) { background: #A32A43; transform: translateY(-1px); }
+.den-secundario { background: #F3ECFF; color: #3E2A72 !important; }
+.den-secundario:hover:not(:disabled) { background: #E9E0FF; }
 .den-primario:disabled, .den-secundario:disabled { opacity: 0.6; cursor: not-allowed; }
-.den-fechar { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border: none; border-radius: 50%; background: #F3ECFF; color: #3E2A72; cursor: pointer; }
-.den-sucesso { text-align: center; padding: 8px 0; }
-.den-sucesso i { font-size: 2.6rem; color: #0F7A55; margin-bottom: 10px; }
-.den-sucesso p { color: #555; line-height: 1.5; margin: 8px 0 18px; }
+.den-fechar { position: absolute; top: 18px; right: 18px; width: 36px; height: 36px; border: none; border-radius: 50%; background: #F3ECFF; cursor: pointer; }
+.den-fechar i { color: #3E2A72 !important; }
+
+@media (max-width: 420px) {
+  .den-conteudo { padding: 24px 20px 20px; }
+  .den-acoes { flex-direction: column-reverse; }
+  .den-primario, .den-secundario { width: 100%; }
+}
+
+/* A janela é sempre clara: garante texto escuro mesmo com as regras globais do modo escuro */
+.den-motivo { color: #2D1E4E !important; background: #F6F2FF !important; }
+.den-motivo:hover { background: #EFE8FF !important; }
+.den-motivo.ativo { background: #FFF5F7 !important; color: #8E1F38 !important; }
+.den-caixa textarea { color: #2D1E4E !important; background: #FBF9FF !important; }
+.den-caixa textarea::placeholder { color: #9A90BD; }

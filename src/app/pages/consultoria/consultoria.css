@@ -181,7 +181,7 @@
   height: 84%; bottom: 8%; right: 4%; border-radius: 32px; box-shadow: 0 20px 50px rgba(0, 0, 0, .4);
 }
 :host-context(body[data-theme="dark"]) .ct-banner h1 span { color: #B9ACF0; }
-:host-context(body[data-theme="dark"]) :host-context(body[data-theme="dark"]) .ct-botao-principal { background: linear-gradient(140deg, #4B3A8C 0%, #6C4BBF 100%); }
+:host-context(body[data-theme="dark"]) .ct-botao-principal { background: linear-gradient(140deg, #4B3A8C 0%, #6C4BBF 100%); }
 :host-context(body[data-theme="dark"]) .ct-modal-btn { background: #6C4BBF; }
 :host-context(body[data-theme="dark"]) .ct-modal-btn:hover { background: #7C5CD6; }
 :host-context(body[data-theme="dark"]) .ct-passos li:not(:last-child)::after { background: #303852; }
@@ -208,3 +208,32 @@
 :host-context(body[data-theme="dark"]) .ct-botao-principal { background: linear-gradient(145deg, #7C5CD6 0%, #5B3D99 100%); }
 :host-context(body[data-theme="dark"]) .ct-botao-principal .ct-botao-icone { background: rgba(255, 255, 255, .14); color: #FFFFFF; box-shadow: none; }
 :host-context(body[data-theme="dark"]) .ct-botao-icone em { box-shadow: none; }
+
+/* =========================================================
+   AJUSTE 02/11: cor dos ícones (regra do site)
+   Modo claro: ícone da mesma cor do fundo, num tom mais escuro.
+   Modo escuro: fundo da mesma cor bem translúcido e ícone na mesma cor, mais claro.
+========================================================= */
+.ct-botao-icone i { color: inherit !important; }
+
+.ct-botao-icone { color: #5B3D99; }                                     /* lilás → roxo escuro */
+.ct-botao:nth-child(2) .ct-botao-icone { color: #A3365F; }              /* rosa → rosa escuro */
+.ct-botao:nth-child(3) .ct-botao-icone { color: #2F5597; }              /* azul → azul escuro */
+.ct-botao-principal .ct-botao-icone { color: #FFFFFF; }                 /* card roxo forte → ícone claro */
+
+:host-context(body[data-theme="dark"]) .ct-botao-icone {
+  background: rgba(185, 172, 240, .14); color: #D9D0FF;
+  box-shadow: inset 0 0 0 1px rgba(185, 172, 240, .18);
+}
+:host-context(body[data-theme="dark"]) .ct-botao:nth-child(2) .ct-botao-icone {
+  background: rgba(243, 163, 188, .14); color: #FFC9D9;
+  box-shadow: inset 0 0 0 1px rgba(243, 163, 188, .2);
+}
+:host-context(body[data-theme="dark"]) .ct-botao:nth-child(3) .ct-botao-icone {
+  background: rgba(140, 180, 234, .14); color: #CFE1FF;
+  box-shadow: inset 0 0 0 1px rgba(140, 180, 234, .2);
+}
+:host-context(body[data-theme="dark"]) .ct-botao-principal .ct-botao-icone {
+  background: rgba(255, 255, 255, .2); color: #FFFFFF;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25);
+}

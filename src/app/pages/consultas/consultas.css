@@ -2136,3 +2136,63 @@ body[data-theme="dark"] .estado-vazio::before {
 body[data-theme="dark"] .estado-vazio h2 { color: #F5F0FF !important; }
 body[data-theme="dark"] .estado-vazio p { color: #C7BBEB !important; }
 
+
+/* =========================================================
+   AJUSTE 02/11: contraste da tela "Minhas consultas"
+========================================================= */
+
+/* Ícones dos botões seguem a cor do texto do botão (o roxo escuro sumia no botão Perfil) */
+.btn-detalhes i { color: #FFFFFF !important; }
+.btn-chat i { color: #5B3D99 !important; }
+.btn-videochamada i { color: #FFFFFF !important; }
+
+/* Quadradinhos de ícone: lilás com ícone roxo escuro (mesma cor, tom mais escuro) */
+.consulta-info-icon { background: #F0EAFB !important; color: #4B2C82 !important; }
+.consulta-info-icon i { color: #4B2C82 !important; }
+
+/* ---------- MODO ESCURO ---------- */
+:host-context(body[data-theme="dark"]) .consultas-container .tabs {
+  background: #161C2B !important;
+  border-color: rgba(255, 255, 255, .08) !important;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .35) !important;
+}
+:host-context(body[data-theme="dark"]) .consultas-container .tabs > .consulta-tab-btn {
+  background: transparent !important;
+  color: #B8B0D6 !important;
+}
+:host-context(body[data-theme="dark"]) .consultas-container .consulta-tab-btn i { color: #9D8FE7 !important; }
+:host-context(body[data-theme="dark"]) .consultas-container .tabs .consulta-tab-btn:hover {
+  background: rgba(157, 143, 231, .08) !important;
+  color: #E5DCFF !important;
+}
+:host-context(body[data-theme="dark"]) .consultas-container .tabs .consulta-tab-btn:hover i { color: #E5DCFF !important; }
+:host-context(body[data-theme="dark"]) .consultas-container .tabs .consulta-tab-btn.ativo {
+  background: rgba(157, 143, 231, .16) !important;
+  color: #F4F1FF !important;
+  border-bottom-color: #9D8FE7 !important;
+}
+:host-context(body[data-theme="dark"]) .consultas-container .tabs .consulta-tab-btn.ativo i { color: #D9D0FF !important; }
+
+:host-context(body[data-theme="dark"]) .consulta-card {
+  background: #161C2B !important;
+  border-color: rgba(255, 255, 255, .08) !important;
+}
+:host-context(body[data-theme="dark"]) .consulta-divider { background: rgba(255, 255, 255, .08); }
+
+/* No escuro: fundo lilás translúcido e ícone lilás claro (mesma cor, mais clara) */
+:host-context(body[data-theme="dark"]) .consulta-info-icon {
+  background: rgba(157, 143, 231, .14) !important;
+  color: #D9D0FF !important;
+  box-shadow: inset 0 0 0 1px rgba(157, 143, 231, .18);
+}
+:host-context(body[data-theme="dark"]) .consulta-info-icon i { color: #D9D0FF !important; }
+:host-context(body[data-theme="dark"]) .consulta-foto-prof { background: #232A3F; border-color: rgba(157, 143, 231, .3); }
+
+:host-context(body[data-theme="dark"]) .btn-detalhes { background: #6C4BBF; }
+:host-context(body[data-theme="dark"]) .btn-detalhes:hover { background: #7C5CD6; }
+:host-context(body[data-theme="dark"]) .btn-chat { background: rgba(157, 143, 231, .12); color: #E5DCFF; border-color: rgba(157, 143, 231, .3); }
+:host-context(body[data-theme="dark"]) .btn-chat i { color: #E5DCFF !important; }
+:host-context(body[data-theme="dark"]) .btn-chat:hover { background: rgba(157, 143, 231, .2); border-color: #9D8FE7; }
+
+/* Selo de status: amarelo com texto amarelo-queimado; no escuro, amarelo translúcido com texto amarelo claro */
+:host-context(body[data-theme="dark"]) .badge-pendente { background: rgba(255, 213, 79, .16); color: #FFE08A; }

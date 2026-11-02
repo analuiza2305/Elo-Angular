@@ -1039,3 +1039,45 @@ body[data-theme="dark"] .perfil-mae .form-group input { border-color: var(--pm-b
 @media (max-width: 640px) {
   .perfil-mae .bem-estar-itens { grid-template-columns: 1fr; }
 }
+
+/* =========================================================
+   AJUSTE 02/11: perfil da mãe
+   - o que era branco vira lilás claríssimo
+   - lápis do avatar com contraste
+   - escolha de avatar legível no modo escuro
+========================================================= */
+.perfil-mae { --pm-card: #FCFAFF; }
+.perfil-mae .profile-avatar { background: #F3ECFF; border-color: #E9E0FF; }
+
+/* Lápis: ícone sempre branco sobre o roxo, com borda lilás */
+.perfil-mae .btn-edit-avatar { background: linear-gradient(135deg, #6A55A8, #4B2C82); border-color: #F3ECFF; }
+.perfil-mae .btn-edit-avatar i { color: #FFFFFF !important; font-size: .85rem; }
+body[data-theme="dark"] .perfil-mae .btn-edit-avatar { background: linear-gradient(135deg, #9D8FE7, #6C4BBF); border-color: #1b2336; }
+
+/* Botões contornados: borda lilás em vez de branca */
+.perfil-mae .btn-ghost { border-color: #DCD2F2; }
+body[data-theme="dark"] .perfil-mae .btn-ghost { border-color: rgba(185, 172, 240, .45); color: #D9D0FF; }
+body[data-theme="dark"] .perfil-mae .btn-ghost i { color: #D9D0FF !important; }
+body[data-theme="dark"] .perfil-mae .profile-avatar { background: #EEE8FB; border-color: rgba(185, 172, 240, .5); }
+body[data-theme="dark"] .perfil-mae .btn-edit-profile { border-color: rgba(185, 172, 240, .45); color: #D9D0FF; }
+
+/* ---------- Escolha de avatar ---------- */
+#modal-avatar .avatar-btn { background: #F6F2FF; }
+#modal-avatar .confirmar-btn i { color: #FFFFFF !important; }
+#modal-avatar .confirmar-btn:disabled { background: #D9CFF0; color: #5B4C86; }
+#modal-avatar .confirmar-btn:disabled i { color: #5B4C86 !important; }
+
+body[data-theme="dark"] #modal-avatar .modal-content { background: #1B2336 !important; border: 1px solid rgba(255, 255, 255, .08); }
+body[data-theme="dark"] #modal-avatar h3 { color: #F4F1FF !important; }
+body[data-theme="dark"] #modal-avatar .btn-fechar-modal { background: rgba(157, 143, 231, .18); color: #E5DCFF; }
+body[data-theme="dark"] #modal-avatar .avatar-btn {
+  background: #EEE8FB;                     /* lilás claríssimo no lugar do branco puro */
+  border-color: transparent;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, .3);
+}
+body[data-theme="dark"] #modal-avatar .avatar-btn.selecionado { border-color: #B9ACF0; }
+body[data-theme="dark"] #modal-avatar .avatar-btn.selecionado::after { background: #9D8FE7; border-color: #1B2336; }
+body[data-theme="dark"] #modal-avatar .confirmar-btn { background: linear-gradient(90deg, #6C4BBF, #8B6BD9); color: #FFFFFF; }
+body[data-theme="dark"] #modal-avatar .confirmar-btn:disabled { background: rgba(157, 143, 231, .22); color: #D2C9EE; }
+body[data-theme="dark"] #modal-avatar .confirmar-btn:disabled i { color: #D2C9EE !important; }
+body[data-theme="dark"] #modal-avatar .avatar-grid::-webkit-scrollbar-thumb { background: #9D8FE7; }

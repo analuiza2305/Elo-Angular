@@ -1,8 +1,9 @@
-import { Component, ElementRef, Input, OnDestroy, ViewChild, signal } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../../core/firebase';
+import { AlertaService } from '../../core/services/alerta.service';
 
 type TipoAlvo = 'post' | 'artigo' | 'evento';
 
@@ -24,6 +25,7 @@ type TipoAlvo = 'post' | 'artigo' | 'evento';
 export class DenunciarComponent implements OnDestroy {
   /** <dialog> nativo: fica na "camada superior" do navegador, por cima de tudo, mesmo dentro de cards com hover/transform. */
   @ViewChild('caixa') private caixa?: ElementRef<HTMLDialogElement>;
+  private readonly alerta = inject(AlertaService);
 
   @Input({ required: true }) tipo!: TipoAlvo;
   @Input({ required: true }) alvoId!: string;
@@ -104,7 +106,10 @@ export class DenunciarComponent implements OnDestroy {
       // 1 denúncia por pessoa para cada conteúdo (id fixo evita repetição).
       const ref = doc(db, 'denunciasConteudo', `${this.tipo}_${this.alvoId}_${usuario.uid}`);
       if ((await getDoc(ref)).exists()) {
-        this.erro.set('Você já denunciou este conteúdo. Nossa equipe já foi avisada.');
+        // Mesmo aviso padrão do resto da plataforma (AlertaService)
+        this.enviando.set(false);
+        this.fechar();
+        this.alerta.info('Você já denunciou este conteúdo. Nossa equipe de moderação já foi avisada e vai analisar.', 'Denúncia já registrada');
         return;
       }
 
@@ -138,7 +143,12 @@ export class DenunciarComponent implements OnDestroy {
         console.warn('Contador de denúncias não atualizado (regras do Firestore?):', e);
       }
 
-      this.enviada.set(true);
+      this.enviando.set(false);
+      this.fechar();
+      this.alerta.sucesso(
+        'Obrigada por cuidar da nossa comunidade. A equipe de moderação já foi avisada e vai analisar. Quem denuncia não aparece para quem foi denunciado.',
+        'Denúncia enviada'
+      );
     } catch (e) {
       console.error('Erro ao enviar denúncia:', e);
       this.erro.set('Não foi possível enviar agora. Tente novamente em instantes.');

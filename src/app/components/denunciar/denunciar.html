@@ -1,6 +1,6 @@
-<button type="button" class="den-btn" (click)="abrir($event)" [attr.aria-label]="rotulo + ' ' + nomeTipo" [title]="rotulo">
+<button type="button" class="den-btn" [class.den-btn-icone]="!rotulo" (click)="abrir($event)" [attr.aria-label]="(rotulo || 'Denunciar') + ' ' + nomeTipo" [title]="rotulo || 'Denunciar'">
   <i class="fa-regular fa-flag"></i>
-  <span>{{ rotulo }}</span>
+  @if (rotulo) { <span>{{ rotulo }}</span> }
 </button>
 
 <dialog #caixa class="den-caixa" aria-labelledby="den-titulo" (click)="aoClicarNoDialogo($event)" (cancel)="aoCancelar($event)">
@@ -8,33 +8,34 @@
     <div class="den-conteudo">
       <button type="button" class="den-fechar" aria-label="Fechar" (click)="fechar()"><i class="fa-solid fa-xmark"></i></button>
 
-      @if (enviada()) {
-        <div class="den-sucesso">
-          <i class="fa-solid fa-circle-check"></i>
-          <h3>Denúncia enviada</h3>
-          <p>Obrigada por cuidar da nossa comunidade. A equipe de moderação já foi avisada e vai analisar. Quem denuncia não aparece para quem foi denunciado.</p>
-          <button type="button" class="den-primario" (click)="fechar()">Fechar</button>
+      <div class="den-topo">
+        <span class="den-topo-icone"><i class="fa-solid fa-flag"></i></span>
+        <div>
+          <h3 id="den-titulo">Denunciar {{ nomeTipo }}</h3>
+          @if (alvoTitulo) { <p class="den-alvo">“{{ alvoTitulo }}”</p> }
         </div>
-      } @else {
-        <h3 id="den-titulo">Denunciar {{ nomeTipo }}</h3>
-        @if (alvoTitulo) { <p class="den-alvo">“{{ alvoTitulo }}”</p> }
+      </div>
 
-        <label for="den-motivo">Motivo</label>
-        <select id="den-motivo" [(ngModel)]="motivo" name="motivo">
-          <option value="" disabled>Selecione o motivo</option>
-          @for (m of motivos; track m) { <option [value]="m">{{ m }}</option> }
-        </select>
+      <p class="den-rotulo">Qual é o problema?</p>
+      <div class="den-motivos" role="radiogroup" aria-label="Motivo da denúncia">
+        @for (m of motivos; track m) {
+          <button type="button" class="den-motivo" role="radio" [class.ativo]="motivo === m" [attr.aria-checked]="motivo === m" (click)="motivo = m; erro.set('')">
+            <span class="den-radio"></span>{{ m }}
+          </button>
+        }
+      </div>
 
-        <label for="den-detalhes">Quer contar mais? (opcional)</label>
-        <textarea id="den-detalhes" rows="3" maxlength="500" [(ngModel)]="detalhes" name="detalhes" placeholder="Explique o que aconteceu..."></textarea>
+      <label class="den-rotulo" for="den-detalhes">Quer contar mais? <small>(opcional)</small></label>
+      <textarea id="den-detalhes" rows="3" maxlength="500" [(ngModel)]="detalhes" name="detalhes" placeholder="Explique o que aconteceu..."></textarea>
 
-        @if (erro()) { <p class="den-erro" role="alert">{{ erro() }}</p> }
+      @if (erro()) { <p class="den-erro" role="alert"><i class="fa-solid fa-circle-exclamation"></i> {{ erro() }}</p> }
 
-        <div class="den-acoes">
-          <button type="button" class="den-secundario" [disabled]="enviando()" (click)="fechar()">Cancelar</button>
-          <button type="button" class="den-primario" [disabled]="enviando()" (click)="enviar()">{{ enviando() ? 'Enviando...' : 'Enviar denúncia' }}</button>
-        </div>
-      }
+      <p class="den-sigilo"><i class="fa-solid fa-lock"></i> Sua denúncia é anônima para quem foi denunciado.</p>
+
+      <div class="den-acoes">
+        <button type="button" class="den-secundario" [disabled]="enviando()" (click)="fechar()">Cancelar</button>
+        <button type="button" class="den-primario" [disabled]="enviando()" (click)="enviar()">{{ enviando() ? 'Enviando...' : 'Enviar denúncia' }}</button>
+      </div>
     </div>
   }
 </dialog>

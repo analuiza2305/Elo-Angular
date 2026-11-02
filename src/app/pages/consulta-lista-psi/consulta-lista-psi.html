@@ -64,21 +64,6 @@
             </div>
 
             <div class="details">
-              @if (prof.premium || prof.reputacao.bemAvaliado) {
-                <div class="selos-row">
-                  @if (prof.premium) {
-                    <span class="selo selo-premium" title="Perfil em destaque na plataforma">
-                      <i class="fa-solid fa-star"></i> Perfil em destaque
-                    </span>
-                  }
-                  @if (prof.reputacao.bemAvaliado) {
-                    <span class="selo selo-bem-avaliado" title="Selo conquistado pelas avaliações das mães (não pode ser comprado)">
-                      <i class="fa-solid fa-award"></i> Bem avaliado pelas mães
-                    </span>
-                  }
-                </div>
-              }
-
               <div class="name-block">
                 <div class="name-row">
                   <h3>{{ prof.nome }}</h3>
@@ -90,6 +75,7 @@
                 </p>
               </div>
 
+              <!-- Reputação e selos numa linha só -->
               <div class="rating-chips">
                 @if (!prof.reputacao.novo) {
                   <span class="chip-nota" [attr.aria-label]="'Nota ' + prof.reputacao.mediaTexto + ' de 5, ' + prof.reputacao.total + ' avaliações'">
@@ -99,11 +85,18 @@
                     <strong>{{ prof.reputacao.mediaTexto }}</strong>
                     <span class="rating-total">{{ prof.reputacao.total }} avaliações</span>
                   </span>
-                  @if (prof.reputacao.recomendamPct !== null) {
-                   <br>
-                  }
                 } @else {
                   <span class="rating-novo"><i class="fa-solid fa-seedling"></i> Novo na rede</span>
+                }
+                @if (prof.reputacao.bemAvaliado) {
+                  <span class="selo selo-bem-avaliado" title="Selo conquistado pelas avaliações das mães (não pode ser comprado)">
+                    <i class="fa-solid fa-award"></i> Bem avaliado pelas mães
+                  </span>
+                }
+                @if (prof.premium) {
+                  <span class="selo selo-premium" title="Perfil em destaque na plataforma">
+                    <i class="fa-solid fa-star"></i> Perfil em destaque
+                  </span>
                 }
               </div>
 

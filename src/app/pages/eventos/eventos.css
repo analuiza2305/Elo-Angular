@@ -852,3 +852,80 @@ body.dark-theme .estado-vazio p,
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(217, 83, 79, 0.4);
 }
+
+/* =========================================================
+   AJUSTE 02/11: banner, selo da imagem, inscrição e alinhamento
+========================================================= */
+
+/* Banner: a arte (997x270) fica inteira à direita e o resto é preenchido com a mesma cor,
+   em vez de ser cortada em cima e embaixo pelo "cover" */
+.eventos-hero-banner {
+  min-height: 240px;
+  background-color: #F7F2FE;
+  background-image: url('/img/hero-evento.png'), linear-gradient(110deg, #FBF8FF 0%, #F3ECFF 60%, #EBE2FD 100%);
+  background-size: auto 100%, cover;
+  background-position: right center, center;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(132, 113, 177, .14);
+  box-shadow: -10px -10px 26px rgba(255, 255, 255, .9), 14px 18px 40px rgba(124, 105, 169, .12);
+}
+.eventos-hero-banner .hero-content { max-width: 560px; color: #2D1E4E; }
+.eventos-hero-banner .hero-content h1 { color: #2D1E4E !important; }
+.eventos-hero-banner .hero-content p { color: #4F4669 !important; font-weight: 600 !important; font-size: 1.05rem !important; opacity: 1; }
+
+@media (max-width: 750px) {
+  .eventos-hero-banner { background-size: auto 70%, cover; background-position: right bottom, center; }
+  .eventos-hero-banner .hero-content { max-width: 100%; }
+}
+
+:host-context(body[data-theme="dark"]) .eventos-hero-banner {
+  /* a arte é clara: no modo escuro o banner continua claro (igual ao do fórum), com texto escuro */
+  background-color: #F7F2FE !important;
+  background-image: url('/img/hero-evento.png'), linear-gradient(110deg, #FBF8FF 0%, #F3ECFF 60%, #EBE2FD 100%) !important;
+  background-size: auto 100%, cover !important;
+  background-position: right center, center !important;
+  background-repeat: no-repeat !important;
+  border-color: rgba(255, 255, 255, .1) !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .35);
+}
+:host-context(body[data-theme="dark"]) .eventos-hero-banner .hero-content h1 { color: #2D1E4E !important; }
+:host-context(body[data-theme="dark"]) .eventos-hero-banner .hero-content p { color: #4F4669 !important; }
+@media (max-width: 750px) {
+  :host-context(body[data-theme="dark"]) .eventos-hero-banner { background-size: auto 70%, cover !important; background-position: right bottom, center !important; }
+}
+
+/* Selo de categoria em cima da imagem */
+:host-context(body[data-theme="dark"]) .categoria-badge {
+  background: rgba(21, 27, 40, .88) !important;
+  color: #E5DCFF !important;
+  border: 1px solid rgba(157, 143, 231, .3);
+}
+:host-context(body[data-theme="dark"]) .categoria-badge i { color: #C4B5FD !important; }
+
+/* "Você está inscrita!": verde mais escuro e check verde-escuro (era roxo) */
+.btn-inscrever.inscrito {
+  background: #E6F6EC !important;
+  color: #146C43 !important;
+  border-color: rgba(20, 108, 67, .22) !important;
+}
+.btn-inscrever.inscrito i { color: #0E5A36 !important; }
+:host-context(body[data-theme="dark"]) .btn-inscrever.inscrito {
+  background: rgba(34, 139, 84, .16) !important;
+  color: #8FE0B5 !important;
+  border-color: rgba(143, 224, 181, .3) !important;
+}
+:host-context(body[data-theme="dark"]) .btn-inscrever.inscrito i { color: #A7EBC6 !important; }
+
+/* Botões do card alinhados (a bandeira agora tem o mesmo tamanho dos outros) */
+.evento-acoes { align-items: center; }
+:host-context(body[data-theme="dark"]) .btn-icone-acao {
+  background: rgba(157, 143, 231, .12) !important;
+  border-color: rgba(157, 143, 231, .25) !important;
+  color: #D9D0FF !important;
+}
+:host-context(body[data-theme="dark"]) .btn-icone-acao i { color: #D9D0FF !important; }
+:host-context(body[data-theme="dark"]) .btn-inscrever:not(.inscrito) {
+  background: rgba(157, 143, 231, .14) !important;
+  color: #E5DCFF !important;
+  border-color: rgba(157, 143, 231, .28) !important;
+}

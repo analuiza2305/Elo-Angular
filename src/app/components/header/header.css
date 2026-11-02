@@ -823,3 +823,21 @@ body[data-theme="dark"] .adm-icon-btn:hover { background: rgba(255, 255, 255, 0.
 .aviso-mod-btn { width: 100%; padding: 14px; border: none; border-radius: 14px; background: #52427D; color: #fff; font-family: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; }
 .aviso-mod-btn:hover:not(:disabled) { background: #3E2A72; }
 .aviso-mod-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* =========================================================
+   AJUSTE 02/11: notificações com contraste
+   Regra do site: ícone da mesma cor do fundo, mais escuro (claro) / mais claro (escuro)
+========================================================= */
+.notif-icone i { color: inherit !important; }
+.notif-icone { background: #E3F5EA; color: #146C43; }                 /* confirmada: verde */
+.notif-icone.recusada { background: #FDE8EC; color: #A3243F; }       /* recusada: vermelho */
+.notif-icone.roxa { background: #EFE8FF; color: #4B2C82; }           /* demais avisos: lilás */
+
+:host-context(body[data-theme="dark"]) .notif-icone { background: rgba(52, 211, 153, .16); color: #A7F0CC; }
+:host-context(body[data-theme="dark"]) .notif-icone.recusada { background: rgba(251, 113, 133, .16); color: #FFC2CE; }
+:host-context(body[data-theme="dark"]) .notif-icone.roxa { background: rgba(196, 181, 253, .16); color: #E5DCFF; }
+:host-context(body[data-theme="dark"]) .notif-texto strong { color: #F7F4FF !important; }
+:host-context(body[data-theme="dark"]) .notif-msg { color: #D6CEF2 !important; }
+:host-context(body[data-theme="dark"]) .notif-tempo { color: #B3A9D6 !important; }
+:host-context(body[data-theme="dark"]) .notif-marcar { color: #D9D0FF !important; }
+:host-context(body[data-theme="dark"]) .notif-item.nao-lida { background: rgba(196, 181, 253, .1); }
