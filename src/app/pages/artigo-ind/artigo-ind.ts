@@ -9,10 +9,11 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { AlertaService } from '../../core/services/alerta.service';
 
 import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
+import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 @Component({
   selector: 'app-artigo-ind',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent, AnuncioEspacoComponent],
   templateUrl: './artigo-ind.html',
   styleUrls: ['./artigo-ind.css']
 })

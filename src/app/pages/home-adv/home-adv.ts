@@ -17,6 +17,7 @@ import { PlanoService, Assinatura, Plano, PLANOS_PADRAO_POR_PUBLICO, formatarBRL
 import { MODELOS_JURIDICOS, ModeloJuridico } from '../../services/modelos-juridicos';
 import { gerarDocumentoJuridico, gerarRelatorioAtendimentos, formatarHoras, ConsultaRelatorio } from '../../services/documentos-pdf';
 
+import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 type SecaoHomeAdv = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos' | 'informacoes';
 type AbaConsultas = 'Pendentes' | 'Agendadas' | 'Realizadas' | 'Negadas';
 type CategoriaArtigo = 'posts' | 'legislativos' | 'educacionais' | 'dicas';
@@ -81,7 +82,7 @@ const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', catego
 @Component({
   selector: 'app-home-adv',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, AnuncioEspacoComponent],
   templateUrl: './home-adv.html',
   styleUrls: ['./home-adv.css', './home-adv-premium.css'],
 })

@@ -484,12 +484,12 @@ body {
    ========================================== */
 
    @media (max-width: 1050px) {
-    .eventos-hero-banner { 
-        padding: 30px; 
-        background-position: center; 
+    .eventos-hero-banner {
+        padding: 30px;
+        background-position: center;
     }
-    .eventos-grid { 
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important; 
+    .eventos-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
 }
 
@@ -497,13 +497,13 @@ body {
     .eventos-container {
         padding: 0 16px;
     }
-    .eventos-grid { 
-        grid-template-columns: 1fr !important; 
+    .eventos-grid {
+        grid-template-columns: 1fr !important;
     }
-    .eventos-filtros-bar { 
-        flex-direction: column; 
-        gap: 15px; 
-        align-items: stretch; 
+    .eventos-filtros-bar {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
     }
     .filtros-pulas {
         width: 100%;
@@ -780,8 +780,8 @@ body.dark-theme .estado-vazio p,
 }
 /* Caixa principal do modal: SEM PADDING para a imagem colar */
 .event-modal-full {
-    padding: 0 !important; 
-    overflow: hidden; 
+    padding: 0 !important;
+    overflow: hidden;
     position: relative; /* Essencial para o botão X flutuar */
     max-width: 550px !important;
     border-radius: 24px !important;
@@ -929,3 +929,15 @@ body.dark-theme .estado-vazio p,
   color: #E5DCFF !important;
   border-color: rgba(157, 143, 231, .28) !important;
 }
+
+/* ---------- Selo de visibilidade (pacote/evento impulsionado de empresa parceira) ---------- */
+.vis-selo {
+  display: inline-flex; align-items: center; gap: 5px; width: fit-content;
+  padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 800; line-height: 1.5;
+  background: #FFF4E0; color: #9A6410; border: 1px solid #FCE3B8;
+}
+.vis-selo i { font-size: .65rem; }
+.vis-selo.premium { background: linear-gradient(135deg, #7C69A9, #52427D); color: #fff; border-color: transparent; }
+.vis-selo.premium i { color: #F5C66B; }
+.vis-selo-canto { position: absolute; left: 12px; bottom: 12px; z-index: 2; box-shadow: 0 4px 12px rgba(0, 0, 0, .15); }
+:host-context(body[data-theme="dark"]) .vis-selo:not(.premium) { background: rgba(251, 191, 36, .14); color: #FBBF24; border-color: rgba(251, 191, 36, .3); }

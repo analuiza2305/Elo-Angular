@@ -119,6 +119,9 @@
                                 }
                             </div>
                         </article>
+                        @if ($index === 2 || ($last && postsVisiveis.length < 3)) {
+                            <app-anuncio-espaco posicao="forum"></app-anuncio-espaco>
+                        }
                     } @empty {
                         <div class="fr-vazio">
                             <i class="fa-regular fa-comments"></i>

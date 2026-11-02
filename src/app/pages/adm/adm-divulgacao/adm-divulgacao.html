@@ -1,0 +1,408 @@
+<!-- AVISO -->
+@if (aviso(); as a) {
+  <div class="pl-toast" [class.erro]="a.tipo === 'erro'" role="status" aria-live="polite">
+    <i class="fa-solid" [class.fa-circle-check]="a.tipo === 'ok'" [class.fa-circle-xmark]="a.tipo === 'erro'"></i>
+    {{ a.texto }}
+  </div>
+}
+
+<!-- CABEÇALHO -->
+<header class="pl-header">
+  <div class="pl-header-info">
+    <span class="pl-header-icone"><i class="fa-solid fa-bullhorn"></i></span>
+    <div>
+      <h2>Divulgação</h2>
+      <p>Pacotes de publicação, divulgação de eventos e anúncios das empresas parceiras.</p>
+    </div>
+  </div>
+  @if (aba() === 'catalogo') {
+    <button type="button" class="pl-btn pl-btn-primario" (click)="abrirNovo()">
+      <i class="fa-solid fa-plus"></i> Novo item
+    </button>
+  }
+</header>
+
+<!-- INDICADORES -->
+<div class="pl-kpis">
+  <div class="pl-kpi">
+    <span class="pl-kpi-icone roxo"><i class="fa-solid fa-layer-group"></i></span>
+    <div><strong>{{ kpis().itensAtivos }}</strong><span>Itens ativos no catálogo</span></div>
+  </div>
+  <div class="pl-kpi">
+    <span class="pl-kpi-icone verde"><i class="fa-solid fa-box-open"></i></span>
+    <div><strong>{{ kpis().pacotesAtivos }}</strong><span>Pacotes ativos</span></div>
+  </div>
+  <div class="pl-kpi">
+    <span class="pl-kpi-icone azul"><i class="fa-solid fa-bullhorn"></i></span>
+    <div><strong>{{ kpis().anunciosNoAr }}</strong><span>Anúncios no ar</span></div>
+  </div>
+  <div class="pl-kpi">
+    <span class="pl-kpi-icone rosa"><i class="fa-solid fa-sack-dollar"></i></span>
+    <div><strong>{{ brl(kpis().receita) }}</strong><span>Arrecadado (simulado)</span></div>
+  </div>
+</div>
+
+<!-- ABAS -->
+<div class="pl-abas" role="tablist">
+  <button type="button" role="tab" class="pl-aba" [class.ativa]="aba() === 'catalogo'" [attr.aria-selected]="aba() === 'catalogo'" (click)="aba.set('catalogo')">
+    <i class="fa-solid fa-table-cells-large"></i> Catálogo
+  </button>
+  <button type="button" role="tab" class="pl-aba" [class.ativa]="aba() === 'contratacoes'" [attr.aria-selected]="aba() === 'contratacoes'" (click)="aba.set('contratacoes')">
+    <i class="fa-solid fa-handshake"></i> Contratações
+    <span class="pl-aba-contador">{{ anuncios().length + pacotes().length }}</span>
+  </button>
+</div>
+
+@if (carregando()) {
+  <div class="pl-estado"><i class="fa-solid fa-spinner fa-spin"></i> Carregando…</div>
+} @else if (erroCarga()) {
+  <div class="pl-estado erro">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <p>{{ erroCarga() }}</p>
+    <button type="button" class="pl-btn pl-btn-secundario" (click)="carregar()">Tentar de novo</button>
+  </div>
+} @else {
+
+  <!-- ===================== ABA: CATÁLOGO ===================== -->
+  @if (aba() === 'catalogo') {
+    <div class="pl-opcoes" role="tablist" aria-label="Tipo de item" style="margin-bottom: 18px">
+      @for (m of modelos; track m.valor) {
+        <button type="button" role="tab" class="pl-opcao" [class.sel]="filtroModelo() === m.valor" [attr.aria-selected]="filtroModelo() === m.valor" (click)="filtroModelo.set(m.valor)">
+          <i class="fa-solid" [ngClass]="m.icone"></i> {{ m.rotulo }}
+        </button>
+      }
+    </div>
+
+    @if (catalogoVazio()) {
+      <div class="pl-estado vazio">
+        <span class="pl-estado-icone"><i class="fa-solid fa-seedling"></i></span>
+        <h3>Nada cadastrado em “{{ rotuloModeloFiltro() }}”</h3>
+        <p>Enquanto isso, as empresas veem os itens padrão. Crie-os aqui para poder editar valores, duração e benefícios.</p>
+        <div class="pl-estado-acoes">
+          <button type="button" class="pl-btn pl-btn-primario" (click)="criarPadrao()"><i class="fa-solid fa-wand-magic-sparkles"></i> Criar itens padrão</button>
+          <button type="button" class="pl-btn pl-btn-secundario" (click)="abrirNovo()">Criar do zero</button>
+        </div>
+      </div>
+    } @else {
+      <div class="pl-grid">
+        @for (i of itensDoModelo(); track i.id) {
+          <article class="pl-card" [class.inativo]="!i.ativo" [class.destaque]="i.destaque && i.ativo">
+            <div class="pl-card-topo">
+              @if (i.modelo !== 'anuncio') {
+                <span class="dv-tag" [ngClass]="i.visibilidade"><i class="fa-solid" [ngClass]="i.visibilidade === 'premium' ? 'fa-crown' : 'fa-star'"></i> {{ rotuloVis(i.visibilidade) }}</span>
+              } @else {
+                <span class="dv-tag"><i class="fa-solid fa-bullhorn"></i> Anúncio</span>
+              }
+              <span class="pl-status" [class.on]="i.ativo">{{ i.ativo ? 'Ativo' : 'Inativo' }}</span>
+            </div>
+
+            <h3>{{ i.nome }} @if (i.destaque) { <i class="fa-solid fa-star pl-estrela" title="Recomendado"></i> }</h3>
+            @if (i.descricao) { <p class="pl-descricao">{{ i.descricao }}</p> }
+
+            <div class="pl-preco">
+              <strong>{{ brl(i.preco) }}</strong>
+              <span>{{ i.modelo === 'evento' ? 'por evento · ' + i.duracaoDias + ' dias de destaque' : sufixo(i.periodicidade) }}</span>
+            </div>
+
+            <ul class="pl-beneficios">
+              @for (b of i.beneficios; track $index) {
+                <li><span class="pl-check"><i class="fa-solid fa-check"></i></span>{{ b }}</li>
+              } @empty {
+                <li class="pl-sem-beneficio">Nenhum benefício definido.</li>
+              }
+            </ul>
+
+            @if (i.modelo === 'anuncio') {
+              <div class="dv-pos-tags">
+                @for (p of i.posicoes; track p) { <span class="dv-tag"><i class="fa-solid fa-location-dot"></i> {{ rotuloPosicao(p) }}</span> }
+              </div>
+            }
+
+            <div class="pl-card-rodape">
+              <div class="pl-assinantes-info">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>{{ i.modelo === 'pacote' ? 'Vale para todas as publicações no período' : i.modelo === 'evento' ? 'Cobrança única por evento' : 'Cobrança recorrente (simulada)' }}</span>
+              </div>
+              <div class="pl-card-acoes">
+                <button type="button" class="pl-btn pl-btn-secundario pl-btn-sm" (click)="abrirEdicao(i)">
+                  <i class="fa-solid fa-pen"></i> Editar
+                </button>
+                <button type="button" class="pl-switch" role="switch" [class.on]="i.ativo" [attr.aria-checked]="i.ativo"
+                        [attr.aria-label]="(i.ativo ? 'Desativar ' : 'Ativar ') + i.nome" (click)="alternarAtivo(i)">
+                  <span class="pl-switch-bolinha"></span>
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+      <p class="pl-nota"><i class="fa-solid fa-circle-info"></i> O nível Básico é gratuito para todas as empresas. Desativar um item só impede novas contratações: quem já contratou continua até o fim do prazo.</p>
+    }
+  }
+
+  <!-- ===================== ABA: CONTRATAÇÕES ===================== -->
+  @if (aba() === 'contratacoes') {
+    <div class="pl-opcoes" role="tablist" aria-label="O que listar" style="margin-bottom: 18px">
+      <button type="button" role="tab" class="pl-opcao" [class.sel]="visao() === 'anuncios'" (click)="visao.set('anuncios')"><i class="fa-solid fa-bullhorn"></i> Anúncios ({{ anuncios().length }})</button>
+      <button type="button" role="tab" class="pl-opcao" [class.sel]="visao() === 'pacotes'" (click)="visao.set('pacotes')"><i class="fa-solid fa-box-open"></i> Pacotes ({{ pacotes().length }})</button>
+      <button type="button" role="tab" class="pl-opcao" [class.sel]="visao() === 'cobrancas'" (click)="visao.set('cobrancas')"><i class="fa-solid fa-receipt"></i> Cobranças ({{ cobrancas().length }})</button>
+    </div>
+
+    @if (visao() === 'anuncios') {
+      @if (anuncios().length === 0) {
+        <div class="pl-estado vazio"><span class="pl-estado-icone"><i class="fa-solid fa-bullhorn"></i></span><h3>Nenhum anúncio contratado ainda</h3><p>Quando uma empresa contratar, o anúncio aparece aqui para você acompanhar e ajustar.</p></div>
+      } @else {
+        <div class="pl-tabela-wrap">
+          <table class="pl-tabela">
+            <thead><tr><th>Empresa</th><th>Anúncio</th><th>Espaço</th><th>Início</th><th>Termina em</th><th>Renova</th><th class="num">Exibições</th><th class="num">Cliques</th><th>Situação</th><th></th></tr></thead>
+            <tbody>
+              @for (a of anuncios(); track a.id) {
+                <tr>
+                  <td><strong>{{ a.nomeEmpresa || '—' }}</strong></td>
+                  <td><strong>{{ a.titulo }}</strong><small class="bloco">{{ brl(a.valor) }} {{ sufixo(a.periodicidade) }}</small></td>
+                  <td>{{ rotuloPosicao(a.posicao) }}</td>
+                  <td>{{ a.inicio ? (a.inicio | date: 'dd/MM/yyyy') : '—' }}</td>
+                  <td>{{ a.fim ? (a.fim | date: 'dd/MM/yyyy') : '—' }}</td>
+                  <td>{{ a.recorrente ? 'Sim' : 'Não' }}<small class="bloco">{{ a.renovacoes }} renovação(ões)</small></td>
+                  <td class="num">{{ a.impressoes }}</td>
+                  <td class="num">{{ a.cliques }}</td>
+                  <td><span class="pl-situacao" [ngClass]="classeSituacaoAnuncio(a)">{{ rotuloSituacaoAnuncio(a) }}</span></td>
+                  <td><button type="button" class="pl-btn pl-btn-secundario pl-btn-sm" (click)="abrirAjuste(a)"><i class="fa-solid fa-sliders"></i> Gerenciar</button></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+
+    @if (visao() === 'pacotes') {
+      @if (pacotes().length === 0) {
+        <div class="pl-estado vazio"><span class="pl-estado-icone"><i class="fa-solid fa-box-open"></i></span><h3>Nenhum pacote contratado ainda</h3><p>Quando uma empresa contratar um pacote de publicação, ele aparece aqui.</p></div>
+      } @else {
+        <div class="pl-tabela-wrap">
+          <table class="pl-tabela">
+            <thead><tr><th>Empresa</th><th>Pacote</th><th>Nível</th><th>Contratado em</th><th>Válido até</th><th>Situação</th><th class="num">Valor</th></tr></thead>
+            <tbody>
+              @for (p of pacotes(); track p.id) {
+                <tr>
+                  <td><strong>{{ p.nomeEmpresa || '—' }}</strong></td>
+                  <td>{{ p.itemNome }}</td>
+                  <td><span class="dv-tag" [ngClass]="p.visibilidade">{{ rotuloVis(p.visibilidade) }}</span></td>
+                  <td>{{ p.criadoEm ? (p.criadoEm | date: 'dd/MM/yyyy') : '—' }}</td>
+                  <td>{{ p.validoAte ? (p.validoAte | date: 'dd/MM/yyyy') : '—' }}</td>
+                  <td><span class="pl-situacao" [ngClass]="p.situacao">{{ p.situacao === 'ativo' ? 'Ativo' : p.situacao === 'expirado' ? 'Expirado' : 'Cancelado' }}</span></td>
+                  <td class="num"><strong>{{ brl(p.valor) }}</strong></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+
+    @if (visao() === 'cobrancas') {
+      @if (cobrancas().length === 0) {
+        <div class="pl-estado vazio"><span class="pl-estado-icone"><i class="fa-solid fa-receipt"></i></span><h3>Nenhuma cobrança ainda</h3><p>Pacotes, eventos impulsionados, anúncios e renovações aparecem aqui.</p></div>
+      } @else {
+        <div class="pl-tabela-wrap">
+          <table class="pl-tabela">
+            <thead><tr><th>Data</th><th>Empresa</th><th>Tipo</th><th>Descrição</th><th>Vale até</th><th class="num">Valor</th></tr></thead>
+            <tbody>
+              @for (c of cobrancas(); track c.id) {
+                <tr>
+                  <td>{{ c.criadoEm ? (c.criadoEm | date: 'dd/MM/yyyy HH:mm') : '—' }}</td>
+                  <td><strong>{{ c.empresa }}</strong></td>
+                  <td>{{ rotuloModelo(c.categoria) }}</td>
+                  <td>{{ c.descricao }}</td>
+                  <td>{{ c.validoAte ? (c.validoAte | date: 'dd/MM/yyyy') : '—' }}</td>
+                  <td class="num"><strong>{{ brl(c.valor) }}</strong></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  }
+}
+
+<!-- ===================== MODAL: ITEM DO CATÁLOGO ===================== -->
+@if (modalAberto()) {
+  <div class="pl-overlay" (click)="fecharModal()">
+    <div class="pl-modal" role="dialog" aria-modal="true" [attr.aria-label]="editandoId ? 'Editar item' : 'Novo item'" (click)="$event.stopPropagation()">
+      <button type="button" class="pl-fechar" (click)="fecharModal()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+
+      <div class="pl-modal-cabecalho">
+        <span class="pl-header-icone"><i class="fa-solid" [class.fa-pen]="editandoId" [class.fa-plus]="!editandoId"></i></span>
+        <div>
+          <h3>{{ editandoId ? 'Editar item' : 'Novo item' }}</h3>
+          <p>Defina o que a empresa recebe e quanto paga (pagamento simulado).</p>
+        </div>
+      </div>
+
+      <div class="pl-form">
+        <div class="pl-campo">
+          <span class="pl-label">Tipo</span>
+          <div class="pl-opcoes">
+            @for (m of modelos; track m.valor) {
+              <button type="button" class="pl-opcao" [class.sel]="form.modelo === m.valor" [disabled]="!!editandoId" (click)="form.modelo = m.valor; filtroModelo.set(m.valor); form.visibilidade = m.valor === 'anuncio' ? 'basico' : (form.visibilidade === 'basico' ? 'destaque' : form.visibilidade); form.duracaoDias = m.valor === 'evento' ? 15 : 30">
+                {{ m.singular }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="pl-campo">
+          <label for="dvNome">Nome</label>
+          <input id="dvNome" type="text" maxlength="40" [(ngModel)]="form.nome" placeholder="Ex.: Destaque, Evento Premium, Anúncio mensal">
+        </div>
+
+        <div class="pl-campo">
+          <label for="dvDesc">Descrição curta <span class="opcional">(opcional)</span></label>
+          <input id="dvDesc" type="text" maxlength="90" [(ngModel)]="form.descricao" placeholder="Uma frase que explique o item">
+        </div>
+
+        @if (form.modelo !== 'anuncio') {
+          <div class="pl-campo">
+            <span class="pl-label">Nível de visibilidade</span>
+            <div class="pl-opcoes">
+              @for (v of visibilidades; track v.valor) {
+                @if (v.valor !== 'basico') {
+                  <button type="button" class="pl-opcao" [class.sel]="form.visibilidade === v.valor" (click)="form.visibilidade = v.valor">
+                    <i class="fa-solid" [ngClass]="v.icone"></i> {{ v.rotulo }}
+                  </button>
+                }
+              }
+            </div>
+          </div>
+        }
+
+        <div class="pl-linha">
+          <div class="pl-campo">
+            <label for="dvPreco">Valor (R$)</label>
+            <input id="dvPreco" type="number" min="0" step="0.01" [(ngModel)]="form.preco" placeholder="79,90">
+          </div>
+          @if (form.modelo === 'evento') {
+            <div class="pl-campo">
+              <label for="dvDias">Dias de destaque</label>
+              <input id="dvDias" type="number" min="1" max="365" [(ngModel)]="form.duracaoDias">
+            </div>
+          } @else {
+            <div class="pl-campo">
+              <label for="dvPeriodo">Cobrança</label>
+              <select id="dvPeriodo" [(ngModel)]="form.periodicidade">
+                @for (per of periodicidades; track per.valor) { <option [value]="per.valor">{{ per.rotulo }} ({{ per.dias }} dias)</option> }
+              </select>
+            </div>
+          }
+        </div>
+
+        @if (form.modelo === 'anuncio') {
+          <div class="pl-campo">
+            <span class="pl-label">Espaços permitidos</span>
+            <div class="pl-checks dv-pos-grid">
+              @for (p of posicoes; track p.valor) {
+                <label class="pl-check-linha">
+                  <input type="checkbox" [checked]="form.posicoes.includes(p.valor)" (change)="alternarPosicao(p.valor)">
+                  <span><strong>{{ p.rotulo }}</strong><small>{{ p.descricao }}</small></span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="pl-checks">
+          <label class="pl-check-linha">
+            <input type="checkbox" [(ngModel)]="form.ativo">
+            <span><strong>Item ativo</strong><small>Aparece para as empresas contratarem.</small></span>
+          </label>
+          <label class="pl-check-linha">
+            <input type="checkbox" [(ngModel)]="form.destaque">
+            <span><strong>Destacar como recomendado</strong><small>Mostra a estrela e a etiqueta “Recomendado”.</small></span>
+          </label>
+        </div>
+
+        <div class="pl-campo">
+          <span class="pl-label">Benefícios</span>
+          <div class="pl-beneficios-editor">
+            @for (b of form.beneficios; track trackIndice($index)) {
+              <div class="pl-beneficio-linha">
+                <input type="text" maxlength="120" [(ngModel)]="form.beneficios[$index]" placeholder="Descreva um benefício" [attr.aria-label]="'Benefício ' + ($index + 1)">
+                <button type="button" class="pl-icone-btn perigo" (click)="removerBeneficio($index)" aria-label="Remover benefício"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            }
+            <button type="button" class="pl-add-beneficio" (click)="adicionarBeneficio()"><i class="fa-solid fa-plus"></i> Adicionar benefício</button>
+          </div>
+          <div class="pl-sugestoes">
+            <small>Sugestões:</small>
+            @for (s of sugestoes(); track s) {
+              <button type="button" class="pl-sugestao" (click)="adicionarBeneficio(s)">+ {{ s }}</button>
+            }
+          </div>
+        </div>
+
+        @if (erroForm()) {
+          <p class="pl-erro-form" role="alert"><i class="fa-solid fa-circle-exclamation"></i> {{ erroForm() }}</p>
+        }
+      </div>
+
+      <div class="pl-modal-acoes">
+        <button type="button" class="pl-btn pl-btn-secundario" [disabled]="salvando()" (click)="fecharModal()">Cancelar</button>
+        <button type="button" class="pl-btn pl-btn-primario" [disabled]="salvando()" (click)="salvar()">
+          <i class="fa-solid fa-floppy-disk"></i> {{ salvando() ? 'Salvando…' : (editandoId ? 'Salvar alterações' : 'Cadastrar item') }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ===================== MODAL: GERENCIAR ANÚNCIO ===================== -->
+@if (anuncioEmAjuste(); as a) {
+  <div class="pl-overlay" (click)="fecharAjuste()">
+    <div class="pl-modal pl-modal-pequeno" role="dialog" aria-modal="true" aria-label="Gerenciar anúncio" (click)="$event.stopPropagation()">
+      <button type="button" class="pl-fechar" (click)="fecharAjuste()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+      <div class="pl-modal-cabecalho">
+        <span class="pl-header-icone"><i class="fa-solid fa-sliders"></i></span>
+        <div>
+          <h3>{{ a.titulo }}</h3>
+          <p>{{ a.nomeEmpresa || 'Empresa' }} · controle a duração e a recorrência.</p>
+        </div>
+      </div>
+
+      <div class="pl-form">
+        <div class="pl-campo">
+          <label for="ajStatus">Situação</label>
+          <select id="ajStatus" [(ngModel)]="ajuste.status">
+            <option value="ativo">Ativo (no ar)</option>
+            <option value="pausado">Pausado</option>
+            <option value="encerrado">Encerrado</option>
+          </select>
+        </div>
+        <div class="pl-campo">
+          <label for="ajFim">Termina em</label>
+          <input id="ajFim" type="date" [(ngModel)]="ajuste.fim">
+        </div>
+        <div class="pl-campo">
+          <label for="ajPos">Espaço</label>
+          <select id="ajPos" [(ngModel)]="ajuste.posicao">
+            @for (p of posicoes; track p.valor) { <option [value]="p.valor">{{ p.rotulo }}</option> }
+          </select>
+        </div>
+        <div class="pl-checks">
+          <label class="pl-check-linha">
+            <input type="checkbox" [(ngModel)]="ajuste.recorrente" [disabled]="ajuste.status === 'encerrado'">
+            <span><strong>Renovação automática</strong><small>Quando o prazo acaba, renova e cobra de novo (simulado).</small></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="pl-modal-acoes">
+        <button type="button" class="pl-btn pl-btn-secundario" [disabled]="salvandoAjuste()" (click)="fecharAjuste()">Cancelar</button>
+        <button type="button" class="pl-btn pl-btn-primario" [disabled]="salvandoAjuste()" (click)="salvarAjuste()">
+          <i class="fa-solid fa-floppy-disk"></i> {{ salvandoAjuste() ? 'Salvando…' : 'Salvar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

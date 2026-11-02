@@ -18,6 +18,7 @@ import {
 import { AlertaService } from '../../core/services/alerta.service';
 import { PERGUNTAS_BEM_ESTAR, PerguntaBemEstar, rotuloDaResposta, respostaDeRisco } from '../../services/questionario-bem-estar';
 
+import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 type SecaoHomePsi = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos' | 'informacoes';
 type AbaConsultas = 'Pendentes' | 'Agendadas' | 'Realizadas' | 'Negadas';
 type CategoriaArtigo = 'posts' | 'legislativos' | 'educacionais' | 'dicas';
@@ -83,7 +84,7 @@ const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', catego
 @Component({
   selector: 'app-home-psi',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, AnuncioEspacoComponent],
   templateUrl: './home-psi.html',
   styleUrl: './home-psi.css',
 })

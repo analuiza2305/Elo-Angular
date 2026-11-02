@@ -78,6 +78,12 @@
                             </div>
                         }
                         <span class="ac-tag">{{ artigo.categoria || 'Geral' }}</span>
+                        @if (artigo.visibilidade && artigo.visibilidade !== 'basico') {
+                            <span class="vis-selo vis-selo-canto" [class.premium]="artigo.visibilidade === 'premium'">
+                                <i class="fa-solid" [class.fa-crown]="artigo.visibilidade === 'premium'" [class.fa-star]="artigo.visibilidade !== 'premium'"></i>
+                                {{ artigo.visibilidade === 'premium' ? 'Destaque Premium' : 'Em destaque' }}
+                            </span>
+                        }
                         <div class="ac-bookmark" [class.saved]="artigo.salvo" (click)="$event.stopPropagation(); toggleFavoritoRapido(artigo)">
                             <i [ngClass]="artigo.salvo ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'"></i>
                         </div>
@@ -93,6 +99,9 @@
                         </div>
                     </div>
                 </div>
+                @if ($index === 2 || ($last && artigosFiltrados().length < 3)) {
+                    <app-anuncio-espaco posicao="artigos"></app-anuncio-espaco>
+                }
             } @empty {
                 <div class="estado-vazio">
                     <div class="vazio-icon-wrapper">

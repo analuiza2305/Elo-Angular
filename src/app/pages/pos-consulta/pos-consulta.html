@@ -108,6 +108,10 @@
         </button>
       </div>
 
+      @if (enviado() !== 'denuncia') {
+        <app-anuncio-espaco [posicao]="euSouMae() ? 'pos-avaliacao-mae' : 'pos-avaliacao-profissional'"></app-anuncio-espaco>
+      }
+
     } @else {
       <div class="feedback-card">
         <!-- Topo -->

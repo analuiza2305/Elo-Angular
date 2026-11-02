@@ -8,6 +8,7 @@ import {
 } from 'firebase/firestore';
 import { ELOGIOS, MAX_ELOGIOS } from '../../services/reputacao';
 
+import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 const NOTAS_TEXTO = ['', 'Muito ruim', 'Ruim', 'Regular', 'Boa', 'Excelente'];
 const ESCALA_MIN = 0.875;
 const ESCALA_MAX = 1.375;
@@ -16,7 +17,7 @@ const ESCALA_PASSO = 0.125;
 @Component({
   selector: 'app-pos-consulta',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AnuncioEspacoComponent],
   templateUrl: './pos-consulta.html',
   styleUrls: ['./pos-consulta.css']
 })

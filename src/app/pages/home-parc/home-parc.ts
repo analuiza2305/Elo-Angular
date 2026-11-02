@@ -37,6 +37,9 @@ import { PlanoService } from '../../services/plano';
 import { SeloService } from '../../services/selo';
 
 import { ParcPlanosComponent, EVENTO_PLANO_ALTERADO } from './parc-planos/parc-planos';
+import { ParcDivulgacaoComponent } from './parc-divulgacao/parc-divulgacao';
+import { DivulgacaoService } from '../../services/divulgacao';
+import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 /**
  * Página do Parceiro (dashboard, calendário, fórum, artigos, relatórios,
  * configurações e perfil).
@@ -52,7 +55,7 @@ import { ParcPlanosComponent, EVENTO_PLANO_ALTERADO } from './parc-planos/parc-p
 @Component({
   selector: 'app-home-parc',
   standalone: true,
-  imports: [CommonModule, RouterLink, ParcPlanosComponent],
+  imports: [CommonModule, RouterLink, ParcPlanosComponent, ParcDivulgacaoComponent, AnuncioEspacoComponent],
   templateUrl: './home-parc.html',
   styleUrl: './home-parc.css',
 })
@@ -61,6 +64,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly alerta = inject(AlertaService);
   private readonly planoService = inject(PlanoService);
+  private readonly divulgacaoService = inject(DivulgacaoService);
   private readonly seloService = inject(SeloService);
 
   private unsubscribeAuth: Unsubscribe | null = null;
@@ -436,6 +440,18 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   // =============================================================
   // AUTENTICAÇÃO / DADOS DO PARCEIRO
   // =============================================================
+  /**
+   * Nível de visibilidade que uma publicação nova recebe: o do melhor pacote ativo da empresa.
+   * Sem pacote, devolve vazio (a publicação sai no nível básico). O `visibilidadeAte` faz a
+   * publicação voltar ao básico sozinha quando o pacote acaba.
+   */
+  private async visibilidadeDaPublicacao(): Promise<Record<string, unknown>> {
+    if (!this.uidAtual) return {};
+    const v = await this.divulgacaoService.visibilidadeAtual(this.uidAtual);
+    if (v.visibilidade === 'basico') return {};
+    return { visibilidade: v.visibilidade, ...(v.ate ? { visibilidadeAte: Timestamp.fromDate(v.ate) } : {}) };
+  }
+
   /** Selo de apoiador na lateral: plano Premium ativo da empresa OU cortesia do ADM. */
   private async mostrarSeloApoiador(uid: string): Promise<void> {
     const el = document.getElementById('sidebarSeloApoiador');
@@ -924,6 +940,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         datahorapost: new Date(),
         custoMoedas: 0,
         parceiroId: this.uidAtual,
+        ...(await this.visibilidadeDaPublicacao()),
       };
 
       try {
@@ -1126,6 +1143,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         tipo: val('tipoEvento'),
         enviadoPor: this.nomeEmpresaAtual,
         parceiroId: this.uidAtual,
+        ...(await this.visibilidadeDaPublicacao()),
       };
 
       try {

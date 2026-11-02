@@ -8,10 +8,12 @@ import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from 'fi
 import { AlertaService } from '../../core/services/alerta.service';
 
 import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
+import { prioridadeVisibilidade, visibilidadeEfetiva } from '../../services/divulgacao';
+import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 @Component({
   selector: 'app-artigos',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SelosAutorComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, SelosAutorComponent, AnuncioEspacoComponent],
   templateUrl: './artigos.html',
   styleUrls: ['./artigos.css']
 })
@@ -49,7 +51,9 @@ export class Artigos implements OnInit {
       if (this.ordemSelecionada() === 'antigos') {
         return dataA - dataB;
       }
-      // Padrão: mais recentes
+      // Padrão: quem tem pacote de divulgação aparece primeiro, depois os mais recentes
+      const porNivel = prioridadeVisibilidade(b.visibilidade) - prioridadeVisibilidade(a.visibilidade);
+      if (porNivel) return porNivel;
       return dataB - dataA;
     });
 
@@ -90,6 +94,8 @@ export class Artigos implements OnInit {
         return {
           id: d.id,
           ...data,
+          // nível de visibilidade (pacote de divulgação do parceiro); volta ao básico quando o pacote acaba
+          visibilidade: visibilidadeEfetiva(data),
           // Verifica se o ID do usuário está no array de salvos deste artigo
           salvo: user ? (data['salvosPor']?.includes(user.uid) || false) : false
         };

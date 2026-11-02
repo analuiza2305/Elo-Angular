@@ -131,6 +131,8 @@ export interface PagamentoPlano {
   periodicidade: Periodicidade;
   status: 'pago';
   origem: string;
+  /** 'plano' (assinatura) ou uma cobrança de divulgação (pacote, evento, anúncio). */
+  categoria?: 'plano' | 'pacote' | 'evento' | 'anuncio';
   criadoEm: Date | null;
   validoAte: Date | null;
 }
@@ -541,7 +543,10 @@ export class PlanoService {
     ]);
     const premiumDoTipo = (tipo: PublicoPlano) => catalogo.find((p) => p.nivel === 'premium' && p.publico === tipo);
     const porUid = new Map<string, PagamentoPlano[]>();
-    pagamentos.forEach((p) => porUid.set(p.uid, [...(porUid.get(p.uid) || []), p]));
+    // só as compras de PLANO contam aqui (pacotes, eventos e anúncios têm a sua própria lista)
+    pagamentos
+      .filter((p) => (p.categoria ?? 'plano') === 'plano')
+      .forEach((p) => porUid.set(p.uid, [...(porUid.get(p.uid) || []), p]));
 
     const linhas: Assinante[] = [];
     snap.docs.forEach((d) => {
@@ -739,6 +744,7 @@ export class PlanoService {
       periodicidade: d['periodicidade'] || 'mensal',
       status: 'pago',
       origem: d['origem'] || 'simulado',
+      categoria: ['pacote', 'evento', 'anuncio'].includes(d['categoria']) ? d['categoria'] : 'plano',
       criadoEm: this.data(d['criadoEm']),
       validoAte: this.data(d['validoAte']),
     };

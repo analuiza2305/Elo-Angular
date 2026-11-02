@@ -69,5 +69,9 @@
             </div>
         </article>
     }
+
+    @if (!isLoading() && !errorMessage() && artigo()) {
+        <app-anuncio-espaco posicao="artigos"></app-anuncio-espaco>
+    }
 </main>
 

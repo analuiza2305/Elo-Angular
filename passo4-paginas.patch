@@ -1,0 +1,212 @@
+diff --git a/src/app/pages/artigo-ind/artigo-ind.html b/src/app/pages/artigo-ind/artigo-ind.html
+index c79c324..6d25f1d 100644
+--- a/src/app/pages/artigo-ind/artigo-ind.html
++++ b/src/app/pages/artigo-ind/artigo-ind.html
+@@ -69,2 +69,6 @@
+     }
++
++    @if (!isLoading() && !errorMessage() && artigo()) {
++        <app-anuncio-espaco posicao="artigos"></app-anuncio-espaco>
++    }
+ </main>
+diff --git a/src/app/pages/artigo-ind/artigo-ind.ts b/src/app/pages/artigo-ind/artigo-ind.ts
+index c4e6815..612076a 100644
+--- a/src/app/pages/artigo-ind/artigo-ind.ts
++++ b/src/app/pages/artigo-ind/artigo-ind.ts
+@@ -11,2 +11,3 @@ import { AlertaService } from '../../core/services/alerta.service';
+ import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
++import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+ @Component({
+@@ -14,3 +15,3 @@ import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
+   standalone: true,
+-  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent],
++  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent, AnuncioEspacoComponent],
+   templateUrl: './artigo-ind.html',
+diff --git a/src/app/pages/artigos/artigos.html b/src/app/pages/artigos/artigos.html
+index fa23b26..3af6d8e 100644
+--- a/src/app/pages/artigos/artigos.html
++++ b/src/app/pages/artigos/artigos.html
+@@ -104,2 +104,5 @@
+                 </div>
++                @if ($index === 2 || ($last && artigosFiltrados().length < 3)) {
++                    <app-anuncio-espaco posicao="artigos"></app-anuncio-espaco>
++                }
+             } @empty {
+diff --git a/src/app/pages/artigos/artigos.ts b/src/app/pages/artigos/artigos.ts
+index d0d742f..7832e0e 100644
+--- a/src/app/pages/artigos/artigos.ts
++++ b/src/app/pages/artigos/artigos.ts
+@@ -11,2 +11,3 @@ import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
+ import { prioridadeVisibilidade, visibilidadeEfetiva } from '../../services/divulgacao';
++import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+ @Component({
+@@ -14,3 +15,3 @@ import { prioridadeVisibilidade, visibilidadeEfetiva } from '../../services/divu
+   standalone: true,
+-  imports: [CommonModule, RouterModule, HeaderComponent, SelosAutorComponent],
++  imports: [CommonModule, RouterModule, HeaderComponent, SelosAutorComponent, AnuncioEspacoComponent],
+   templateUrl: './artigos.html',
+diff --git a/src/app/pages/eventos/eventos.html b/src/app/pages/eventos/eventos.html
+index 0734b34..3b0e2c8 100644
+--- a/src/app/pages/eventos/eventos.html
++++ b/src/app/pages/eventos/eventos.html
+@@ -125,2 +125,5 @@
+                 </div>
++                @if ($index === 1 || ($last && eventosFiltrados().length < 2)) {
++                    <app-anuncio-espaco posicao="eventos"></app-anuncio-espaco>
++                }
+             } @empty {
+diff --git a/src/app/pages/eventos/eventos.ts b/src/app/pages/eventos/eventos.ts
+index c33a4ff..7f86c41 100644
+--- a/src/app/pages/eventos/eventos.ts
++++ b/src/app/pages/eventos/eventos.ts
+@@ -11,2 +11,3 @@ import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
+ import { prioridadeVisibilidade, visibilidadeEfetiva } from '../../services/divulgacao';
++import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+ @Component({
+@@ -14,3 +15,3 @@ import { prioridadeVisibilidade, visibilidadeEfetiva } from '../../services/divu
+   standalone: true,
+-  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent],
++  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent, AnuncioEspacoComponent],
+   templateUrl: './eventos.html',
+diff --git a/src/app/pages/forum/forum.html b/src/app/pages/forum/forum.html
+index 9965344..fcda7d8 100644
+--- a/src/app/pages/forum/forum.html
++++ b/src/app/pages/forum/forum.html
+@@ -121,2 +121,5 @@
+                         </article>
++                        @if ($index === 2 || ($last && postsVisiveis.length < 3)) {
++                            <app-anuncio-espaco posicao="forum"></app-anuncio-espaco>
++                        }
+                     } @empty {
+diff --git a/src/app/pages/forum/forum.ts b/src/app/pages/forum/forum.ts
+index 5a3f69b..ce2f7ff 100644
+--- a/src/app/pages/forum/forum.ts
++++ b/src/app/pages/forum/forum.ts
+@@ -9,2 +9,3 @@ import { onAuthStateChanged } from 'firebase/auth';
+ import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
++import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+ import {
+@@ -18,3 +19,3 @@ const POSTS_POR_PAGINA = 8;
+   standalone: true,
+-  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, DenunciarComponent, SelosAutorComponent],
++  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, DenunciarComponent, SelosAutorComponent, AnuncioEspacoComponent],
+   templateUrl: './forum.html',
+diff --git a/src/app/pages/home-adv/home-adv.html b/src/app/pages/home-adv/home-adv.html
+index 171506e..6a2172c 100644
+--- a/src/app/pages/home-adv/home-adv.html
++++ b/src/app/pages/home-adv/home-adv.html
+@@ -152,2 +152,4 @@
+       </div>
++
++      <app-anuncio-espaco posicao="painel-profissional"></app-anuncio-espaco>
+     </section>
+diff --git a/src/app/pages/home-adv/home-adv.ts b/src/app/pages/home-adv/home-adv.ts
+index 1065c44..fc48ea0 100644
+--- a/src/app/pages/home-adv/home-adv.ts
++++ b/src/app/pages/home-adv/home-adv.ts
+@@ -19,2 +19,3 @@ import { gerarDocumentoJuridico, gerarRelatorioAtendimentos, formatarHoras, Cons
+ 
++import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+ type SecaoHomeAdv = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos' | 'informacoes';
+@@ -83,3 +84,3 @@ const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', catego
+   standalone: true,
+-  imports: [CommonModule, FormsModule, RouterModule],
++  imports: [CommonModule, FormsModule, RouterModule, AnuncioEspacoComponent],
+   templateUrl: './home-adv.html',
+diff --git a/src/app/pages/home-mae/home-mae.html b/src/app/pages/home-mae/home-mae.html
+index e2f9989..14ce6ed 100644
+--- a/src/app/pages/home-mae/home-mae.html
++++ b/src/app/pages/home-mae/home-mae.html
+@@ -135,2 +135,6 @@
+ 
++        <section class="section">
++            <app-anuncio-espaco posicao="home-mae"></app-anuncio-espaco>
++        </section>
++
+         <section class="section">
+diff --git a/src/app/pages/home-mae/home-mae.ts b/src/app/pages/home-mae/home-mae.ts
+index 4048ee0..3bcf2cb 100644
+--- a/src/app/pages/home-mae/home-mae.ts
++++ b/src/app/pages/home-mae/home-mae.ts
+@@ -8,2 +8,3 @@ import { onAuthStateChanged } from 'firebase/auth';
+ import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
++import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+ import { 
+@@ -15,3 +16,3 @@ import {
+   standalone: true,
+-  imports: [HeaderComponent, CommonModule, RouterModule, FormsModule, SelosAutorComponent],
++  imports: [HeaderComponent, CommonModule, RouterModule, FormsModule, SelosAutorComponent, AnuncioEspacoComponent],
+   templateUrl: './home-mae.html',
+diff --git a/src/app/pages/home-parc/home-parc.html b/src/app/pages/home-parc/home-parc.html
+index cee88bf..b06c18d 100644
+--- a/src/app/pages/home-parc/home-parc.html
++++ b/src/app/pages/home-parc/home-parc.html
+@@ -391,2 +391,4 @@
+             </div>
++
++            <app-anuncio-espaco posicao="painel-parceiro"></app-anuncio-espaco>
+         </section>
+@@ -525,2 +527,4 @@
+ 
++
++            <app-anuncio-espaco posicao="painel-parceiro"></app-anuncio-espaco>
+         </section>
+diff --git a/src/app/pages/home-parc/home-parc.ts b/src/app/pages/home-parc/home-parc.ts
+index 71f3bb4..2f3973d 100644
+--- a/src/app/pages/home-parc/home-parc.ts
++++ b/src/app/pages/home-parc/home-parc.ts
+@@ -41,2 +41,3 @@ import { ParcDivulgacaoComponent } from './parc-divulgacao/parc-divulgacao';
+ import { DivulgacaoService } from '../../services/divulgacao';
++import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+ /**
+@@ -56,3 +57,3 @@ import { DivulgacaoService } from '../../services/divulgacao';
+   standalone: true,
+-  imports: [CommonModule, RouterLink, ParcPlanosComponent, ParcDivulgacaoComponent],
++  imports: [CommonModule, RouterLink, ParcPlanosComponent, ParcDivulgacaoComponent, AnuncioEspacoComponent],
+   templateUrl: './home-parc.html',
+diff --git a/src/app/pages/home-psi/home-psi.html b/src/app/pages/home-psi/home-psi.html
+index 36c2946..e2309ee 100644
+--- a/src/app/pages/home-psi/home-psi.html
++++ b/src/app/pages/home-psi/home-psi.html
+@@ -137,2 +137,4 @@
+       </div>
++
++      <app-anuncio-espaco posicao="painel-profissional"></app-anuncio-espaco>
+     </section>
+diff --git a/src/app/pages/home-psi/home-psi.ts b/src/app/pages/home-psi/home-psi.ts
+index 781b634..983ce1e 100644
+--- a/src/app/pages/home-psi/home-psi.ts
++++ b/src/app/pages/home-psi/home-psi.ts
+@@ -20,2 +20,3 @@ import { PERGUNTAS_BEM_ESTAR, PerguntaBemEstar, rotuloDaResposta, respostaDeRisc
+ 
++import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+ type SecaoHomePsi = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos' | 'informacoes';
+@@ -85,3 +86,3 @@ const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', catego
+   standalone: true,
+-  imports: [CommonModule, FormsModule, RouterModule],
++  imports: [CommonModule, FormsModule, RouterModule, AnuncioEspacoComponent],
+   templateUrl: './home-psi.html',
+diff --git a/src/app/pages/pos-consulta/pos-consulta.html b/src/app/pages/pos-consulta/pos-consulta.html
+index 7f129ac..ea1943e 100644
+--- a/src/app/pages/pos-consulta/pos-consulta.html
++++ b/src/app/pages/pos-consulta/pos-consulta.html
+@@ -110,2 +110,6 @@
+ 
++      @if (enviado() !== 'denuncia') {
++        <app-anuncio-espaco [posicao]="euSouMae() ? 'pos-avaliacao-mae' : 'pos-avaliacao-profissional'"></app-anuncio-espaco>
++      }
++
+     } @else {
+diff --git a/src/app/pages/pos-consulta/pos-consulta.ts b/src/app/pages/pos-consulta/pos-consulta.ts
+index 3179f2a..73334e5 100644
+--- a/src/app/pages/pos-consulta/pos-consulta.ts
++++ b/src/app/pages/pos-consulta/pos-consulta.ts
+@@ -10,2 +10,3 @@ import { ELOGIOS, MAX_ELOGIOS } from '../../services/reputacao';
+ 
++import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+ const NOTAS_TEXTO = ['', 'Muito ruim', 'Ruim', 'Regular', 'Boa', 'Excelente'];
+@@ -18,3 +19,3 @@ const ESCALA_PASSO = 0.125;
+   standalone: true,
+-  imports: [CommonModule, FormsModule],
++  imports: [CommonModule, FormsModule, AnuncioEspacoComponent],
+   templateUrl: './pos-consulta.html',

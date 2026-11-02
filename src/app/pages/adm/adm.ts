@@ -34,6 +34,7 @@ import { auth, db } from '../../core/firebase';
 import { AlertaService } from '../../core/services/alerta.service';
 import { Assinante, PagamentoPlano, PlanoService, RelatorioFinanceiro, formatarBRL, rotuloPublico } from '../../services/plano';
 import { AdmPlanosComponent } from './adm-planos/adm-planos';
+import { AdmDivulgacaoComponent } from './adm-divulgacao/adm-divulgacao';
 import { AdmSelosComponent } from './adm-selos/adm-selos';
 
 Chart.register(...registerables);
@@ -481,7 +482,7 @@ registerLocaleData(localePt, 'pt-BR');
 @Component({
   selector: 'app-adm',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, AdmPlanosComponent, AdmSelosComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, AdmPlanosComponent, AdmSelosComponent, AdmDivulgacaoComponent],
   templateUrl: './adm.html',
   styleUrl: './adm.css',
 })

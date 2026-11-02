@@ -8,10 +8,12 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { collection, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
 
 import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
+import { prioridadeVisibilidade, visibilidadeEfetiva } from '../../services/divulgacao';
+import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 @Component({
   selector: 'app-eventos',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent, AnuncioEspacoComponent],
   templateUrl: './eventos.html',
   styleUrls: ['./eventos.css']
 })
@@ -106,6 +108,7 @@ export class Eventos implements OnInit {
           id: docSnap.id,
           ...data,
           categoria: data['categoria'] || 'Evento',
+          visibilidade: visibilidadeEfetiva(data),
           dataObj,
           dataFormatada,
           dia,
@@ -113,7 +116,7 @@ export class Eventos implements OnInit {
         });
       });
 
-      lista.sort((a, b) => (a.dataObj?.getTime() || 0) - (b.dataObj?.getTime() || 0));
+      lista.sort((a, b) => prioridadeVisibilidade(b.visibilidade) - prioridadeVisibilidade(a.visibilidade) || (a.dataObj?.getTime() || 0) - (b.dataObj?.getTime() || 0));
       this.eventos.set(lista);
     } catch (err) {
       console.error('Erro ao carregar eventos:', err);
@@ -149,7 +152,7 @@ export class Eventos implements OnInit {
 
     const lista = [...this.eventos()];
     if (tipo === 'recentes') {
-      lista.sort((a, b) => (a.dataObj?.getTime() || 0) - (b.dataObj?.getTime() || 0));
+      lista.sort((a, b) => prioridadeVisibilidade(b.visibilidade) - prioridadeVisibilidade(a.visibilidade) || (a.dataObj?.getTime() || 0) - (b.dataObj?.getTime() || 0));
     } else if (tipo === 'antigos') {
       lista.sort((a, b) => (b.dataObj?.getTime() || 0) - (a.dataObj?.getTime() || 0));
     } else if (tipo === 'alfabetica') {

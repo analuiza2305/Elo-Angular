@@ -85,6 +85,12 @@
                         </div>
                     }
                     <div class="evento-body">
+                        @if (evento.visibilidade && evento.visibilidade !== 'basico') {
+                            <span class="vis-selo" [class.premium]="evento.visibilidade === 'premium'">
+                                <i class="fa-solid" [class.fa-crown]="evento.visibilidade === 'premium'" [class.fa-star]="evento.visibilidade !== 'premium'"></i>
+                                {{ evento.visibilidade === 'premium' ? 'Destaque Premium' : 'Em destaque' }}
+                            </span>
+                        }
                         <h3 class="evento-titulo">{{ evento.titulo || 'Evento' }}</h3>
                         <span class="evento-meta">
                             <i class="fa-regular fa-clock"></i> {{ evento.dataFormatada || 'Data a definir' }}
@@ -114,6 +120,9 @@
                         </div>
                     </div>
                 </div>
+                @if ($index === 1 || ($last && eventosFiltrados().length < 2)) {
+                    <app-anuncio-espaco posicao="eventos"></app-anuncio-espaco>
+                }
             } @empty {
                 <div class="estado-vazio">
                     <div class="vazio-icon-wrapper">

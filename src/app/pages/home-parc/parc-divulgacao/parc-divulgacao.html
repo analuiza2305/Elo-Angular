@@ -1,0 +1,253 @@
+<div class="pp-root">
+  <div class="pl-topo">
+    <h2>Divulgação</h2>
+    <p>Dê mais visibilidade aos artigos e eventos da sua empresa e anuncie em espaços estratégicos da plataforma.</p>
+  </div>
+
+  <div class="pl-atual" [class.premium]="nivelAtual().visibilidade !== 'basico'">
+    <div class="pl-atual-icone"><i class="fa-solid" [class.fa-crown]="nivelAtual().visibilidade !== 'basico'" [class.fa-seedling]="nivelAtual().visibilidade === 'basico'"></i></div>
+    <div class="pl-atual-texto">
+      <span>Visibilidade das suas publicações</span>
+      <strong>{{ rotuloVis(nivelAtual().visibilidade) }}</strong>
+      @if (nivelAtual().ate) { <small>Pacote ativo até {{ dataBR(nivelAtual().ate) }}</small> }
+      @else { <small>Contrate um pacote para aparecer antes dos demais</small> }
+    </div>
+    <div class="pl-atual-ilustra" aria-hidden="true">
+      <i class="fa-solid fa-bullhorn"></i>
+    </div>
+  </div>
+
+  @if (msg(); as m) {
+    <p class="pl-msg" [class.erro]="m.tipo === 'erro'" role="status">{{ m.texto }}</p>
+  }
+
+  @if (carregando()) {
+    <p class="pl-descricao-plano"><i class="fa-solid fa-spinner fa-spin"></i> Carregando…</p>
+  } @else {
+
+    <!-- ===================== PACOTES DE PUBLICAÇÃO ===================== -->
+    <section class="dv-secao">
+      <h3><i class="fa-solid fa-box-open"></i> Pacotes de publicação</h3>
+      <p>O pacote vale para todos os artigos e eventos que você publicar enquanto ele estiver ativo.</p>
+
+      <div class="pl-grid">
+        <div class="pl-card" [class.atual]="pacotesAtivos().length === 0">
+          <div class="pl-card-topo">
+            <h3>Básico</h3>
+            @if (pacotesAtivos().length === 0) { <span class="pl-chip">Seu nível</span> }
+          </div>
+          <div class="pl-preco"><strong>R$ 0</strong><span>/sempre</span></div>
+          <ul>
+            <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> Publicação normal de artigos e eventos</li>
+            <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> Aparece nas listas em ordem de data</li>
+          </ul>
+        </div>
+
+        @for (item of pacotesOfertados(); track item.id) {
+          <div class="pl-card pl-card-premium" [class.atual]="!!pacoteAtivoDoItem(item)">
+            <div class="pl-card-topo">
+              <h3><i class="fa-solid" [class.fa-crown]="item.visibilidade === 'premium'" [class.fa-star]="item.visibilidade !== 'premium'"></i> {{ item.nome }}</h3>
+              @if (pacoteAtivoDoItem(item)) { <span class="pl-chip pl-chip-premium">Ativo</span> }
+              @else if (item.destaque) { <span class="pl-chip pl-chip-premium">Recomendado</span> }
+            </div>
+            @if (item.descricao) { <p class="pl-descricao-plano">{{ item.descricao }}</p> }
+            <div class="pl-preco"><strong>{{ brl(item.preco) }}</strong><span>{{ sufixo(item.periodicidade) }}</span></div>
+            <ul>
+              @for (b of item.beneficios; track $index) {
+                <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> {{ b }}</li>
+              }
+            </ul>
+
+            @if (pacoteAtivoDoItem(item); as ativo) {
+              <p class="pl-descricao-plano">Ativo até {{ dataBR(ativo.validoAte) }}.</p>
+              <div class="dv-acoes">
+                @if (confirmandoPacoteId() !== item.id) {
+                  <button type="button" class="pl-btn pl-btn-premium" (click)="confirmandoPacoteId.set(item.id)">Renovar</button>
+                }
+                <button type="button" class="pl-btn pl-btn-outline" [disabled]="ocupado()" (click)="cancelarPacote(ativo)">Cancelar pacote</button>
+              </div>
+            } @else if (confirmandoPacoteId() !== item.id) {
+              <button type="button" class="pl-btn pl-btn-premium" (click)="confirmandoPacoteId.set(item.id); msg.set(null)"><i class="fa-solid fa-bullhorn"></i> Contratar {{ item.nome }}</button>
+            }
+
+            @if (confirmandoPacoteId() === item.id) {
+              <div class="pl-confirmar">
+                <p><i class="fa-solid fa-circle-info"></i> Pagamento simulado: nenhuma cobrança será feita. O pacote vale por {{ item.duracaoDias }} dias.</p>
+                <div class="pl-confirmar-acoes">
+                  <button type="button" class="pl-btn pl-btn-outline" (click)="confirmandoPacoteId.set(null)">Voltar</button>
+                  <button type="button" class="pl-btn pl-btn-premium" [disabled]="ocupado()" (click)="contratarPacote(item)">{{ ocupado() ? 'Ativando...' : 'Confirmar' }}</button>
+                </div>
+              </div>
+            }
+          </div>
+        } @empty {
+          <div class="pl-card"><p class="pl-descricao-plano">Nenhum pacote disponível no momento.</p></div>
+        }
+      </div>
+    </section>
+
+    <!-- ===================== DIVULGAR UM EVENTO ===================== -->
+    <section class="dv-secao">
+      <h3><i class="fa-solid fa-calendar-check"></i> Divulgar um evento</h3>
+      <p>Impulsione um evento específico, com cobrança única por evento.</p>
+
+      <div class="dv-lista">
+        @for (e of meusEventos(); track e.id) {
+          <div class="dv-linha">
+            <div>
+              <strong>{{ e.titulo }}</strong>
+              <small>{{ dataBR(e.data) }}
+                @if (e.visibilidade !== 'basico') { · <span class="dv-tag" [ngClass]="e.visibilidade">{{ rotuloVis(e.visibilidade) }} até {{ dataBR(e.visibilidadeAte) }}</span> }
+              </small>
+            </div>
+            <div class="dv-acoes">
+              <button type="button" class="pl-btn pl-btn-premium" (click)="abrirImpulsionar(e)">
+                <i class="fa-solid fa-rocket"></i> {{ eventoEscolhidoId() === e.id ? 'Fechar' : 'Impulsionar' }}
+              </button>
+            </div>
+          </div>
+
+          @if (eventoEscolhidoId() === e.id) {
+            <div class="dv-painel">
+              <h4>Escolha como divulgar “{{ e.titulo }}”</h4>
+              <div class="dv-escolhas">
+                @for (i of eventosOfertados(); track i.id) {
+                  <button type="button" class="dv-escolha" [class.sel]="itemEventoId() === i.id" (click)="itemEventoId.set(i.id)">
+                    <strong>{{ i.nome }} · {{ brl(i.preco) }}</strong>
+                    <small>{{ i.duracaoDias }} dias · {{ rotuloVis(i.visibilidade) }}</small>
+                    @for (b of i.beneficios; track $index) { <small>• {{ b }}</small> }
+                  </button>
+                }
+              </div>
+              <div class="pl-confirmar">
+                <p><i class="fa-solid fa-circle-info"></i> Pagamento simulado: nenhuma cobrança será feita.</p>
+                <div class="pl-confirmar-acoes">
+                  <button type="button" class="pl-btn pl-btn-outline" (click)="eventoEscolhidoId.set(null)">Voltar</button>
+                  <button type="button" class="pl-btn pl-btn-premium" [disabled]="ocupado() || !itemEventoId()" (click)="impulsionar()">{{ ocupado() ? 'Ativando...' : 'Confirmar divulgação' }}</button>
+                </div>
+              </div>
+            </div>
+          }
+        } @empty {
+          <p class="dv-vazio">Você ainda não criou eventos. Crie um na aba Calendário e volte aqui para divulgá-lo.</p>
+        }
+      </div>
+    </section>
+
+    <!-- ===================== ANÚNCIOS ===================== -->
+    <section class="dv-secao">
+      <h3><i class="fa-solid fa-bullhorn"></i> Anúncios em espaços estratégicos</h3>
+      <p>Seu anúncio aparece em lugares de grande atenção, como depois da avaliação de uma consulta, no fórum e nos artigos. A cobrança é recorrente (simulada) e você pode desligar a renovação quando quiser.</p>
+
+      <div class="pl-grid">
+        @for (item of anunciosOfertados(); track item.id) {
+          <div class="pl-card pl-card-premium">
+            <div class="pl-card-topo">
+              <h3><i class="fa-solid fa-bullhorn"></i> {{ item.nome }}</h3>
+              @if (item.destaque) { <span class="pl-chip pl-chip-premium">Recomendado</span> }
+            </div>
+            @if (item.descricao) { <p class="pl-descricao-plano">{{ item.descricao }}</p> }
+            <div class="pl-preco"><strong>{{ brl(item.preco) }}</strong><span>{{ sufixo(item.periodicidade) }}</span></div>
+            <ul>
+              @for (b of item.beneficios; track $index) {
+                <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> {{ b }}</li>
+              }
+              @for (p of item.posicoes; track p) {
+                <li><span class="pl-check"><i class="fa-solid fa-location-dot"></i></span> {{ rotuloPosicao(p) }}</li>
+              }
+            </ul>
+            <button type="button" class="pl-btn pl-btn-premium" (click)="escolherAnuncio(item)"><i class="fa-solid fa-plus"></i> Criar anúncio</button>
+          </div>
+        } @empty {
+          <div class="pl-card"><p class="pl-descricao-plano">Nenhum anúncio disponível no momento.</p></div>
+        }
+      </div>
+
+      @if (anuncioItem(); as item) {
+        <div class="dv-painel">
+          <h4>Novo anúncio — {{ item.nome }} ({{ brl(item.preco) }} {{ sufixo(item.periodicidade) }})</h4>
+          <div class="dv-form">
+            <label>Título
+              <input type="text" maxlength="60" [value]="form.titulo" (input)="form.titulo = $any($event.target).value" placeholder="Ex.: Consulta gratuita na primeira visita">
+            </label>
+            <label>Texto <small>(opcional)</small>
+              <textarea maxlength="160" [value]="form.texto" (input)="form.texto = $any($event.target).value" placeholder="Uma frase curta e acolhedora"></textarea>
+            </label>
+            <label>Link da imagem <small>(opcional)</small>
+              <input type="url" [value]="form.imagem" (input)="form.imagem = $any($event.target).value" placeholder="https://...">
+            </label>
+            <label>Link do anúncio <small>(obrigatório: para onde a mãe vai ao clicar)</small>
+              <input type="url" [value]="form.link" (input)="form.link = $any($event.target).value" placeholder="https://www.suaempresa.com.br">
+            </label>
+            <label>Espaço
+              <select [value]="form.posicao" (change)="form.posicao = $any($event.target).value">
+                @for (p of posicoesDoItem(); track p.valor) { <option [value]="p.valor" [selected]="form.posicao === p.valor">{{ p.rotulo }}</option> }
+              </select>
+            </label>
+          </div>
+          <div class="pl-confirmar">
+            <p><i class="fa-solid fa-circle-info"></i> Pagamento simulado: nenhuma cobrança será feita. O anúncio vale por {{ item.duracaoDias }} dias e renova sozinho até você desligar.</p>
+            <div class="pl-confirmar-acoes">
+              <button type="button" class="pl-btn pl-btn-outline" (click)="fecharAnuncio()">Voltar</button>
+              <button type="button" class="pl-btn pl-btn-premium" [disabled]="ocupado()" (click)="contratarAnuncio()">{{ ocupado() ? 'Contratando...' : 'Confirmar e publicar' }}</button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <h3 style="margin-top: 30px">Meus anúncios</h3>
+      <div class="dv-lista">
+        @for (a of meusAnuncios(); track a.id) {
+          <div class="dv-linha">
+            <div>
+              <strong>{{ a.titulo }}</strong>
+              <small>{{ rotuloPosicao(a.posicao) }} · até {{ dataBR(a.fim) }} · {{ brl(a.valor) }} {{ sufixo(a.periodicidade) }}</small>
+              <small>
+                <span class="dv-tag" [ngClass]="a.status === 'ativo' ? '' : a.status">{{ rotuloSituacaoAnuncio(a) }}</span>
+                · Renovação automática: {{ a.recorrente ? 'ligada' : 'desligada' }} · {{ a.renovacoes }} renovação(ões)
+                <br>{{ a.impressoes }} exibições · {{ a.cliques }} cliques
+                @if (!a.link) { <br><span class="dv-tag pausado"><i class="fa-solid fa-triangle-exclamation"></i> Sem link: a mãe não consegue clicar. Clique em Editar e adicione.</span> }
+              </small>
+            </div>
+            @if (a.status !== 'encerrado') {
+              <div class="dv-acoes">
+                <button type="button" class="pl-btn pl-btn-premium" [disabled]="ocupado()" (click)="abrirEdicao(a)"><i class="fa-solid fa-pen"></i> {{ editandoAnuncioId() === a.id ? 'Fechar' : 'Editar' }}</button>
+                <button type="button" class="pl-btn pl-btn-outline" [disabled]="ocupado()" (click)="alternarRecorrencia(a)">{{ a.recorrente ? 'Desligar renovação' : 'Ligar renovação' }}</button>
+                <button type="button" class="pl-btn pl-btn-outline" [disabled]="ocupado()" (click)="alternarPausa(a)">{{ a.status === 'ativo' ? 'Pausar' : 'Retomar' }}</button>
+                <button type="button" class="pl-btn pl-btn-outline" [disabled]="ocupado()" (click)="encerrar(a)">Encerrar</button>
+              </div>
+            }
+          </div>
+
+          @if (editandoAnuncioId() === a.id) {
+            <div class="dv-painel">
+              <h4>Editar “{{ a.titulo }}”</h4>
+              <div class="dv-form">
+                <label>Título
+                  <input type="text" maxlength="60" [value]="edicao.titulo" (input)="edicao.titulo = $any($event.target).value">
+                </label>
+                <label>Texto <small>(opcional)</small>
+                  <textarea maxlength="160" [value]="edicao.texto" (input)="edicao.texto = $any($event.target).value"></textarea>
+                </label>
+                <label>Link da imagem <small>(opcional)</small>
+                  <input type="url" [value]="edicao.imagem" (input)="edicao.imagem = $any($event.target).value" placeholder="https://...">
+                </label>
+                <label>Link do anúncio <small>(obrigatório: para onde a mãe vai ao clicar)</small>
+                  <input type="url" [value]="edicao.link" (input)="edicao.link = $any($event.target).value" placeholder="https://www.suaempresa.com.br">
+                </label>
+              </div>
+              <div class="pl-confirmar-acoes">
+                <button type="button" class="pl-btn pl-btn-outline" (click)="editandoAnuncioId.set(null)">Cancelar</button>
+                <button type="button" class="pl-btn pl-btn-premium" [disabled]="ocupado()" (click)="salvarEdicao(a)">{{ ocupado() ? 'Salvando...' : 'Salvar alterações' }}</button>
+              </div>
+            </div>
+          }
+        } @empty {
+          <p class="dv-vazio">Você ainda não tem anúncios.</p>
+        }
+      </div>
+    </section>
+
+    <p class="pl-nota"><i class="fa-solid fa-circle-info"></i> Todos os pagamentos desta aba são simulados e servem para testar o fluxo. Nenhuma cobrança real é feita.</p>
+  }
+</div>
