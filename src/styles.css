@@ -13004,8 +13004,8 @@ label[for="anonimo-checkbox"] {
   --menu-faixa: linear-gradient(160deg, #F3ECFF 0%, #FCFBFF 70%);
   --menu-card: linear-gradient(135deg, #F3ECFF 0%, #E9E0FF 100%);
   --menu-texto: #2D1E4E;
-  --menu-suave: #7B6AAE;
-  --menu-rotulo: #9C8BC4;
+  --menu-suave: #634F9A;
+  --menu-rotulo: #6E5FA0;
   --menu-icone-bg: #F3ECFF;
   --menu-icone: #7C69A9;
   --menu-hover: #F4EFFF;
@@ -13027,7 +13027,7 @@ body[data-theme="dark"] {
   --menu-icone: #c4b5fd;
   --menu-hover: rgba(157, 143, 231, 0.1);
   --menu-borda: rgba(255, 255, 255, 0.08);
-  --menu-ativo: linear-gradient(135deg, #9d8fe7, #6c5bb0);
+  --menu-ativo: #B9A9F5;
   --menu-sombra: 0 24px 60px rgba(0, 0, 0, 0.5);
   --menu-perigo: #f0a6c2;
   --menu-perigo-bg: rgba(201, 107, 142, 0.14);
@@ -13443,4 +13443,11 @@ body .top-header .menu-toggle:hover { transform: translateY(-1px); box-shadow: 0
   .hero-section:hover {
     height: auto;
   }
+}
+/* Ajuste 02/11 (auditoria de contraste): item ativo do menu do celular no
+   escuro fica com fundo lilás e texto/ícone escuros, como as categorias. */
+body[data-theme="dark"] .mobile-link.ativo { color: #1A1530 !important; }
+body[data-theme="dark"] .mobile-link.ativo i {
+  background: rgba(26, 21, 48, 0.12) !important;
+  color: #1A1530 !important;
 }

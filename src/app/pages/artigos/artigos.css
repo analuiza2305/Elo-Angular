@@ -376,3 +376,8 @@ body {
   color: var(--primary-color, #7c69a9);
 }
 
+
+/* Ajuste 02/11 (auditoria de contraste) */
+.ac-bookmark i { color: #5B3D99 !important; }
+:host-context(body[data-theme="dark"]) .ac-ler,
+:host-context(body[data-theme="dark"]) .ac-ler i { color: #C9BCF5 !important; }

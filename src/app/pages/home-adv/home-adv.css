@@ -5642,3 +5642,34 @@ header h1 { font-size: 24px; color: var(--primary-color-dark); font-weight: 800;
 
 /* Ajuste 02/11: ícone de câmera do "Entrar na chamada" com contraste nos dois modos */
 .ml-btn i { color: #FFFFFF !important; opacity: 1 !important; }
+
+/* Ajuste 02/11 (auditoria de contraste): estas regras ficam por último de
+   propósito, porque o arquivo tem camadas repetidas com !important. */
+.welcome-hero .hero-glow.shape-1 { background: rgba(255, 255, 255, 0.14); }
+.welcome-hero #hero-nome { color: #FFFFFF !important; }
+.welcome-hero .hero-content p { color: #F3ECFF !important; }
+
+:host-context(body[data-theme="dark"]) {
+  --accent-color: #C9BCF5;
+  --primary-color-darker: #F5F0FF;
+}
+:host-context(body[data-theme="dark"]) header.header #boasVindas,
+:host-context(body[data-theme="dark"]) .stat-card .stat-value,
+:host-context(body[data-theme="dark"]) .section-title-row h3 { color: #F5F0FF !important; }
+:host-context(body[data-theme="dark"]) .btn-ver-agenda { background: rgba(157, 143, 231, 0.16) !important; color: #E2DAFC !important; }
+:host-context(body[data-theme="dark"]) .btn-ver-agenda:hover { background: #9D8FE7 !important; color: #1A1530 !important; }
+:host-context(body[data-theme="dark"]) .menu-toggle,
+:host-context(body[data-theme="dark"]) .drawer-close { color: #E2DAFC !important; }
+.stat-card .stat-info { min-width: 0; }
+.stat-card .stat-label { white-space: normal; overflow-wrap: anywhere; }
+.stat-icon.icon-reputacao i { color: #B45309 !important; }
+.selo-conquistado-icone { color: #0F7A55 !important; }
+:host-context(body[data-theme="dark"]) .stat-icon.icon-reputacao i { color: #FCD34D !important; }
+:host-context(body[data-theme="dark"]) .selo-conquistado-icone { color: #6EE7B7 !important; }
+
+/* Fundos que continuam claros no escuro: ícones escuros */
+:host-context(body[data-theme="dark"]) .stat-icon.icon-hoje i,
+:host-context(body[data-theme="dark"]) .stat-icon.icon-total i { color: #5B3D99 !important; }
+:host-context(body[data-theme="dark"]) .info-btn i,
+:host-context(body[data-theme="dark"]) .logout-btn i { color: #583E8E !important; }
+:host-context(body[data-theme="dark"]) .drawer-tag { color: #1A1530 !important; }

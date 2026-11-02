@@ -4378,7 +4378,7 @@ chat mandou fazer isso só colar*/
 .menu-badge {
   margin-left: auto; min-width: 22px; height: 22px; padding: 0 7px; box-sizing: border-box;
   display: inline-flex; align-items: center; justify-content: center;
-  background: #e0446f; color: #fff; font-size: .75rem; font-weight: 800; border-radius: 999px;
+  background: #C0344F; color: #fff; font-size: .75rem; font-weight: 800; border-radius: 999px;
 }
 
 /* ---------- toast ---------- */
@@ -4566,7 +4566,7 @@ chat mandou fazer isso só colar*/
 }
 .atencao-item:hover { background: var(--menu-btn-hover); transform: translateX(4px); }
 .atencao-texto { flex: 1; font-weight: 600; color: var(--text-color); font-size: 0.95rem; }
-.atencao-total { min-width: 32px; height: 32px; padding: 0 10px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; background: #e0446f; color: #fff; }
+.atencao-total { min-width: 32px; height: 32px; padding: 0 10px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; background: #C0344F; color: #fff; }
 .atencao-zerada .atencao-total { background: var(--muted-bg); color: var(--text-color2); }
 .atencao-seta { color: var(--primary-color); font-size: 0.8rem; }
 .atencao-tudo-ok { margin: 14px 0 0; color: #0F7A55; font-weight: 700; font-size: 0.92rem; }
@@ -4933,3 +4933,10 @@ tr.linha-clicavel:hover { background: var(--menu-btn-hover); }
     width: auto;
   }
 }
+
+/* Ajuste 02/11 (auditoria de contraste): o banner da home é claro nos dois
+   modos, então o texto fica escuro também no modo escuro. */
+:host-context(body[data-theme="dark"]) .home-hero h2 { color: #3E2A72 !important; }
+:host-context(body[data-theme="dark"]) .home-hero p { color: #4A4163 !important; }
+:host-context(body[data-theme="dark"]) .drawer-close,
+:host-context(body[data-theme="dark"]) .drawer-close i { color: #E2DAFC !important; }

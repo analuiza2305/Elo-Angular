@@ -3132,3 +3132,21 @@ body.colorblind-Acromatopsia { filter: url('#Acromatopsia'); }
     opacity: 1;
     transform: translateX(0);
 }
+/* Ajuste 02/11 (auditoria de contraste). Este CSS não é encapsulado,
+   por isso tudo fica preso a app-landing-page. */
+app-landing-page {
+    --primary-color: #6F5CA3;
+    --text-muted: #6F5CA3;
+}
+body[data-theme="dark"] app-landing-page {
+    --primary-color: #9d8fe7;
+    --text-muted: #b8b0d6;
+}
+app-landing-page .avatars .avatar { color: #3B2A63; }
+app-landing-page .btn-primary i { color: inherit; }
+body[data-theme="dark"] app-landing-page .btn-primary,
+body[data-theme="dark"] app-landing-page .btn-primary i { color: #1A1530 !important; }
+app-landing-page .footer-bottom,
+app-landing-page .legal-links a { color: #6B7280; }
+body[data-theme="dark"] app-landing-page .footer-bottom,
+body[data-theme="dark"] app-landing-page .legal-links a { color: #B8B0D6; }

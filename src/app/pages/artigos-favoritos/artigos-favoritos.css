@@ -369,3 +369,5 @@ body[data-theme="dark"] .artigo-resumo {
         padding: 0 16px !important;
     }
 }
+/* Ajuste 02/11 (auditoria de contraste): ícone do estado vazio herda a cor do círculo */
+.vazio-icon-wrapper i { color: inherit !important; }

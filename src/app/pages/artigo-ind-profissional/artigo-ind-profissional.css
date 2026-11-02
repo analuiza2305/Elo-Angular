@@ -190,3 +190,9 @@ body[data-theme="dark"] .header {
   background: rgba(20, 26, 38, 0.7) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
+/* Ajuste 02/11 (auditoria de contraste): título do topo e "Voltar" no escuro */
+:host-context(body[data-theme="dark"]) #boasVindas { color: #F5F0FF !important; }
+:host-context(body[data-theme="dark"]) .link-voltar,
+:host-context(body[data-theme="dark"]) .link-voltar i { color: #C9BCF5 !important; }
+.vazio-icon-wrapper i { color: #4B2C82 !important; }
+:host-context(body[data-theme="dark"]) .logout-btn i { color: #583E8E !important; }

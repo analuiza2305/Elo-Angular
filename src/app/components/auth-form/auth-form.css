@@ -478,7 +478,7 @@ body[data-theme="dark"] .esqueci-senha-link a {
 .campo-nascimento .input-group { margin-bottom: 0; }
 .campo-nascimento input[type="date"] { color: #2D1E4E; font-family: inherit; }
 .campo-nascimento input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .7; }
-.aviso-idade { display: flex; align-items: center; gap: 6px; padding-left: 4px; margin-bottom: 6px; font-size: .78rem; color: #7B6AAE; }
-:host-context(body[data-theme="dark"]) .campo-nascimento label { color: #D8CCFF; }
+.aviso-idade { display: flex; align-items: center; gap: 6px; padding-left: 4px; margin-bottom: 6px; font-size: .78rem; color: #5B4A93; }
+:host-context(body[data-theme="dark"]) .campo-nascimento label { color: #4B2C82; }
 :host-context(body[data-theme="dark"]) .campo-nascimento input[type="date"] { color: #F5F0FF; color-scheme: dark; }
-:host-context(body[data-theme="dark"]) .aviso-idade { color: #B9AEE0; }
+:host-context(body[data-theme="dark"]) .aviso-idade { color: #5B4A93; }
