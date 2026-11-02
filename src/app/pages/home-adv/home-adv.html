@@ -80,7 +80,6 @@
     <section class="content" id="dashboard" *ngIf="activeSection() === 'dashboard'">
       <div class="welcome-hero" [style.--mouse-x]="heroMouseX()" [style.--mouse-y]="heroMouseY()" (mousemove)="onHeroMouseMove($event)">
         <div class="hero-content">
-          <span class="hero-badge">Área do Profissional</span>
           <h2 id="hero-nome">Olá, Dr(a). {{ primeiroNome() }}!</h2>
           <p>Seu espaço de gestão jurídica está pronto. Acompanhe suas consultas, gerencie sua agenda e ofereça o melhor suporte às mães da comunidade.</p>
         </div>

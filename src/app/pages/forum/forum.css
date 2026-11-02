@@ -1177,3 +1177,22 @@ button.fr-acao:hover,
 
   .fr-composer-acoes button { flex: 1; }
 }
+
+/* =========================================================
+   AJUSTE 02/11: banner do fórum com contraste no modo escuro
+   (o styles.css global força h1/p claros no escuro com !important;
+   o banner do desktop é uma arte clara, então o texto precisa continuar escuro)
+========================================================= */
+@media (min-width: 1024px) {
+  :host-context(body[data-theme="dark"]) .fr-hero-texto h1 { color: #2A1B5C !important; }
+  :host-context(body[data-theme="dark"]) .fr-hero-texto h1 span { color: #6A55A8 !important; }
+  :host-context(body[data-theme="dark"]) .fr-hero-texto p { color: #3E3656 !important; }
+  :host-context(body[data-theme="dark"]) .fr-hero-texto .fr-hero-destaque { color: #6A55A8 !important; }
+  :host-context(body[data-theme="dark"]) .fr-hero { box-shadow: 0 18px 40px rgba(0, 0, 0, .35); }
+}
+@media (max-width: 1023px) {
+  :host-context(body[data-theme="dark"]) .fr-hero-texto h1 { color: #F4F1FF !important; }
+  :host-context(body[data-theme="dark"]) .fr-hero-texto h1 span { color: #C4B5FD !important; }
+  :host-context(body[data-theme="dark"]) .fr-hero-texto p { color: #CFC7EA !important; }
+  :host-context(body[data-theme="dark"]) .fr-hero-texto .fr-hero-destaque { color: #C4B5FD !important; }
+}

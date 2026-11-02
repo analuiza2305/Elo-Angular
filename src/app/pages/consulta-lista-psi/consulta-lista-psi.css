@@ -1140,3 +1140,29 @@ body {
 }
 :host-context(body[data-theme="dark"]) .hero-section::before { background: rgba(157, 143, 231, .10); }
 :host-context(body[data-theme="dark"]) .search-bar { box-shadow: 0 14px 30px rgba(0, 0, 0, .4); }
+/* =========================================================
+   AJUSTE 02/11: card do profissional organizado
+   nome → profissão e registro → nota + selos (uma linha) → áreas → perfil
+========================================================= */
+.rating-chips { align-items: center; }
+.rating-chips .selo {
+  padding: 7px 12px; border-radius: 12px; font-size: .8rem; line-height: 1;
+  box-shadow: none;
+}
+.rating-chips .rating-novo { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 12px; font-size: .82rem; font-weight: 800; line-height: 1; background: #EEF8EC; color: #2F6B2A; }
+.rating-chips .rating-novo i { color: #2F6B2A !important; }
+
+/* Regra de cor: fundo amarelo-claro → estrelas amarelo-queimado */
+.chip-nota .rating-estrelas i { color: #C98A04 !important; }
+:host-context(body[data-theme="dark"]) .chip-nota .rating-estrelas i { color: #FFD666 !important; }
+:host-context(body[data-theme="dark"]) .rating-chips .rating-novo { background: rgba(124, 196, 112, .14); color: #B9E8AE; }
+:host-context(body[data-theme="dark"]) .rating-chips .rating-novo i { color: #B9E8AE !important; }
+.chip-nota .rating-estrelas i.fa-regular { color: #E6D3A0 !important; }
+:host-context(body[data-theme="dark"]) .chip-nota .rating-estrelas i.fa-regular { color: #6B5A2A !important; }
+
+/* Ajuste 02/11: regra de cor dos ícones (fundo amarelo → ícone amarelo-queimado; lilás → roxo escuro) */
+.icon-box i { color: inherit !important; }
+.warning-box { background: #FEF3C7; color: #A16207; }
+.primary-box { background: #F1EBFF; color: #4B2C82; }
+:host-context(body[data-theme="dark"]) .warning-box { background: rgba(250, 204, 21, .14); color: #FDE68A; }
+:host-context(body[data-theme="dark"]) .primary-box { background: rgba(157, 143, 231, .16); color: #E5DCFF; }

@@ -987,3 +987,49 @@ body[data-theme="dark"] .month-year-select select {
   .event-icon-box { width: 56px; height: 56px; font-size: 1.35rem; }
   .event-details strong { font-size: 1.15rem; }
 }
+/* =========================================================
+   AJUSTE 02/11: contraste dos dias marcados no calendário
+   (o círculo agora é o próprio dia; o ::before antigo fica transparente
+    para não pintar um segundo círculo por cima)
+========================================================= */
+.calendar-dates .date.has-event::before,
+.calendar-dates .date.past::before { background: transparent !important; border: none !important; box-shadow: none !important; }
+
+/* Dia com consulta/evento */
+.calendar-dates .date.has-event:not(.today):not(.past) {
+  background: #EDE5FF !important;
+  color: #3E2A72 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+  box-shadow: inset 0 0 0 2px #8B6BD9;
+}
+/* Dia que já passou e tinha algo marcado */
+.calendar-dates .date.past.has-event {
+  background: #EEEAF5 !important;
+  color: #6B6390 !important;
+  opacity: 1 !important;
+  box-shadow: inset 0 0 0 1.5px #CFC8E0;
+}
+/* Pontinhos embaixo do dia: maiores e visíveis */
+.event-dots .dot,
+.calendar-dates .date .event-dots .dot { width: 6px !important; height: 6px !important; background: #6A55A8 !important; box-shadow: none !important; }
+.event-dots .dot.past { background: #A79DC8 !important; }
+
+/* ---------- Modo escuro ---------- */
+:host-context(body[data-theme="dark"]) .calendar-dates .date { color: #E5DCFF; }
+:host-context(body[data-theme="dark"]) .calendar-dates .date.has-event:not(.today):not(.past) {
+  background: rgba(157, 143, 231, .22) !important;
+  color: #F4F1FF !important;
+  box-shadow: inset 0 0 0 2px #9D8FE7;
+}
+:host-context(body[data-theme="dark"]) .calendar-dates .date.past.has-event {
+  background: rgba(255, 255, 255, .07) !important;
+  color: #B9B1D6 !important;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .18);
+}
+:host-context(body[data-theme="dark"]) .calendar-dates .date.today {
+  background: #7C5CD6 !important;
+  color: #FFFFFF !important;
+}
+:host-context(body[data-theme="dark"]) .event-dots .dot { background: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) .event-dots .dot.past { background: rgba(255, 255, 255, .35) !important; }

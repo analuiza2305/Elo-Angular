@@ -9034,28 +9034,46 @@ body[data-theme="dark"] .fc-nome {
     color: #e2dafc !important;
 }
 
-/* Contraste das Categorias no Filtro */
-.filtro-btn {
+/* Contraste das Categorias no Filtro
+   (ajuste 02/11: o fundo branco forçado valia também para a categoria selecionada,
+   que ficava branca com o ícone branco e "sumia") */
+.filtro-btn:not(.active):not(.ativo) {
     color: #4B2C82 !important;
     border-color: rgba(132, 113, 177, 0.3) !important;
     background: #FFFFFF !important;
 }
+.filtro-btn:not(.active):not(.ativo) i { color: #7C69A9 !important; }
+.filtro-btn:not(.active):not(.ativo):hover { background: #F4EFFF !important; color: #3E2A72 !important; }
+.filtro-btn:not(.active):not(.ativo):hover i { color: #52427D !important; }
+.filtro-btn.active,
+.filtro-btn.ativo {
+    background: #4B2C82 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 6px 16px rgba(75, 44, 130, 0.25) !important;
+}
+.filtro-btn.active i,
+.filtro-btn.ativo i { color: #FFFFFF !important; }
 
-body[data-theme="dark"] .filtro-btn {
+body[data-theme="dark"] .filtro-btn:not(.active):not(.ativo) {
     color: #e2dafc !important;
     background: #1b2336 !important;
     border-color: rgba(157, 143, 231, 0.3) !important;
 }
+body[data-theme="dark"] .filtro-btn:not(.active):not(.ativo) i { color: #bdaffc !important; }
 
-body[data-theme="dark"] .filtro-btn:hover {
+body[data-theme="dark"] .filtro-btn:not(.active):not(.ativo):hover {
     background: rgba(157, 143, 231, 0.2) !important;
     color: #ffffff !important;
 }
+body[data-theme="dark"] .filtro-btn:not(.active):not(.ativo):hover i { color: #E5DCFF !important; }
 
+body[data-theme="dark"] .filtro-btn.active,
 body[data-theme="dark"] .filtro-btn.ativo {
     background: #9d8fe7 !important;
     color: #0b1020 !important;
 }
+body[data-theme="dark"] .filtro-btn.active i,
+body[data-theme="dark"] .filtro-btn.ativo i { color: #0b1020 !important; }
 
 /* Botão Ordenar / Categoria Mobile */
 .btn-ordenar-forum {

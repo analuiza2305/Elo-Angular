@@ -248,7 +248,7 @@
                         @for (n of notificacoes(); track n.id) {
                           <li>
                             <button type="button" class="notif-item" [class.nao-lida]="!n.lida" (click)="abrirNotificacao(n)">
-                              <span class="notif-icone" [class.recusada]="n.tipo === 'consulta_recusada'">
+                              <span class="notif-icone" [class.recusada]="n.tipo === 'consulta_recusada'" [class.roxa]="n.tipo !== 'consulta_recusada' && n.tipo !== 'consulta_confirmada'">
                                 <i [class]="iconeNotificacao(n.tipo)"></i>
                               </span>
                               <span class="notif-texto">
@@ -376,7 +376,7 @@
                       }
                       @for (n of notificacoes(); track n.id) {
                         <button type="button" class="notif-item" [class.nao-lida]="!n.lida" (click)="abrirNotificacao(n)">
-                          <span class="notif-icone" [class.recusada]="n.tipo === 'consulta_recusada'">
+                          <span class="notif-icone" [class.recusada]="n.tipo === 'consulta_recusada'" [class.roxa]="n.tipo !== 'consulta_recusada' && n.tipo !== 'consulta_confirmada'">
                             <i [class]="iconeNotificacao(n.tipo)"></i>
                           </span>
                           <span class="notif-texto">

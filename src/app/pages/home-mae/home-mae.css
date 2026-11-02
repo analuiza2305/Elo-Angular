@@ -543,3 +543,8 @@ body[data-theme="dark"] .banner-image img {
     mix-blend-mode: screen; /* Deixa o fundo roxo claro da imagem transparente no modo escuro */
     opacity: 0.95;
 }
+/* Ajuste 02/11: saudação do topo sem pílula */
+.hero-saudacao { margin: 0 0 14px; font-size: 1rem; font-weight: 600; color: #6A5A92; }
+.hero-saudacao strong { color: #4B2C82; font-weight: 800; }
+:host-context(body[data-theme="dark"]) .hero-saudacao { color: #C9C0EA !important; }
+:host-context(body[data-theme="dark"]) .hero-saudacao strong { color: #E5DCFF !important; }

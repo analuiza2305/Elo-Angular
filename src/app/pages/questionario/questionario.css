@@ -240,3 +240,6 @@
 .qb-atualizar strong { color: var(--q-texto); font-size: 1rem; }
 .qb-atualizar small { color: var(--q-suave); font-size: .88rem; line-height: 1.45; }
 :host-context(body[data-theme="dark"]) .qb-atualizar { background: linear-gradient(135deg, #1D2333 0%, #2A1823 100%); }
+
+/* Ajuste 02/11: rótulo do topo sem pílula (regra do site: sem pills decorativas nos topos) */
+.qb-rotulo { padding: 0 !important; background: none !important; border: none !important; box-shadow: none !important; }

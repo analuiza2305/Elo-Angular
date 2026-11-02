@@ -6626,3 +6626,6 @@ header h1 { font-size: 24px; color: var(--primary-color-dark); font-weight: 800;
 /* Descrição curta do plano (vem do catálogo do ADM) */
 #planos .pl-descricao-plano { margin: 0 0 6px; color: #6b6480; font-size: .88rem; }
 :host-context(body[data-theme="dark"]) #planos .pl-descricao-plano { color: #b8b0d6; }
+
+/* Ajuste 02/11: ícone de câmera do "Entrar na chamada" com contraste nos dois modos */
+.ml-btn i { color: #FFFFFF !important; opacity: 1 !important; }

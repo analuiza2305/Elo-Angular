@@ -4,19 +4,21 @@
     
     <div class="breadcrumb-acoes">
         <button type="button" class="link-voltar" (click)="voltar()">
-            <i class="fa-solid fa-arrow-left"></i> Voltar para artigos
+            <i class="fa-solid fa-arrow-left"></i> Voltar<span class="so-desktop"> para artigos</span>
         </button>
         
         @if (!isLoading() && artigo()) {
-            <app-denunciar tipo="artigo" [alvoId]="artigoId" [alvoTitulo]="artigo().titulo || ''" [alvoDono]="artigo().postadoPor || ''"></app-denunciar>
-            <button class="btn-favoritar" (click)="toggleFavorito()">
-                @if (isFavorito()) {
-                    <i class="fa-solid fa-bookmark" style="color: #4B2C82;"></i> Salvo nos Favoritos
-                } @else {
-                    <i class="fa-regular fa-bookmark"></i> Salvar Artigo
-                }
-            </button>
-        }      
+            <div class="breadcrumb-direita">
+                <app-denunciar tipo="artigo" [alvoId]="artigoId" [alvoTitulo]="artigo().titulo || ''" [alvoDono]="artigo().postadoPor || ''"></app-denunciar>
+                <button class="btn-favoritar" [class.salvo]="isFavorito()" (click)="toggleFavorito()">
+                    @if (isFavorito()) {
+                        <i class="fa-solid fa-bookmark"></i> Salvo<span class="so-desktop"> nos favoritos</span>
+                    } @else {
+                        <i class="fa-regular fa-bookmark"></i> Salvar<span class="so-desktop"> artigo</span>
+                    }
+                </button>
+            </div>
+        }
     </div>
 
     @if (isLoading()) {

@@ -284,3 +284,33 @@ a.link-voltar:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(108, 75, 191, 0.1) !important;
 }
+/* =========================================================
+   AJUSTE 02/11: topo do artigo no celular
+   Voltar à esquerda; Denunciar e Salvar juntos à direita, numa linha só
+========================================================= */
+.breadcrumb-direita { display: flex; align-items: center; gap: 10px; }
+.btn-favoritar { height: 44px; border-radius: 999px; padding: 0 18px; }
+.btn-favoritar i { color: #5B3D99 !important; }
+.btn-favoritar.salvo { background: #EADFFB; }
+.btn-favoritar.salvo i { color: #4B2C82 !important; }
+button.link-voltar { height: 44px; padding: 0 18px !important; }
+
+@media (max-width: 768px) {
+  .breadcrumb-acoes {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap;
+    gap: 8px !important;
+    margin-bottom: 16px;
+  }
+  .so-desktop { display: none; }
+  .breadcrumb-direita { gap: 6px; }
+  button.link-voltar, .btn-favoritar { height: 40px; padding: 0 14px !important; font-size: .88rem !important; }
+  .artigo-header-meta { flex-wrap: wrap; gap: 8px; }
+  #artigo-titulo { font-size: 1.55rem !important; line-height: 1.25; }
+  .btn-externo { width: 100%; justify-content: center; text-align: center; }
+}
+
+:host-context(body[data-theme="dark"]) .btn-favoritar { background: rgba(157, 143, 231, .14); color: #E5DCFF; border-color: rgba(157, 143, 231, .28); }
+:host-context(body[data-theme="dark"]) .btn-favoritar i { color: #D9D0FF !important; }
