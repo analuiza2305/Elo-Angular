@@ -2,11 +2,12 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DenunciarComponent } from '../../components/denunciar/denunciar';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
-  collection, query, orderBy, limit, getDocs, doc, getDoc, addDoc, serverTimestamp, updateDoc, deleteDoc, setDoc, increment, getCountFromServer
+  collection, query, orderBy, limit, getDocs, doc, getDoc, addDoc, serverTimestamp, updateDoc, deleteDoc, setDoc, increment, getCountFromServer, writeBatch
 } from 'firebase/firestore';
 
 const POSTS_POR_PAGINA = 8;
@@ -14,7 +15,7 @@ const POSTS_POR_PAGINA = 8;
 @Component({
   selector: 'app-forum',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent],
+  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, DenunciarComponent],
   templateUrl: './forum.html',
   styleUrls: ['./forum.css']
 })
@@ -223,7 +224,12 @@ export class ForumComponent implements OnInit {
 
     this.publicando.set(true);
     try {
-      await addDoc(collection(db, 'posts'), {
+      // Gravação única (atômica): o post e, se for anônimo, o vínculo privado com a autora.
+      // A moderação usa `postsAutores` só para avisar a mãe quando advertir/remover um post anônimo;
+      // para as outras mães o post continua 100% anônimo.
+      const lote = writeBatch(db);
+      const postRef = doc(collection(db, 'posts'));
+      lote.set(postRef, {
         autorId,
         autorNome,
         autorFoto,
@@ -234,6 +240,10 @@ export class ForumComponent implements OnInit {
         categoria: this.novoPostForm.categoria,
         data: serverTimestamp()
       });
+      if (this.novoPostForm.anonimo) {
+        lote.set(doc(db, 'postsAutores', postRef.id), { uid: user.uid, criadoEm: serverTimestamp() });
+      }
+      await lote.commit();
       this.fecharModalNovoPost();
       await this.carregarPosts();
     } catch (err) {

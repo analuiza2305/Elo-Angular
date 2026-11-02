@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { DenunciarComponent } from '../../components/denunciar/denunciar';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -9,7 +10,7 @@ import { collection, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore'
 @Component({
   selector: 'app-eventos',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent],
   templateUrl: './eventos.html',
   styleUrls: ['./eventos.css']
 })

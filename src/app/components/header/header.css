@@ -261,26 +261,23 @@ body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:h
 ========================================= */
 .adm-header {
   width: 100%;
-  background: var(--card-bg);
-  border-bottom: 1px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  z-index: 2100;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(132, 113, 177, 0.15);
   font-family: 'Nunito', sans-serif;
 }
 
 .adm-header-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 14px 28px;
+  padding: 16px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
 }
 
-.adm-header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.adm-header-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
 
 .adm-sidebar-toggle {
   display: none;
@@ -291,73 +288,27 @@ body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:h
   flex-shrink: 0;
   border: none;
   border-radius: 50%;
-  background: var(--muted-bg);
-  color: var(--primary-color-dark);
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.adm-sidebar-toggle:hover {
-  background: var(--menu-btn-hover, var(--muted-bg));
-}
-
-.adm-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-}
-
-.adm-logo img {
-  width: 30px;
-  height: 30px;
-  display: block;
-}
-
-.adm-logo span {
-  font-weight: 800;
-  font-size: 1.15rem;
-  color: var(--primary-color-dark);
-}
-
-.adm-header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.adm-search-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--muted-bg);
-  border-radius: 999px;
-  padding: 0 16px;
-  height: 40px;
-  width: 240px;
-  transition: width 0.2s ease;
-}
-
-.adm-search-box i {
-  color: var(--muted-accent);
-  font-size: 0.8rem;
-}
-
-.adm-search-box input {
-  border: none;
-  outline: none;
   background: transparent;
-  flex: 1;
-  min-width: 0;
-  font-family: inherit;
-  font-size: 0.85rem;
-  color: var(--text-color);
+  color: #583E8E;
+  font-size: 1.3rem;
+  cursor: pointer;
 }
 
-.adm-search-box input::placeholder {
-  color: var(--muted-accent);
+.adm-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.adm-logo img { width: 30px; height: 30px; display: block; }
+.adm-logo span { font-weight: 800; font-size: 1.15rem; color: #3E2A72; }
+
+.adm-header-titulo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #3E2A72;
+  letter-spacing: -0.3px;
+  padding-left: 14px;
+  border-left: 2px solid rgba(132, 113, 177, 0.25);
+  white-space: nowrap;
 }
+
+.adm-header-right { display: flex; align-items: center; gap: 14px; }
 
 .adm-icon-btn {
   position: relative;
@@ -369,30 +320,34 @@ body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:h
   flex-shrink: 0;
   border-radius: 50%;
   border: none;
-  background: var(--muted-bg);
-  color: var(--primary-color-dark);
-  font-size: 1rem;
+  background: transparent;
+  color: #583E8E;
+  font-size: 1.15rem;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+.adm-icon-btn:hover { transform: scale(1.1); background: #F4F0FC; color: #3E2A72; }
+.adm-logout-btn:hover { background: #fdecef; color: #c0344f; }
+
+.adm-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ECE4FF;
 }
 
-.adm-icon-btn:hover {
-  transform: translateY(-2px);
-  background: var(--menu-btn-hover, var(--muted-bg));
-}
+body[data-theme="dark"] .adm-header { background: #0f1422; border-bottom-color: rgba(255, 255, 255, 0.12); }
+body[data-theme="dark"] .adm-logo span,
+body[data-theme="dark"] .adm-header-titulo,
+body[data-theme="dark"] .adm-icon-btn,
+body[data-theme="dark"] .adm-sidebar-toggle { color: #efe7ff; }
+body[data-theme="dark"] .adm-icon-btn:hover { background: rgba(255, 255, 255, 0.08); }
 
-@media (max-width: 768px) {
-  .adm-header-container {
-    padding: 12px 16px;
-  }
-
-  .adm-sidebar-toggle {
-    display: flex;
-  }
-
-  .adm-search-box {
-    display: none;
-  }
+@media (max-width: 1024px) {
+  .adm-header-container { padding: 12px 16px; }
+  .adm-sidebar-toggle { display: flex; }
+  .adm-header-titulo { display: none; }
 }
 
 /* =========================================================
@@ -850,3 +805,21 @@ body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:h
     font-size: 0.85rem;
   }
 }
+
+
+/* ---------- Aviso de moderação (mãe) ---------- */
+.aviso-mod-fundo { position: fixed; inset: 0; z-index: 30000; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(30, 18, 56, 0.65); font-family: 'Nunito', sans-serif; }
+.aviso-mod-caixa { width: min(480px, 100%); max-height: 92vh; overflow-y: auto; padding: 32px 28px; border-radius: 28px; background: #fff; color: #333; text-align: center; box-shadow: 0 24px 60px rgba(30, 18, 56, 0.35); }
+.aviso-mod-icone { width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; background: #FFF0DD; color: #C9740F; }
+.aviso-mod-icone.removido { background: #fdecef; color: #c0344f; }
+.aviso-mod-caixa h2 { margin: 0 0 6px; color: #3E2A72; font-size: 1.35rem; font-weight: 800; }
+.aviso-mod-post { margin: 0 0 14px; color: #555; font-size: 0.9rem; overflow-wrap: anywhere; }
+.aviso-mod-detalhe { text-align: left; padding: 14px 16px; border-radius: 16px; background: #F9F6FF; margin-bottom: 14px; }
+.aviso-mod-detalhe strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: #7B6AAE; }
+.aviso-mod-detalhe p { margin: 2px 0 10px; color: #333; font-size: 0.95rem; line-height: 1.5; overflow-wrap: anywhere; }
+.aviso-mod-detalhe p:last-child { margin-bottom: 0; }
+.aviso-mod-regra { margin: 0 0 18px; color: #666; font-size: 0.85rem; line-height: 1.5; }
+.aviso-mod-erro { margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; background: #fdecef; color: #a02a45; font-size: 0.88rem; }
+.aviso-mod-btn { width: 100%; padding: 14px; border: none; border-radius: 14px; background: #52427D; color: #fff; font-family: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; }
+.aviso-mod-btn:hover:not(:disabled) { background: #3E2A72; }
+.aviso-mod-btn:disabled { opacity: 0.6; cursor: not-allowed; }

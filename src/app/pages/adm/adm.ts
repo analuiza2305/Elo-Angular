@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, inject, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { CommonModule, registerLocaleData } from '@angular/common';
@@ -18,6 +18,8 @@ import {
   doc,
   onSnapshot,
   serverTimestamp,
+  increment,
+  writeBatch,
   Unsubscribe
 } from 'firebase/firestore';
 import { onAuthStateChanged, signOut, sendPasswordResetEmail } from 'firebase/auth';
@@ -62,7 +64,7 @@ interface AtividadeItem {
  * Dados da aba "Mães" (antiga "Usuários").
  * Vem exclusivamente da coleção `usuarios` filtrada por tipo === 'mae'.
  *
- * TODO: os campos `criadoEm`, `creditos`, `cidade`, `uf`, `dataNascimento`,
+ * TODO: os campos `criadoEm`, `cidade`, `uf`, `dataNascimento`,
  * `endereco` e `filhos` ainda não são preenchidos no fluxo de cadastro
  * (auth-form.ts). Assim que o cadastro passar a salvar esses campos,
  * eles aparecem aqui automaticamente — por enquanto exibimos "—" /
@@ -75,7 +77,6 @@ interface MaeData {
   avatar: string;
   status: string; // 'ativo' | 'inativo'
   criadoEm: any;
-  creditos: number;
   cidade: string;
   uf: string;
   dataNascimento: string;
@@ -87,6 +88,8 @@ interface MaeData {
   suspensoEm?: any;
   observacoesReativacao?: string;
   reativadoEm?: any;
+  /** Quantas advertências do fórum ela já recebeu (somado a cada advertência de post). */
+  advertenciasForum: number;
 }
 
 /**
@@ -192,6 +195,9 @@ interface PostModeracao {
 /** Post real da coleção `posts` (a mesma usada no fórum público), visto pelo admin. */
 interface PostForum {
   id: string;
+  dataTs: number;
+  /** uid de quem postou, ou 'anonimo' quando a mãe marcou "postar como anônima". */
+  autorId: string;
   titulo: string;
   conteudo: string;
   autorNome: string;
@@ -239,44 +245,6 @@ interface ConteudoAdm {
 }
 
 type FiltroConteudoModeracao = 'todos' | 'eventos' | 'artigos' | 'denuncias';
-
-/** Configuração de custo em créditos de uma ação da plataforma (sub-página "Créditos"). */
-interface AcaoCredito {
-  id: string;
-  icone: string;
-  nome: string;
-  descricao: string;
-  valor: number;
-  valorPadrao: number;
-  ativo: boolean;
-}
-
-/** Fatia do gráfico de distribuição de uso de créditos (sub-página "Créditos"). */
-interface DistribuicaoCredito {
-  nome: string;
-  percentual: number;
-  cor: string;
-}
-
-/** Item da lista "Configurações gerais" (sub-página "Créditos"). */
-interface ConfiguracaoGeralCredito {
-  id: string;
-  icone: string;
-  label: string;
-  tipo: 'valor' | 'toggle';
-  valor?: string;
-  ativo?: boolean;
-}
-
-/** Item da lista "Últimas transações" (sub-página "Créditos"). */
-interface TransacaoCredito {
-  id: string;
-  icone: string;
-  nome: string;
-  data: string;
-  hora: string;
-  tipo: 'debito' | 'credito';
-}
 
 /**
  * Dados da sub-aba "Aprovação" (dentro de "Parceiros").
@@ -412,6 +380,71 @@ interface ParceiroEmpresaLista {
   suspensoEm?: string;
 }
 
+/** Quem vê o quê na aba "Usuários". */
+type VisaoUsuarios = 'todos' | 'maes' | 'profissionais' | 'parceiros' | 'aprovacao';
+type TipoUsuario = 'mae' | 'psicologo' | 'advogado' | 'parceiro';
+type SituacaoUsuario = 'ativo' | 'pendente' | 'suspenso' | 'recusado';
+
+/**
+ * Linha da lista "Todos" da aba Usuários: junta mães, psicólogos, advogados e
+ * parceiros num formato só. Guarda também o objeto original pra abrir o perfil certo.
+ */
+interface UsuarioUnificado {
+  chave: string;
+  tipo: TipoUsuario;
+  tipoRotulo: string;
+  nome: string;
+  email: string;
+  /** CRP / OAB / CNPJ (ou cidade, no caso das mães) */
+  detalhe: string;
+  avatar: string;
+  cadastroTs: number;
+  cadastro: string;
+  situacao: SituacaoUsuario;
+  mae?: MaeData;
+  solicitacao?: SolicitacaoProfissional;
+  profissional?: ProfissionalLista;
+  parceiro?: ParceiroEmpresaLista;
+}
+
+/** Denúncia feita por uma usuária (coleção `denuncias`). */
+interface DenunciaAdm {
+  id: string;
+  tipo: 'post' | 'artigo' | 'evento';
+  alvoId: string;
+  alvoTitulo: string;
+  alvoDono: string;
+  motivo: string;
+  detalhes: string;
+  denuncianteNome: string;
+  /** aberta = pendente; em_analise = alguém da equipe já está vendo; resolvida/descartada = encerrada */
+  status: 'aberta' | 'em_analise' | 'resolvida' | 'descartada';
+  ts: number;
+  dataFormatada: string;
+  parecer: string;
+  analisadoPor: string;
+  analisadoEmFormatado: string;
+}
+
+/** Linha de "Precisa da sua atenção" na Home. */
+interface ItemAtencao {
+  icone: string;
+  cor: string;
+  texto: string;
+  total: number;
+  aba: string;
+  visao?: VisaoUsuarios;
+}
+
+/** Resumo dos últimos posts da mãe (drawer do perfil). */
+interface PostResumoMae {
+  id: string;
+  titulo: string;
+  dataFormatada: string;
+  ts: number;
+  estado: 'ok' | 'advertido' | 'removido';
+}
+
 /** Item do sino de notificações do admin (montado a partir do banco). */
 interface NotificacaoAdm {
   id: string;
@@ -454,17 +487,11 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   psicologosAtivos: number = 0;
   advogadosAtivos: number = 0;
 
-  // --- Cartões da Home ---
+  // --- Cartões da Home (todos calculados a partir do banco, em recalcularIndicadores()) ---
   maesNaRede: number = 0;
-  maesNaRedeVariacao: number = 8.4; // TODO: calcular variação real (mês atual vs anterior)
-
-  // TODO: ainda não existe uma coleção de "atendimentos"/"consultas" concluídas
-  // nem de "créditos" no Firestore deste projeto. Deixei valores de exemplo
-  // para o layout não ficar vazio; assim que o backend expuser esses dados,
-  // é só substituir aqui dentro de atualizarDashboard().
-  atendimentosRealizados: number = 327;
-  atendimentosVariacao: number = 8.4;
-  creditosMovimentados: number = 2640;
+  maesAtivasNaRede: number = 0;
+  atendimentosRealizados: number = 0;
+  itensAtencao: ItemAtencao[] = [];
 
   atividadesRecentes: AtividadeItem[] = [];
 
@@ -479,150 +506,51 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   // --- Aba "Parceiros" (sub-abas: Aprovação / Profissionais / Parceiros) ---
   parceirosSubAba: 'aprovacao' | 'profissionais' | 'parceiros' = 'aprovacao';
 
-  // --- Sub-página "Créditos" (dados de exemplo, sem coleção no Firestore ainda) ---
-  saldoPlataformaCreditos: number = 1248500;
-  creditosEmCirculacao: number = 1248500;
-  usuariosAtivosCreditos: number = 8642;
-  transacoesNoMesCreditos: number = 12384;
-  avaliacaoMediaCreditos: number = 4.6;
+  // --- Denúncias (feitas pelas mães no fórum, artigos e eventos) ---
+  denunciasLista: DenunciaAdm[] = [];
+  denunciasAbertas: number = 0;
+  buscaDenuncias: string = '';
+  filtroTipoDenuncia: 'todas' | 'post' | 'artigo' | 'evento' = 'todas';
+  filtroStatusDenuncia: 'aberta' | 'resolvida' | 'todas' = 'aberta';
+  denunciaSelecionada: DenunciaAdm | null = null;
+  parecerDenuncia: string = '';
+  salvandoDenuncia: boolean = false;
+  erroDenuncia: string = '';
+  filtroDonoDenuncia: string = '';
+  denunciaDe: string = '';
+  denunciaAte: string = '';
+  private primeiraCargaDenuncias = false;
 
-  /** TODO: abrirá o modal de adicionar créditos (próxima etapa da tela). */
-  abrirModalAdicionarCreditos(): void {
+  // --- Filtros extras das outras abas ---
+  usuariosDe: string = '';
+  usuariosAte: string = '';
+  maeDe: string = '';
+  maeAte: string = '';
+  profCategoria: 'todas' | 'Psicólogo(a)' | 'Advogado(a)' = 'todas';
+  forumDe: string = '';
+  forumAte: string = '';
+  forumCategoria: string = '';
+  modDe: string = '';
+  modAte: string = '';
+  modParceiro: string = '';
+
+  /** true se a data (em ms) cai dentro do período escolhido (campos vazios = sem limite). */
+  noPeriodo(ts: number, de: string, ate: string): boolean {
+    if (!de && !ate) return true;
+    if (!ts) return false;
+    if (de && ts < new Date(de + 'T00:00:00').getTime()) return false;
+    if (ate && ts > new Date(ate + 'T23:59:59').getTime()) return false;
+    return true;
   }
 
-  creditosTabAtiva: 'valores' = 'valores';
-
-  mudarCreditosTab(tab: 'valores'): void {
-    this.creditosTabAtiva = tab;
-  }
-
-  // TODO: ainda não existe uma coleção `configuracoesCreditos` no Firestore.
-  // Dados de exemplo aqui só pra montar a tela; assim que o backend tiver
-  // essa configuração, troca por um onSnapshot/updateDoc de verdade.
-  acoesCreditos: AcaoCredito[] = [
-    { id: '1', icone: 'fa-book-open', nome: 'Ler artigo', descricao: 'Créditos necessários para realizar a leitura do artigo', valor: 50, valorPadrao: 50, ativo: true },
-    { id: '2', icone: 'fa-calendar-check', nome: 'Agendar consulta', descricao: 'Créditos necessários para agendar uma consulta com profissional', valor: 200, valorPadrao: 200, ativo: true },
-    { id: '3', icone: 'fa-comments', nome: 'Publicar no fórum', descricao: 'Créditos necessários para criar uma nova publicação no fórum', valor: 30, valorPadrao: 30, ativo: true },
-    { id: '4', icone: 'fa-comment-dots', nome: 'Comentar no fórum', descricao: 'Créditos necessários para comentar em uma publicação', valor: 10, valorPadrao: 10, ativo: true },
-    { id: '5', icone: 'fa-star', nome: 'Avaliar profissional', descricao: 'Créditos necessários para avaliar um profissional após consulta', valor: 5, valorPadrao: 5, ativo: true },
-    { id: '6', icone: 'fa-graduation-cap', nome: 'Concluir curso', descricao: 'Créditos necessários para se inscrever em um curso da plataforma', valor: 150, valorPadrao: 150, ativo: true },
-    { id: '7', icone: 'fa-share-nodes', nome: 'Compartilhar artigo', descricao: 'Créditos necessários para compartilhar um artigo com outra mãe', valor: 15, valorPadrao: 15, ativo: false },
-    { id: '8', icone: 'fa-message', nome: 'Enviar mensagem no chat', descricao: 'Créditos necessários para iniciar uma conversa no chat', valor: 20, valorPadrao: 20, ativo: true },
-    { id: '9', icone: 'fa-id-card', nome: 'Completar perfil', descricao: 'Créditos de bônus liberados ao completar 100% do perfil', valor: 50, valorPadrao: 50, ativo: true },
-  ];
-
-  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
-  restaurarPadraoCreditos(): void {
-    this.acoesCreditos.forEach(acao => {
-      acao.valor = acao.valorPadrao;
-    });
-  }
-
-  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
-  alternarAtivoCredito(acao: AcaoCredito): void {
-    acao.ativo = !acao.ativo;
-  }
-
-  // TODO: ainda não existe uma coleção com o histórico real de uso de
-  // créditos por categoria no Firestore. Distribuição de exemplo só pra
-  // montar o gráfico; assim que o backend expuser essas métricas (ex.: uma
-  // agregação por tipo de ação), troca os valores por dados reais.
-  distribuicaoCreditos: DistribuicaoCredito[] = [
-    { nome: 'Leitura de artigos', percentual: 34, cor: '#5b3f91' },
-    { nome: 'Consultas agendadas', percentual: 26, cor: '#8e65bf' },
-    { nome: 'Fórum', percentual: 18, cor: '#b79ce0' },
-    { nome: 'Cursos', percentual: 14, cor: '#d8c8f0' },
-    { nome: 'Outras ações', percentual: 8, cor: '#efe7fa' },
-  ];
-
-  private creditosDonutChart: any = null;
-
-  /** Desenha (ou atualiza) o donut de distribuição de uso de créditos. */
-  private atualizarGraficoDistribuicaoCreditos(): void {
-    const ctx = document.getElementById('creditosDonutChart') as HTMLCanvasElement;
-
-    if (!ctx) {
-      return;
-    }
-
-    const labels = this.distribuicaoCreditos.map(d => d.nome);
-    const valores = this.distribuicaoCreditos.map(d => d.percentual);
-    const cores = this.distribuicaoCreditos.map(d => d.cor);
-
-    if (this.creditosDonutChart) {
-      this.creditosDonutChart.data.labels = labels;
-      this.creditosDonutChart.data.datasets[0].data = valores;
-      this.creditosDonutChart.data.datasets[0].backgroundColor = cores;
-      this.creditosDonutChart.update();
-      return;
-    }
-
-    this.creditosDonutChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [{
-          data: valores,
-          backgroundColor: cores,
-          borderWidth: 0,
-        }],
-      },
-      options: {
-        responsive: true,
-        cutout: '72%',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (item: any) => ` ${item.label}: ${item.raw}%`,
-            },
-          },
-        },
-      },
-    });
-  }
-
-  // TODO: ainda não existe uma coleção `configuracoesCreditos` no Firestore
-  // pra essas configurações gerais. Dados de exemplo aqui só pra montar a
-  // tela; assim que o backend tiver essa configuração, troca por leitura e
-  // updateDoc de verdade.
-  configuracoesGeraisCreditos: ConfiguracaoGeralCredito[] = [
-    { id: 'moeda', icone: 'fa-sack-dollar', label: 'Créditos da plataforma', tipo: 'valor', valor: 'Real (R$)' },
-    { id: 'validade', icone: 'fa-calendar-days', label: 'Validade dos créditos', tipo: 'valor', valor: '15 dias' },
-    { id: 'compras', icone: 'fa-cart-shopping', label: 'Permitir compras de créditos', tipo: 'toggle', ativo: true },
-    { id: 'transferencia', icone: 'fa-people-arrows', label: 'Permitir transferência entre usuários', tipo: 'toggle', ativo: true },
-    { id: 'boasVindas', icone: 'fa-gift', label: 'Créditos de boas-vindas', tipo: 'valor', valor: '50 créditos' },
-  ];
-
-  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção existir. */
-  alternarConfiguracaoGeralCredito(item: ConfiguracaoGeralCredito): void {
-    if (item.tipo === 'toggle') {
-      item.ativo = !item.ativo;
-    }
-  }
-
-  /**
-   * TODO: abrirá um modal de edição pro item (troca de moeda, validade em
-   * dias, valor de boas-vindas). Por enquanto só um placeholder — ainda não
-   * existe coleção no Firestore pra persistir essas configurações.
-   */
-  editarConfiguracaoGeralCredito(item: ConfiguracaoGeralCredito): void {
-    if (item.tipo !== 'valor') {
-      return;
-    }
-  }
-
-  // TODO: ainda não existe uma coleção `transacoesCreditos` no Firestore.
-  // Dados de exemplo aqui só pra montar a tela; assim que o backend tiver
-  // o histórico real de transações, troca por um onSnapshot ordenado por
-  // data, igual ao que já existe pra `maes`.
-  ultimasTransacoesCreditos: TransacaoCredito[] = [
-    { id: 't1', icone: 'fa-book-open', nome: 'Ler artigo', data: '02/09/2026', hora: '14:35', tipo: 'debito' },
-    { id: 't2', icone: 'fa-book-open', nome: 'Ler artigo', data: '02/09/2026', hora: '14:35', tipo: 'debito' },
-    { id: 't3', icone: 'fa-book-open', nome: 'Ler artigo', data: '02/09/2026', hora: '14:35', tipo: 'debito' },
-    { id: 't4', icone: 'fa-book-open', nome: 'Ler artigo', data: '02/09/2026', hora: '14:35', tipo: 'debito' },
-    { id: 't5', icone: 'fa-book-open', nome: 'Ler artigo', data: '02/09/2026', hora: '14:35', tipo: 'debito' },
-  ];
+  // --- Aba "Usuários" (todos: mães, profissionais e parceiros num lugar só) ---
+  usuariosVisao: VisaoUsuarios = 'todos';
+  usuariosTodos: UsuarioUnificado[] = [];
+  termoBuscaUsuarios: string = '';
+  filtroSituacaoUsuarios: 'todas' | SituacaoUsuario = 'todas';
+  paginaUsuariosAtual: number = 1;
+  readonly itensPorPaginaUsuarios: number = 10;
+  resumoUsuarios = { total: 0, maes: 0, profissionais: 0, parceiros: 0, pendentes: 0 };
 
   // TODO: ainda não existe uma coleção `solicitacoesProfissionais` no Firestore.
   // Dados de exemplo aqui só pra montar a tela; assim que o backend tiver
@@ -668,7 +596,83 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
 
   mudarSubAbaParceiros(sub: 'aprovacao' | 'profissionais' | 'parceiros'): void {
     this.parceirosSubAba = sub;
+    // "Aprovações" agora é uma aba própria do menu; as outras duas continuam dentro de Usuários.
+    if (sub === 'aprovacao') {
+      this.abaAtiva = 'aprovacoes';
+    } else {
+      this.usuariosVisao = sub;
+    }
     this.profissionalSelecionado = null;
+  }
+
+  /** Troca a "visão" da aba Usuários (Todos / Mães / Profissionais / Parceiros / Aprovações). */
+  mudarVisaoUsuarios(visao: VisaoUsuarios): void {
+    if (visao === 'aprovacao' || visao === 'profissionais' || visao === 'parceiros') {
+      this.mudarSubAbaParceiros(visao);
+      return;
+    }
+    this.usuariosVisao = visao;
+    this.profissionalSelecionado = null;
+  }
+
+  /** Lista "Todos" já filtrada por busca e situação. */
+  get usuariosFiltrados(): UsuarioUnificado[] {
+    const termo = this.termoBuscaUsuarios.trim().toLowerCase();
+    return this.usuariosTodos.filter((u) => {
+      const bateSituacao = this.filtroSituacaoUsuarios === 'todas' || u.situacao === this.filtroSituacaoUsuarios;
+      const bateTermo = !termo
+        || u.nome.toLowerCase().includes(termo)
+        || u.email.toLowerCase().includes(termo)
+        || u.detalhe.toLowerCase().includes(termo);
+      return bateSituacao && bateTermo && this.noPeriodo(u.cadastroTs, this.usuariosDe, this.usuariosAte);
+    });
+  }
+
+  get totalPaginasUsuarios(): number {
+    return Math.max(1, Math.ceil(this.usuariosFiltrados.length / this.itensPorPaginaUsuarios));
+  }
+
+  get usuariosPaginados(): UsuarioUnificado[] {
+    if (this.paginaUsuariosAtual > this.totalPaginasUsuarios) this.paginaUsuariosAtual = this.totalPaginasUsuarios;
+    const inicio = (this.paginaUsuariosAtual - 1) * this.itensPorPaginaUsuarios;
+    return this.usuariosFiltrados.slice(inicio, inicio + this.itensPorPaginaUsuarios);
+  }
+
+  irParaPaginaUsuarios(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginasUsuarios) return;
+    this.paginaUsuariosAtual = pagina;
+  }
+
+  filtrarSituacaoUsuarios(situacao: 'todas' | SituacaoUsuario): void {
+    this.filtroSituacaoUsuarios = situacao;
+    this.paginaUsuariosAtual = 1;
+  }
+
+  rotuloSituacaoUsuario(s: SituacaoUsuario): string {
+    return { ativo: 'Ativo', pendente: 'Em análise', suspenso: 'Suspenso', recusado: 'Pendência' }[s];
+  }
+
+  /** Clique em "Ver perfil" na lista Todos: vai pra visão certa e já abre o perfil. */
+  abrirUsuario(u: UsuarioUnificado): void {
+    if (u.tipo === 'mae' && u.mae) {
+      this.mudarVisaoUsuarios('maes');
+      void this.abrirPerfilMae(u.mae);
+    } else if (u.tipo === 'parceiro' && u.parceiro) {
+      this.mudarVisaoUsuarios('parceiros');
+      this.abrirPerfilParceiroLista(u.parceiro);
+    } else if (u.solicitacao && u.solicitacao.status !== 'aprovado') {
+      this.mudarVisaoUsuarios('aprovacao');
+      this.abrirDetalheProfissional(u.solicitacao);
+    } else if (u.profissional) {
+      this.mudarVisaoUsuarios('profissionais');
+      this.abrirPerfilProfissionalLista(u.profissional);
+    }
+  }
+
+  /** Atalho dos cartões de "Precisa da sua atenção" (Home). */
+  irParaAtencao(item: ItemAtencao): void {
+    this.mudarAba(item.aba);
+    if (item.visao) this.mudarVisaoUsuarios(item.visao);
   }
 
   filtrarStatusAprovacao(status: 'todos' | 'em_analise' | 'pendencia' | 'aprovado'): void {
@@ -776,6 +780,10 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
 
   /** Lista de profissionais (sub-aba "Profissionais") já filtrada pela busca e pelo status/segmento selecionado. */
   get profissionaisListaFiltrados(): ProfissionalLista[] {
+    return this.profissionaisListaBase.filter((p) => this.profCategoria === 'todas' || p.categoria === this.profCategoria);
+  }
+
+  private get profissionaisListaBase(): ProfissionalLista[] {
     const termo = this.termoBuscaProfissionaisLista.trim().toLowerCase();
 
     return this.profissionaisLista.filter(prof => {
@@ -1179,6 +1187,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   maePerfilCarregando: boolean = false;
   maeTotalInteracoes: number = 0;
   maeAvaliacoes: AvaliacaoMae[] = [];
+  maePostsRecentes: PostResumoMae[] = [];
 
   // --- Modal "Suspender conta" ---
   maeParaSuspender: MaeData | null = null;
@@ -1228,7 +1237,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
         (this.filtroStatusMae === 'ativas' && mae.status === 'ativo') ||
         (this.filtroStatusMae === 'inativas' && mae.status !== 'ativo');
 
-      return bateTermo && bateStatus;
+      return bateTermo && bateStatus && this.noPeriodo(this.dataDoDoc(mae.criadoEm)?.getTime() ?? 0, this.maeDe, this.maeAte);
     });
   }
 
@@ -1251,6 +1260,11 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
     this.paginaMaeAtual = pagina;
+  }
+
+  /** Texto legível do motivo de suspensão salvo (ex.: 'uso_inadequado'). */
+  textoMotivoSuspensao(valor: string | undefined): string {
+    return this.motivosSuspensao.find((m) => m.valor === valor)?.texto || valor || 'Motivo não informado';
   }
 
   /** Gera as iniciais do nome para usar como avatar quando não há foto. */
@@ -1604,7 +1618,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   deletarConta(): void {
   }
 
-  private atividadeChart: any = null;
+  private redeChart: any = null;
   private unsubscribes: Unsubscribe[] = [];
 
 
@@ -1613,6 +1627,54 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   // ==========================================================================
   private router = inject(Router);
   private readonly alerta = inject(AlertaService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  constructor() {
+    this.avisarAngularQuandoAsyncTerminar();
+  }
+
+  /**
+   * POR QUE ISSO EXISTE — o bug de "entrei no admin e ficou tudo quebrado/vazio".
+   *
+   * Este projeto roda SEM zone.js (Angular 21 é "zoneless" por padrão). Nesse
+   * modo o Angular só redesenha a tela quando um signal muda, quando acontece
+   * um evento de clique/input no template, ou quando alguém chama
+   * markForCheck(). O admin guarda tudo em campos comuns (this.maes,
+   * this.postsForum, this.adminNome...) e preenche esses campos DENTRO dos
+   * callbacks do Firestore — que chegam depois, de forma assíncrona. Resultado:
+   * os dados chegavam, mas a tela continuava desenhada com os valores
+   * iniciais (zeros, listas vazias, "Admin EloMaterno") até a pessoa clicar
+   * em qualquer coisa. Por isso parecia que "tudo quebrava" na entrada.
+   *
+   * Solução: (1) os callbacks do Firestore chamam atualizarTela() e
+   * (2) todo método async da classe avisa o Angular quando termina, sem
+   * precisar lembrar de colocar markForCheck() em cada um (este método
+   * embrulha eles uma vez só, aqui).
+   */
+  private avisarAngularQuandoAsyncTerminar(): void {
+    const proto = Object.getPrototypeOf(this);
+    for (const nome of Object.getOwnPropertyNames(proto)) {
+      if (nome === 'constructor' || nome.startsWith('ng')) continue;
+      const desc = Object.getOwnPropertyDescriptor(proto, nome);
+      if (!desc || typeof desc.value !== 'function') continue; // getters ficam de fora
+      const original = desc.value as (...args: any[]) => any;
+      (this as any)[nome] = (...args: any[]) => {
+        const resultado = original.apply(this, args);
+        // Só embrulha o que devolve Promise. Métodos síncronos chamados pelo
+        // template (formatarData, estrelas...) NÃO podem chamar markForCheck
+        // durante a renderização, senão entram em loop.
+        if (resultado && typeof resultado.then === 'function') {
+          resultado.then(() => this.atualizarTela(), () => this.atualizarTela());
+        }
+        return resultado;
+      };
+    }
+  }
+
+  /** Pede pro Angular redesenhar a tela (necessário em modo zoneless depois de qualquer coisa assíncrona). */
+  private atualizarTela(): void {
+    this.cdr.markForCheck();
+  }
 
   private cadastrosBrutos: Record<string, any[]> = { psicologos: [], advogados: [], parceiros: [] };
   private primeiraCargaCadastros: Record<string, boolean> = { psicologos: false, advogados: false, parceiros: false };
@@ -1832,6 +1894,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     if (selParc) this.parceiroListaSelecionado = parceiros.find((x) => x.id === selParc.id) || null;
 
     this.reconstruirNotificacoes();
+    this.atualizarTela();
   }
 
   /** Grava advertência/suspensão de um profissional ou parceiro no documento dele. */
@@ -1875,7 +1938,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   mostrarToastAdm(texto: string, tipo: 'ok' | 'aviso' | 'erro' | 'novo' = 'ok'): void {
     this.toastAdm = { texto, tipo };
     clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => (this.toastAdm = null), 5000);
+    this.toastTimer = setTimeout(() => { this.toastAdm = null; this.atualizarTela(); }, 5000);
   }
 
   private avisarNovoCadastro(colecao: string, d: any): void {
@@ -1911,28 +1974,22 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       });
     });
 
-    this.postsForum.filter((p) => (p.moderacao?.denuncias || 0) > 0 && !p.moderacao?.removido).forEach((p) => {
+    this.denunciasLista.filter((d) => this.denunciaEmAberto(d)).forEach((d) => {
       itens.push({
-        id: `post:${p.id}`,
-        icone: 'fa-solid fa-circle-exclamation', cor: 'icone-laranja',
-        titulo: 'Post denunciado no fórum',
-        descricao: `"${(p.conteudo || p.titulo).slice(0, 70)}" — ${p.autorNome}`,
-        aba: 'forum', naoLida: false
-      });
-    });
-
-    this.conteudoModeracaoNotificavel().forEach((c) => {
-      itens.push({
-        id: `cont:${c.origem}:${c.id}`,
-        icone: 'fa-solid fa-shield-halved', cor: 'icone-laranja',
-        titulo: `${c.tipo} denunciado`,
-        descricao: `${c.titulo} — ${c.usuarioNome}`,
-        aba: 'moderacao', naoLida: false
+        id: `den:${d.id}`,
+        icone: 'fa-solid fa-flag', cor: 'icone-laranja',
+        titulo: `${this.rotuloTipoDenuncia(d.tipo)} denunciado`,
+        descricao: `"${d.alvoTitulo.slice(0, 60)}" — motivo: ${d.motivo}`,
+        aba: 'denuncias', naoLida: false
       });
     });
 
     itens.forEach((n) => (n.naoLida = !this.notificacoesLidas.has(n.id)));
     this.notificacoesAdm = itens;
+
+    // tudo que muda as notificações (cadastros, posts, conteúdo) também muda os números da Home
+    this.recalcularIndicadores();
+    this.atualizarTela();
   }
 
   private conteudoModeracaoNotificavel(): ConteudoAdm[] {
@@ -2039,10 +2096,12 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
         this.respostasPostForum = lista;
         this.contagemRespostasPorPost[post.id] = lista.length;
         this.carregandoRespostasForum = false;
+        this.atualizarTela();
       },
       (erro) => {
         console.error('Erro ao carregar respostas do post:', erro);
         this.carregandoRespostasForum = false;
+        this.atualizarTela();
       }
     );
   }
@@ -2058,7 +2117,164 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     return this.respostasPostForum.filter((r) => r.ehEspecialista).length;
   }
 
+  // =========================================================
+  // DENÚNCIAS
+  // =========================================================
+
+  get denunciasFiltradas(): DenunciaAdm[] {
+    const termo = this.buscaDenuncias.trim().toLowerCase();
+    return this.denunciasLista.filter((d) =>
+      (this.filtroTipoDenuncia === 'todas' || d.tipo === this.filtroTipoDenuncia)
+      && (this.filtroStatusDenuncia === 'todas' || (this.filtroStatusDenuncia === 'aberta' ? this.denunciaEmAberto(d) : !this.denunciaEmAberto(d)))
+      && (!this.filtroDonoDenuncia || d.alvoDono === this.filtroDonoDenuncia)
+      && this.noPeriodo(d.ts, this.denunciaDe, this.denunciaAte)
+      && (!termo || d.alvoTitulo.toLowerCase().includes(termo) || d.alvoDono.toLowerCase().includes(termo)
+          || d.motivo.toLowerCase().includes(termo) || d.denuncianteNome.toLowerCase().includes(termo)));
+  }
+
+  get donosDenuncias(): string[] {
+    return [...new Set(this.denunciasLista.map((d) => d.alvoDono).filter((n) => !!n))].sort((a, b) => a.localeCompare(b));
+  }
+
+  contarDenuncias(tipo: 'post' | 'artigo' | 'evento'): number {
+    return this.denunciasLista.filter((d) => this.denunciaEmAberto(d) && d.tipo === tipo).length;
+  }
+
+  denunciaEmAberto(d: DenunciaAdm): boolean {
+    return d.status === 'aberta' || d.status === 'em_analise';
+  }
+
+  rotuloStatusDenuncia(status: string): string {
+    return { aberta: 'Pendente', em_analise: 'Em análise', resolvida: 'Resolvida', descartada: 'Descartada' }[status] || status;
+  }
+
+  classeStatusDenuncia(status: string): string {
+    return status === 'aberta' ? 'pendente' : status === 'em_analise' ? 'recusado' : status === 'resolvida' ? 'ativo' : 'inativo';
+  }
+
+  rotuloTipoDenuncia(tipo: string): string {
+    return tipo === 'post' ? 'Post do fórum' : tipo === 'artigo' ? 'Artigo' : 'Evento';
+  }
+
+  /** Escuta as denúncias em tempo real e avisa o admin na hora quando chega uma nova. */
+  escutarDenuncias(): void {
+    const unsub = onSnapshot(
+      collection(db, 'denunciasConteudo'),
+      (snap) => {
+        if (this.primeiraCargaDenuncias) {
+          snap.docChanges().forEach((m) => {
+            const d = m.doc.data() as any;
+            if (m.type === 'added' && d['status'] === 'aberta') {
+              this.mostrarToastAdm(`Nova denúncia (${this.rotuloTipoDenuncia(d['tipo']).toLowerCase()}): ${d['alvoTitulo'] || 'sem título'}`, 'novo');
+            }
+          });
+        }
+        this.primeiraCargaDenuncias = true;
+
+        this.denunciasLista = snap.docs.map((x) => {
+          const d = x.data() as any;
+          const dt = this.dataDoDoc(d['criadoEm']);
+          return {
+            id: x.id,
+            tipo: d['tipo'],
+            alvoId: d['alvoId'] || '',
+            alvoTitulo: d['alvoTitulo'] || 'Sem título',
+            alvoDono: d['alvoDono'] || '',
+            motivo: d['motivo'] || '',
+            detalhes: d['detalhes'] || '',
+            denuncianteNome: d['denuncianteNome'] || 'Usuária',
+            status: d['status'] || 'aberta',
+            ts: dt?.getTime() ?? Date.now(),
+            dataFormatada: dt ? dt.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : 'Agora',
+            parecer: d['parecer'] || '',
+            analisadoPor: d['analisadoPor'] || '',
+            analisadoEmFormatado: this.dataDoDoc(d['analisadoEm'])?.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) || ''
+          } as DenunciaAdm;
+        }).sort((a, b) => b.ts - a.ts);
+
+        // mantém o painel de detalhes (se aberto) com os dados mais novos
+        if (this.denunciaSelecionada) {
+          this.denunciaSelecionada = this.denunciasLista.find((x) => x.id === this.denunciaSelecionada!.id) ?? null;
+        }
+        this.reconstruirNotificacoes();
+        this.atualizarTela();
+      },
+      (erro) => console.error('Erro ao escutar denúncias:', erro)
+    );
+    this.unsubscribes.push(unsub);
+  }
+
+  /** Abre o conteúdo denunciado (post no fórum, ou artigo/evento na análise de denúncia). */
+  abrirAlvoDenuncia(d: DenunciaAdm): void {
+    if (d.tipo === 'post') {
+      const post = this.postsForum.find((p) => p.id === d.alvoId);
+      if (!post) { this.mostrarToastAdm('Esse post não existe mais.', 'aviso'); return; }
+      this.abrirPostForum(post);
+      return;
+    }
+    const item = this.conteudoModeracao.find((c) => c.id === d.alvoId && c.origem === (d.tipo === 'artigo' ? 'artigos' : 'eventos'));
+    if (!item) { this.mostrarToastAdm('Esse conteúdo não existe mais.', 'aviso'); return; }
+    this.abrirModalAnalisarDenuncia(item);
+  }
+
+  abrirDetalheDenuncia(d: DenunciaAdm): void {
+    this.denunciaSelecionada = d;
+    this.parecerDenuncia = '';
+    this.erroDenuncia = '';
+  }
+
+  fecharDetalheDenuncia(): void {
+    if (this.salvandoDenuncia) return;
+    this.denunciaSelecionada = null;
+  }
+
+  /**
+   * Registra a análise: muda o status e guarda quem analisou, quando e o parecer.
+   * Resolver ou descartar exige parecer (fica no histórico da denúncia).
+   */
+  async registrarAnaliseDenuncia(status: 'em_analise' | 'resolvida' | 'descartada'): Promise<void> {
+    const d = this.denunciaSelecionada;
+    if (!d) return;
+    const parecer = this.parecerDenuncia.trim();
+    if (status !== 'em_analise' && parecer.length < 5) {
+      this.erroDenuncia = 'Escreva um parecer curto (o que foi decidido e por quê) para encerrar a denúncia.';
+      return;
+    }
+    this.salvandoDenuncia = true;
+    this.erroDenuncia = '';
+    try {
+      const dados: any = { status, analisadoPor: this.adminNome, analisadoEm: serverTimestamp() };
+      if (parecer) dados.parecer = parecer;
+      await updateDoc(doc(db, 'denunciasConteudo', d.id), dados);
+      this.mostrarToastAdm(
+        status === 'em_analise' ? 'Denúncia marcada como em análise.' : status === 'resolvida' ? 'Denúncia resolvida e registrada.' : 'Denúncia descartada e registrada.',
+        'ok'
+      );
+      this.parecerDenuncia = '';
+      if (status !== 'em_analise') this.denunciaSelecionada = null;
+    } catch (e) {
+      console.error('Erro ao registrar análise da denúncia:', e);
+      this.erroDenuncia = 'Não foi possível registrar agora. Tente novamente.';
+    } finally {
+      this.salvandoDenuncia = false;
+    }
+  }
+
+  /** Quando o admin age sobre um conteúdo (advertir/remover), as denúncias abertas dele ficam resolvidas. */
+  private async resolverDenunciasDoAlvo(tipo: 'post' | 'artigo' | 'evento', alvoId: string): Promise<void> {
+    const abertas = this.denunciasLista.filter((d) => this.denunciaEmAberto(d) && d.tipo === tipo && d.alvoId === alvoId);
+    if (!abertas.length) return;
+    try {
+      const lote = writeBatch(db);
+      abertas.forEach((d) => lote.update(doc(db, 'denunciasConteudo', d.id), { status: 'resolvida', analisadoPor: this.adminNome, analisadoEm: serverTimestamp(), parecer: d.parecer || 'Resolvida automaticamente: o conteúdo foi advertido/removido pela moderação.' }));
+      await lote.commit();
+    } catch (e) {
+      console.warn('Não foi possível resolver as denúncias do conteúdo:', e);
+    }
+  }
+
   ngOnInit(): void {
+    this.escutarDenuncias();
     this.escutarCadastros();
     this.escutarMudancas();
     this.escutarAdminLogado();
@@ -2067,8 +2283,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.atualizarDashboard();
-    this.atualizarGraficoDistribuicaoCreditos();
+    this.atualizarGraficoRede();
     this.atualizarGraficosRelatorios();
   }
 
@@ -2077,12 +2292,8 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     this.unsubRespostasForum?.();
     clearTimeout(this.toastTimer);
 
-    if (this.atividadeChart) {
-      this.atividadeChart.destroy();
-    }
-
-    if (this.creditosDonutChart) {
-      this.creditosDonutChart.destroy();
+    if (this.redeChart) {
+      this.redeChart.destroy();
     }
 
     if (this.conteudoDonutChart) {
@@ -2115,6 +2326,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       if (firebaseUser.photoURL) {
         this.adminAvatar = firebaseUser.photoURL;
       }
+      this.atualizarTela();
       // o nome e a foto de verdade ficam no documento do usuário
       try {
         const snap = await getDoc(doc(db, 'usuarios', firebaseUser.uid));
@@ -2126,12 +2338,20 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       } catch (e) {
         console.warn('Não foi possível ler o perfil do admin:', e);
       }
+      this.atualizarTela();
     });
     this.unsubscribes.push(unsub);
   }
 
   mudarAba(aba: string): void {
+    // A antiga aba "Parceiros" foi unida à aba "Usuários".
+    if (aba === 'parceiros') aba = 'usuarios';
     this.abaAtiva = aba;
+    this.sidebarAberta = false;
+
+    if (aba === 'home') {
+      setTimeout(() => this.atualizarGraficoRede(), 0);
+    }
 
     // Os canvases dos gráficos de Relatórios ficam ocultos via CSS ([class.hidden])
     // em vez de destruídos (*ngIf), então ao reabrir a aba só precisamos garantir
@@ -2156,129 +2376,128 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   this.sidebarAberta = false;
   }
 
+  /** Mantido por compatibilidade: agora só recalcula os números (tudo vem dos listeners ao vivo). */
   async atualizarDashboard(): Promise<void> {
-    try {
-      const psicologosSnap = await getDocs(
-        collection(db, 'psicologos')
-      );
-
-      const advogadosSnap = await getDocs(
-        collection(db, 'advogados')
-      );
-
-      this.psicologosAtivos =
-        psicologosSnap.docs.filter(
-          d => d.data()['status'] === 'aprovado'
-        ).length;
-
-      this.advogadosAtivos =
-        advogadosSnap.docs.filter(
-          d => d.data()['status'] === 'aprovado'
-        ).length;
-
-      this.atualizarGraficoAtividade();
-
-    } catch (e) {
-      console.error('Erro dashboard:', e);
-    }
+    this.recalcularIndicadores();
   }
 
   /**
-   * Gráfico "Atividade da rede" (linha, 2 séries: Profissionais e Atendimentos).
-   * TODO: hoje não existe uma coleção com histórico diário de atendimentos,
-   * então geramos uma série de exemplo que termina no total real atual de
-   * profissionais/atendimentos. Trocar por dados reais assim que o backend
-   * expuser um endpoint de série histórica.
+   * Recalcula tudo que a Home e a aba Usuários mostram, a partir do que os
+   * listeners em tempo real já trouxeram. Nenhum número aqui é inventado.
    */
-  atualizarGraficoAtividade(): void {
+  private recalcularIndicadores(): void {
+    this.psicologosAtivos = this.cadastrosBrutos['psicologos'].filter((d) => d['status'] === 'aprovado').length;
+    this.advogadosAtivos = this.cadastrosBrutos['advogados'].filter((d) => d['status'] === 'aprovado').length;
+    this.maesAtivasNaRede = this.maes.filter((m) => m.status === 'ativo').length;
+    this.atendimentosRealizados = this.consultasBrutas.filter((c) => c['status'] === 'aceito' || c['status'] === 'realizado').length;
+    this.denunciasAbertas = this.denunciasLista.filter((d) => this.denunciaEmAberto(d)).length;
 
-    const labels = Array.from({ length: 10 }, (_, i) => `${i}`);
+    this.itensAtencao = [
+      { icone: 'fa-solid fa-user-clock', cor: 'icone-azul', texto: 'Cadastros de profissionais aguardando aprovação', total: this.pendentesAprovacao, aba: 'usuarios', visao: 'aprovacao' },
+      { icone: 'fa-solid fa-flag', cor: 'icone-laranja', texto: 'Denúncias em aberto (posts, artigos e eventos)', total: this.denunciasAbertas, aba: 'denuncias' }
+    ];
 
-    const profissionaisSerie = this.gerarSerieDeExemplo(this.profissionaisAtivos, 10);
-    const atendimentosSerie = this.gerarSerieDeExemplo(this.atendimentosRealizados, 10, true);
-
-    const ctx = document.getElementById(
-      'atividadeChart'
-    ) as HTMLCanvasElement;
-
-    if (!ctx) {
-      return;
-    }
-
-    if (this.atividadeChart) {
-      this.atividadeChart.data.datasets[0].data = profissionaisSerie;
-      this.atividadeChart.data.datasets[1].data = atendimentosSerie;
-      this.atividadeChart.update();
-      return;
-    }
-
-    this.atividadeChart = new Chart(ctx, {
-      type: 'line',
-
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Profissionais',
-            data: profissionaisSerie,
-            borderColor: 'rgba(88,62,142,0.9)',
-            backgroundColor: 'rgba(88,62,142,0.15)',
-            tension: 0.35,
-            fill: false,
-            pointRadius: 3
-          },
-          {
-            label: 'Atendimentos',
-            data: atendimentosSerie,
-            borderColor: '#e685a6',
-            backgroundColor: 'rgba(230,133,166,0.15)',
-            tension: 0.35,
-            fill: false,
-            pointRadius: 3
-          }
-        ]
-      },
-
-      options: {
-        responsive: true,
-
-        plugins: {
-          legend: {
-            position: 'top',
-            align: 'start'
-          },
-
-          tooltip: {
-            mode: 'index',
-            intersect: false
-          }
-        },
-
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              precision: 0
-            }
-          }
-        }
-      }
-    });
+    this.reconstruirUsuariosTodos();
+    this.atualizarAtividadesRecentes();
+    this.atualizarGraficoRede();
   }
 
-  /** Gera uma série de exemplo (para o gráfico) que termina no valor real atual. */
-  private gerarSerieDeExemplo(valorFinal: number, pontos: number, ondulado: boolean = false): number[] {
-    const base = Math.max(valorFinal * 0.6, 1);
-    const serie: number[] = [];
+  /** Monta a lista "Todos" da aba Usuários juntando mães, profissionais e parceiros. */
+  private reconstruirUsuariosTodos(): void {
+    const lista: UsuarioUnificado[] = [];
 
-    for (let i = 0; i < pontos; i++) {
-      const progresso = i / (pontos - 1);
-      const ruido = ondulado ? Math.sin(i * 1.3) * (valorFinal * 0.15) : Math.sin(i) * (valorFinal * 0.08);
-      serie.push(Math.max(0, Math.round(base + (valorFinal - base) * progresso + ruido)));
+    this.maes.forEach((m) => {
+      lista.push({
+        chave: `mae:${m.id}`, tipo: 'mae', tipoRotulo: 'Mãe',
+        nome: m.nome, email: m.email,
+        detalhe: m.cidade ? `${m.cidade}${m.uf ? ' - ' + m.uf : ''}` : '—',
+        avatar: m.avatar,
+        cadastroTs: this.dataDoDoc(m.criadoEm)?.getTime() ?? 0,
+        cadastro: this.formatarData(m.criadoEm),
+        situacao: m.status === 'ativo' ? 'ativo' : 'suspenso',
+        mae: m
+      });
+    });
+
+    this.solicitacoesProfissionais.forEach((s) => {
+      const prof = this.profissionaisLista.find((x) => x.id === s.id && x.colecao === s.colecao);
+      const bruto = (this.cadastrosBrutos[s.colecao || ''] || []).find((x: any) => x.id === s.id);
+      const ehPsi = s.colecao === 'psicologos';
+      const situacao: SituacaoUsuario =
+        s.status === 'aprovado' ? (prof?.status === 'inativo' ? 'suspenso' : 'ativo')
+        : s.status === 'pendencia' ? 'recusado'
+        : 'pendente';
+      lista.push({
+        chave: `${s.colecao}:${s.id}`, tipo: ehPsi ? 'psicologo' : 'advogado', tipoRotulo: ehPsi ? 'Psicólogo(a)' : 'Advogado(a)',
+        nome: s.nome, email: s.detalhes.email, detalhe: s.registro, avatar: s.avatar,
+        cadastroTs: this.dataDoDoc(bruto?.['criadoEm'])?.getTime() ?? 0,
+        cadastro: s.cadastro,
+        situacao, solicitacao: s, profissional: prof
+      });
+    });
+
+    this.parceirosLista.forEach((p) => {
+      const bruto = (this.cadastrosBrutos['parceiros'] || []).find((x: any) => x.id === p.id);
+      lista.push({
+        chave: `parceiros:${p.id}`, tipo: 'parceiro', tipoRotulo: 'Parceiro',
+        nome: p.nome, email: p.detalhes.email, detalhe: p.cnpj !== '—' ? `CNPJ ${p.cnpj}` : p.categoria, avatar: p.avatar,
+        cadastroTs: this.dataDoDoc(bruto?.['criadoEm'])?.getTime() ?? 0,
+        cadastro: this.formatarData(bruto?.['criadoEm']),
+        situacao: p.status === 'inativo' ? 'suspenso' : 'ativo',
+        parceiro: p
+      });
+    });
+
+    // quem precisa de ação (em análise) vem primeiro; depois os mais recentes
+    lista.sort((a, b) =>
+      (a.situacao === 'pendente' ? 0 : 1) - (b.situacao === 'pendente' ? 0 : 1)
+      || b.cadastroTs - a.cadastroTs
+      || a.nome.localeCompare(b.nome));
+
+    this.usuariosTodos = lista;
+    this.resumoUsuarios = {
+      total: lista.length,
+      maes: this.maes.length,
+      profissionais: this.solicitacoesProfissionais.length,
+      parceiros: this.parceirosLista.length,
+      pendentes: this.pendentesAprovacao
+    };
+  }
+
+  /**
+   * Gráfico "Quem está na rede" (rosca) — números reais: mães, psicólogos e
+   * advogados aprovados e parceiros. (Antes era uma linha com série inventada.)
+   */
+  atualizarGraficoRede(): void {
+    const canvas = document.getElementById('redeChart') as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    const dados = [this.maesNaRede, this.psicologosAtivos, this.advogadosAtivos, this.parceirosLista.length];
+
+    if (this.redeChart) {
+      this.redeChart.data.datasets[0].data = dados;
+      this.redeChart.update();
+      return;
     }
 
-    serie[serie.length - 1] = valorFinal;
-    return serie;
+    this.redeChart = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Mães', 'Psicólogos(as)', 'Advogados(as)', 'Parceiros'],
+        datasets: [{
+          data: dados,
+          backgroundColor: ['#52427D', '#8E65BF', '#E685A6', '#5BB5A2'],
+          borderWidth: 0,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '66%',
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } } }
+      }
+    });
   }
 
   async carregarSolicitacoes(): Promise<void> {
@@ -2334,44 +2553,59 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   }
 
   /**
-   * Monta o feed "Atividade recente" da Home a partir dos dados já carregados.
-   * TODO: o Firestore deste projeto ainda não guarda um carimbo de data/hora
-   * nem um log de auditoria por evento — por isso o feed é montado com base
-   * nos últimos registros conhecidos (usuários e solicitações), em vez de uma
-   * ordem cronológica real. Assim que existir um campo tipo "criadoEm" ou uma
-   * coleção de eventos, dá pra trocar por uma consulta ordenada por data.
+   * "Atividade recente" da Home: junta cadastros novos, aprovações e posts
+   * moderados, ordenados pela data real (quando o documento tem data).
    */
   private atualizarAtividadesRecentes(): void {
-    const itens: AtividadeItem[] = [];
+    const eventos: { quando: number; item: AtividadeItem }[] = [];
 
-    this.solicitacoes.slice(-2).forEach(req => {
-      itens.push({
-        icone: 'fa-solid fa-user-doctor',
-        corIcone: 'icone-azul',
-        titulo: 'Nova solicitação de profissional',
-        descricao: `${req.nome} enviou um cadastro de ${req.colTipo === 'psicologo' ? 'psicólogo(a)' : 'advogado(a)'} para análise.`
+    this.maes.forEach((m) => {
+      const d = this.dataDoDoc(m.criadoEm);
+      if (!d) return;
+      eventos.push({ quando: d.getTime(), item: {
+        icone: 'fa-solid fa-user-plus', corIcone: 'icone-roxo',
+        titulo: 'Nova mãe cadastrada', descricao: `${m.nome} entrou para a rede EloMaterno.`
+      } });
+    });
+
+    (['psicologos', 'advogados', 'parceiros'] as const).forEach((colecao) => {
+      this.cadastrosBrutos[colecao].forEach((d: any) => {
+        const nome = d['nomeEmpresa'] || d['nome'] || 'Sem nome';
+        const quem = colecao === 'psicologos' ? 'psicólogo(a)' : colecao === 'advogados' ? 'advogado(a)' : 'parceiro';
+        const criado = this.dataDoDoc(d['criadoEm']);
+        const analisado = this.dataDoDoc(d['analisadoEm']);
+        if (d['status'] === 'aprovado' && analisado) {
+          eventos.push({ quando: analisado.getTime(), item: {
+            icone: 'fa-solid fa-circle-check', corIcone: 'icone-verde',
+            titulo: 'Profissional aprovado', descricao: `${nome} (${quem}) está ativo na plataforma.`
+          } });
+        } else if ((d['status'] || 'pendente') === 'pendente' && criado) {
+          eventos.push({ quando: criado.getTime(), item: {
+            icone: 'fa-solid fa-user-doctor', corIcone: 'icone-azul',
+            titulo: 'Novo cadastro aguardando análise', descricao: `${nome} enviou um cadastro de ${quem}.`
+          } });
+        }
       });
     });
 
-    this.usuarios.slice(-3).forEach(user => {
-      if (user.colName === 'usuarios') {
-        itens.push({
-          icone: 'fa-solid fa-user-plus',
-          corIcone: 'icone-roxo',
-          titulo: 'Nova mãe cadastrada',
-          descricao: `${user.nome} entrou para a rede EloMaterno.`
-        });
-      } else {
-        itens.push({
-          icone: 'fa-solid fa-circle-check',
-          corIcone: 'icone-verde',
-          titulo: 'Profissional aprovado',
-          descricao: `${user.nome} (${user.colLabel}) está ativo na plataforma.`
-        });
+    this.postsForum.forEach((p) => {
+      const adv = this.dataDoDoc(p.moderacao?.dataAdvertencia);
+      const rem = this.dataDoDoc(p.moderacao?.dataRemocao);
+      if (rem) {
+        eventos.push({ quando: rem.getTime(), item: {
+          icone: 'fa-solid fa-ban', corIcone: 'icone-laranja',
+          titulo: 'Post removido do fórum', descricao: `Post de ${p.autorNome} foi removido pela moderação.`
+        } });
+      } else if (adv) {
+        eventos.push({ quando: adv.getTime(), item: {
+          icone: 'fa-solid fa-triangle-exclamation', corIcone: 'icone-laranja',
+          titulo: 'Advertência no fórum', descricao: `Post de ${p.autorNome} recebeu advertência.`
+        } });
       }
     });
 
-    this.atividadesRecentes = itens.slice(-5).reverse();
+    eventos.sort((a, b) => b.quando - a.quando);
+    this.atividadesRecentes = eventos.slice(0, 5).map((e) => e.item);
   }
 
   async aprovar(
@@ -2557,73 +2791,61 @@ async carregarUsuarios(): Promise<void> {
     await this.atualizarDashboard();
   }
 
+  /**
+   * Escuta a coleção `usuarios` em tempo real. As mães (tipo === 'mae') saem
+   * direto do snapshot — antes, cada mudança em psicologos/advogados/usuarios
+   * disparava 4 leituras completas das coleções (e os 3 listeners juntos
+   * faziam isso na hora que a tela abria). Psicólogos e advogados já são
+   * escutados em escutarCadastros().
+   */
   escutarMudancas(): void {
+    const unsub = onSnapshot(
+      collection(db, 'usuarios'),
+      (snap) => {
+        this.maes = snap.docs
+          .filter((d) => (d.data() as any)['tipo'] === 'mae')
+          .map((d) => this.mapearMae(d))
+          .sort((a, b) => a.nome.localeCompare(b.nome));
+        this.maesNaRede = this.maes.length;
 
-    const colNames = [
-      'psicologos',
-      'advogados',
-      'usuarios' // OBS: corrigido de 'maes' — a coleção real de mães/usuários no Firestore é 'usuarios'
-    ];
+        // mantém aberto (e atualizado) o perfil que o admin está olhando
+        if (this.maeSelecionada) {
+          const atual = this.maes.find((m) => m.id === this.maeSelecionada!.id);
+          if (atual) this.maeSelecionada = atual;
+        }
 
-    colNames.forEach(
-      colName => {
-
-        const unsub =
-          onSnapshot(
-            collection(db, colName),
-            () => {
-
-              this.atualizarDashboard();
-
-              this.carregarUsuarios();
-
-              if (colName === 'usuarios') {
-                this.carregarMaes();
-              }
-
-              if (colName !== 'usuarios') {
-                this.carregarSolicitacoes();
-              }
-            }
-          );
-
-        this.unsubscribes.push(unsub);
-      }
+        this.recalcularIndicadores();
+        this.atualizarTela();
+      },
+      (erro) => console.error('Erro ao escutar usuários:', erro)
     );
+    this.unsubscribes.push(unsub);
   }
 
   // =========================================================
-  // ABA "MÃES" — antiga aba "Usuários", agora exclusiva para mães
+  // ABA "MÃES" — antiga aba "Usuários", agora uma das visões de Usuários
   // =========================================================
 
-  /** Carrega apenas os usuários com tipo === 'mae' da coleção 'usuarios'. */
-  async carregarMaes(): Promise<void> {
-    try {
-      const q = query(collection(db, 'usuarios'), where('tipo', '==', 'mae'));
-      const snap = await getDocs(q);
-
-      this.maes = snap.docs.map((docSnap) => {
-        const data = docSnap.data();
-
-        return {
-          id: docSnap.id,
-          nome: data['nome'] || 'Sem nome',
-          email: data['email'] || '-',
-          avatar: data['avatar'] || data['fotoURL'] || '',
-          status: data['status'] || 'ativo',
-          criadoEm: data['criadoEm'] || null,
-          creditos: data['creditos'] ?? 0,
-          cidade: data['cidade'] || '',
-          uf: data['uf'] || data['estado'] || '',
-          dataNascimento: data['dataNascimento'] || '',
-          endereco: data['endereco'] || '',
-          telefone: data['telefone'] || '',
-          filhos: data['filhos'] || ''
-        } as MaeData;
-      });
-    } catch (error) {
-      console.error('Erro ao carregar mães:', error);
-    }
+  private mapearMae(docSnap: any): MaeData {
+    const data = docSnap.data();
+    return {
+      id: docSnap.id,
+      nome: data['nome'] || 'Sem nome',
+      email: data['email'] || '-',
+      avatar: data['avatar'] || data['fotoURL'] || '',
+      status: data['status'] || 'ativo',
+      criadoEm: data['criadoEm'] || null,
+      cidade: data['cidade'] || '',
+      uf: data['uf'] || data['estado'] || '',
+      dataNascimento: data['dataNascimento'] || '',
+      endereco: data['endereco'] || '',
+      telefone: data['telefone'] || '',
+      filhos: data['filhos'] || '',
+      motivoSuspensao: data['motivoSuspensao'] || '',
+      observacoesSuspensao: data['observacoesSuspensao'] || '',
+      suspensoEm: data['suspensoEm'] || null,
+      advertenciasForum: data['advertenciasForum'] || 0
+    } as MaeData;
   }
 
   filtrarStatusMae(filtro: 'todas' | 'ativas' | 'inativas'): void {
@@ -2641,13 +2863,29 @@ async carregarUsuarios(): Promise<void> {
     this.maePerfilCarregando = true;
     this.maeTotalInteracoes = 0;
     this.maeAvaliacoes = [];
+    this.maePostsRecentes = [];
 
     try {
-      const postsQuery = query(collection(db, 'posts'), where('autorId', '==', mae.id));
-      const contagem = await getCountFromServer(postsQuery);
-      this.maeTotalInteracoes = contagem.data().count;
+      // Só posts publicados com o nome dela (os anônimos não aparecem aqui, de propósito).
+      const snap = await getDocs(query(collection(db, 'posts'), where('autorId', '==', mae.id)));
+      this.maeTotalInteracoes = snap.size;
+      this.maePostsRecentes = snap.docs
+        .map((d) => {
+          const p = d.data() as any;
+          const dt = this.dataDoDoc(p['data']);
+          const estado: PostResumoMae['estado'] = p['moderacao']?.removido ? 'removido' : p['moderacao']?.advertido ? 'advertido' : 'ok';
+          return {
+            id: d.id,
+            titulo: p['titulo'] || (p['conteudo'] || '').slice(0, 60) || 'Sem título',
+            dataFormatada: dt ? dt.toLocaleDateString('pt-BR') : '—',
+            ts: dt?.getTime() ?? 0,
+            estado
+          } as PostResumoMae;
+        })
+        .sort((x, y) => y.ts - x.ts)
+        .slice(0, 5);
     } catch (error) {
-      console.error('Erro ao contar interações da mãe:', error);
+      console.error('Erro ao carregar os posts da mãe:', error);
     }
 
     try {
@@ -2865,6 +3103,8 @@ async carregarUsuarios(): Promise<void> {
 
           return {
             id: docSnap.id,
+            autorId: p['autorId'] || '',
+            dataTs: p['data']?.toDate ? p['data'].toDate().getTime() : 0,
             titulo: p['titulo'] || '',
             conteudo: p['conteudo'] || '',
             autorNome: p['autorNome'] || 'Usuária',
@@ -2881,10 +3121,12 @@ async carregarUsuarios(): Promise<void> {
         this.carregandoPostsForum = false;
         this.contarRespostasDosPosts();
         this.reconstruirNotificacoes();
+        this.atualizarTela();
       },
       (erro) => {
         console.error('Erro ao carregar posts do fórum:', erro);
         this.carregandoPostsForum = false;
+        this.atualizarTela();
       }
     );
 
@@ -2907,6 +3149,16 @@ async carregarUsuarios(): Promise<void> {
   }
 
   get postsFiltradosForum(): PostForum[] {
+    return this.postsFiltradosForumBase.filter((p) =>
+      (!this.forumCategoria || p.categoria === this.forumCategoria)
+      && this.noPeriodo(p.dataTs, this.forumDe, this.forumAte));
+  }
+
+  get categoriasForumAdm(): string[] {
+    return [...new Set(this.postsForum.map((p) => p.categoria).filter((c) => !!c))].sort();
+  }
+
+  private get postsFiltradosForumBase(): PostForum[] {
     const termo = this.buscaPostsForum.toLowerCase().trim();
 
     return this.postsForum.filter((p) => {
@@ -2956,6 +3208,43 @@ async carregarUsuarios(): Promise<void> {
     return 'card-neutro';
   }
 
+  // --- Quem será avisada quando o admin advertir/remover um post ---
+  /**
+   * Toda advertência/remoção de post PRECISA avisar a autora. Posts normais têm
+   * o uid dela em `autorId`. Posts anônimos guardam só 'anonimo' lá — por isso
+   * o fórum agora salva o uid real numa coleção separada (`postsAutores/{postId}`),
+   * lida só aqui, na moderação. A identidade continua oculta para as outras mães.
+   */
+  autoraDoPost: { uid: string | null; nome: string; anonima: boolean; carregando: boolean } | null = null;
+
+  private async identificarAutoraDoPost(post: PostForum): Promise<{ uid: string | null; nome: string; anonima: boolean }> {
+    if (post.autorId && post.autorId !== 'anonimo') {
+      return { uid: post.autorId, nome: post.autorNome, anonima: false };
+    }
+    try {
+      const snap = await getDoc(doc(db, 'postsAutores', post.id));
+      const uid = snap.exists() ? ((snap.data() as any)['uid'] as string) : '';
+      return { uid: uid || null, nome: 'Autora anônima', anonima: true };
+    } catch (e) {
+      console.warn('Não foi possível identificar a autora do post anônimo:', e);
+      return { uid: null, nome: 'Autora anônima', anonima: true };
+    }
+  }
+
+  private async resolverAutoraDoPost(post: PostForum): Promise<void> {
+    this.autoraDoPost = { uid: null, nome: '', anonima: false, carregando: true };
+    const autora = await this.identificarAutoraDoPost(post);
+    // só aplica se o modal ainda é do mesmo post
+    if (this.postParaAdvertir?.id === post.id || this.postParaRemover?.id === post.id) {
+      this.autoraDoPost = { ...autora, carregando: false };
+    }
+  }
+
+  private trechoDoPost(post: PostForum): string {
+    const base = (post.titulo || post.conteudo || 'seu post').trim();
+    return base.length > 70 ? base.slice(0, 70) + '…' : base;
+  }
+
   // --- Modal "Aplicar advertência" (post do fórum) ---
   postParaAdvertir: PostForum | null = null;
   motivoAdvertenciaPost: string = '';
@@ -2968,6 +3257,7 @@ async carregarUsuarios(): Promise<void> {
     this.motivoAdvertenciaPost = '';
     this.observacoesAdvertenciaPost = '';
     this.erroAdvertenciaPost = '';
+    void this.resolverAutoraDoPost(post);
   }
 
   fecharModalAdvertirPost(): void {
@@ -2975,11 +3265,18 @@ async carregarUsuarios(): Promise<void> {
       return;
     }
     this.postParaAdvertir = null;
+    this.autoraDoPost = null;
     this.motivoAdvertenciaPost = '';
     this.observacoesAdvertenciaPost = '';
     this.erroAdvertenciaPost = '';
   }
 
+  /**
+   * Aplica a advertência e AVISA a mãe, tudo numa única gravação atômica
+   * (writeBatch): ou o post é advertido E a notificação chega, ou nada é
+   * gravado. A notificação exige "ciência" — a mãe vê um aviso que só fecha
+   * quando ela confirma que leu (ver header.ts / header.html).
+   */
   async confirmarAdvertenciaPost(): Promise<void> {
     const post = this.postParaAdvertir;
     if (!post) {
@@ -2991,23 +3288,67 @@ async carregarUsuarios(): Promise<void> {
       return;
     }
 
+    const autora = this.autoraDoPost;
+    if (!autora || autora.carregando) {
+      this.erroAdvertenciaPost = 'Aguarde um instante: ainda estou identificando a autora do post.';
+      return;
+    }
+    if (!autora.uid) {
+      this.erroAdvertenciaPost =
+        'Não consigo identificar a autora deste post (post anônimo antigo), então não há como avisá-la. ' +
+        'A advertência exige aviso obrigatório. Se o conteúdo for grave, use "Remover Post".';
+      return;
+    }
+
     this.advertindoPost = true;
     this.erroAdvertenciaPost = '';
 
+    const motivo = this.motivoAdvertenciaPost;
+    const observacoes = this.observacoesAdvertenciaPost.trim();
+
     try {
-      await updateDoc(doc(db, 'posts', post.id), {
+      const lote = writeBatch(db);
+
+      lote.update(doc(db, 'posts', post.id), {
         'moderacao.advertido': true,
-        'moderacao.motivoAdvertencia': this.motivoAdvertenciaPost,
-        'moderacao.observacoesAdvertencia': this.observacoesAdvertenciaPost.trim(),
+        'moderacao.motivoAdvertencia': motivo,
+        'moderacao.observacoesAdvertencia': observacoes,
         'moderacao.dataAdvertencia': serverTimestamp()
       });
 
+      lote.set(doc(collection(db, 'notificacoes')), {
+        destinatarioId: autora.uid,
+        tipo: 'advertencia_post',
+        titulo: 'Você recebeu uma advertência no fórum',
+        mensagem: (`Seu post "${this.trechoDoPost(post)}" recebeu uma advertência da moderação. Motivo: ${motivo}.`
+          + (observacoes ? ` Observação da equipe: ${observacoes}` : '')).slice(0, 950),
+        motivo,
+        observacoes,
+        postId: post.id,
+        postTitulo: this.trechoDoPost(post),
+        exigeCiencia: true,
+        cienteEm: null,
+        link: '/forum',
+        lida: false,
+        criadoEm: serverTimestamp()
+      });
+
+      lote.update(doc(db, 'usuarios', autora.uid), {
+        advertenciasForum: increment(1),
+        ultimaAdvertenciaForum: serverTimestamp()
+      });
+
+      await lote.commit();
+
       this.postParaAdvertir = null;
+      this.autoraDoPost = null;
       this.motivoAdvertenciaPost = '';
       this.observacoesAdvertenciaPost = '';
+      void this.resolverDenunciasDoAlvo('post', post.id);
+      this.mostrarToastAdm('Advertência aplicada. A mãe foi avisada e precisará confirmar que leu.', 'ok');
     } catch (error) {
       console.error('Erro ao aplicar advertência no post:', error);
-      this.erroAdvertenciaPost = 'Não foi possível aplicar a advertência agora. Tente novamente.';
+      this.erroAdvertenciaPost = 'Não foi possível aplicar a advertência agora (nada foi gravado). Tente novamente.';
     } finally {
       this.advertindoPost = false;
     }
@@ -3023,6 +3364,7 @@ async carregarUsuarios(): Promise<void> {
     this.postParaRemover = post;
     this.motivoRemocaoPost = '';
     this.erroRemocaoPost = '';
+    void this.resolverAutoraDoPost(post);
   }
 
   fecharModalRemoverPost(): void {
@@ -3030,6 +3372,7 @@ async carregarUsuarios(): Promise<void> {
       return;
     }
     this.postParaRemover = null;
+    this.autoraDoPost = null;
     this.motivoRemocaoPost = '';
     this.erroRemocaoPost = '';
   }
@@ -3037,7 +3380,10 @@ async carregarUsuarios(): Promise<void> {
   /**
    * Remoção lógica (soft delete): o post some do fórum público — ver o
    * filtro em forum.ts — mas continua salvo com o motivo, pra ficar no
-   * histórico de moderação (igual ao protótipo do Figma).
+   * histórico de moderação. A autora recebe o aviso na mesma gravação.
+   * Exceção: posts anônimos ANTIGOS (feitos antes de existir `postsAutores`)
+   * não têm como identificar a autora; nesses a remoção continua permitida
+   * (conteúdo nocivo precisa poder sair do ar) e o admin é avisado disso.
    */
   async confirmarRemocaoPost(): Promise<void> {
     const post = this.postParaRemover;
@@ -3050,21 +3396,55 @@ async carregarUsuarios(): Promise<void> {
       return;
     }
 
+    const autora = this.autoraDoPost;
+    if (!autora || autora.carregando) {
+      this.erroRemocaoPost = 'Aguarde um instante: ainda estou identificando a autora do post.';
+      return;
+    }
+
     this.removendoPost = true;
     this.erroRemocaoPost = '';
 
+    const motivo = this.motivoRemocaoPost.trim();
+
     try {
-      await updateDoc(doc(db, 'posts', post.id), {
+      const lote = writeBatch(db);
+
+      lote.update(doc(db, 'posts', post.id), {
         'moderacao.removido': true,
-        'moderacao.motivoRemocao': this.motivoRemocaoPost.trim(),
+        'moderacao.motivoRemocao': motivo,
         'moderacao.dataRemocao': serverTimestamp()
       });
 
+      if (autora.uid) {
+        lote.set(doc(collection(db, 'notificacoes')), {
+          destinatarioId: autora.uid,
+          tipo: 'post_removido',
+          titulo: 'Um post seu foi removido do fórum',
+          mensagem: `Seu post "${this.trechoDoPost(post)}" foi removido pela moderação. Motivo: ${motivo}.`.slice(0, 950),
+          motivo,
+          postId: post.id,
+          postTitulo: this.trechoDoPost(post),
+          exigeCiencia: false,
+          link: '/forum',
+          lida: false,
+          criadoEm: serverTimestamp()
+        });
+      }
+
+      await lote.commit();
+
       this.postParaRemover = null;
+      this.autoraDoPost = null;
       this.motivoRemocaoPost = '';
+      void this.resolverDenunciasDoAlvo('post', post.id);
+      this.mostrarToastAdm(
+        autora.uid ? 'Post removido. A mãe foi avisada.' : 'Post removido. A autora não pôde ser avisada (post anônimo antigo).',
+        autora.uid ? 'ok' : 'aviso'
+      );
     } catch (error) {
       console.error('Erro ao remover post:', error);
-      this.erroRemocaoPost = 'Não foi possível remover o post agora. Tente novamente.';
+      this.erroRemocaoPost = 'Não foi possível remover o post agora (nada foi gravado). Tente novamente.';
     } finally {
       this.removendoPost = false;
     }
@@ -3121,6 +3501,7 @@ async carregarUsuarios(): Promise<void> {
       (erro) => {
         console.error('Erro ao carregar artigos:', erro);
         this.carregandoConteudoModeracao = false;
+        this.atualizarTela();
       }
     );
 
@@ -3150,6 +3531,7 @@ async carregarUsuarios(): Promise<void> {
       (erro) => {
         console.error('Erro ao carregar eventos:', erro);
         this.carregandoConteudoModeracao = false;
+        this.atualizarTela();
       }
     );
 
@@ -3163,6 +3545,7 @@ async carregarUsuarios(): Promise<void> {
 
     this.carregandoConteudoModeracao = false;
     this.atualizarGraficoConteudoModeracao();
+    this.atualizarTela();
   }
 
   get contagemConteudoModeracao() {
@@ -3177,6 +3560,17 @@ async carregarUsuarios(): Promise<void> {
   }
 
   get conteudoFiltrado(): ConteudoAdm[] {
+    return this.conteudoFiltradoBase.filter((i) =>
+      (!this.modParceiro || i.usuarioNome === this.modParceiro)
+      && this.noPeriodo(i.dataOrdenacao, this.modDe, this.modAte));
+  }
+
+  /** Quem publicou conteúdo (parceiros/profissionais), para o filtro da Moderação. */
+  get donosConteudo(): string[] {
+    return [...new Set(this.conteudoModeracao.map((i) => i.usuarioNome).filter((n) => !!n))].sort((a, b) => a.localeCompare(b));
+  }
+
+  private get conteudoFiltradoBase(): ConteudoAdm[] {
     const termo = this.buscaConteudoModeracao.toLowerCase().trim();
 
     return this.conteudoModeracao.filter((item) => {
@@ -3337,6 +3731,7 @@ async carregarUsuarios(): Promise<void> {
           'moderacao.motivoDenuncia': ''
         });
         this.registrarUltimoConteudoModerado(item, 'Denúncia removida');
+        void this.resolverDenunciasDoAlvo(item.origem === 'artigos' ? 'artigo' : 'evento', item.id);
       } else {
         await updateDoc(doc(db, item.origem, item.id), {
           'moderacao.removido': true,
@@ -3344,6 +3739,7 @@ async carregarUsuarios(): Promise<void> {
           'moderacao.dataRemocao': serverTimestamp()
         });
         this.registrarUltimoConteudoModerado(item, 'Post Deletado');
+        void this.resolverDenunciasDoAlvo(item.origem === 'artigos' ? 'artigo' : 'evento', item.id);
       }
 
       this.conteudoParaAnalisar = null;
@@ -3402,6 +3798,7 @@ async carregarUsuarios(): Promise<void> {
       });
 
       this.registrarUltimoConteudoModerado(item, 'Post Deletado');
+      void this.resolverDenunciasDoAlvo(item.origem === 'artigos' ? 'artigo' : 'evento', item.id);
       this.conteudoParaDeletar = null;
       this.motivoDelecaoConteudo = '';
     } catch (error) {

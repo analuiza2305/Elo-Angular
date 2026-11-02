@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, signal, inject, ViewChild } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { DenunciarComponent } from '../../components/denunciar/denunciar';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
@@ -10,7 +11,7 @@ import { AlertaService } from '../../core/services/alerta.service';
 @Component({
   selector: 'app-artigo-ind',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent],
   templateUrl: './artigo-ind.html',
   styleUrls: ['./artigo-ind.css']
 })
@@ -30,6 +31,8 @@ export class ArtigoInd implements OnInit, AfterViewInit {
   origemTipo = signal<string | null>(null);
   
   private artigoIdAtual: string = '';
+  /** id do artigo aberto (usado pelo botão Denunciar). */
+  get artigoId(): string { return this.artigoIdAtual; }
   private uidLogado: string | null = null;
 
   ngOnInit() {

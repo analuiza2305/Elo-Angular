@@ -132,7 +132,7 @@
   <header class="adm-header">
     <div class="adm-header-container">
       <div class="adm-header-left">
-        <!-- Só aparece no mobile, controla a sidebar do admin -->
+        <!-- Só aparece no celular/tablet, abre a gaveta do menu -->
         <button type="button" class="adm-sidebar-toggle" aria-label="Abrir menu" (click)="toggleMenuAdm()">
           <i class="fa-solid fa-bars"></i>
         </button>
@@ -141,20 +141,12 @@
           <img src="./img/logo_icon.png" alt="Ícone EloMaterno">
           <span>elomaterno</span>
         </a>
+        <span class="adm-header-titulo">Painel do administrador</span>
       </div>
 
       <div class="adm-header-right">
-        <div class="adm-search-box">
-          <i class="fa-solid fa-search"></i>
-          <input type="text" placeholder="Buscar no painel...">
-        </div>
-
-        <button type="button" class="adm-icon-btn" title="Alternar tema" aria-label="Alternar tema" (click)="toggleTheme()">
-          <i class="fa-solid" [class.fa-moon]="!isDarkMode" [class.fa-sun]="isDarkMode"></i>
-        </button>
-
         <div class="accessibility-selector">
-          <button type="button" class="adm-icon-btn" aria-label="Opções de acessibilidade" (click)="toggleAccMenu($event)">
+          <button type="button" class="adm-icon-btn" aria-label="Opções de acessibilidade" title="Acessibilidade" (click)="toggleAccMenu($event)">
             <i class="fa fa-universal-access"></i>
           </button>
           <ul id="accessibility-menu" [class.hidden]="!isAccMenuOpen" (click)="$event.stopPropagation()">
@@ -171,12 +163,24 @@
           </ul>
         </div>
 
+        <button type="button" class="adm-icon-btn" title="Alternar tema" aria-label="Alternar tema" (click)="toggleTheme()">
+          <i class="fa-solid" [class.fa-moon]="!isDarkMode" [class.fa-sun]="isDarkMode"></i>
+        </button>
+
         <button type="button" class="adm-icon-btn adm-bell-btn" title="Notificações" aria-label="Notificações" (click)="notificacoesAdm.emit()">
           <i class="fa-solid fa-bell"></i>
           @if (notificacoesNaoLidas > 0) {
             <span class="adm-notif-badge">{{ notificacoesNaoLidas > 9 ? '9+' : notificacoesNaoLidas }}</span>
           }
         </button>
+
+        <button type="button" class="adm-icon-btn adm-logout-btn" title="Sair da conta" aria-label="Sair da conta" (click)="sairAdm.emit()">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+
+        @if (avatarAdm) {
+          <img [src]="avatarAdm" [alt]="nomeAdm ? 'Foto de ' + nomeAdm : 'Foto do administrador'" class="adm-avatar">
+        }
       </div>
     </div>
   </header>
@@ -427,4 +431,36 @@
           </nav>
       </div>
   </header>
+}
+
+<!-- AVISO DE MODERAÇÃO (mãe): advertência exige "li e estou ciente"; post removido é só um aviso -->
+@if (mostrarAvisoModeracao()) {
+  @let aviso = avisoModeracao()!;
+  <div class="aviso-mod-fundo">
+    <div class="aviso-mod-caixa" role="alertdialog" aria-modal="true" aria-labelledby="aviso-mod-titulo">
+      <div class="aviso-mod-icone" [class.removido]="aviso.tipo === 'post_removido'">
+        <i [class]="aviso.tipo === 'post_removido' ? 'fa-solid fa-ban' : 'fa-solid fa-triangle-exclamation'"></i>
+      </div>
+      <h2 id="aviso-mod-titulo">{{ aviso.tipo === 'post_removido' ? 'Um post seu foi removido' : 'Você recebeu uma advertência' }}</h2>
+      @if (aviso.postTitulo) {
+        <p class="aviso-mod-post">Post: “{{ aviso.postTitulo }}”</p>
+      }
+      <div class="aviso-mod-detalhe">
+        <strong>Motivo</strong>
+        <p>{{ aviso.motivo || aviso.mensagem }}</p>
+        @if (aviso.observacoes) {
+          <strong>Observação da equipe</strong>
+          <p>{{ aviso.observacoes }}</p>
+        }
+      </div>
+      <p class="aviso-mod-regra">
+        O fórum do EloMaterno é um espaço de acolhimento. Posts que desrespeitem a comunidade podem ser advertidos ou removidos.
+        @if (aviso.tipo !== 'post_removido') { Novas advertências podem levar à suspensão da conta. }
+      </p>
+      @if (erroCiencia()) { <p class="aviso-mod-erro" role="alert">{{ erroCiencia() }}</p> }
+      <button type="button" class="aviso-mod-btn" [disabled]="confirmandoCiencia()" (click)="confirmarCiencia(aviso)">
+        {{ confirmandoCiencia() ? 'Registrando...' : (aviso.tipo === 'post_removido' ? 'Entendi' : 'Li e estou ciente') }}
+      </button>
+    </div>
+  </div>
 }

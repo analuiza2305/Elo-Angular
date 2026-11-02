@@ -8,6 +8,7 @@
         </button>
         
         @if (!isLoading() && artigo()) {
+            <app-denunciar tipo="artigo" [alvoId]="artigoId" [alvoTitulo]="artigo().titulo || ''" [alvoDono]="artigo().postadoPor || ''"></app-denunciar>
             <button class="btn-favoritar" (click)="toggleFavorito()">
                 @if (isFavorito()) {
                     <i class="fa-solid fa-bookmark" style="color: #4B2C82;"></i> Salvo nos Favoritos

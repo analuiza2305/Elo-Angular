@@ -1,8 +1,11 @@
 <app-header
   tipo="adm"
   [notificacoesNaoLidas]="naoLidasAdm"
+  [nomeAdm]="adminNome"
+  [avatarAdm]="adminAvatar"
   (notificacoesAdm)="alternarPainelNotificacoes()"
-  (menuAdm)="abrirOuFecharSidebar()">
+  (menuAdm)="abrirOuFecharSidebar()"
+  (sairAdm)="sairDaConta()">
 </app-header>
 
 <!-- AVISO RÁPIDO (toast) -->
@@ -111,126 +114,164 @@
 
 <main class="main-container">
   <aside class="sidebar" id="adminSidebar" [class.active]="sidebarAberta">
+    <!-- só aparece no celular/tablet (a sidebar vira gaveta) -->
+    <div class="drawer-top">
+      <button type="button" class="drawer-close" aria-label="Fechar menu" (click)="fecharSidebar()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="drawer-profile">
+        <img [src]="adminAvatar" alt="" class="drawer-avatar">
+        <div class="drawer-profile-info">
+          <strong>{{ adminNome }}</strong>
+          <span class="drawer-tag">Administradora</span>
+        </div>
+      </div>
+    </div>
+
     <div class="sidebar-group-label">Gerenciar</div>
 
-    <button class="menu-btn" [class.active]="abaAtiva === 'home'" (click)="mudarAba('home')">
+    <button type="button" class="menu-btn" [class.active]="abaAtiva === 'home'" (click)="mudarAba('home')">
       <i class="fa-solid fa-grip"></i>
       <span>Home</span>
     </button>
-    <button class="menu-btn" [class.active]="abaAtiva === 'usuarios'" (click)="mudarAba('usuarios')">
+    <button type="button" class="menu-btn" [class.active]="abaAtiva === 'usuarios'" (click)="mudarAba('usuarios')">
       <i class="fa-solid fa-users"></i>
       <span>Usuários</span>
     </button>
-
-    <button class="menu-btn" [class.active]="abaAtiva === 'forum'" (click)="mudarAba('forum')">
-      <i class="fa-regular fa-comments"></i>
-      <span>Fórum</span>
-    </button>
-    <button class="menu-btn" [class.active]="abaAtiva === 'parceiros'" (click)="mudarAba('parceiros')">
-      <i class="fa-solid fa-handshake"></i>
-      <span>Parceiros</span>
+    <button type="button" class="menu-btn" [class.active]="abaAtiva === 'aprovacoes'" (click)="mudarAba('aprovacoes')">
+      <i class="fa-solid fa-user-check"></i>
+      <span>Aprovações</span>
       @if (pendentesAprovacao > 0) {
         <span class="menu-badge" title="Cadastros aguardando aprovação">{{ pendentesAprovacao }}</span>
       }
     </button>
-    <button class="menu-btn" [class.active]="abaAtiva === 'creditos'" (click)="mudarAba('creditos')">
-      <i class="fa-solid fa-coins"></i>
-      <span>Créditos</span>
+    <button type="button" class="menu-btn" [class.active]="abaAtiva === 'denuncias'" (click)="mudarAba('denuncias')">
+      <i class="fa-solid fa-flag"></i>
+      <span>Denúncias</span>
+      @if (denunciasAbertas > 0) {
+        <span class="menu-badge" title="Denúncias em aberto">{{ denunciasAbertas }}</span>
+      }
     </button>
-    <button class="menu-btn" [class.active]="abaAtiva === 'moderacao'" (click)="mudarAba('moderacao')">
+    <button type="button" class="menu-btn" [class.active]="abaAtiva === 'forum'" (click)="mudarAba('forum')">
+      <i class="fa-regular fa-comments"></i>
+      <span>Fórum</span>
+    </button>
+    <button type="button" class="menu-btn" [class.active]="abaAtiva === 'moderacao'" (click)="mudarAba('moderacao')">
       <i class="fa-solid fa-shield-halved"></i>
       <span>Moderação</span>
     </button>
-    <button class="menu-btn" [class.active]="abaAtiva === 'relatorios'" (click)="mudarAba('relatorios')">
+    <button type="button" class="menu-btn" [class.active]="abaAtiva === 'relatorios'" (click)="mudarAba('relatorios')">
       <i class="fa-solid fa-chart-pie"></i>
       <span>Relatórios</span>
     </button>
-    <button class="menu-btn" [class.active]="abaAtiva === 'configuracoes'" (click)="mudarAba('configuracoes')">
+    <button type="button" class="menu-btn" [class.active]="abaAtiva === 'configuracoes'" (click)="mudarAba('configuracoes')">
       <i class="fa-solid fa-gear"></i>
       <span>Configurações</span>
     </button>
 
     <div class="sidebar-spacer"></div>
 
-    <div class="sidebar-profile-card">
-      <img [src]="adminAvatar" alt="Avatar do administrador" class="sidebar-profile-avatar">
-      <div class="sidebar-profile-info">
-        <strong>{{ adminNome }}</strong>
-        <span>Administradora</span>
-      </div>
-    </div>
+    <button type="button" class="menu-btn menu-btn-sair" (click)="sairDaConta()">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      <span>Sair da conta</span>
+    </button>
   </aside>
 
   <!-- HOME -->
   <!-- Usando [class.hidden] em vez de *ngIf para não destruir o Canvas do gráfico -->
   <section class="content" id="home" [class.hidden]="abaAtiva !== 'home'">
-    <div class="admin-hero">
-      <span class="hero-badge">ÁREA DO ADMINISTRADOR</span>
-      <h1>Olá, {{ adminPrimeiroNome }}!</h1>
-      <p>Aqui está o panorama de acolhimento do EloMaterno hoje.</p>
+    <div class="home-hero">
+      <div class="home-hero-texto">
+        <span class="hero-badge">Área do Administrador</span>
+        <h2>Olá, {{ adminPrimeiroNome }}!</h2>
+        <p>Aqui está o panorama de acolhimento do EloMaterno hoje. Tudo o que aparece nesta tela vem do banco de dados, em tempo real.</p>
+      </div>
+      <div class="hero-glow shape-1"></div>
+      <div class="hero-glow shape-2"></div>
+      <div class="hero-glow shape-3"></div>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-user-group"></i></div>
-        <div class="stat-info">
-          <span class="stat-label">Mães na rede</span>
-          <span class="stat-number">{{ maesNaRede }}</span>
-          <span class="stat-trend up">↑ {{ maesNaRedeVariacao }}% este mês</span>
-        </div>
+    <div class="home-stats">
+      <button type="button" class="home-stat" (click)="mudarAba('usuarios'); mudarVisaoUsuarios('maes')">
+        <span class="home-stat-icone icone-roxo"><i class="fa-solid fa-person-breastfeeding"></i></span>
+        <span class="home-stat-info">
+          <strong>{{ maesNaRede }}</strong>
+          <span>Mães na rede</span>
+          <small>{{ maesAtivasNaRede }} com a conta ativa</small>
+        </span>
+      </button>
+
+      <button type="button" class="home-stat" (click)="mudarAba('usuarios'); mudarVisaoUsuarios('profissionais')">
+        <span class="home-stat-icone icone-azul"><i class="fa-solid fa-user-doctor"></i></span>
+        <span class="home-stat-info">
+          <strong>{{ profissionaisAtivos }}</strong>
+          <span>Profissionais ativos</span>
+          <small>{{ psicologosAtivos }} psicólogos · {{ advogadosAtivos }} advogados</small>
+        </span>
+      </button>
+
+      <div class="home-stat home-stat-estatico">
+        <span class="home-stat-icone icone-rosa"><i class="fa-solid fa-heart"></i></span>
+        <span class="home-stat-info">
+          <strong>{{ atendimentosRealizados }}</strong>
+          <span>Atendimentos</span>
+          <small>consultas aceitas ou realizadas</small>
+        </span>
       </div>
 
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-briefcase"></i></div>
-        <div class="stat-info">
-          <span class="stat-label">Profissionais ativos</span>
-          <span class="stat-number">{{ profissionaisAtivos }}</span>
-          <span class="stat-trend neutral">{{ solicitacoes.length }} aguardando aprovação</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-coral"><i class="fa-solid fa-heart"></i></div>
-        <div class="stat-info">
-          <span class="stat-label">Atendimentos realizados</span>
-          <span class="stat-number">{{ atendimentosRealizados }}</span>
-          <span class="stat-trend up">↑ {{ atendimentosVariacao }}% este mês</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-teal"><i class="fa-solid fa-sack-dollar"></i></div>
-        <div class="stat-info">
-          <span class="stat-label">Créditos movimentados</span>
-          <span class="stat-number">R$ {{ creditosMovimentados | number:'1.0-0':'pt-BR' }}</span>
-          <span class="stat-trend neutral">em equivalente</span>
-        </div>
-      </div>
+      <button type="button" class="home-stat" (click)="mudarAba('usuarios'); mudarVisaoUsuarios('parceiros')">
+        <span class="home-stat-icone icone-verde"><i class="fa-solid fa-handshake"></i></span>
+        <span class="home-stat-info">
+          <strong>{{ parceirosLista.length }}</strong>
+          <span>Parceiros</span>
+          <small>empresas na plataforma</small>
+        </span>
+      </button>
     </div>
 
-    <div class="dashboard-columns">
-      <div class="dash-panel chart-card">
-        <h3>Atividade da rede</h3>
-        <canvas id="atividadeChart"></canvas>
+    <div class="home-grid">
+      <div class="dash-panel home-painel">
+        <div class="activity-card-header">
+          <h3>Precisa da sua atenção</h3>
+        </div>
+        <div class="atencao-lista">
+          @for (item of itensAtencao; track item.texto) {
+            <button type="button" class="atencao-item" [class.atencao-zerada]="item.total === 0" (click)="irParaAtencao(item)">
+              <span class="activity-icon" [ngClass]="item.total > 0 ? item.cor : 'icone-verde'"><i [class]="item.total > 0 ? item.icone : 'fa-solid fa-check'"></i></span>
+              <span class="atencao-texto">{{ item.texto }}</span>
+              <span class="atencao-total">{{ item.total }}</span>
+              <i class="fa-solid fa-chevron-right atencao-seta"></i>
+            </button>
+          }
+        </div>
+        @if (pendentesAprovacao + denunciasAbertas === 0) {
+          <p class="atencao-tudo-ok"><i class="fa-regular fa-face-smile"></i> Tudo em dia por aqui. Nenhuma pendência no momento.</p>
+        }
       </div>
 
-      <div class="dash-panel activity-card">
+      <div class="dash-panel home-painel chart-card">
+        <div class="activity-card-header">
+          <h3>Quem está na rede</h3>
+        </div>
+        <div class="rede-grafico"><canvas id="redeChart"></canvas></div>
+      </div>
+
+      <div class="dash-panel home-painel activity-card home-painel-largo">
         <div class="activity-card-header">
           <h3>Atividade recente</h3>
-          <button type="button" class="ver-mais-btn" (click)="mudarAba('usuarios')">Ver mais</button>
+          <button type="button" class="ver-mais-btn" (click)="mudarAba('usuarios')">Ver usuários</button>
         </div>
 
         <div class="activity-list">
-          <!-- Repetição Angular para o feed de atividades -->
-          <div class="activity-item" *ngFor="let a of atividadesRecentes">
-            <div class="activity-icon" [ngClass]="a.corIcone">
-              <i [class]="a.icone"></i>
+          @for (a of atividadesRecentes; track $index) {
+            <div class="activity-item">
+              <div class="activity-icon" [ngClass]="a.corIcone"><i [class]="a.icone"></i></div>
+              <div class="activity-texto">
+                <strong>{{ a.titulo }}</strong>
+                <span>{{ a.descricao }}</span>
+              </div>
             </div>
-            <div class="activity-texto">
-              <strong>{{ a.titulo }}</strong>
-              <span>{{ a.descricao }}</span>
-            </div>
-          </div>
+          }
 
           @if (atividadesRecentes.length === 0) {
             <p class="activity-empty">Nenhuma atividade recente por enquanto.</p>
@@ -241,99 +282,226 @@
   </section>
 
 
-  <!-- USUÁRIOS -->
-  <!-- MÃES (antiga aba "Usuários") -->
+  <!-- USUÁRIOS (todos: mães, profissionais e parceiros) -->
   <section class="content" id="usuarios" [class.hidden]="abaAtiva !== 'usuarios'">
-    <h2 class="page-title">Mães <p class="page-subtitle">Consulte e gerencie as mães cadastradas na plataforma.</p></h2>
-
-    <div class="maes-toolbar">
-      <div class="mae-search-box">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input
-          type="text"
-          placeholder="Buscar por nome ou email..."
-          [(ngModel)]="termoBuscaMae"
-          (ngModelChange)="onBuscaMaeChange()">
-      </div>
-
-      <div class="mae-filtro-status">
-        <button
-          type="button"
-          [class.active]="filtroStatusMae === 'todas'"
-          (click)="filtrarStatusMae('todas')">
-          Todas
-        </button>
-        <button
-          type="button"
-          [class.active]="filtroStatusMae === 'ativas'"
-          (click)="filtrarStatusMae('ativas')">
-          Ativas
-        </button>
-        <button
-          type="button"
-          [class.active]="filtroStatusMae === 'inativas'"
-          (click)="filtrarStatusMae('inativas')">
-          Inativas
-        </button>
-      </div>
+    <div class="pagina-topo">
+      <h2 class="page-title">Usuários</h2>
+      <p class="page-subtitle">Todas as pessoas da plataforma num só lugar: mães, profissionais e parceiros.</p>
     </div>
 
-    <div class="maes-layout" [class.perfil-aberto]="maeSelecionada">
+    <!-- resumo clicável -->
+    <div class="usr-resumo">
+      <button type="button" class="usr-resumo-card" [class.ativo]="usuariosVisao === 'todos'" (click)="mudarVisaoUsuarios('todos')">
+        <span class="usr-resumo-icone icone-roxo"><i class="fa-solid fa-users"></i></span>
+        <span class="usr-resumo-info"><strong>{{ resumoUsuarios.total }}</strong><span>Total de usuários</span></span>
+      </button>
+      <button type="button" class="usr-resumo-card" [class.ativo]="usuariosVisao === 'maes'" (click)="mudarVisaoUsuarios('maes')">
+        <span class="usr-resumo-icone icone-rosa"><i class="fa-solid fa-person-breastfeeding"></i></span>
+        <span class="usr-resumo-info"><strong>{{ resumoUsuarios.maes }}</strong><span>Mães</span></span>
+      </button>
+      <button type="button" class="usr-resumo-card" [class.ativo]="usuariosVisao === 'profissionais'" (click)="mudarVisaoUsuarios('profissionais')">
+        <span class="usr-resumo-icone icone-azul"><i class="fa-solid fa-user-doctor"></i></span>
+        <span class="usr-resumo-info"><strong>{{ resumoUsuarios.profissionais }}</strong><span>Profissionais</span></span>
+      </button>
+      <button type="button" class="usr-resumo-card" [class.ativo]="usuariosVisao === 'parceiros'" (click)="mudarVisaoUsuarios('parceiros')">
+        <span class="usr-resumo-icone icone-verde"><i class="fa-solid fa-handshake"></i></span>
+        <span class="usr-resumo-info"><strong>{{ resumoUsuarios.parceiros }}</strong><span>Parceiros</span></span>
+      </button>
+    </div>
 
-      <div class="dash-panel user-table maes-table-panel">
+    <!-- abas -->
+    <div class="usr-abas" role="tablist" aria-label="Visão dos usuários">
+      <button type="button" role="tab" [attr.aria-selected]="usuariosVisao === 'todos'" [class.ativo]="usuariosVisao === 'todos'" (click)="mudarVisaoUsuarios('todos')">Todos</button>
+      <button type="button" role="tab" [attr.aria-selected]="usuariosVisao === 'maes'" [class.ativo]="usuariosVisao === 'maes'" (click)="mudarVisaoUsuarios('maes')">Mães</button>
+      <button type="button" role="tab" [attr.aria-selected]="usuariosVisao === 'profissionais'" [class.ativo]="usuariosVisao === 'profissionais'" (click)="mudarVisaoUsuarios('profissionais')">Profissionais</button>
+      <button type="button" role="tab" [attr.aria-selected]="usuariosVisao === 'parceiros'" [class.ativo]="usuariosVisao === 'parceiros'" (click)="mudarVisaoUsuarios('parceiros')">Parceiros</button>
+    </div>
+
+    <!-- VISÃO: TODOS -->
+    @if (usuariosVisao === 'todos') {
+      <div class="maes-toolbar">
+        <div class="mae-search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="text"
+            placeholder="Buscar por nome, email ou documento..."
+            [(ngModel)]="termoBuscaUsuarios"
+            (ngModelChange)="paginaUsuariosAtual = 1">
+        </div>
+
+        <div class="mae-filtro-status">
+          <button type="button" [class.active]="filtroSituacaoUsuarios === 'todas'" (click)="filtrarSituacaoUsuarios('todas')">Todas</button>
+          <button type="button" [class.active]="filtroSituacaoUsuarios === 'ativo'" (click)="filtrarSituacaoUsuarios('ativo')">Ativos</button>
+          <button type="button" [class.active]="filtroSituacaoUsuarios === 'pendente'" (click)="filtrarSituacaoUsuarios('pendente')">Em análise</button>
+          <button type="button" [class.active]="filtroSituacaoUsuarios === 'suspenso'" (click)="filtrarSituacaoUsuarios('suspenso')">Suspensos</button>
+        </div>
+      </div>
+
+      <div class="filtros-extra">
+      <label class="filtro-campo"><span>De</span><input type="date" [(ngModel)]="usuariosDe" (ngModelChange)="paginaUsuariosAtual = 1"></label>
+      <label class="filtro-campo"><span>Até</span><input type="date" [(ngModel)]="usuariosAte" (ngModelChange)="paginaUsuariosAtual = 1"></label>
+      @if (usuariosDe || usuariosAte) {
+        <button type="button" class="filtro-limpar" (click)="usuariosDe = ''; usuariosAte = ''">Limpar datas</button>
+      }
+    </div>
+
+      <div class="dash-panel user-table usr-tabela-painel">
+        <p class="maes-contador">
+          {{ usuariosFiltrados.length }} usuário{{ usuariosFiltrados.length === 1 ? '' : 's' }} encontrado{{ usuariosFiltrados.length === 1 ? '' : 's' }}
+        </p>
+        <div class="usr-tabela-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Documento / local</th>
+                <th>Cadastro</th>
+                <th>Situação</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of usuariosPaginados; track u.chave) {
+                <tr class="linha-clicavel" (click)="abrirUsuario(u)">
+                  <td>
+                    <div class="mae-nome-cel">
+                      @if (u.avatar) {
+                        <img [src]="u.avatar" alt="" class="mae-avatar-mini">
+                      } @else {
+                        <span class="mae-avatar-mini mae-avatar-iniciais">{{ iniciaisNome(u.nome) }}</span>
+                      }
+                      <span class="usr-nome-e-email">
+                        <strong>{{ u.nome }}</strong>
+                        <small>{{ u.email }}</small>
+                      </span>
+                    </div>
+                  </td>
+                  <td><span class="usr-tipo" [ngClass]="'tipo-' + u.tipo">{{ u.tipoRotulo }}</span></td>
+                  <td>{{ u.detalhe }}</td>
+                  <td>{{ u.cadastro }}</td>
+                  <td>
+                    <span class="status" [ngClass]="u.situacao === 'ativo' ? 'ativo' : (u.situacao === 'pendente' ? 'pendente' : (u.situacao === 'recusado' ? 'recusado' : 'inativo'))">
+                      {{ rotuloSituacaoUsuario(u.situacao) }}
+                    </span>
+                  </td>
+                  <td>
+                    <button type="button" class="link-btn link-btn-roxo" (click)="abrirUsuario(u); $event.stopPropagation()">
+                      {{ u.situacao === 'pendente' ? 'Analisar' : 'Ver perfil' }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (usuariosFiltrados.length === 0) {
+          <p class="activity-empty">Nenhum usuário encontrado com esse filtro.</p>
+        }
+
+        @if (usuariosFiltrados.length > itensPorPaginaUsuarios) {
+          <div class="maes-paginacao">
+            <button type="button" class="mae-pagina-btn" [disabled]="paginaUsuariosAtual === 1" (click)="irParaPaginaUsuarios(paginaUsuariosAtual - 1)" aria-label="Página anterior">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <span class="mae-pagina-info">Página {{ paginaUsuariosAtual }} de {{ totalPaginasUsuarios }}</span>
+            <button type="button" class="mae-pagina-btn" [disabled]="paginaUsuariosAtual === totalPaginasUsuarios" (click)="irParaPaginaUsuarios(paginaUsuariosAtual + 1)" aria-label="Próxima página">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- VISÃO: MÃES -->
+    @if (usuariosVisao === 'maes') {
+      <div class="maes-toolbar">
+        <div class="mae-search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="text"
+            placeholder="Buscar por nome ou email..."
+            [(ngModel)]="termoBuscaMae"
+            (ngModelChange)="onBuscaMaeChange()">
+        </div>
+
+        <div class="mae-filtro-status">
+          <button type="button" [class.active]="filtroStatusMae === 'todas'" (click)="filtrarStatusMae('todas')">Todas</button>
+          <button type="button" [class.active]="filtroStatusMae === 'ativas'" (click)="filtrarStatusMae('ativas')">Ativas</button>
+          <button type="button" [class.active]="filtroStatusMae === 'inativas'" (click)="filtrarStatusMae('inativas')">Inativas</button>
+        </div>
+      </div>
+
+      <div class="filtros-extra">
+      <label class="filtro-campo"><span>De</span><input type="date" [(ngModel)]="maeDe" (ngModelChange)="paginaMaeAtual = 1"></label>
+      <label class="filtro-campo"><span>Até</span><input type="date" [(ngModel)]="maeAte" (ngModelChange)="paginaMaeAtual = 1"></label>
+      @if (maeDe || maeAte) {
+        <button type="button" class="filtro-limpar" (click)="maeDe = ''; maeAte = ''">Limpar datas</button>
+      }
+      </div>
+
+      <div class="dash-panel user-table usr-tabela-painel">
         <p class="maes-contador">
           {{ maesFiltradas.length }} mãe{{ maesFiltradas.length === 1 ? '' : 's' }} encontrada{{ maesFiltradas.length === 1 ? '' : 's' }}
         </p>
-        <table>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Email</th>
-              <th>Data de Cadastro</th>
-              <th>Status</th>
-              <th>Créditos</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let mae of maesPaginadas">
-              <td>
-                <div class="mae-nome-cel">
-                  @if (mae.avatar) {
-                    <img [src]="mae.avatar" alt="" class="mae-avatar-mini">
-                  } @else {
-                    <span class="mae-avatar-mini mae-avatar-iniciais">{{ iniciaisNome(mae.nome) }}</span>
-                  }
-                  <span>{{ mae.nome }}</span>
-                </div>
-              </td>
-              <td>{{ mae.email }}</td>
-              <td>{{ formatarData(mae.criadoEm) }}</td>
-              <td>
-                <span class="status" [ngClass]="mae.status === 'ativo' ? 'ativo' : 'inativo'">
-                  {{ mae.status === 'ativo' ? 'Ativo' : 'Inativo' }}
-                </span>
-              </td>
-              <td>
-                <span class="mae-creditos">
-                  <span class="mae-creditos-dot"></span>
-                  {{ mae.creditos }}
-                </span>
-              </td>
-              <td>
-                <div class="mae-acoes">
-                  <button class="link-btn link-btn-roxo" (click)="abrirPerfilMae(mae)">Ver perfil</button>
-                  <button
-                    class="mae-btn-suspender"
-                    [class.reativar]="mae.status !== 'ativo'"
-                    (click)="mae.status === 'ativo' ? abrirModalSuspensao(mae) : abrirModalReativacao(mae)">
-                    {{ mae.status === 'ativo' ? 'Suspender' : 'Reativar' }}
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="usr-tabela-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Data de cadastro</th>
+                <th>Status</th>
+                <th>Advertências</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (mae of maesPaginadas; track mae.id) {
+                <tr class="linha-clicavel" (click)="abrirPerfilMae(mae)">
+                  <td>
+                    <div class="mae-nome-cel">
+                      @if (mae.avatar) {
+                        <img [src]="mae.avatar" alt="" class="mae-avatar-mini">
+                      } @else {
+                        <span class="mae-avatar-mini mae-avatar-iniciais">{{ iniciaisNome(mae.nome) }}</span>
+                      }
+                      <span class="usr-nome-e-email">
+                        <strong>{{ mae.nome }}</strong>
+                        <small>{{ mae.email }}</small>
+                      </span>
+                    </div>
+                  </td>
+                  <td>{{ formatarData(mae.criadoEm) }}</td>
+                  <td>
+                    <span class="status" [ngClass]="mae.status === 'ativo' ? 'ativo' : 'inativo'">
+                      {{ mae.status === 'ativo' ? 'Ativo' : 'Inativo' }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (mae.advertenciasForum > 0) {
+                      <span class="usr-tag-adv"><i class="fa-solid fa-triangle-exclamation"></i> {{ mae.advertenciasForum }}</span>
+                    } @else {
+                      <span class="usr-sem-dado">—</span>
+                    }
+                  </td>
+                  <td>
+                    <div class="mae-acoes" (click)="$event.stopPropagation()">
+                      <button type="button" class="link-btn link-btn-roxo" (click)="abrirPerfilMae(mae)">Ver perfil</button>
+                      <button
+                        type="button"
+                        class="mae-btn-suspender"
+                        [class.reativar]="mae.status !== 'ativo'"
+                        (click)="mae.status === 'ativo' ? abrirModalSuspensao(mae) : abrirModalReativacao(mae)">
+                        {{ mae.status === 'ativo' ? 'Suspender' : 'Reativar' }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
 
         @if (maesFiltradas.length === 0) {
           <p class="activity-empty">Nenhuma mãe encontrada com esse filtro.</p>
@@ -341,567 +509,166 @@
 
         @if (maesFiltradas.length > itensPorPaginaMae) {
           <div class="maes-paginacao">
-            <button
-              type="button"
-              class="mae-pagina-btn"
-              [disabled]="paginaMaeAtual === 1"
-              (click)="irParaPaginaMae(paginaMaeAtual - 1)">
+            <button type="button" class="mae-pagina-btn" [disabled]="paginaMaeAtual === 1" (click)="irParaPaginaMae(paginaMaeAtual - 1)" aria-label="Página anterior">
               <i class="fa-solid fa-chevron-left"></i>
             </button>
-
             <span class="mae-pagina-info">Página {{ paginaMaeAtual }} de {{ totalPaginasMae }}</span>
-
-            <button
-              type="button"
-              class="mae-pagina-btn"
-              [disabled]="paginaMaeAtual === totalPaginasMae"
-              (click)="irParaPaginaMae(paginaMaeAtual + 1)">
+            <button type="button" class="mae-pagina-btn" [disabled]="paginaMaeAtual === totalPaginasMae" (click)="irParaPaginaMae(paginaMaeAtual + 1)" aria-label="Próxima página">
               <i class="fa-solid fa-chevron-right"></i>
             </button>
           </div>
         }
       </div>
+    }
 
-      <!-- PERFIL DA MÃE -->
-      @if (maeSelecionada) {
-        <aside class="dash-panel mae-perfil-panel">
-          <div class="mae-perfil-header">
-            <div>
-              <h3>Perfil da mãe</h3>
-              <p class="mae-perfil-subtitulo">Revise as informações do perfil da mãe</p>
-            </div>
-            <button type="button" class="mae-fechar-btn" (click)="fecharPerfilMae()" aria-label="Fechar perfil">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </div>
+    <!-- PERFIL DA MÃE (gaveta lateral) -->
+    @if (maeSelecionada) {
+      <div class="mae-drawer-fundo" (click)="fecharPerfilMae()"></div>
+      <aside class="mae-drawer" role="dialog" aria-modal="true" aria-label="Perfil da mãe">
+        <div class="mae-drawer-topo">
+          <span class="mae-drawer-titulo">Perfil da mãe</span>
+          <button type="button" class="mae-fechar-btn" (click)="fecharPerfilMae()" aria-label="Fechar perfil">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
 
-          <div class="mae-perfil-topo">
+        <div class="mae-drawer-corpo">
+          <div class="mae-drawer-cabeca">
             @if (maeSelecionada.avatar) {
-              <img [src]="maeSelecionada.avatar" alt="" class="mae-perfil-avatar">
+              <img [src]="maeSelecionada.avatar" alt="" class="mae-drawer-avatar">
             } @else {
-              <span class="mae-perfil-avatar mae-avatar-iniciais mae-avatar-iniciais-grande">{{ iniciaisNome(maeSelecionada.nome) }}</span>
+              <span class="mae-drawer-avatar mae-avatar-iniciais">{{ iniciaisNome(maeSelecionada.nome) }}</span>
             }
-            <div class="mae-perfil-topo-info">
-              <strong>{{ maeSelecionada.nome }}</strong>
-              <span>{{ maeSelecionada.email }}</span>
-              <span class="mae-perfil-local">
-                {{ formatarData(maeSelecionada.criadoEm) }}
-                @if (maeSelecionada.cidade) {
-                  &nbsp;·&nbsp;{{ maeSelecionada.cidade }}{{ maeSelecionada.uf ? ' - ' + maeSelecionada.uf : '' }}
-                }
-              </span>
-              <span class="status" [ngClass]="maeSelecionada.status === 'ativo' ? 'ativo' : 'inativo'">
-                {{ maeSelecionada.status === 'ativo' ? 'Ativo' : 'Inativo' }}
-              </span>
-            </div>
-          </div>
-
-          <div class="mae-perfil-secao">
-            <h4>Informações da mãe</h4>
-            <div class="mae-perfil-grid">
-              <div class="mae-perfil-campo">
-                <span class="mae-campo-label">Nome completo</span>
-                <span class="mae-campo-valor">{{ maeSelecionada.nome }}</span>
-              </div>
-              <div class="mae-perfil-campo">
-                <span class="mae-campo-label">Data de Nascimento</span>
-                <span class="mae-campo-valor">
-                  @if (maeSelecionada.dataNascimento) {
-                    {{ formatarDataNascimento(maeSelecionada.dataNascimento) }} ({{ calcularIdade(maeSelecionada.dataNascimento) }} anos)
-                  } @else {
-                    Não informado
-                  }
+            <div class="mae-drawer-ident">
+              <h3>{{ maeSelecionada.nome }}</h3>
+              <span class="mae-drawer-email">{{ maeSelecionada.email }}</span>
+              <div class="mae-drawer-tags">
+                <span class="status" [ngClass]="maeSelecionada.status === 'ativo' ? 'ativo' : 'inativo'">
+                  {{ maeSelecionada.status === 'ativo' ? 'Conta ativa' : 'Conta suspensa' }}
                 </span>
-              </div>
-              <div class="mae-perfil-campo">
-                <span class="mae-campo-label">Email</span>
-                <span class="mae-campo-valor">{{ maeSelecionada.email }}</span>
-              </div>
-              <div class="mae-perfil-campo">
-                <span class="mae-campo-label">Endereço</span>
-                <span class="mae-campo-valor">{{ maeSelecionada.endereco || 'Não informado' }}</span>
-              </div>
-              <div class="mae-perfil-campo">
-                <span class="mae-campo-label">Telefone</span>
-                <span class="mae-campo-valor">{{ maeSelecionada.telefone || 'Não informado' }}</span>
-              </div>
-              <div class="mae-perfil-campo">
-                <span class="mae-campo-label">Filhos</span>
-                <span class="mae-campo-valor">{{ maeSelecionada.filhos || 'Não informado' }}</span>
+                <span class="usr-tipo tipo-mae">Mãe</span>
               </div>
             </div>
           </div>
 
-          <div class="mae-perfil-cards">
-            <div class="mae-mini-card">
-              <span class="mae-mini-card-titulo">Avaliação geral</span>
-              @if (maeAvaliacoes.length > 0) {
-                <div class="mae-estrelas">
-                  <i class="fa-solid fa-star" *ngFor="let cheia of estrelas(maeAvaliacaoMedia)" [class.vazia]="!cheia"></i>
-                </div>
-                <span class="mae-mini-card-numero">{{ maeAvaliacaoMedia }}</span>
-                <span class="mae-mini-card-legenda">Com base em {{ maeAvaliacoes.length }} avaliaç{{ maeAvaliacoes.length === 1 ? 'ão' : 'ões' }}</span>
-              } @else {
-                <span class="mae-mini-card-numero">—</span>
-                <span class="mae-mini-card-legenda">Ainda sem avaliações</span>
-              }
+          <div class="mae-drawer-metricas">
+            <div class="mae-metrica">
+              <i class="fa-regular fa-calendar"></i>
+              <strong>{{ formatarData(maeSelecionada.criadoEm) }}</strong>
+              <span>Cadastro</span>
             </div>
-
-            <div class="mae-mini-card">
-              <span class="mae-mini-card-titulo">Total de interações</span>
-              <i class="fa-regular fa-comment-dots mae-mini-card-icone"></i>
-              <span class="mae-mini-card-numero">{{ maeTotalInteracoes }}</span>
-              <span class="mae-mini-card-legenda">Comentários no fórum</span>
+            <div class="mae-metrica">
+              <i class="fa-solid fa-shield-halved"></i>
+              <strong>{{ maeSelecionada.status === 'ativo' ? 'Ativa' : 'Suspensa' }}</strong>
+              <span>Conta</span>
+            </div>
+            <div class="mae-metrica">
+              <i class="fa-regular fa-comment-dots"></i>
+              <strong>{{ maeTotalInteracoes }}</strong>
+              <span>Posts no fórum</span>
+            </div>
+            <div class="mae-metrica" [class.mae-metrica-alerta]="maeSelecionada.advertenciasForum > 0">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <strong>{{ maeSelecionada.advertenciasForum }}</strong>
+              <span>Advertências</span>
             </div>
           </div>
 
-          <div class="mae-perfil-secao">
-            <div class="mae-secao-header">
-              <h4>Histórico de avaliações</h4>
-              @if (maeAvaliacoes.length > 0) {
-                <button type="button" class="ver-mais-btn">Ver todas</button>
-              }
-            </div>
+          <section class="mae-drawer-secao">
+            <h4>Contato e dados pessoais</h4>
+            @if (maeSelecionada.telefone || maeSelecionada.cidade || maeSelecionada.dataNascimento || maeSelecionada.endereco || maeSelecionada.filhos) {
+              <dl class="mae-drawer-dados">
+                @if (maeSelecionada.telefone) {
+                  <div><dt><i class="fa-solid fa-phone"></i> Telefone</dt><dd>{{ maeSelecionada.telefone }}</dd></div>
+                }
+                @if (maeSelecionada.cidade) {
+                  <div><dt><i class="fa-solid fa-location-dot"></i> Cidade</dt><dd>{{ maeSelecionada.cidade }}{{ maeSelecionada.uf ? ' - ' + maeSelecionada.uf : '' }}</dd></div>
+                }
+                @if (maeSelecionada.endereco) {
+                  <div><dt><i class="fa-solid fa-house"></i> Endereço</dt><dd>{{ maeSelecionada.endereco }}</dd></div>
+                }
+                @if (maeSelecionada.dataNascimento) {
+                  <div><dt><i class="fa-solid fa-cake-candles"></i> Nascimento</dt><dd>{{ formatarDataNascimento(maeSelecionada.dataNascimento) }} ({{ calcularIdade(maeSelecionada.dataNascimento) }} anos)</dd></div>
+                }
+                @if (maeSelecionada.filhos) {
+                  <div><dt><i class="fa-solid fa-baby"></i> Filhos</dt><dd>{{ maeSelecionada.filhos }}</dd></div>
+                }
+              </dl>
+            } @else {
+              <p class="mae-drawer-vazio">Esta mãe ainda não preencheu telefone, cidade ou outros dados no perfil. O contato disponível é o e-mail acima.</p>
+            }
+          </section>
 
-            <div class="mae-avaliacoes-lista">
-              <div class="mae-avaliacao-card" *ngFor="let av of maeAvaliacoes">
-                <div class="mae-avaliacao-avatar">
-                  <i class="fa-solid fa-user-doctor"></i>
-                </div>
-                <div class="mae-avaliacao-conteudo">
-                  <div class="mae-avaliacao-topo">
-                    <strong>{{ av.profissionalNome }} - {{ av.especialidade }}</strong>
-                    <span class="mae-avaliacao-nota">
-                      <i class="fa-solid fa-star"></i> {{ av.nota | number:'1.1-1' }}
+          @if (maeSelecionada.status !== 'ativo') {
+            <section class="mae-drawer-secao mae-drawer-suspensao">
+              <h4><i class="fa-solid fa-ban"></i> Motivo da suspensão</h4>
+              <p><strong>{{ textoMotivoSuspensao(maeSelecionada.motivoSuspensao) }}</strong></p>
+              @if (maeSelecionada.observacoesSuspensao) {
+                <p>{{ maeSelecionada.observacoesSuspensao }}</p>
+              }
+            </section>
+          }
+
+          <section class="mae-drawer-secao">
+            <h4>Últimos posts no fórum</h4>
+            @if (maePerfilCarregando) {
+              <p class="mae-drawer-vazio">Carregando...</p>
+            } @else if (maePostsRecentes.length === 0) {
+              <p class="mae-drawer-vazio">Nenhum post com o nome dela. (Posts anônimos não aparecem aqui, de propósito.)</p>
+            } @else {
+              <ul class="mae-posts-lista">
+                @for (post of maePostsRecentes; track post.id) {
+                  <li>
+                    <span class="mae-post-titulo">{{ post.titulo }}</span>
+                    <span class="mae-post-meta">
+                      {{ post.dataFormatada }}
+                      @if (post.estado === 'removido') { <span class="mae-post-chip chip-removido">Removido</span> }
+                      @else if (post.estado === 'advertido') { <span class="mae-post-chip chip-advertido">Advertido</span> }
                     </span>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+
+          @if (maeAvaliacoes.length > 0) {
+            <section class="mae-drawer-secao">
+              <h4>Avaliações feitas por profissionais · média {{ maeAvaliacaoMedia | number:'1.1-1' }}</h4>
+              <div class="mae-avaliacoes-lista">
+                @for (av of maeAvaliacoes; track av.id) {
+                  <div class="mae-avaliacao-card">
+                    <div class="mae-avaliacao-avatar"><i class="fa-solid fa-user-doctor"></i></div>
+                    <div class="mae-avaliacao-conteudo">
+                      <div class="mae-avaliacao-topo">
+                        <strong>{{ av.profissionalNome }} - {{ av.especialidade }}</strong>
+                        <span class="mae-avaliacao-nota"><i class="fa-solid fa-star"></i> {{ av.nota | number:'1.1-1' }}</span>
+                      </div>
+                      <p>{{ av.comentario }}</p>
+                    </div>
                   </div>
-                  <span class="mae-avaliacao-registro">{{ av.registro }}</span>
-                  <p>{{ av.comentario }}</p>
-                </div>
+                }
               </div>
-
-              @if (maeAvaliacoes.length === 0 && !maePerfilCarregando) {
-                <p class="activity-empty">Ainda não há avaliações registradas para esta mãe.</p>
-              }
-
-              @if (maePerfilCarregando) {
-                <p class="activity-empty">Carregando avaliações...</p>
-              }
-            </div>
-          </div>
-        </aside>
-      }
-    </div>
-
-    <!-- MODAL: SUSPENDER CONTA -->
-    @if (maeParaSuspender) {
-      <div class="suspender-overlay" (click)="fecharModalSuspensao()">
-        <div class="suspender-modal" (click)="$event.stopPropagation()">
-          <button type="button" class="suspender-fechar-btn" (click)="fecharModalSuspensao()" aria-label="Fechar">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-
-          <div class="suspender-cabecalho">
-            <span class="suspender-icone"><i class="fa-solid fa-ban"></i></span>
-            <div class="suspender-cabecalho-texto">
-              <h3>Suspender conta</h3>
-              <p>A conta da mãe será temporariamente desativada e ela não poderá acessar a plataforma durante o período de suspensão.</p>
-            </div>
-          </div>
-
-          <div class="suspender-mae-card">
-            @if (maeParaSuspender.avatar) {
-              <img [src]="maeParaSuspender.avatar" alt="" class="suspender-mae-avatar">
-            } @else {
-              <span class="suspender-mae-avatar mae-avatar-iniciais">{{ iniciaisNome(maeParaSuspender.nome) }}</span>
-            }
-            <div class="suspender-mae-nome">{{ maeParaSuspender.nome }}</div>
-            <div class="suspender-mae-detalhes">
-              <span>{{ maeParaSuspender.email }}</span>
-              <span>{{ formatarData(maeParaSuspender.criadoEm) }}</span>
-              @if (maeParaSuspender.cidade) {
-                <span>{{ maeParaSuspender.cidade }}{{ maeParaSuspender.uf ? ' - ' + maeParaSuspender.uf : '' }}</span>
-              }
-            </div>
-          </div>
-
-          <div class="suspender-campo">
-            <label for="motivoSuspensao">Motivo da suspensão</label>
-            <select id="motivoSuspensao" [(ngModel)]="motivoSuspensao">
-              <option value="" disabled>Selecione um motivo</option>
-              <option *ngFor="let motivo of motivosSuspensao" [value]="motivo.valor">{{ motivo.texto }}</option>
-            </select>
-          </div>
-
-          <div class="suspender-campo">
-            <label for="observacoesSuspensao">Observações (opcional)</label>
-            <textarea
-              id="observacoesSuspensao"
-              rows="3"
-              [(ngModel)]="observacoesSuspensao"
-              placeholder="Adicione um comentário para a mãe (ex: motivo da suspensão, prazo, etc)"></textarea>
-          </div>
-
-          @if (erroSuspensao) {
-            <p class="suspender-erro">{{ erroSuspensao }}</p>
+            </section>
           }
-
-          <div class="suspender-acoes">
-            <button type="button" class="suspender-btn-cancelar" [disabled]="suspendendoConta" (click)="fecharModalSuspensao()">
-              Cancelar
-            </button>
-            <button type="button" class="suspender-btn-confirmar" [disabled]="suspendendoConta" (click)="confirmarSuspensao()">
-              <i class="fa-solid fa-ban"></i>
-              {{ suspendendoConta ? 'Suspendendo...' : 'Suspender conta' }}
-            </button>
-          </div>
         </div>
-      </div>
+
+        <div class="mae-drawer-rodape">
+          @if (maeSelecionada.status === 'ativo') {
+            <button type="button" class="mae-drawer-btn-perigo" (click)="abrirModalSuspensao(maeSelecionada)">
+              <i class="fa-solid fa-user-slash"></i> Suspender conta
+            </button>
+          } @else {
+            <button type="button" class="mae-drawer-btn-ok" (click)="abrirModalReativacao(maeSelecionada)">
+              <i class="fa-solid fa-user-check"></i> Reativar conta
+            </button>
+          }
+        </div>
+      </aside>
     }
 
-    <!-- MODAL: REATIVAR CONTA -->
-    @if (maeParaReativar) {
-      <div class="suspender-overlay" (click)="fecharModalReativacao()">
-        <div class="suspender-modal" (click)="$event.stopPropagation()">
-          <button type="button" class="suspender-fechar-btn" (click)="fecharModalReativacao()" aria-label="Fechar">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-
-          <div class="suspender-cabecalho">
-            <span class="suspender-icone suspender-icone-sucesso"><i class="fa-solid fa-rotate-left"></i></span>
-            <div class="suspender-cabecalho-texto">
-              <h3>Reativar conta</h3>
-              <p>A conta da mãe será reativada e ela poderá voltar a acessar a plataforma normalmente.</p>
-            </div>
-          </div>
-
-          <div class="suspender-mae-card">
-            @if (maeParaReativar.avatar) {
-              <img [src]="maeParaReativar.avatar" alt="" class="suspender-mae-avatar">
-            } @else {
-              <span class="suspender-mae-avatar mae-avatar-iniciais">{{ iniciaisNome(maeParaReativar.nome) }}</span>
-            }
-            <div class="suspender-mae-nome">{{ maeParaReativar.nome }}</div>
-            <div class="suspender-mae-detalhes">
-              <span>{{ maeParaReativar.email }}</span>
-              <span>{{ formatarData(maeParaReativar.criadoEm) }}</span>
-              @if (maeParaReativar.cidade) {
-                <span>{{ maeParaReativar.cidade }}{{ maeParaReativar.uf ? ' - ' + maeParaReativar.uf : '' }}</span>
-              }
-            </div>
-          </div>
-
-          <div class="suspender-campo">
-            <label for="observacoesReativacao">Observações (opcional)</label>
-            <textarea
-              id="observacoesReativacao"
-              rows="3"
-              [(ngModel)]="observacoesReativacao"
-              placeholder="Adicione um comentário sobre a reativação (opcional)"></textarea>
-          </div>
-
-          @if (erroReativacao) {
-            <p class="suspender-erro">{{ erroReativacao }}</p>
-          }
-
-          <div class="suspender-acoes">
-            <button type="button" class="suspender-btn-cancelar" [disabled]="reativandoConta" (click)="fecharModalReativacao()">
-              Cancelar
-            </button>
-            <button type="button" class="suspender-btn-confirmar suspender-btn-sucesso" [disabled]="reativandoConta" (click)="confirmarReativacao()">
-              <i class="fa-solid fa-rotate-left"></i>
-              {{ reativandoConta ? 'Reativando...' : 'Reativar conta' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    }
-  </section>
-
-
-
-
-
-  <!-- PARCEIROS -->
-  <section class="content" id="parceiros" [class.hidden]="abaAtiva !== 'parceiros'">
-    <div class="parc-page-header">
-      <h2 class="page-title">
-        {{ parceirosSubAba === 'parceiros' ? 'Parceiros' : 'Profissionais' }}
-        <p class="page-subtitle">
-          {{ parceirosSubAba === 'parceiros'
-            ? 'gerencie, acompanhe e modere os parceiros da plataforma.'
-            : 'gerencie, acompanhe e modere os profissionais da plataforma.' }}
-        </p>
-      </h2>
-    </div>
-
-    <div class="parc-stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-user-doctor"></i></div>
-        <div class="stat-info">
-          <span class="stat-label">Total de profissionais</span>
-          <span class="stat-number">{{ profissionaisStats.total }}</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-teal"><i class="fa-solid fa-circle-check"></i></div>
-        <div class="stat-info">
-          <span class="stat-label">Aprovados</span>
-          <span class="stat-number">{{ profissionaisStats.aprovados }}</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-arrow-trend-up"></i></div>
-        <div class="stat-info">
-          <span class="stat-label">Em análise</span>
-          <span class="stat-number">{{ profissionaisStats.emAnalise }}</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-yellow"><i class="fa-regular fa-clock"></i></div>
-        <div class="stat-info">
-          <span class="stat-label">Pendências</span>
-          <span class="stat-number">{{ profissionaisStats.pendencias }}</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon stat-icon-coral"><i class="fa-solid fa-circle-exclamation"></i></div>
-        <div class="stat-info">
-          <span class="stat-label">Novos esta semana</span>
-          <span class="stat-number">{{ profissionaisStats.novos }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="parc-subtabs">
-      <button
-        type="button"
-        class="parc-subtab"
-        [class.active]="parceirosSubAba === 'aprovacao'"
-        (click)="mudarSubAbaParceiros('aprovacao')">
-        <span class="parc-subtab-icone"><i class="fa-regular fa-heart"></i></span>
-        <span class="parc-subtab-texto">
-          <strong>Aprovação</strong>
-          <span>Aprovação dos profissionais</span>
-        </span>
-      </button>
-
-      <button
-        type="button"
-        class="parc-subtab"
-        [class.active]="parceirosSubAba === 'profissionais'"
-        (click)="mudarSubAbaParceiros('profissionais')">
-        <span class="parc-subtab-icone"><i class="fa-solid fa-user-group"></i></span>
-        <span class="parc-subtab-texto">
-          <strong>Profissionais <span class="parc-subtab-badge">{{ solicitacoesProfissionais.length }}</span></strong>
-          <span>Todos os profissionais da plataforma</span>
-        </span>
-      </button>
-
-      <button
-        type="button"
-        class="parc-subtab"
-        [class.active]="parceirosSubAba === 'parceiros'"
-        (click)="mudarSubAbaParceiros('parceiros')">
-        <span class="parc-subtab-icone"><i class="fa-solid fa-handshake"></i></span>
-        <span class="parc-subtab-texto">
-          <strong>Parceiros <span class="parc-subtab-badge">{{ parceirosLista.length }}</span></strong>
-          <span>Todos os parceiros da plataforma</span>
-        </span>
-      </button>
-    </div>
-
-    <!-- SUBABA: APROVAÇÃO -->
-    @if (parceirosSubAba === 'aprovacao') {
-      <div class="maes-toolbar">
-        <div class="mae-search-box">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input
-            type="text"
-            placeholder="Buscar profissionais..."
-            [(ngModel)]="termoBuscaAprovacao">
-        </div>
-
-        <div class="mae-filtro-status">
-          <button type="button" [class.active]="filtroStatusAprovacao === 'todos'" (click)="filtrarStatusAprovacao('todos')">
-            Todos ({{ solicitacoesProfissionais.length }})
-          </button>
-          <button type="button" [class.active]="filtroStatusAprovacao === 'em_analise'" (click)="filtrarStatusAprovacao('em_analise')">
-            Em análise ({{ contarPorStatusAprovacao('em_analise') }})
-          </button>
-          <button type="button" [class.active]="filtroStatusAprovacao === 'pendencia'" (click)="filtrarStatusAprovacao('pendencia')">
-            Pendência ({{ contarPorStatusAprovacao('pendencia') }})
-          </button>
-          <button type="button" [class.active]="filtroStatusAprovacao === 'aprovado'" (click)="filtrarStatusAprovacao('aprovado')">
-            Aprovados ({{ contarPorStatusAprovacao('aprovado') }})
-          </button>
-        </div>
-      </div>
-
-      <div class="maes-layout" [class.perfil-aberto]="profissionalSelecionado">
-        <div class="dash-panel user-table maes-table-panel">
-          <p class="maes-contador">
-            {{ solicitacoesFiltradas.length }} profissional{{ solicitacoesFiltradas.length === 1 ? '' : 'is' }} encontrado{{ solicitacoesFiltradas.length === 1 ? '' : 's' }}
-          </p>
-          <div class="prof-table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Profissional</th>
-                  <th>Categoria</th>
-                  <th>Cadastro</th>
-                  <th>Documentação</th>
-                  <th>Status</th>
-                  <th>Última análise</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let sol of solicitacoesFiltradas">
-                  <td>
-                    <div class="mae-nome-cel">
-                      @if (sol.avatar) {
-                        <img [src]="sol.avatar" alt="" class="mae-avatar-mini">
-                      } @else {
-                        <span class="mae-avatar-mini mae-avatar-iniciais">{{ iniciaisNome(sol.nome) }}</span>
-                      }
-                      <span>{{ sol.nome }}<br><small class="prof-registro-mini">{{ sol.registro }}</small></span>
-                    </div>
-                  </td>
-                  <td>{{ sol.categoria }}</td>
-                  <td>{{ sol.cadastro }}</td>
-                  <td>
-                    @if (sol.documentacaoCompleta) {
-                      <span class="prof-doc-ok"><i class="fa-solid fa-circle-check"></i> Completa</span>
-                    } @else {
-                      <span class="prof-doc-pendente"><i class="fa-solid fa-circle-exclamation"></i> Incompleta</span>
-                    }
-                  </td>
-                  <td>
-                    <span class="status" [ngClass]="classeStatusAprovacao(sol.status)">
-                      {{ rotuloStatusAprovacao(sol.status) }}
-                    </span>
-                  </td>
-                  <td>
-                    @if (sol.ultimaAnalise) {
-                      {{ sol.ultimaAnalise.data }}<br><small class="prof-registro-mini">por {{ sol.ultimaAnalise.admin }}</small>
-                    } @else {
-                      -
-                    }
-                  </td>
-                  <td>
-                    <div class="mae-acoes">
-                      <button class="link-btn link-btn-roxo" (click)="abrirDetalheProfissional(sol)">Ver mais infos</button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          @if (solicitacoesFiltradas.length === 0) {
-            <p class="activity-empty">Nenhum profissional encontrado com esse filtro.</p>
-          }
-        </div>
-
-        <!-- PAINEL: ANÁLISE DO PROFISSIONAL (mesmo padrão do "Perfil da mãe": lateral, sem escurecer o fundo) -->
-        @if (profissionalSelecionado) {
-          <aside class="dash-panel mae-perfil-panel">
-            <div class="mae-perfil-header">
-              <div>
-              <h3>Análise do Profissional</h3>
-              <p class="mae-perfil-subtitulo">Revise as informações e documentações do profissional</p>
-            </div>
-            <button type="button" class="mae-fechar-btn" (click)="fecharDetalheProfissional()" aria-label="Fechar">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-
-          <div class="mae-perfil-topo">
-            @if (profissionalSelecionado.avatar) {
-              <img [src]="profissionalSelecionado.avatar" alt="" class="mae-perfil-avatar">
-            } @else {
-              <span class="mae-perfil-avatar mae-avatar-iniciais mae-avatar-iniciais-grande">{{ iniciaisNome(profissionalSelecionado.nome) }}</span>
-            }
-            <div class="mae-perfil-topo-info">
-              <strong>{{ profissionalSelecionado.nome }}</strong>
-              <span>{{ profissionalSelecionado.categoria }}</span>
-              <span>{{ profissionalSelecionado.registro }}</span>
-              <span class="status" [ngClass]="classeStatusAprovacao(profissionalSelecionado.status)">
-                {{ rotuloStatusAprovacao(profissionalSelecionado.status) }}
-              </span>
-            </div>
-          </div>
-
-          @if (profissionalSelecionado.status !== 'aprovado') {
-            <div class="prof-decisao-acoes">
-              <button type="button" class="approve-btn prof-decisao-btn" (click)="aprovarProfissional(profissionalSelecionado)">
-                <i class="fa-solid fa-check"></i> Aprovar
-              </button>
-              <button type="button" class="deny-btn prof-decisao-btn" (click)="recusarProfissional(profissionalSelecionado)">
-                <i class="fa-solid fa-xmark"></i> Recusar
-              </button>
-            </div>
-          }
-
-          <div class="mae-perfil-secao">
-            <h4>Informações do profissional</h4>
-            <div class="mae-perfil-grid">
-              <div class="mae-perfil-campo">
-                <span class="mae-campo-label">Nome completo</span>
-                <span class="mae-campo-valor">{{ profissionalSelecionado.nome }}</span>
-              </div>
-              <div class="mae-perfil-campo">
-                <span class="mae-campo-label">Data de Nascimento</span>
-                <span class="mae-campo-valor">{{ profissionalSelecionado.detalhes.dataNascimento }}@if (profissionalSelecionado.detalhes.idade) { ({{ profissionalSelecionado.detalhes.idade }} anos) }</span>
-              </div>
-              <div class="mae-perfil-campo">
-                <span class="mae-campo-label">Email</span>
-                <span class="mae-campo-valor">{{ profissionalSelecionado.detalhes.email }}</span>
-              </div>
-              <div class="mae-perfil-campo">
-                <span class="mae-campo-label">Endereço</span>
-                <span class="mae-campo-valor">{{ profissionalSelecionado.detalhes.endereco }}</span>
-              </div>
-              <div class="mae-perfil-campo">
-                <span class="mae-campo-label">Telefone</span>
-                <span class="mae-campo-valor">{{ profissionalSelecionado.detalhes.telefone }}</span>
-              </div>
-              <div class="mae-perfil-campo">
-                <span class="mae-campo-label">Especialidade</span>
-                <span class="mae-campo-valor">{{ profissionalSelecionado.detalhes.especialidade }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mae-perfil-secao">
-            <h4>Documentação enviada</h4>
-            <div class="prof-checklist">
-              <div class="prof-checklist-item" *ngFor="let item of profissionalSelecionado.detalhes.perfilPublico">
-                <span>{{ item.label }}</span>
-                <span class="prof-checklist-dot" [class.ok]="item.ok"></span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mae-perfil-secao">
-            <h4>Observações</h4>
-            <textarea
-              rows="3"
-              [(ngModel)]="profissionalSelecionado.observacoes"
-              placeholder="Adicione um comentário para o profissional (ex: motivo da pendência, documento faltante, etc)"
-              class="prof-observacoes-textarea"></textarea>
-            <button type="button" class="ver-mais-btn prof-salvar-obs-btn" (click)="salvarObservacaoProfissional(profissionalSelecionado)">
-              Salvar observação
-            </button>
-          </div>
-        </aside>
-      }
-      </div>
-    }
-
+    <!-- VISÕES: APROVAÇÕES / PROFISSIONAIS / PARCEIROS (antiga aba "Parceiros") -->
     <!-- SUBABA: PROFISSIONAIS (lista completa) -->
-    @if (parceirosSubAba === 'profissionais') {
+    @if (usuariosVisao === 'profissionais') {
       <div class="maes-toolbar">
         <div class="mae-search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
@@ -931,7 +698,17 @@
         </button>
       </div>
 
-      <div class="maes-layout" [class.perfil-aberto]="profissionalListaSelecionado">
+      <div class="filtros-extra">
+      <label class="filtro-campo"><span>Categoria</span>
+        <select [(ngModel)]="profCategoria">
+          <option value="todas">Todas</option>
+          <option value="Psicólogo(a)">Psicólogos(as)</option>
+          <option value="Advogado(a)">Advogados(as)</option>
+        </select>
+      </label>
+      </div>
+
+      <div class="usr-lista-wrap">
         <div class="dash-panel user-table maes-table-panel">
           <p class="maes-contador">
             {{ profissionaisListaFiltrados.length }} profissional{{ profissionaisListaFiltrados.length === 1 ? '' : 'is' }} encontrado{{ profissionaisListaFiltrados.length === 1 ? '' : 's' }}
@@ -952,7 +729,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let prof of profissionaisListaFiltrados">
+                <tr *ngFor="let prof of profissionaisListaFiltrados" class="linha-clicavel" (click)="abrirPerfilProfissionalLista(prof)">
                   <td>
                     <div class="mae-nome-cel">
                       @if (prof.avatar) {
@@ -977,7 +754,7 @@
                   </td>
                   <td>{{ prof.ultimoAcesso }}</td>
                   <td>
-                    <div class="mae-acoes">
+                    <div class="mae-acoes" (click)="$event.stopPropagation()">
                       <button type="button" class="prof-ver-perfil-btn" (click)="abrirPerfilProfissionalLista(prof)">Ver perfil</button>
                     </div>
                   </td>
@@ -993,7 +770,8 @@
 
         <!-- PERFIL DO PROFISSIONAL (mesmo padrão do "Perfil da mãe") -->
         @if (profissionalListaSelecionado) {
-          <aside class="dash-panel mae-perfil-panel">
+          <div class="mae-drawer-fundo" (click)="fecharPerfilProfissionalLista()"></div>
+          <aside class="mae-drawer mae-drawer-legado" role="dialog" aria-modal="true">
             <div class="mae-perfil-header">
               <div>
                 <h3>Perfil do profissional</h3>
@@ -1261,7 +1039,7 @@
     }
 
     <!-- SUBABA: PARCEIROS (empresas) -->
-    @if (parceirosSubAba === 'parceiros') {
+    @if (usuariosVisao === 'parceiros') {
       <div class="maes-toolbar">
         <div class="mae-search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
@@ -1291,7 +1069,7 @@
         </button>
       </div>
 
-      <div class="maes-layout" [class.perfil-aberto]="parceiroListaSelecionado">
+      <div class="usr-lista-wrap">
         <div class="dash-panel user-table maes-table-panel">
           <p class="maes-contador">
             {{ parceirosListaFiltrados.length }} parceiro{{ parceirosListaFiltrados.length === 1 ? '' : 's' }} encontrado{{ parceirosListaFiltrados.length === 1 ? '' : 's' }}
@@ -1312,7 +1090,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let parc of parceirosListaFiltrados">
+                <tr *ngFor="let parc of parceirosListaFiltrados" class="linha-clicavel" (click)="abrirPerfilParceiroLista(parc)">
                   <td>
                     <div class="mae-nome-cel">
                       @if (parc.avatar) {
@@ -1337,7 +1115,7 @@
                   </td>
                   <td>{{ parc.ultimoAcesso }}</td>
                   <td>
-                    <div class="mae-acoes">
+                    <div class="mae-acoes" (click)="$event.stopPropagation()">
                       <button type="button" class="prof-ver-perfil-btn" (click)="abrirPerfilParceiroLista(parc)">Ver perfil</button>
                     </div>
                   </td>
@@ -1353,7 +1131,8 @@
 
         <!-- PERFIL DO PARCEIRO (mesmo padrão do "Perfil do profissional") -->
         @if (parceiroListaSelecionado) {
-          <aside class="dash-panel mae-perfil-panel">
+          <div class="mae-drawer-fundo" (click)="fecharPerfilParceiroLista()"></div>
+          <aside class="mae-drawer mae-drawer-legado" role="dialog" aria-modal="true">
             <div class="mae-perfil-header">
               <div>
                 <h3>Perfil do parceiro</h3>
@@ -1619,203 +1398,541 @@
         </div>
       }
     }
-  </section>
 
-  <!-- CRÉDITOS -->
-  <section class="content" id="creditos" [class.hidden]="abaAtiva !== 'creditos'">
-    <div class="creditos-layout">
-      <!-- COLUNA PRINCIPAL (esquerda) -->
-      <div class="creditos-col creditos-col-principal">
-        <div class="admin-hero creditos-hero">
-          <i class="fa-solid fa-coins creditos-hero-icone" aria-hidden="true"></i>
-          <h1>Configure e gerencie os créditos da plataforma</h1>
-          <p>Defina o valor das moedas para cada ação, acompanhe o uso e garanta uma experiência justa e equilibrada para todos os usuários.</p>
-        </div>
-
-        <div class="stats-grid creditos-stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-database"></i></div>
-            <div class="stat-info">
-              <span class="stat-label">Créditos em circulação</span>
-              <span class="stat-number">{{ creditosEmCirculacao | number:'1.0-0':'pt-BR' }}</span>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-user-group"></i></div>
-            <div class="stat-info">
-              <span class="stat-label">Usuários ativos</span>
-              <span class="stat-number">{{ usuariosAtivosCreditos | number:'1.0-0':'pt-BR' }}</span>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon stat-icon-teal"><i class="fa-solid fa-right-left"></i></div>
-            <div class="stat-info">
-              <span class="stat-label">Transações no mês</span>
-              <span class="stat-number">{{ transacoesNoMesCreditos | number:'1.0-0':'pt-BR' }}</span>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon stat-icon-yellow"><i class="fa-solid fa-star"></i></div>
-            <div class="stat-info">
-              <span class="stat-label">Avaliações usuários</span>
-              <span class="stat-number">{{ avaliacaoMediaCreditos | number:'1.1-1' }} / 5</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="creditos-tabs">
-          <button
-            type="button"
-            class="creditos-tab"
-            [class.active]="creditosTabAtiva === 'valores'"
-            (click)="mudarCreditosTab('valores')">
-            <i class="fa-solid fa-gear"></i> Configurações de valores
+    <!-- MODAL: SUSPENDER CONTA -->
+    @if (maeParaSuspender) {
+      <div class="suspender-overlay" (click)="fecharModalSuspensao()">
+        <div class="suspender-modal" (click)="$event.stopPropagation()">
+          <button type="button" class="suspender-fechar-btn" (click)="fecharModalSuspensao()" aria-label="Fechar">
+            <i class="fa-solid fa-xmark"></i>
           </button>
-        </div>
 
-        @if (creditosTabAtiva === 'valores') {
-          <div class="dash-panel creditos-valores-card">
-            <div class="creditos-valores-header">
-              <div>
-                <h3>Ações da plataforma e valores de créditos</h3>
-                <p class="creditos-valores-subtitulo">Defina o quanto cada ação da plataforma custa em créditos</p>
-              </div>
-              <button type="button" class="prof-filtros-btn" (click)="restaurarPadraoCreditos()">
-                Restaurar padrão
-              </button>
-            </div>
-
-            <div class="prof-table-scroll">
-              <table class="creditos-tabela">
-                <thead>
-                  <tr>
-                    <th>Ação</th>
-                    <th>Descrição</th>
-                    <th>Valor do crédito</th>
-                    <th>Ativo</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let acao of acoesCreditos">
-                    <td>
-                      <div class="creditos-acao-cel">
-                        <span class="creditos-acao-icone"><i class="fa-solid" [ngClass]="acao.icone"></i></span>
-                        <span>{{ acao.nome }}</span>
-                      </div>
-                    </td>
-                    <td class="creditos-descricao-cel">{{ acao.descricao }}</td>
-                    <td>
-                      <div class="creditos-valor-input">
-                        <i class="fa-solid fa-coins"></i>
-                        <input type="number" min="0" [(ngModel)]="acao.valor">
-                      </div>
-                    </td>
-                    <td>
-                      <button
-                        type="button"
-                        class="creditos-switch"
-                        [class.on]="acao.ativo"
-                        role="switch"
-                        [attr.aria-checked]="acao.ativo"
-                        (click)="alternarAtivoCredito(acao)">
-                        <span class="creditos-switch-bolinha"></span>
-                      </button>
-                    </td>
-                    <td>
-                      <button type="button" class="creditos-info-btn" [title]="acao.descricao" aria-label="Mais informações">
-                        <i class="fa-solid fa-circle-info"></i>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          <div class="suspender-cabecalho">
+            <span class="suspender-icone"><i class="fa-solid fa-ban"></i></span>
+            <div class="suspender-cabecalho-texto">
+              <h3>Suspender conta</h3>
+              <p>A conta da mãe será temporariamente desativada e ela não poderá acessar a plataforma durante o período de suspensão.</p>
             </div>
           </div>
-        }
-      </div>
 
-      <!-- COLUNA LATERAL (direita) -->
-      <div class="creditos-col creditos-col-lateral">
-        <div class="dash-panel creditos-saldo-card">
-          <div class="creditos-saldo-topo">
-            <span class="creditos-saldo-icone"><i class="fa-solid fa-database"></i></span>
-            <strong>Saldo da Plataforma</strong>
-          </div>
-          <span class="creditos-saldo-numero">{{ saldoPlataformaCreditos | number:'1.0-0':'pt-BR' }}</span>
-          <span class="creditos-saldo-label">Créditos disponíveis</span>
-          <button type="button" class="creditos-saldo-btn" (click)="abrirModalAdicionarCreditos()">
-            <i class="fa-solid fa-plus"></i> Adicionar Créditos
-          </button>
-        </div>
-
-        <div class="dash-panel creditos-donut-card">
-          <div class="creditos-donut-wrap">
-            <canvas id="creditosDonutChart"></canvas>
-          </div>
-          <div class="creditos-donut-legenda">
-            <div class="creditos-donut-legenda-item" *ngFor="let cat of distribuicaoCreditos">
-              <span class="creditos-donut-dot" [style.background]="cat.cor"></span>
-              <span class="creditos-donut-legenda-nome">{{ cat.nome }}</span>
-              <span class="creditos-donut-legenda-valor">{{ cat.percentual }} %</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="dash-panel creditos-config-card">
-          <h3><i class="fa-solid fa-gear"></i> Configurações gerais</h3>
-          <div class="creditos-config-list">
-            <div class="creditos-config-item" *ngFor="let item of configuracoesGeraisCreditos">
-              <span class="creditos-config-label">{{ item.label }}</span>
-
-              @if (item.tipo === 'valor') {
-                <button type="button" class="creditos-config-valor" (click)="editarConfiguracaoGeralCredito(item)">
-                  {{ item.valor }} <i class="fa-solid fa-chevron-right"></i>
-                </button>
-              } @else {
-                <button
-                  type="button"
-                  class="creditos-switch"
-                  [class.on]="item.ativo"
-                  role="switch"
-                  [attr.aria-checked]="item.ativo"
-                  (click)="alternarConfiguracaoGeralCredito(item)">
-                  <span class="creditos-switch-bolinha"></span>
-                </button>
+          <div class="suspender-mae-card">
+            @if (maeParaSuspender.avatar) {
+              <img [src]="maeParaSuspender.avatar" alt="" class="suspender-mae-avatar">
+            } @else {
+              <span class="suspender-mae-avatar mae-avatar-iniciais">{{ iniciaisNome(maeParaSuspender.nome) }}</span>
+            }
+            <div class="suspender-mae-nome">{{ maeParaSuspender.nome }}</div>
+            <div class="suspender-mae-detalhes">
+              <span>{{ maeParaSuspender.email }}</span>
+              <span>{{ formatarData(maeParaSuspender.criadoEm) }}</span>
+              @if (maeParaSuspender.cidade) {
+                <span>{{ maeParaSuspender.cidade }}{{ maeParaSuspender.uf ? ' - ' + maeParaSuspender.uf : '' }}</span>
               }
             </div>
           </div>
-        </div>
 
-        <div class="dash-panel creditos-transacoes-card">
-          <div class="creditos-transacoes-header">
-            <h3>Últimas transações</h3>
-            <button type="button" class="ver-mais-btn">Ver todas</button>
+          <div class="suspender-campo">
+            <label for="motivoSuspensao">Motivo da suspensão</label>
+            <select id="motivoSuspensao" [(ngModel)]="motivoSuspensao">
+              <option value="" disabled>Selecione um motivo</option>
+              <option *ngFor="let motivo of motivosSuspensao" [value]="motivo.valor">{{ motivo.texto }}</option>
+            </select>
           </div>
-          <div class="creditos-transacoes-list">
-            <div class="creditos-transacao-item" *ngFor="let t of ultimasTransacoesCreditos">
-              <span class="creditos-transacao-icone"><i class="fa-solid" [ngClass]="t.icone"></i></span>
-              <div class="creditos-transacao-info">
-                <strong>{{ t.nome }}</strong>
-                <span>{{ t.data }} · {{ t.hora }}</span>
-              </div>
-              <span class="creditos-transacao-badge" [class.credito]="t.tipo === 'credito'">
-                {{ t.tipo === 'debito' ? 'Débito' : 'Crédito' }}
-              </span>
-            </div>
 
-            @if (ultimasTransacoesCreditos.length === 0) {
-              <p class="activity-empty">Nenhuma transação registrada por enquanto.</p>
-            }
+          <div class="suspender-campo">
+            <label for="observacoesSuspensao">Observações (opcional)</label>
+            <textarea
+              id="observacoesSuspensao"
+              rows="3"
+              [(ngModel)]="observacoesSuspensao"
+              placeholder="Adicione um comentário para a mãe (ex: motivo da suspensão, prazo, etc)"></textarea>
+          </div>
+
+          @if (erroSuspensao) {
+            <p class="suspender-erro">{{ erroSuspensao }}</p>
+          }
+
+          <div class="suspender-acoes">
+            <button type="button" class="suspender-btn-cancelar" [disabled]="suspendendoConta" (click)="fecharModalSuspensao()">
+              Cancelar
+            </button>
+            <button type="button" class="suspender-btn-confirmar" [disabled]="suspendendoConta" (click)="confirmarSuspensao()">
+              <i class="fa-solid fa-ban"></i>
+              {{ suspendendoConta ? 'Suspendendo...' : 'Suspender conta' }}
+            </button>
           </div>
         </div>
       </div>
-    </div>
+    }
+
+    <!-- MODAL: REATIVAR CONTA -->
+    @if (maeParaReativar) {
+      <div class="suspender-overlay" (click)="fecharModalReativacao()">
+        <div class="suspender-modal" (click)="$event.stopPropagation()">
+          <button type="button" class="suspender-fechar-btn" (click)="fecharModalReativacao()" aria-label="Fechar">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+
+          <div class="suspender-cabecalho">
+            <span class="suspender-icone suspender-icone-sucesso"><i class="fa-solid fa-rotate-left"></i></span>
+            <div class="suspender-cabecalho-texto">
+              <h3>Reativar conta</h3>
+              <p>A conta da mãe será reativada e ela poderá voltar a acessar a plataforma normalmente.</p>
+            </div>
+          </div>
+
+          <div class="suspender-mae-card">
+            @if (maeParaReativar.avatar) {
+              <img [src]="maeParaReativar.avatar" alt="" class="suspender-mae-avatar">
+            } @else {
+              <span class="suspender-mae-avatar mae-avatar-iniciais">{{ iniciaisNome(maeParaReativar.nome) }}</span>
+            }
+            <div class="suspender-mae-nome">{{ maeParaReativar.nome }}</div>
+            <div class="suspender-mae-detalhes">
+              <span>{{ maeParaReativar.email }}</span>
+              <span>{{ formatarData(maeParaReativar.criadoEm) }}</span>
+              @if (maeParaReativar.cidade) {
+                <span>{{ maeParaReativar.cidade }}{{ maeParaReativar.uf ? ' - ' + maeParaReativar.uf : '' }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="suspender-campo">
+            <label for="observacoesReativacao">Observações (opcional)</label>
+            <textarea
+              id="observacoesReativacao"
+              rows="3"
+              [(ngModel)]="observacoesReativacao"
+              placeholder="Adicione um comentário sobre a reativação (opcional)"></textarea>
+          </div>
+
+          @if (erroReativacao) {
+            <p class="suspender-erro">{{ erroReativacao }}</p>
+          }
+
+          <div class="suspender-acoes">
+            <button type="button" class="suspender-btn-cancelar" [disabled]="reativandoConta" (click)="fecharModalReativacao()">
+              Cancelar
+            </button>
+            <button type="button" class="suspender-btn-confirmar suspender-btn-sucesso" [disabled]="reativandoConta" (click)="confirmarReativacao()">
+              <i class="fa-solid fa-rotate-left"></i>
+              {{ reativandoConta ? 'Reativando...' : 'Reativar conta' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   </section>
 
+
+
+
+
+
+
+  <!-- APROVAÇÕES (cadastros de psicólogos e advogados) -->
+  <section class="content" id="aprovacoes" [class.hidden]="abaAtiva !== 'aprovacoes'">
+    <div class="pagina-topo">
+      <h2 class="page-title">Aprovações</h2>
+      <p class="page-subtitle">Confira o CRP/OAB e os dados de quem quer atender na plataforma. Clique numa linha para analisar.</p>
+    </div>
+
+    <div class="usr-resumo">
+      <button type="button" class="usr-resumo-card usr-resumo-alerta" [class.ativo]="filtroStatusAprovacao === 'em_analise'" (click)="filtrarStatusAprovacao('em_analise')">
+        <span class="usr-resumo-icone icone-laranja"><i class="fa-solid fa-user-clock"></i></span>
+        <span class="usr-resumo-info"><strong>{{ profissionaisStats.emAnalise }}</strong><span>Em análise</span></span>
+      </button>
+      <button type="button" class="usr-resumo-card" [class.ativo]="filtroStatusAprovacao === 'pendencia'" (click)="filtrarStatusAprovacao('pendencia')">
+        <span class="usr-resumo-icone icone-azul"><i class="fa-regular fa-clock"></i></span>
+        <span class="usr-resumo-info"><strong>{{ profissionaisStats.pendencias }}</strong><span>Com pendência</span></span>
+      </button>
+      <button type="button" class="usr-resumo-card" [class.ativo]="filtroStatusAprovacao === 'aprovado'" (click)="filtrarStatusAprovacao('aprovado')">
+        <span class="usr-resumo-icone icone-verde"><i class="fa-solid fa-circle-check"></i></span>
+        <span class="usr-resumo-info"><strong>{{ profissionaisStats.aprovados }}</strong><span>Aprovados</span></span>
+      </button>
+      <button type="button" class="usr-resumo-card" [class.ativo]="filtroStatusAprovacao === 'todos'" (click)="filtrarStatusAprovacao('todos')">
+        <span class="usr-resumo-icone icone-roxo"><i class="fa-solid fa-users"></i></span>
+        <span class="usr-resumo-info"><strong>{{ profissionaisStats.total }}</strong><span>Todos</span></span>
+      </button>
+    </div>
+
+    <!-- SUBABA: APROVAÇÃO -->
+    @if (abaAtiva === 'aprovacoes') {
+      <div class="maes-toolbar">
+        <div class="mae-search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="text"
+            placeholder="Buscar profissionais..."
+            [(ngModel)]="termoBuscaAprovacao">
+        </div>
+
+        <div class="mae-filtro-status">
+          <button type="button" [class.active]="filtroStatusAprovacao === 'todos'" (click)="filtrarStatusAprovacao('todos')">
+            Todos ({{ solicitacoesProfissionais.length }})
+          </button>
+          <button type="button" [class.active]="filtroStatusAprovacao === 'em_analise'" (click)="filtrarStatusAprovacao('em_analise')">
+            Em análise ({{ contarPorStatusAprovacao('em_analise') }})
+          </button>
+          <button type="button" [class.active]="filtroStatusAprovacao === 'pendencia'" (click)="filtrarStatusAprovacao('pendencia')">
+            Pendência ({{ contarPorStatusAprovacao('pendencia') }})
+          </button>
+          <button type="button" [class.active]="filtroStatusAprovacao === 'aprovado'" (click)="filtrarStatusAprovacao('aprovado')">
+            Aprovados ({{ contarPorStatusAprovacao('aprovado') }})
+          </button>
+        </div>
+      </div>
+
+      <div class="usr-lista-wrap">
+        <div class="dash-panel user-table maes-table-panel">
+          <p class="maes-contador">
+            {{ solicitacoesFiltradas.length }} profissional{{ solicitacoesFiltradas.length === 1 ? '' : 'is' }} encontrado{{ solicitacoesFiltradas.length === 1 ? '' : 's' }}
+          </p>
+          <div class="prof-table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Profissional</th>
+                  <th>Categoria</th>
+                  <th>Cadastro</th>
+                  <th>Documentação</th>
+                  <th>Status</th>
+                  <th>Última análise</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let sol of solicitacoesFiltradas" class="linha-clicavel" (click)="abrirDetalheProfissional(sol)">
+                  <td>
+                    <div class="mae-nome-cel">
+                      @if (sol.avatar) {
+                        <img [src]="sol.avatar" alt="" class="mae-avatar-mini">
+                      } @else {
+                        <span class="mae-avatar-mini mae-avatar-iniciais">{{ iniciaisNome(sol.nome) }}</span>
+                      }
+                      <span>{{ sol.nome }}<br><small class="prof-registro-mini">{{ sol.registro }}</small></span>
+                    </div>
+                  </td>
+                  <td>{{ sol.categoria }}</td>
+                  <td>{{ sol.cadastro }}</td>
+                  <td>
+                    @if (sol.documentacaoCompleta) {
+                      <span class="prof-doc-ok"><i class="fa-solid fa-circle-check"></i> Completa</span>
+                    } @else {
+                      <span class="prof-doc-pendente"><i class="fa-solid fa-circle-exclamation"></i> Incompleta</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="status" [ngClass]="classeStatusAprovacao(sol.status)">
+                      {{ rotuloStatusAprovacao(sol.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (sol.ultimaAnalise) {
+                      {{ sol.ultimaAnalise.data }}<br><small class="prof-registro-mini">por {{ sol.ultimaAnalise.admin }}</small>
+                    } @else {
+                      -
+                    }
+                  </td>
+                  <td>
+                    <div class="mae-acoes" (click)="$event.stopPropagation()">
+                      <button class="link-btn link-btn-roxo" (click)="abrirDetalheProfissional(sol)">Ver mais infos</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          @if (solicitacoesFiltradas.length === 0) {
+            <p class="activity-empty">Nenhum profissional encontrado com esse filtro.</p>
+          }
+        </div>
+
+        <!-- PAINEL: ANÁLISE DO PROFISSIONAL (mesmo padrão do "Perfil da mãe": lateral, sem escurecer o fundo) -->
+        @if (profissionalSelecionado) {
+          <div class="mae-drawer-fundo" (click)="fecharDetalheProfissional()"></div>
+          <aside class="mae-drawer mae-drawer-legado" role="dialog" aria-modal="true">
+            <div class="mae-perfil-header">
+              <div>
+              <h3>Análise do Profissional</h3>
+              <p class="mae-perfil-subtitulo">Revise as informações e documentações do profissional</p>
+            </div>
+            <button type="button" class="mae-fechar-btn" (click)="fecharDetalheProfissional()" aria-label="Fechar">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div class="mae-perfil-topo">
+            @if (profissionalSelecionado.avatar) {
+              <img [src]="profissionalSelecionado.avatar" alt="" class="mae-perfil-avatar">
+            } @else {
+              <span class="mae-perfil-avatar mae-avatar-iniciais mae-avatar-iniciais-grande">{{ iniciaisNome(profissionalSelecionado.nome) }}</span>
+            }
+            <div class="mae-perfil-topo-info">
+              <strong>{{ profissionalSelecionado.nome }}</strong>
+              <span>{{ profissionalSelecionado.categoria }}</span>
+              <span>{{ profissionalSelecionado.registro }}</span>
+              <span class="status" [ngClass]="classeStatusAprovacao(profissionalSelecionado.status)">
+                {{ rotuloStatusAprovacao(profissionalSelecionado.status) }}
+              </span>
+            </div>
+          </div>
+
+          @if (profissionalSelecionado.status !== 'aprovado') {
+            <div class="prof-decisao-acoes">
+              <button type="button" class="approve-btn prof-decisao-btn" (click)="aprovarProfissional(profissionalSelecionado)">
+                <i class="fa-solid fa-check"></i> Aprovar
+              </button>
+              <button type="button" class="deny-btn prof-decisao-btn" (click)="recusarProfissional(profissionalSelecionado)">
+                <i class="fa-solid fa-xmark"></i> Recusar
+              </button>
+            </div>
+          }
+
+          <div class="mae-perfil-secao">
+            <h4>Informações do profissional</h4>
+            <div class="mae-perfil-grid">
+              <div class="mae-perfil-campo">
+                <span class="mae-campo-label">Nome completo</span>
+                <span class="mae-campo-valor">{{ profissionalSelecionado.nome }}</span>
+              </div>
+              <div class="mae-perfil-campo">
+                <span class="mae-campo-label">Data de Nascimento</span>
+                <span class="mae-campo-valor">{{ profissionalSelecionado.detalhes.dataNascimento }}@if (profissionalSelecionado.detalhes.idade) { ({{ profissionalSelecionado.detalhes.idade }} anos) }</span>
+              </div>
+              <div class="mae-perfil-campo">
+                <span class="mae-campo-label">Email</span>
+                <span class="mae-campo-valor">{{ profissionalSelecionado.detalhes.email }}</span>
+              </div>
+              <div class="mae-perfil-campo">
+                <span class="mae-campo-label">Endereço</span>
+                <span class="mae-campo-valor">{{ profissionalSelecionado.detalhes.endereco }}</span>
+              </div>
+              <div class="mae-perfil-campo">
+                <span class="mae-campo-label">Telefone</span>
+                <span class="mae-campo-valor">{{ profissionalSelecionado.detalhes.telefone }}</span>
+              </div>
+              <div class="mae-perfil-campo">
+                <span class="mae-campo-label">Especialidade</span>
+                <span class="mae-campo-valor">{{ profissionalSelecionado.detalhes.especialidade }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mae-perfil-secao">
+            <h4>Documentação enviada</h4>
+            <div class="prof-checklist">
+              <div class="prof-checklist-item" *ngFor="let item of profissionalSelecionado.detalhes.perfilPublico">
+                <span>{{ item.label }}</span>
+                <span class="prof-checklist-dot" [class.ok]="item.ok"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mae-perfil-secao">
+            <h4>Observações</h4>
+            <textarea
+              rows="3"
+              [(ngModel)]="profissionalSelecionado.observacoes"
+              placeholder="Adicione um comentário para o profissional (ex: motivo da pendência, documento faltante, etc)"
+              class="prof-observacoes-textarea"></textarea>
+            <button type="button" class="ver-mais-btn prof-salvar-obs-btn" (click)="salvarObservacaoProfissional(profissionalSelecionado)">
+              Salvar observação
+            </button>
+          </div>
+        </aside>
+      }
+      </div>
+    }
+
+  </section>
+
+  <!-- DENÚNCIAS (posts do fórum, artigos e eventos) -->
+  <section class="content" id="denuncias" [class.hidden]="abaAtiva !== 'denuncias'">
+    <div class="pagina-topo">
+      <h2 class="page-title">Denúncias</h2>
+      <p class="page-subtitle">Tudo que as usuárias denunciaram, em tempo real. Clique numa linha para abrir o conteúdo e decidir.</p>
+    </div>
+
+    <div class="usr-resumo">
+      <button type="button" class="usr-resumo-card usr-resumo-alerta" [class.ativo]="filtroTipoDenuncia === 'todas'" (click)="filtroTipoDenuncia = 'todas'">
+        <span class="usr-resumo-icone icone-laranja"><i class="fa-solid fa-flag"></i></span>
+        <span class="usr-resumo-info"><strong>{{ denunciasAbertas }}</strong><span>Em aberto</span></span>
+      </button>
+      <button type="button" class="usr-resumo-card" [class.ativo]="filtroTipoDenuncia === 'post'" (click)="filtroTipoDenuncia = 'post'">
+        <span class="usr-resumo-icone icone-roxo"><i class="fa-regular fa-comments"></i></span>
+        <span class="usr-resumo-info"><strong>{{ contarDenuncias('post') }}</strong><span>Posts do fórum</span></span>
+      </button>
+      <button type="button" class="usr-resumo-card" [class.ativo]="filtroTipoDenuncia === 'artigo'" (click)="filtroTipoDenuncia = 'artigo'">
+        <span class="usr-resumo-icone icone-azul"><i class="fa-regular fa-file-lines"></i></span>
+        <span class="usr-resumo-info"><strong>{{ contarDenuncias('artigo') }}</strong><span>Artigos</span></span>
+      </button>
+      <button type="button" class="usr-resumo-card" [class.ativo]="filtroTipoDenuncia === 'evento'" (click)="filtroTipoDenuncia = 'evento'">
+        <span class="usr-resumo-icone icone-verde"><i class="fa-regular fa-calendar"></i></span>
+        <span class="usr-resumo-info"><strong>{{ contarDenuncias('evento') }}</strong><span>Eventos</span></span>
+      </button>
+    </div>
+
+    <div class="maes-toolbar">
+      <div class="mae-search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Buscar por conteúdo, autor, motivo ou denunciante..." [(ngModel)]="buscaDenuncias">
+      </div>
+      <div class="mae-filtro-status">
+        <button type="button" [class.active]="filtroStatusDenuncia === 'aberta'" (click)="filtroStatusDenuncia = 'aberta'">Pendentes e em análise</button>
+        <button type="button" [class.active]="filtroStatusDenuncia === 'resolvida'" (click)="filtroStatusDenuncia = 'resolvida'">Resolvidas</button>
+        <button type="button" [class.active]="filtroStatusDenuncia === 'todas'" (click)="filtroStatusDenuncia = 'todas'">Todas</button>
+      </div>
+    </div>
+
+    <div class="filtros-extra">
+      <label class="filtro-campo"><span>Tipo</span>
+        <select [(ngModel)]="filtroTipoDenuncia">
+          <option value="todas">Todos</option>
+          <option value="post">Posts do fórum</option>
+          <option value="artigo">Artigos</option>
+          <option value="evento">Eventos</option>
+        </select>
+      </label>
+      <label class="filtro-campo"><span>Parceiro / autor denunciado</span>
+        <select [(ngModel)]="filtroDonoDenuncia">
+          <option value="">Todos</option>
+          @for (n of donosDenuncias; track n) { <option [value]="n">{{ n }}</option> }
+        </select>
+      </label>
+      <label class="filtro-campo"><span>De</span><input type="date" [(ngModel)]="denunciaDe"></label>
+      <label class="filtro-campo"><span>Até</span><input type="date" [(ngModel)]="denunciaAte"></label>
+      @if (denunciaDe || denunciaAte || filtroDonoDenuncia || filtroTipoDenuncia !== 'todas') {
+        <button type="button" class="filtro-limpar" (click)="denunciaDe = ''; denunciaAte = ''; filtroDonoDenuncia = ''; filtroTipoDenuncia = 'todas'">Limpar filtros</button>
+      }
+    </div>
+
+    <div class="dash-panel user-table usr-tabela-painel">
+      <p class="maes-contador">{{ denunciasFiltradas.length }} denúncia{{ denunciasFiltradas.length === 1 ? '' : 's' }}</p>
+      <div class="usr-tabela-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Conteúdo denunciado</th>
+              <th>Tipo</th>
+              <th>Motivo</th>
+              <th>Denunciada por</th>
+              <th>Data</th>
+              <th>Situação</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of denunciasFiltradas; track d.id) {
+              <tr class="linha-clicavel" (click)="abrirDetalheDenuncia(d)">
+                <td>
+                  <span class="usr-nome-e-email">
+                    <strong>{{ d.alvoTitulo }}</strong>
+                    <small>{{ d.alvoDono || 'Autor não informado' }}</small>
+                  </span>
+                </td>
+                <td><span class="usr-tipo" [ngClass]="'den-tipo-' + d.tipo">{{ rotuloTipoDenuncia(d.tipo) }}</span></td>
+                <td>
+                  <span class="usr-nome-e-email">
+                    <strong>{{ d.motivo }}</strong>
+                    @if (d.detalhes) { <small>{{ d.detalhes }}</small> }
+                  </span>
+                </td>
+                <td>{{ d.denuncianteNome }}</td>
+                <td>{{ d.dataFormatada }}</td>
+                <td>
+                  <span class="status" [ngClass]="classeStatusDenuncia(d.status)">{{ rotuloStatusDenuncia(d.status) }}</span>
+                </td>
+                <td>
+                  <button type="button" class="link-btn link-btn-roxo" (click)="abrirDetalheDenuncia(d); $event.stopPropagation()">{{ denunciaEmAberto(d) ? 'Analisar' : 'Ver detalhes' }}</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (denunciasFiltradas.length === 0) {
+        <p class="activity-empty">Nenhuma denúncia com esses filtros. 🎉</p>
+      }
+    </div>
+
+    <!-- DETALHES DA DENÚNCIA (gaveta) -->
+    @if (denunciaSelecionada) {
+      <div class="mae-drawer-fundo" (click)="fecharDetalheDenuncia()"></div>
+      <aside class="mae-drawer" role="dialog" aria-modal="true" aria-label="Detalhes da denúncia">
+        <div class="mae-drawer-topo">
+          <span class="mae-drawer-titulo">Detalhes da denúncia</span>
+          <button type="button" class="mae-fechar-btn" (click)="fecharDetalheDenuncia()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="mae-drawer-corpo">
+          <div class="mae-drawer-ident">
+            <div class="mae-drawer-tags">
+              <span class="usr-tipo" [ngClass]="'den-tipo-' + denunciaSelecionada.tipo">{{ rotuloTipoDenuncia(denunciaSelecionada.tipo) }}</span>
+              <span class="status" [ngClass]="classeStatusDenuncia(denunciaSelecionada.status)">{{ rotuloStatusDenuncia(denunciaSelecionada.status) }}</span>
+            </div>
+            <h3>{{ denunciaSelecionada.alvoTitulo }}</h3>
+          </div>
+
+          <section class="mae-drawer-secao">
+            <h4>Quem foi denunciado</h4>
+            <dl class="mae-drawer-dados">
+              <div><dt><i class="fa-solid fa-user"></i> Autor(a)</dt><dd>{{ denunciaSelecionada.alvoDono || 'Não identificado' }}</dd></div>
+              <div><dt><i class="fa-solid fa-file"></i> Conteúdo</dt><dd>{{ rotuloTipoDenuncia(denunciaSelecionada.tipo) }}</dd></div>
+            </dl>
+          </section>
+
+          <section class="mae-drawer-secao">
+            <h4>Motivo da denúncia</h4>
+            <p class="den-motivo"><strong>{{ denunciaSelecionada.motivo }}</strong></p>
+            @if (denunciaSelecionada.detalhes) {
+              <p class="mae-drawer-vazio">“{{ denunciaSelecionada.detalhes }}”</p>
+            }
+            <dl class="mae-drawer-dados">
+              <div><dt><i class="fa-solid fa-flag"></i> Denunciada por</dt><dd>{{ denunciaSelecionada.denuncianteNome }}</dd></div>
+              <div><dt><i class="fa-regular fa-clock"></i> Recebida em</dt><dd>{{ denunciaSelecionada.dataFormatada }}</dd></div>
+            </dl>
+          </section>
+
+          @if (denunciaSelecionada.analisadoPor || denunciaSelecionada.parecer) {
+            <section class="mae-drawer-secao">
+              <h4>Histórico da análise</h4>
+              <dl class="mae-drawer-dados">
+                @if (denunciaSelecionada.analisadoPor) {
+                  <div><dt><i class="fa-solid fa-user-shield"></i> Analisada por</dt><dd>{{ denunciaSelecionada.analisadoPor }}{{ denunciaSelecionada.analisadoEmFormatado ? ' · ' + denunciaSelecionada.analisadoEmFormatado : '' }}</dd></div>
+                }
+              </dl>
+              @if (denunciaSelecionada.parecer) {
+                <p class="mae-drawer-vazio"><strong>Parecer:</strong> {{ denunciaSelecionada.parecer }}</p>
+              }
+            </section>
+          }
+
+          @if (denunciaEmAberto(denunciaSelecionada)) {
+            <section class="mae-drawer-secao">
+              <h4>Sua análise</h4>
+              <label class="filtro-campo"><span>Parecer (obrigatório para resolver ou descartar)</span>
+                <textarea class="den-parecer" rows="3" maxlength="500" [(ngModel)]="parecerDenuncia" placeholder="Ex.: Conteúdo ofensivo confirmado, post removido e autora avisada."></textarea>
+              </label>
+              @if (erroDenuncia) { <p class="aviso-autora aviso-autora-erro">{{ erroDenuncia }}</p> }
+            </section>
+          }
+        </div>
+
+        <div class="mae-drawer-rodape den-rodape">
+          <button type="button" class="filtro-limpar" (click)="abrirAlvoDenuncia(denunciaSelecionada)"><i class="fa-regular fa-eye"></i> Abrir conteúdo</button>
+          @if (denunciaEmAberto(denunciaSelecionada)) {
+            @if (denunciaSelecionada.status === 'aberta') {
+              <button type="button" class="filtro-limpar" [disabled]="salvandoDenuncia" (click)="registrarAnaliseDenuncia('em_analise')">Marcar em análise</button>
+            }
+            <button type="button" class="filtro-limpar" [disabled]="salvandoDenuncia" (click)="registrarAnaliseDenuncia('descartada')">Descartar</button>
+            <button type="button" class="mae-drawer-btn-ok den-btn-resolver" [disabled]="salvandoDenuncia" (click)="registrarAnaliseDenuncia('resolvida')">Resolver</button>
+          }
+        </div>
+      </aside>
+    }
+  </section>
 
   <!-- MODERAÇÃO DE CONTEÚDO (ARTIGOS E EVENTOS) -->
   <section class="content" id="moderacao" [class.hidden]="abaAtiva !== 'moderacao'" (click)="fecharOpcoesConteudo()">
@@ -1891,6 +2008,20 @@
               <input type="text" placeholder="Buscar..." [(ngModel)]="buscaConteudoModeracao">
             </div>
           </div>
+
+          <div class="filtros-extra">
+      <label class="filtro-campo"><span>Parceiro / autor</span>
+        <select [(ngModel)]="modParceiro">
+          <option value="">Todos</option>
+          @for (n of donosConteudo; track n) { <option [value]="n">{{ n }}</option> }
+        </select>
+      </label>
+      <label class="filtro-campo"><span>De</span><input type="date" [(ngModel)]="modDe"></label>
+      <label class="filtro-campo"><span>Até</span><input type="date" [(ngModel)]="modAte"></label>
+      @if (modDe || modAte) {
+        <button type="button" class="filtro-limpar" (click)="modDe = ''; modAte = ''">Limpar datas</button>
+      }
+    </div>
 
           <div class="mod-tabela-scroll">
             <table class="user-table mod-tabela">
@@ -2045,6 +2176,20 @@
 
     </div>
 
+    <div class="filtros-extra">
+      <label class="filtro-campo"><span>Categoria</span>
+        <select [(ngModel)]="forumCategoria">
+          <option value="">Todas</option>
+          @for (c of categoriasForumAdm; track c) { <option [value]="c">{{ c }}</option> }
+        </select>
+      </label>
+      <label class="filtro-campo"><span>De</span><input type="date" [(ngModel)]="forumDe"></label>
+      <label class="filtro-campo"><span>Até</span><input type="date" [(ngModel)]="forumAte"></label>
+      @if (forumDe || forumAte) {
+        <button type="button" class="filtro-limpar" (click)="forumDe = ''; forumAte = ''">Limpar datas</button>
+      }
+    </div>
+
     <div class="forum-filtro-cards">
       <button
         type="button"
@@ -2103,7 +2248,7 @@
       }
 
       @for (post of postsFiltradosForum; track post.id) {
-        <div class="dash-panel forum-post-card" [ngClass]="categoriaCardPost(post)">
+        <div class="dash-panel forum-post-card linha-clicavel" [ngClass]="categoriaCardPost(post)" (click)="abrirPostForum(post)">
           <div class="forum-post-cabecalho">
             <img [src]="post.autorFoto" class="forum-post-avatar" alt="">
 
@@ -2140,7 +2285,7 @@
               }
             </div>
 
-            <div class="actions">
+            <div class="actions" (click)="$event.stopPropagation()">
               <button type="button" class="forum-btn-abrir" (click)="abrirPostForum(post)">
                 <i class="fa-regular fa-comments"></i>
                 Ver respostas @if (contagemRespostasPorPost[post.id] !== undefined) { ({{ contagemRespostasPorPost[post.id] }}) }
@@ -2564,6 +2709,28 @@
         <p class="forum-post-conteudo">"{{ postParaAdvertir.conteudo }}"</p>
       </div>
 
+      <!-- aviso obrigatório à mãe -->
+      @if (autoraDoPost?.carregando) {
+        <div class="aviso-autora"><i class="fa-solid fa-spinner fa-spin"></i><span>Identificando a autora do post...</span></div>
+      } @else if (autoraDoPost?.uid) {
+        <div class="aviso-autora aviso-autora-ok">
+          <i class="fa-solid fa-bell"></i>
+          <span>
+            @if (autoraDoPost?.anonima) {
+              A autora (que postou como anônima) será <strong>avisada automaticamente</strong>; a identidade dela continua oculta.
+            } @else {
+              <strong>{{ autoraDoPost?.nome }}</strong> será <strong>avisada automaticamente</strong>.
+            }
+            Ela precisará confirmar que leu a advertência antes de continuar usando a plataforma.
+          </span>
+        </div>
+      } @else if (autoraDoPost) {
+        <div class="aviso-autora aviso-autora-erro">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span>Este é um post anônimo antigo: não há como identificar nem avisar a autora. A advertência exige aviso, então só é possível <strong>remover</strong> o post.</span>
+        </div>
+      }
+
       <div class="suspender-campo">
         <label for="motivoAdvertenciaPost">Motivo</label>
         <select id="motivoAdvertenciaPost" [(ngModel)]="motivoAdvertenciaPost">
@@ -2626,6 +2793,27 @@
         </div>
         <p class="forum-post-conteudo">"{{ postParaRemover.conteudo }}"</p>
       </div>
+
+      <!-- aviso obrigatório à mãe -->
+      @if (autoraDoPost?.carregando) {
+        <div class="aviso-autora"><i class="fa-solid fa-spinner fa-spin"></i><span>Identificando a autora do post...</span></div>
+      } @else if (autoraDoPost?.uid) {
+        <div class="aviso-autora aviso-autora-ok">
+          <i class="fa-solid fa-bell"></i>
+          <span>
+            @if (autoraDoPost?.anonima) {
+              A autora (que postou como anônima) receberá um <strong>aviso com o motivo</strong>; a identidade dela continua oculta.
+            } @else {
+              <strong>{{ autoraDoPost?.nome }}</strong> receberá um <strong>aviso com o motivo</strong> da remoção.
+            }
+          </span>
+        </div>
+      } @else if (autoraDoPost) {
+        <div class="aviso-autora aviso-autora-erro">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span>Post anônimo antigo: não há como identificar a autora, então <strong>ela não poderá ser avisada</strong>. Você ainda pode remover o post.</span>
+        </div>
+      }
 
       <div class="suspender-campo">
         <label for="motivoRemocaoPost">Descreva o motivo</label>

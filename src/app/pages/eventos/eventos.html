@@ -108,6 +108,7 @@
                             <button class="btn-icone-acao" (click)="compartilharEvento(evento)" title="Compartilhar evento">
                                 <i class="fa-solid fa-share-nodes"></i>
                             </button>
+                            <app-denunciar tipo="evento" rotulo="" [alvoId]="evento.id" [alvoTitulo]="evento.titulo" [alvoDono]="evento.enviadoPor || ''"></app-denunciar>
                         </div>
                     </div>
                 </div>

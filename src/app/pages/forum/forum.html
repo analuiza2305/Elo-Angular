@@ -89,6 +89,9 @@
                                     @if (post.categoria) {
                                         <span class="fr-tag">{{ post.categoria }}</span>
                                     }
+                                    @if (currentUser() && currentUser().uid !== post.autorId) {
+                                        <app-denunciar tipo="post" [alvoId]="post.id" [alvoTitulo]="post.titulo" [alvoDono]="post.autorNomeFinal"></app-denunciar>
+                                    }
                                     @if (currentUser() && currentUser().uid === post.autorId) {
                                         <button type="button" class="fr-excluir" (click)="confirmarExclusao(post.id, $event)">
                                             <i class="fa-regular fa-trash-can"></i> Excluir

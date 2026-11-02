@@ -10,7 +10,7 @@ import {
   signInWithPopup,
   UserCredential,
 } from 'firebase/auth';
-import { collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs, limit, Timestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs, limit, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { auth, db } from '../../core/firebase';
 import { EmailVerificationService } from '../../core/services/email-verification.service';
 
@@ -278,7 +278,7 @@ export class AuthFormComponent {
         // por isso toda mãe recém-cadastrada ia parar na home do parceiro).
         if (this.publico === 'mae') {
           await setDoc(doc(db, 'usuarios', uid), {
-            nome: this.nome, email: this.email, telefone: '', tipo: 'mae', avatar: null, emailVerificado: false,
+            nome: this.nome, email: this.email, telefone: '', tipo: 'mae', avatar: null, emailVerificado: false, criadoEm: serverTimestamp(),
             dataNascimento: this.dataNascimentoTimestamp(), maiorDeIdade: true,
             extras: { login_load: { mae: true, parceiro: false, advogado: false, psicologo: false }, consult_load: false, termos_load: false, fonte_number: 1, dark_mode: false, espacamento_number: 1, filtro_daltonismo: 'Filtros_daltonismo', leitura_voz: false, letras_destaque: false, mascara_leitura: false }
           });
@@ -304,14 +304,14 @@ export class AuthFormComponent {
         if (this.tipoDocumento === 'oab') {
           tipoPerfil = 'advogado'; rotaDestino = '/home-adv'; precisaAprovacao = true;
           avatarGerado = this.gerarAvatarAleatorio('oab');
-          await setDoc(doc(db, 'advogados', uid), { nome: this.nome, email: this.email, oab: this.numeroDocumento, tipo: 'advogado', status: 'pendente', avatar: avatarGerado, uid });
+          await setDoc(doc(db, 'advogados', uid), { nome: this.nome, email: this.email, oab: this.numeroDocumento, tipo: 'advogado', status: 'pendente', avatar: avatarGerado, uid, criadoEm: serverTimestamp() });
         } else if (this.tipoDocumento === 'crp') {
           tipoPerfil = 'psicologo'; rotaDestino = '/home-psi'; precisaAprovacao = true;
           avatarGerado = this.gerarAvatarAleatorio('crp');
-          await setDoc(doc(db, 'psicologos', uid), { nome: this.nome, email: this.email, crp: this.numeroDocumento, tipo: 'psicologo', status: 'pendente', avatar: avatarGerado, uid });
+          await setDoc(doc(db, 'psicologos', uid), { nome: this.nome, email: this.email, crp: this.numeroDocumento, tipo: 'psicologo', status: 'pendente', avatar: avatarGerado, uid, criadoEm: serverTimestamp() });
         } else if (this.tipoDocumento === 'cnpj') {
           tipoPerfil = 'parceiro'; rotaDestino = '/home-parc';
-          await setDoc(doc(db, 'parceiros', uid), { nome: this.nome, nomeEmpresa: this.nome, razaoSocial: this.razaoSocialEncontrada || this.nome, email: this.email, cnpj: this.numeroDocumento, tipo: 'parceiro', status: 'pendente', avatar: null, uid });
+          await setDoc(doc(db, 'parceiros', uid), { nome: this.nome, nomeEmpresa: this.nome, razaoSocial: this.razaoSocialEncontrada || this.nome, email: this.email, cnpj: this.numeroDocumento, tipo: 'parceiro', status: 'pendente', avatar: null, uid, criadoEm: serverTimestamp() });
         }
 
         await setDoc(doc(db, 'usuarios', uid), {

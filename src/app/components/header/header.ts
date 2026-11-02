@@ -4,7 +4,7 @@ import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, collection, query, where, onSnapshot, updateDoc, writeBatch, Unsubscribe } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, onSnapshot, updateDoc, writeBatch, serverTimestamp, Unsubscribe } from 'firebase/firestore';
 import { LembreteService } from '../../services/lembrete';
 
 /** Aviso gravado em `notificacoes` (ex.: o profissional confirmou ou recusou a consulta). */
@@ -16,6 +16,12 @@ export interface Notificacao {
   link: string | null;
   lida: boolean;
   criadoEm: Date | null;
+  /** Advertências do fórum: a mãe precisa confirmar que leu. */
+  exigeCiencia?: boolean;
+  cienteEm?: boolean;
+  motivo?: string;
+  observacoes?: string;
+  postTitulo?: string;
 }
 
 @Component({
@@ -33,6 +39,38 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // Notificações da mãe (sino)
   notificacoes = signal<Notificacao[]>([]);
+  /** Todas as notificações (sem o corte de 20 do sino), para não perder uma advertência antiga. */
+  private todasNotificacoes = signal<Notificacao[]>([]);
+
+  /**
+   * Aviso de moderação que precisa aparecer na cara da mãe:
+   * 1º advertências do fórum ainda sem confirmação; 2º post removido ainda não lido.
+   */
+  avisoModeracao = computed(() => {
+    const lista = this.todasNotificacoes();
+    const ciencia = lista.find((n) => n.exigeCiencia && !n.cienteEm);
+    return ciencia ?? lista.find((n) => n.tipo === 'post_removido' && !n.lida) ?? null;
+  });
+  confirmandoCiencia = signal(false);
+  erroCiencia = signal('');
+
+  /** Não atrapalha uma consulta em andamento. */
+  mostrarAvisoModeracao(): boolean {
+    return this.tipo === 'mae' && !!this.avisoModeracao() && !this.router.url.includes('videochamada');
+  }
+
+  async confirmarCiencia(n: Notificacao) {
+    this.confirmandoCiencia.set(true);
+    this.erroCiencia.set('');
+    try {
+      await updateDoc(doc(db, 'notificacoes', n.id), { lida: true, cienteEm: serverTimestamp() });
+    } catch (e) {
+      console.warn('Não foi possível registrar a ciência:', e);
+      this.erroCiencia.set('Não foi possível registrar agora. Tente novamente.');
+    } finally {
+      this.confirmandoCiencia.set(false);
+    }
+  }
   naoLidas = computed(() => this.notificacoes().filter((n) => !n.lida).length);
   isNotifOpen = false;
   private unsubNotificacoes: Unsubscribe | null = null;
@@ -47,6 +85,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   @Input() notificacoesNaoLidas = 0;
   /** Admin: clique no sino. */
   @Output() notificacoesAdm = new EventEmitter<void>();
+  /** Admin: nome/foto no cabeçalho e clique em "Sair". */
+  @Input() nomeAdm = '';
+  @Input() avatarAdm = '';
+  @Output() sairAdm = new EventEmitter<void>();
 
   // Controles de Menus
   isMobileMenuOpen = false;
@@ -143,10 +185,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
             link: n['link'] || null,
             lida: n['lida'] === true,
             criadoEm: criado,
+            exigeCiencia: n['exigeCiencia'] === true,
+            cienteEm: !!n['cienteEm'],
+            motivo: n['motivo'] || '',
+            observacoes: n['observacoes'] || '',
+            postTitulo: n['postTitulo'] || '',
           };
         });
         // Mais recentes primeiro (as que acabaram de ser criadas ainda vêm sem data e ficam no topo)
         lista.sort((a, b) => (b.criadoEm?.getTime() ?? Date.now()) - (a.criadoEm?.getTime() ?? Date.now()));
+        this.todasNotificacoes.set(lista);
         this.notificacoes.set(lista.slice(0, 20));
       },
       (erro) => console.warn('Não foi possível carregar as notificações:', erro)
@@ -157,6 +205,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.unsubNotificacoes?.();
     this.unsubNotificacoes = null;
     this.notificacoes.set([]);
+    this.todasNotificacoes.set([]);
   }
 
   toggleNotificacoes(event: Event) {
@@ -196,6 +245,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     switch (tipo) {
       case 'consulta_confirmada': return 'fa-solid fa-calendar-check';
       case 'consulta_recusada': return 'fa-solid fa-calendar-xmark';
+      case 'advertencia_post': return 'fa-solid fa-triangle-exclamation';
+      case 'post_removido': return 'fa-solid fa-ban';
       case 'horario_disponivel': return 'fa-solid fa-calendar-plus';
       default: return 'fa-solid fa-bell';
     }

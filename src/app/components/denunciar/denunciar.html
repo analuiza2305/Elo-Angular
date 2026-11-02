@@ -1,0 +1,40 @@
+<button type="button" class="den-btn" (click)="abrir($event)" [attr.aria-label]="rotulo + ' ' + nomeTipo" [title]="rotulo">
+  <i class="fa-regular fa-flag"></i>
+  <span>{{ rotulo }}</span>
+</button>
+
+<dialog #caixa class="den-caixa" aria-labelledby="den-titulo" (click)="aoClicarNoDialogo($event)" (cancel)="aoCancelar($event)">
+  @if (aberto()) {
+    <div class="den-conteudo">
+      <button type="button" class="den-fechar" aria-label="Fechar" (click)="fechar()"><i class="fa-solid fa-xmark"></i></button>
+
+      @if (enviada()) {
+        <div class="den-sucesso">
+          <i class="fa-solid fa-circle-check"></i>
+          <h3>Denúncia enviada</h3>
+          <p>Obrigada por cuidar da nossa comunidade. A equipe de moderação já foi avisada e vai analisar. Quem denuncia não aparece para quem foi denunciado.</p>
+          <button type="button" class="den-primario" (click)="fechar()">Fechar</button>
+        </div>
+      } @else {
+        <h3 id="den-titulo">Denunciar {{ nomeTipo }}</h3>
+        @if (alvoTitulo) { <p class="den-alvo">“{{ alvoTitulo }}”</p> }
+
+        <label for="den-motivo">Motivo</label>
+        <select id="den-motivo" [(ngModel)]="motivo" name="motivo">
+          <option value="" disabled>Selecione o motivo</option>
+          @for (m of motivos; track m) { <option [value]="m">{{ m }}</option> }
+        </select>
+
+        <label for="den-detalhes">Quer contar mais? (opcional)</label>
+        <textarea id="den-detalhes" rows="3" maxlength="500" [(ngModel)]="detalhes" name="detalhes" placeholder="Explique o que aconteceu..."></textarea>
+
+        @if (erro()) { <p class="den-erro" role="alert">{{ erro() }}</p> }
+
+        <div class="den-acoes">
+          <button type="button" class="den-secundario" [disabled]="enviando()" (click)="fechar()">Cancelar</button>
+          <button type="button" class="den-primario" [disabled]="enviando()" (click)="enviar()">{{ enviando() ? 'Enviando...' : 'Enviar denúncia' }}</button>
+        </div>
+      }
+    </div>
+  }
+</dialog>
