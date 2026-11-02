@@ -145,6 +145,9 @@
         <span class="menu-badge" title="Cadastros aguardando aprovação">{{ pendentesAprovacao }}</span>
       }
     </button>
+
+    <div class="sidebar-group-label">Conteúdo e moderação</div>
+
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'denuncias'" (click)="mudarAba('denuncias')">
       <i class="fa-solid fa-flag"></i>
       <span>Denúncias</span>
@@ -160,10 +163,20 @@
       <i class="fa-solid fa-shield-halved"></i>
       <span>Moderação</span>
     </button>
+
+    <div class="sidebar-group-label">Financeiro</div>
+
+    <button type="button" class="menu-btn" [class.active]="abaAtiva === 'planos'" (click)="mudarAba('planos')">
+      <i class="fa-solid fa-crown"></i>
+      <span>Planos</span>
+    </button>
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'relatorios'" (click)="mudarAba('relatorios')">
       <i class="fa-solid fa-chart-pie"></i>
       <span>Relatórios</span>
     </button>
+
+    <div class="sidebar-group-label">Sistema</div>
+
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'configuracoes'" (click)="mudarAba('configuracoes')">
       <i class="fa-solid fa-gear"></i>
       <span>Configurações</span>
@@ -2302,6 +2315,15 @@
   </section>
 
 
+  <!-- PLANOS -->
+  <!-- @if recria o componente a cada visita, então ele sempre lê os dados mais recentes. -->
+  <section class="content" id="planos" [class.hidden]="abaAtiva !== 'planos'">
+    @if (abaAtiva === 'planos') {
+      <app-adm-planos />
+    }
+  </section>
+
+
   <!-- RELATÓRIOS -->
   <section class="content" id="relatorios" [class.hidden]="abaAtiva !== 'relatorios'">
     <div class="rel-header">
@@ -2309,21 +2331,42 @@
         <span class="rel-header-icone"><i class="fa-solid fa-chart-simple"></i></span>
         <div>
           <h2 class="rel-header-titulo">Relatórios</h2>
-          <p class="rel-header-subtitulo">Acompanhe os principais resultados da plataforma</p>
+          <p class="rel-header-subtitulo">Receita de planos, custos e lucro da plataforma</p>
         </div>
       </div>
 
       <div class="rel-header-acoes">
         <div class="rel-select-wrap">
           <i class="fa-regular fa-calendar"></i>
-          <select [(ngModel)]="relatoriosMesSelecionado" aria-label="Selecionar mês do relatório">
-            <option *ngFor="let mes of relatoriosMesesDisponiveis" [value]="mes">{{ mes }}</option>
+          <select [(ngModel)]="relatoriosMesSelecionado" (ngModelChange)="aoMudarMesRelatorio()" aria-label="Selecionar mês do relatório">
+            <option *ngFor="let mes of relatoriosMesesDisponiveis" [value]="mes.chave">{{ mes.rotulo }}</option>
           </select>
           <i class="fa-solid fa-chevron-down rel-select-chevron"></i>
         </div>
 
-        <button type="button" class="rel-export-btn" (click)="exportarRelatorio()">
+        <button type="button" class="rel-export-btn" [disabled]="relatoriosCarregando || !relatoriosStats.length" (click)="exportarRelatorio()">
           <i class="fa-solid fa-download"></i> Exportar relatório
+        </button>
+      </div>
+    </div>
+
+    @if (relatoriosErro) {
+      <p class="rel-aviso rel-aviso-erro" role="alert"><i class="fa-solid fa-circle-exclamation"></i> {{ relatoriosErro }}</p>
+    } @else if (relatoriosCarregando && !relatoriosStats.length) {
+      <p class="rel-aviso"><i class="fa-solid fa-spinner fa-spin"></i> Carregando dados financeiros…</p>
+    }
+
+    <div class="rel-custos-form">
+      <div class="rel-custos-texto">
+        <strong><i class="fa-solid fa-sack-dollar"></i> Custos do mês</strong>
+        <span>Informe quanto a plataforma gastou neste mês para o lucro ser calculado (lucro = receita de planos − custos).</span>
+      </div>
+      <div class="rel-custos-campo">
+        <span class="rel-custos-prefixo">R$</span>
+        <input type="number" min="0" step="0.01" placeholder="0,00" aria-label="Custos do mês em reais"
+               [(ngModel)]="relatoriosCustoInput" (keyup.enter)="salvarCustoMesRelatorio()">
+        <button type="button" class="rel-custos-btn" [disabled]="relatoriosSalvandoCusto" (click)="salvarCustoMesRelatorio()">
+          {{ relatoriosSalvandoCusto ? 'Salvando…' : (relatoriosCustosInformados ? 'Atualizar' : 'Salvar') }}
         </button>
       </div>
     </div>
@@ -2334,8 +2377,14 @@
         <div class="rel-stat-info">
           <span class="rel-stat-label">{{ stat.label }}</span>
           <span class="rel-stat-valor">{{ stat.valor }}</span>
-          <span class="rel-stat-trend"><i class="fa-solid fa-arrow-up"></i> {{ stat.variacao }}%</span>
-          <span class="rel-stat-comparativo">comparado com o mês anterior</span>
+          @if (stat.variacao !== null) {
+            <span class="rel-stat-trend" [class.neg]="stat.invertido ? stat.variacao > 0 : stat.variacao < 0">
+              <i class="fa-solid" [class.fa-arrow-up]="stat.variacao >= 0" [class.fa-arrow-down]="stat.variacao < 0"></i> {{ stat.variacao >= 0 ? '+' : '' }}{{ stat.variacao }}%
+            </span>
+          } @else {
+            <span class="rel-stat-trend rel-stat-trend-neutro">—</span>
+          }
+          <span class="rel-stat-comparativo">{{ stat.comparativo }}</span>
         </div>
       </div>
     </div>
@@ -2346,7 +2395,7 @@
           <span class="rel-panel-icone"><i class="fa-solid fa-chart-line"></i></span>
           <div>
             <h3>Resultado financeiro</h3>
-            <p class="rel-panel-subtitulo">Receitas, custos e lucros ao longo dos últimos meses.</p>
+            <p class="rel-panel-subtitulo">Receita de planos, custos e lucro nos últimos 6 meses.</p>
           </div>
         </div>
         <canvas id="relatoriosFinanceiroChart"></canvas>
@@ -2356,16 +2405,17 @@
         <div class="rel-panel-header">
           <span class="rel-panel-icone"><i class="fa-solid fa-chart-pie"></i></span>
           <div>
-            <h3>Receita e custos</h3>
-            <p class="rel-panel-subtitulo">De onde vem a receita e para onde o dinheiro está indo.</p>
+            <h3>Planos e assinantes</h3>
+            <p class="rel-panel-subtitulo">Quanto cada plano rendeu no mês e quem assina hoje.</p>
           </div>
         </div>
 
         <div class="rel-donuts-grid">
           <div class="rel-donut-block">
-            <h4>Receita por origem</h4>
+            <h4>Receita por plano</h4>
             <div class="rel-donut-wrap"><canvas id="relatoriosOrigemChart"></canvas></div>
             <div class="rel-donut-legenda">
+              <p class="rel-donut-vazio" *ngIf="!relatoriosReceitaOrigem.length">Nenhuma venda neste mês.</p>
               <div class="rel-donut-legenda-item" *ngFor="let cat of relatoriosReceitaOrigem">
                 <span class="rel-donut-dot" [style.background]="cat.cor"></span>
                 <span class="rel-donut-legenda-nome">{{ cat.nome }}</span>
@@ -2376,10 +2426,11 @@
           </div>
 
           <div class="rel-donut-block">
-            <h4>Custos da plataforma</h4>
-            <div class="rel-donut-wrap"><canvas id="relatoriosCustosChart"></canvas></div>
+            <h4>Assinantes por plano</h4>
+            <div class="rel-donut-wrap"><canvas id="relatoriosAssinantesChart"></canvas></div>
             <div class="rel-donut-legenda">
-              <div class="rel-donut-legenda-item" *ngFor="let cat of relatoriosCustosPlataforma">
+              <p class="rel-donut-vazio" *ngIf="!relatoriosAssinantesPlano.length">Nenhuma assinatura ativa.</p>
+              <div class="rel-donut-legenda-item" *ngFor="let cat of relatoriosAssinantesPlano">
                 <span class="rel-donut-dot" [style.background]="cat.cor"></span>
                 <span class="rel-donut-legenda-nome">{{ cat.nome }}</span>
                 <span class="rel-donut-legenda-pct">{{ cat.percentual }}%</span>

@@ -32,6 +32,8 @@ import { HeaderComponent } from '../../components/header/header';
 // COLOQUE AQUI O CAMINHO REAL DO FIREBASE DO SEU PROJETO
 import { auth, db } from '../../core/firebase';
 import { AlertaService } from '../../core/services/alerta.service';
+import { Assinante, PagamentoPlano, PlanoService, RelatorioFinanceiro, formatarBRL } from '../../services/plano';
+import { AdmPlanosComponent } from './adm-planos/adm-planos';
 
 Chart.register(...registerables);
 
@@ -117,12 +119,16 @@ interface AbaEmConstrucao {
 interface RelatorioStatCard {
   label: string;
   valor: string;
-  variacao: number;
+  /** Variação % sobre o mês anterior; null quando não há base de comparação. */
+  variacao: number | null;
+  comparativo: string;
   icone: string;
   cor: 'purple' | 'pink' | 'green' | 'blue';
+  /** true quando subir é ruim (ex.: custos). */
+  invertido?: boolean;
 }
 
-/** Fatia de um dos donuts "Receita por origem" / "Custos da plataforma". */
+/** Fatia de um dos donuts "Receita por plano" / "Assinantes por plano". */
 interface RelatorioDistribuicao {
   nome: string;
   percentual: number;
@@ -474,7 +480,7 @@ registerLocaleData(localePt, 'pt-BR');
 @Component({
   selector: 'app-adm',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, AdmPlanosComponent],
   templateUrl: './adm.html',
   styleUrl: './adm.css',
 })
@@ -1288,56 +1294,220 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   }
 
   // =========================================================
-  // RELATÓRIOS
-  // TODO: ainda não existe nenhuma coleção/agregação financeira real no
-  // Firestore deste projeto (receita, custos, lucro por período). Os dados
-  // abaixo são de exemplo só para a tela não ficar vazia; assim que o
-  // backend expuser esses números, é só trocar os valores fixos por uma
-  // leitura real dentro de atualizarGraficosRelatorios().
+  // RELATÓRIOS (financeiro)
+  // Receita = compras de planos registradas em `pagamentosPlanos`.
+  // Custos  = informados pelo admin por mês (`custosPlataforma/{yyyy-MM}`).
+  // Lucro   = receita - custos.
+  // Tudo é calculado pelo PlanoService.montarRelatorio().
   // =========================================================
 
-  relatoriosMesSelecionado: string = 'Setembro 2026';
-  relatoriosMesesDisponiveis: string[] = [
-    'Setembro 2026', 'Agosto 2026', 'Julho 2026', 'Junho 2026', 'Maio 2026', 'Abril 2026',
-  ];
+  private readonly planoService = inject(PlanoService);
 
-  relatoriosStats: RelatorioStatCard[] = [
-    { label: 'Receita', valor: 'R$ 84.520', variacao: 18.4, icone: 'fa-database', cor: 'purple' },
-    { label: 'Custos', valor: 'R$ 84.520', variacao: 18.4, icone: 'fa-sack-dollar', cor: 'pink' },
-    { label: 'Receita', valor: 'R$ 84.520', variacao: 18.4, icone: 'fa-arrow-trend-up', cor: 'green' },
-    { label: 'Receita', valor: 'R$ 84.520', variacao: 18.4, icone: 'fa-arrows-rotate', cor: 'blue' },
-  ];
+  relatoriosMesesDisponiveis: { chave: string; rotulo: string }[] = this.planoService.mesesDisponiveis(12);
+  relatoriosMesSelecionado: string = this.relatoriosMesesDisponiveis[0].chave;
+  relatoriosCarregando: boolean = false;
+  relatoriosErro: string = '';
 
-  relatoriosLabelsMeses: string[] = ['0', '1', '2', '3', '4', '5', '6'];
-  relatoriosReceitaSerie: number[] = [20, 62, 45, 30, 58, 40, 12];
-  relatoriosCustosSerie: number[] = [18, 22, 34, 40, 46, 38, 44];
-  relatoriosLucroSerie: number[] = [10, 16, 24, 20, 30, 34, 38];
+  relatoriosStats: RelatorioStatCard[] = [];
+  relatoriosLabelsMeses: string[] = [];
+  relatoriosReceitaSerie: number[] = [];
+  relatoriosCustosSerie: number[] = [];
+  relatoriosLucroSerie: number[] = [];
+  /** Donut 1: receita do mês por plano. */
+  relatoriosReceitaOrigem: RelatorioDistribuicao[] = [];
+  /** Donut 2: assinantes ativos por plano. */
+  relatoriosAssinantesPlano: RelatorioDistribuicao[] = [];
+  relatoriosInsights: RelatorioInsight[] = [];
 
-  relatoriosReceitaOrigem: RelatorioDistribuicao[] = [
-    { nome: 'Receita', percentual: 50, valor: 'R$ 42.300', cor: '#6C4BBF' },
-    { nome: 'Custos', percentual: 50, valor: 'R$ 42.300', cor: '#8ee0c4' },
-    { nome: 'Lucro', percentual: 50, valor: 'R$ 42.300', cor: '#e685a6' },
-  ];
+  /** Campo "Custos do mês" (R$). null = ainda não informado. */
+  relatoriosCustoInput: number | null = null;
+  relatoriosSalvandoCusto: boolean = false;
+  relatoriosCustosInformados: boolean = false;
 
-  relatoriosCustosPlataforma: RelatorioDistribuicao[] = [
-    { nome: 'Receita', percentual: 50, valor: 'R$ 42.300', cor: '#6C4BBF' },
-    { nome: 'Custos', percentual: 50, valor: 'R$ 42.300', cor: '#8ee0c4' },
-    { nome: 'Lucro', percentual: 50, valor: 'R$ 42.300', cor: '#e685a6' },
-  ];
-
-  relatoriosInsights: RelatorioInsight[] = [
-    { tipo: 'alerta', icone: 'fa-triangle-exclamation', titulo: 'Atenção', texto: 'Alguns pontos de atenção no período' },
-    { tipo: 'perigo', icone: 'fa-arrow-up', titulo: 'Custo operacional aumentou 23%', texto: 'Alguns pontos de atenção no período' },
-    { tipo: 'sucesso', icone: 'fa-arrow-up', titulo: 'Receita de consultorias aumentou 18%', texto: '284 consultas a mais que o mês anterior' },
-  ];
+  private relatoriosPagamentos: PagamentoPlano[] = [];
+  private relatoriosAssinantes: Assinante[] = [];
+  private relatoriosCustos: Record<string, number> = {};
+  private relatorioAtual: RelatorioFinanceiro | null = null;
 
   private relatoriosFinanceiroChart: any = null;
   private relatoriosOrigemChart: any = null;
-  private relatoriosCustosChart: any = null;
+  private relatoriosAssinantesChart: any = null;
 
-  /** TODO: gera um PDF/CSV real do período selecionado assim que o backend expuser os dados. */
-  exportarRelatorio(): void {
+  private readonly coresDonutRelatorios = ['#6C4BBF', '#e685a6', '#8ee0c4', '#5aa9e6', '#f0a23b', '#b39ddb'];
+
+  brl(valor: number): string {
+    return formatarBRL(valor);
   }
+
+  /** Lê pagamentos, custos e assinantes do Firestore e redesenha o relatório. */
+  async carregarRelatorioFinanceiro(): Promise<void> {
+    this.relatoriosCarregando = true;
+    this.relatoriosErro = '';
+    this.atualizarTela();
+    try {
+      const maisAntigo = this.relatoriosMesesDisponiveis[this.relatoriosMesesDisponiveis.length - 1].chave;
+      const [pagamentos, custos, assinantes] = await Promise.all([
+        this.planoService.pagamentos(this.planoService.inicioDoHistorico(maisAntigo, 7)),
+        this.planoService.custosMensais(),
+        this.planoService.assinantes(),
+      ]);
+      this.relatoriosPagamentos = pagamentos;
+      this.relatoriosCustos = custos;
+      this.relatoriosAssinantes = assinantes;
+      this.recalcularRelatorio();
+    } catch (e) {
+      console.error('Erro ao carregar o relatório financeiro:', e);
+      this.relatoriosErro = 'Não foi possível carregar os dados financeiros. Verifique as regras do Firestore (pagamentosPlanos, assinaturas e custosPlataforma).';
+    } finally {
+      this.relatoriosCarregando = false;
+      this.atualizarTela();
+    }
+  }
+
+  /** Trocou o mês no seletor: recalcula com o que já foi carregado. */
+  aoMudarMesRelatorio(): void {
+    this.recalcularRelatorio();
+    this.atualizarTela();
+  }
+
+  private variacaoPercentual(atual: number, anterior: number | undefined): number | null {
+    if (anterior === undefined || anterior === 0) return null;
+    return Math.round(((atual - anterior) / Math.abs(anterior)) * 1000) / 10;
+  }
+
+  private distribuicao(itens: { nome: string; valor: number; texto: string }[]): RelatorioDistribuicao[] {
+    const total = itens.reduce((s, i) => s + i.valor, 0);
+    if (!total) return [];
+    return itens.map((i, idx) => ({
+      nome: i.nome,
+      percentual: Math.round((i.valor / total) * 1000) / 10,
+      valor: i.texto,
+      cor: this.coresDonutRelatorios[idx % this.coresDonutRelatorios.length],
+    }));
+  }
+
+  private recalcularRelatorio(): void {
+    const r = this.planoService.montarRelatorio(
+      this.relatoriosPagamentos, this.relatoriosCustos, this.relatoriosAssinantes, this.relatoriosMesSelecionado);
+    this.relatorioAtual = r;
+    const { atual, anterior } = r;
+
+    this.relatoriosCustosInformados = r.custosInformados;
+    this.relatoriosCustoInput = r.custosInformados ? atual.custos : null;
+
+    this.relatoriosStats = [
+      {
+        label: 'Receita de planos', valor: this.brl(atual.receita), icone: 'fa-wallet', cor: 'purple',
+        variacao: this.variacaoPercentual(atual.receita, anterior?.receita),
+        comparativo: 'comparado com o mês anterior',
+      },
+      {
+        label: 'Custos', valor: r.custosInformados ? this.brl(atual.custos) : 'Não informado', icone: 'fa-sack-dollar', cor: 'pink', invertido: true,
+        variacao: r.custosInformados ? this.variacaoPercentual(atual.custos, anterior?.custos) : null,
+        comparativo: r.custosInformados ? 'comparado com o mês anterior' : 'informe os custos do mês abaixo',
+      },
+      {
+        label: 'Lucro', valor: this.brl(atual.lucro), icone: 'fa-arrow-trend-up', cor: 'green',
+        variacao: this.variacaoPercentual(atual.lucro, anterior?.lucro),
+        comparativo: 'comparado com o mês anterior',
+      },
+      {
+        label: 'Novas assinaturas', valor: String(atual.vendas), icone: 'fa-user-plus', cor: 'blue',
+        variacao: this.variacaoPercentual(atual.vendas, anterior?.vendas),
+        comparativo: `${r.assinaturasAtivas} assinatura(s) ativa(s) hoje`,
+      },
+    ];
+
+    this.relatoriosLabelsMeses = r.meses.map((m) => m.rotuloCurto);
+    this.relatoriosReceitaSerie = r.meses.map((m) => m.receita);
+    this.relatoriosCustosSerie = r.meses.map((m) => m.custos);
+    this.relatoriosLucroSerie = r.meses.map((m) => m.lucro);
+
+    this.relatoriosReceitaOrigem = this.distribuicao(
+      r.porPlano.map((p) => ({ nome: p.planoNome, valor: p.receita, texto: this.brl(p.receita) })));
+    this.relatoriosAssinantesPlano = this.distribuicao(
+      r.assinantesPorPlano.map((p) => ({ nome: p.planoNome, valor: p.ativos, texto: `${p.ativos} assinante(s)` })));
+
+    // ---- destaques do período ----
+    const insights: RelatorioInsight[] = [];
+    if (!r.custosInformados) {
+      insights.push({ tipo: 'alerta', icone: 'fa-triangle-exclamation', titulo: 'Custos do mês não informados', texto: 'Enquanto isso, o lucro mostrado é igual à receita.' });
+    }
+    const varReceita = this.variacaoPercentual(atual.receita, anterior?.receita);
+    if (varReceita !== null && varReceita !== 0) {
+      insights.push(varReceita > 0
+        ? { tipo: 'sucesso', icone: 'fa-arrow-up', titulo: `Receita de planos subiu ${varReceita}%`, texto: `${this.brl(atual.receita)} em ${atual.rotulo}` }
+        : { tipo: 'perigo', icone: 'fa-arrow-down', titulo: `Receita de planos caiu ${Math.abs(varReceita)}%`, texto: `${this.brl(atual.receita)} em ${atual.rotulo}` });
+    }
+    if (atual.vendas === 0) {
+      insights.push({ tipo: 'alerta', icone: 'fa-circle-info', titulo: 'Nenhuma assinatura vendida neste mês', texto: 'Quando um profissional contratar um plano, ele aparece aqui.' });
+    } else if (r.porPlano[0]) {
+      const top = r.porPlano[0];
+      insights.push({ tipo: 'sucesso', icone: 'fa-crown', titulo: `Plano mais vendido: ${top.planoNome}`, texto: `${top.vendas} venda(s) · ${this.brl(top.receita)}` });
+    }
+    if (atual.lucro < 0) {
+      insights.push({ tipo: 'perigo', icone: 'fa-arrow-down', titulo: 'Resultado negativo no mês', texto: `Os custos superaram a receita em ${this.brl(Math.abs(atual.lucro))}.` });
+    }
+    this.relatoriosInsights = insights;
+
+    setTimeout(() => this.atualizarGraficosRelatorios(), 0);
+  }
+
+  /** Salva o custo do mês selecionado e recalcula o lucro. */
+  async salvarCustoMesRelatorio(): Promise<void> {
+    const valor = Number(this.relatoriosCustoInput);
+    if (this.relatoriosCustoInput === null || String(this.relatoriosCustoInput).trim() === '' || !isFinite(valor) || valor < 0) {
+      this.mostrarToastAdm('Informe um valor de custo válido (zero ou mais).', 'erro');
+      return;
+    }
+    this.relatoriosSalvandoCusto = true;
+    try {
+      await this.planoService.salvarCustoMensal(this.relatoriosMesSelecionado, valor);
+      this.relatoriosCustos = { ...this.relatoriosCustos, [this.relatoriosMesSelecionado]: valor };
+      this.recalcularRelatorio();
+      this.mostrarToastAdm('Custos do mês salvos. O lucro foi recalculado.', 'ok');
+    } catch (e) {
+      console.error('Erro ao salvar custos:', e);
+      this.mostrarToastAdm('Não foi possível salvar os custos. Verifique as regras do Firestore.', 'erro');
+    } finally {
+      this.relatoriosSalvandoCusto = false;
+      this.atualizarTela();
+    }
+  }
+
+  /** Baixa um CSV (abre no Excel) com o resumo do mês, a receita por plano e cada compra. */
+  exportarRelatorio(): void {
+    const r = this.relatorioAtual;
+    if (!r || typeof document === 'undefined') return;
+    const num = (v: number) => v.toFixed(2).replace('.', ',');
+    const cel = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
+    const dataBR = (d: Date | null) => (d ? d.toLocaleDateString('pt-BR') : '');
+    const linhas: (string | number)[][] = [
+      ['Relatório financeiro', r.atual.rotulo],
+      ['Receita de planos (R$)', num(r.atual.receita)],
+      ['Custos (R$)', r.custosInformados ? num(r.atual.custos) : 'não informado'],
+      ['Lucro (R$)', num(r.atual.lucro)],
+      ['Assinaturas vendidas no mês', r.atual.vendas],
+      ['Assinaturas ativas hoje', r.assinaturasAtivas],
+      [],
+      ['Receita por plano'],
+      ['Plano', 'Vendas', 'Receita (R$)'],
+      ...r.porPlano.map((p) => [p.planoNome, p.vendas, num(p.receita)]),
+      [],
+      ['Compras do mês'],
+      ['Data', 'Profissional', 'E-mail', 'Tipo', 'Plano', 'Valor (R$)'],
+      ...r.pagamentosDoMes.map((p) => [dataBR(p.criadoEm), p.nome || p.uid, p.email, p.tipo === 'advogado' ? 'Advogado(a)' : 'Psicólogo(a)', p.planoNome, num(p.valor)]),
+    ];
+    const csv = '\uFEFF' + linhas.map((l) => l.map(cel).join(';')).join('\r\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio-financeiro-${this.relatoriosMesSelecionado}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private formatarEixoMoeda = (valor: any) => 'R$ ' + Number(valor).toLocaleString('pt-BR');
 
   /** Desenha (ou atualiza) o gráfico de linha "Resultado financeiro". */
   private atualizarGraficoFinanceiroRelatorios(): void {
@@ -1347,6 +1517,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     }
 
     if (this.relatoriosFinanceiroChart) {
+      this.relatoriosFinanceiroChart.data.labels = this.relatoriosLabelsMeses;
       this.relatoriosFinanceiroChart.data.datasets[0].data = this.relatoriosReceitaSerie;
       this.relatoriosFinanceiroChart.data.datasets[1].data = this.relatoriosCustosSerie;
       this.relatoriosFinanceiroChart.data.datasets[2].data = this.relatoriosLucroSerie;
@@ -1359,69 +1530,52 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       data: {
         labels: this.relatoriosLabelsMeses,
         datasets: [
-          {
-            label: 'Receita',
-            data: this.relatoriosReceitaSerie,
-            borderColor: '#6C4BBF',
-            backgroundColor: 'rgba(108,75,191,0.12)',
-            tension: 0.35,
-            fill: false,
-            pointRadius: 3,
-          },
-          {
-            label: 'Custos',
-            data: this.relatoriosCustosSerie,
-            borderColor: '#3fb28f',
-            backgroundColor: 'rgba(63,178,143,0.12)',
-            tension: 0.35,
-            fill: false,
-            pointRadius: 3,
-          },
-          {
-            label: 'Lucro',
-            data: this.relatoriosLucroSerie,
-            borderColor: '#e685a6',
-            backgroundColor: 'rgba(230,133,166,0.12)',
-            tension: 0.35,
-            fill: false,
-            pointRadius: 3,
-          },
+          { label: 'Receita', data: this.relatoriosReceitaSerie, borderColor: '#6C4BBF', backgroundColor: 'rgba(108,75,191,0.12)', tension: 0.35, fill: false, pointRadius: 3 },
+          { label: 'Custos', data: this.relatoriosCustosSerie, borderColor: '#3fb28f', backgroundColor: 'rgba(63,178,143,0.12)', tension: 0.35, fill: false, pointRadius: 3 },
+          { label: 'Lucro', data: this.relatoriosLucroSerie, borderColor: '#e685a6', backgroundColor: 'rgba(230,133,166,0.12)', tension: 0.35, fill: false, pointRadius: 3 },
         ],
       },
       options: {
         responsive: true,
         plugins: {
           legend: { position: 'top', align: 'end' },
-          tooltip: { mode: 'index', intersect: false },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            callbacks: { label: (item: any) => ` ${item.dataset.label}: ${this.brl(item.raw)}` },
+          },
         },
         scales: {
-          y: { beginAtZero: true, ticks: { precision: 0 } },
+          y: { beginAtZero: true, ticks: { callback: this.formatarEixoMoeda } },
         },
       },
     });
   }
 
-  /** Desenha (ou atualiza) um dos donuts "Receita por origem" / "Custos da plataforma". */
+  /** Desenha (ou atualiza) um dos donuts ("Receita por plano" / "Assinantes por plano"). */
   private atualizarDonutRelatorios(
     canvasId: string,
     dados: RelatorioDistribuicao[],
-    instancia: 'origem' | 'custos'
+    instancia: 'origem' | 'assinantes'
   ): void {
     const ctx = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!ctx) {
       return;
     }
 
-    const labels = dados.map(d => d.nome);
-    const valores = dados.map(d => d.percentual);
-    const cores = dados.map(d => d.cor);
+    // Sem dados: um anel cinza, só para a área não ficar vazia.
+    const semDados = dados.length === 0;
+    const labels = semDados ? ['Sem dados'] : dados.map(d => d.nome);
+    const valores = semDados ? [1] : dados.map(d => d.percentual);
+    const cores = semDados ? ['#e6e0f2'] : dados.map(d => d.cor);
 
-    const chartAtual = instancia === 'origem' ? this.relatoriosOrigemChart : this.relatoriosCustosChart;
+    const chartAtual = instancia === 'origem' ? this.relatoriosOrigemChart : this.relatoriosAssinantesChart;
 
     if (chartAtual) {
       chartAtual.data.labels = labels;
       chartAtual.data.datasets[0].data = valores;
       chartAtual.data.datasets[0].backgroundColor = cores;
+      chartAtual.options.plugins.tooltip.enabled = !semDados;
       chartAtual.update();
       return;
     }
@@ -1442,6 +1596,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
         plugins: {
           legend: { display: false },
           tooltip: {
+            enabled: !semDados,
             callbacks: {
               label: (item: any) => ` ${item.label}: ${item.raw}%`,
             },
@@ -1453,7 +1608,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     if (instancia === 'origem') {
       this.relatoriosOrigemChart = novoChart;
     } else {
-      this.relatoriosCustosChart = novoChart;
+      this.relatoriosAssinantesChart = novoChart;
     }
   }
 
@@ -1461,7 +1616,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   atualizarGraficosRelatorios(): void {
     this.atualizarGraficoFinanceiroRelatorios();
     this.atualizarDonutRelatorios('relatoriosOrigemChart', this.relatoriosReceitaOrigem, 'origem');
-    this.atualizarDonutRelatorios('relatoriosCustosChart', this.relatoriosCustosPlataforma, 'custos');
+    this.atualizarDonutRelatorios('relatoriosAssinantesChart', this.relatoriosAssinantesPlano, 'assinantes');
   }
 
   // =========================================================
@@ -2308,8 +2463,8 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       this.relatoriosOrigemChart.destroy();
     }
 
-    if (this.relatoriosCustosChart) {
-      this.relatoriosCustosChart.destroy();
+    if (this.relatoriosAssinantesChart) {
+      this.relatoriosAssinantesChart.destroy();
     }
   }
 
@@ -2358,6 +2513,8 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     // que o Chart.js recalcule o tamanho depois que a seção volta a ficar visível.
     if (aba === 'relatorios') {
       setTimeout(() => this.atualizarGraficosRelatorios(), 0);
+      // sempre busca os números mais recentes ao abrir a aba
+      this.carregarRelatorioFinanceiro();
     }
 
     // Sempre que a pessoa entra na aba Configurações pelo menu lateral,

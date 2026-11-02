@@ -1,0 +1,332 @@
+<!-- AVISO -->
+@if (aviso(); as a) {
+  <div class="pl-toast" [class.erro]="a.tipo === 'erro'" role="status" aria-live="polite">
+    <i class="fa-solid" [class.fa-circle-check]="a.tipo === 'ok'" [class.fa-circle-xmark]="a.tipo === 'erro'"></i>
+    {{ a.texto }}
+  </div>
+}
+
+<!-- CABEÇALHO -->
+<header class="pl-header">
+  <div class="pl-header-info">
+    <span class="pl-header-icone"><i class="fa-solid fa-crown"></i></span>
+    <div>
+      <h2>Planos</h2>
+      <p>Defina o que cada plano oferece e acompanhe quem assina.</p>
+    </div>
+  </div>
+  <button type="button" class="pl-btn pl-btn-primario" (click)="abrirNovo()">
+    <i class="fa-solid fa-plus"></i> Novo plano
+  </button>
+</header>
+
+<!-- INDICADORES -->
+<div class="pl-kpis">
+  <div class="pl-kpi">
+    <span class="pl-kpi-icone roxo"><i class="fa-solid fa-layer-group"></i></span>
+    <div><strong>{{ kpis().planosAtivos }}</strong><span>Planos ativos</span></div>
+  </div>
+  <div class="pl-kpi">
+    <span class="pl-kpi-icone verde"><i class="fa-solid fa-user-check"></i></span>
+    <div><strong>{{ kpis().assinantesAtivos }}</strong><span>Assinantes ativos</span></div>
+  </div>
+  <div class="pl-kpi">
+    <span class="pl-kpi-icone azul"><i class="fa-solid fa-user-plus"></i></span>
+    <div><strong>{{ kpis().novosNoMes }}</strong><span>Novos neste mês</span></div>
+  </div>
+  <div class="pl-kpi">
+    <span class="pl-kpi-icone rosa"><i class="fa-solid fa-sack-dollar"></i></span>
+    <div><strong>{{ brl(kpis().totalArrecadado) }}</strong><span>Total arrecadado</span></div>
+  </div>
+</div>
+
+<!-- ABAS -->
+<div class="pl-abas" role="tablist">
+  <button type="button" role="tab" class="pl-aba" [class.ativa]="aba() === 'planos'" [attr.aria-selected]="aba() === 'planos'" (click)="aba.set('planos')">
+    <i class="fa-solid fa-table-cells-large"></i> Planos
+  </button>
+  <button type="button" role="tab" class="pl-aba" [class.ativa]="aba() === 'assinantes'" [attr.aria-selected]="aba() === 'assinantes'" (click)="aba.set('assinantes')">
+    <i class="fa-solid fa-users"></i> Assinantes
+    <span class="pl-aba-contador">{{ assinantes().length }}</span>
+  </button>
+</div>
+
+@if (carregando()) {
+  <div class="pl-estado"><i class="fa-solid fa-spinner fa-spin"></i> Carregando…</div>
+} @else if (erroCarga()) {
+  <div class="pl-estado erro">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <p>{{ erroCarga() }}</p>
+    <button type="button" class="pl-btn pl-btn-secundario" (click)="carregar()">Tentar de novo</button>
+  </div>
+} @else {
+
+  <!-- ===================== ABA: PLANOS ===================== -->
+  @if (aba() === 'planos') {
+    @if (catalogoVazio()) {
+      <div class="pl-estado vazio">
+        <span class="pl-estado-icone"><i class="fa-solid fa-seedling"></i></span>
+        <h3>Nenhum plano cadastrado ainda</h3>
+        <p>Enquanto isso, os profissionais veem os planos padrão (Gratuito e Premium a R$ 29,90). Crie-os aqui para poder editar valores e benefícios.</p>
+        <div class="pl-estado-acoes">
+          <button type="button" class="pl-btn pl-btn-primario" (click)="criarPlanosPadrao()"><i class="fa-solid fa-wand-magic-sparkles"></i> Criar planos padrão</button>
+          <button type="button" class="pl-btn pl-btn-secundario" (click)="abrirNovo()">Criar do zero</button>
+        </div>
+      </div>
+    } @else {
+      <div class="pl-grid">
+        @for (p of planos(); track p.id) {
+          <article class="pl-card" [class.inativo]="!p.ativo" [class.destaque]="p.destaque && p.ativo">
+            <div class="pl-card-topo">
+              <span class="pl-nivel" [class.premium]="p.nivel === 'premium'">
+                <i class="fa-solid" [class.fa-crown]="p.nivel === 'premium'" [class.fa-seedling]="p.nivel === 'gratuito'"></i>
+                {{ p.nivel === 'premium' ? 'Pago' : 'Gratuito' }}
+              </span>
+              <span class="pl-status" [class.on]="p.ativo">{{ p.ativo ? 'Ativo' : 'Inativo' }}</span>
+            </div>
+
+            <h3>{{ p.nome }} @if (p.destaque) { <i class="fa-solid fa-star pl-estrela" title="Plano em destaque"></i> }</h3>
+            @if (p.descricao) { <p class="pl-descricao">{{ p.descricao }}</p> }
+
+            <div class="pl-preco">
+              <strong>{{ brl(p.preco) }}</strong>
+              <span>{{ p.nivel === 'gratuito' ? 'para sempre' : sufixo(p.periodicidade) }}</span>
+            </div>
+
+            <ul class="pl-beneficios">
+              @for (b of p.beneficios; track $index) {
+                <li><span class="pl-check"><i class="fa-solid fa-check"></i></span>{{ b }}</li>
+              } @empty {
+                <li class="pl-sem-beneficio">Nenhum benefício definido.</li>
+              }
+            </ul>
+
+            <div class="pl-card-rodape">
+              <div class="pl-assinantes-info">
+                @if (p.nivel === 'premium') {
+                  <i class="fa-solid fa-user-check"></i>
+                  <span><strong>{{ ativosPorPlano().get(p.id) || 0 }}</strong> assinante(s) ativo(s)</span>
+                } @else {
+                  <i class="fa-solid fa-circle-info"></i>
+                  <span>Plano base: todo profissional começa nele</span>
+                }
+              </div>
+              <div class="pl-card-acoes">
+                <button type="button" class="pl-btn pl-btn-secundario pl-btn-sm" (click)="abrirEdicao(p)">
+                  <i class="fa-solid fa-pen"></i> Editar
+                </button>
+                <button type="button" class="pl-switch" role="switch"
+                        [class.on]="p.ativo"
+                        [attr.aria-checked]="p.ativo"
+                        [attr.aria-label]="(p.ativo ? 'Desativar ' : 'Ativar ') + p.nome"
+                        [disabled]="p.nivel === 'gratuito' || alterandoId() === p.id"
+                        [title]="p.nivel === 'gratuito' ? 'O plano gratuito não pode ser desativado' : (p.ativo ? 'Desativar plano' : 'Ativar plano')"
+                        (click)="pedirAlternarAtivo(p)">
+                  <span class="pl-switch-bolinha"></span>
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+      <p class="pl-nota"><i class="fa-solid fa-circle-info"></i> Desativar um plano só impede novas contratações: quem já assina continua com os benefícios até o fim da validade.</p>
+    }
+  }
+
+  <!-- ===================== ABA: ASSINANTES ===================== -->
+  @if (aba() === 'assinantes') {
+    <div class="pl-filtros">
+      <label class="pl-busca">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" placeholder="Buscar por nome ou e-mail" [ngModel]="busca()" (ngModelChange)="busca.set($event)" aria-label="Buscar assinante">
+      </label>
+      <select [ngModel]="filtroPlano()" (ngModelChange)="filtroPlano.set($event)" aria-label="Filtrar por plano">
+        <option value="todos">Todos os planos</option>
+        @for (p of planos(); track p.id) { <option [value]="p.id">{{ p.nome }}</option> }
+      </select>
+      <select [ngModel]="filtroSituacao()" (ngModelChange)="filtroSituacao.set($event)" aria-label="Filtrar por situação">
+        <option value="todas">Todas as situações</option>
+        <option value="ativa">Ativas</option>
+        <option value="expirada">Expiradas</option>
+        <option value="cancelada">Canceladas</option>
+      </select>
+    </div>
+
+    @if (assinantesFiltrados().length === 0) {
+      <div class="pl-estado vazio">
+        <span class="pl-estado-icone"><i class="fa-solid fa-user-clock"></i></span>
+        @if (assinantes().length === 0) {
+          <h3>Ninguém assinou um plano pago ainda</h3>
+          <p>Quando um profissional contratar um plano, ele aparece aqui.</p>
+        } @else {
+          <h3>Nenhum assinante encontrado</h3>
+          <button type="button" class="pl-btn pl-btn-secundario" (click)="limparFiltros()">Limpar filtros</button>
+        }
+      </div>
+    } @else {
+      <div class="pl-tabela-wrap">
+        <table class="pl-tabela">
+          <thead>
+            <tr>
+              <th>Profissional</th>
+              <th>Plano</th>
+              <th>Adquirido em</th>
+              <th>Válido até</th>
+              <th>Situação</th>
+              <th class="num">Total pago</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of assinantesFiltrados(); track a.uid) {
+              <tr>
+                <td>
+                  <div class="pl-pessoa">
+                    <span class="pl-avatar">{{ iniciais(a.nome) }}</span>
+                    <div>
+                      <strong>{{ a.nome }}</strong>
+                      <small>{{ a.email }} · {{ rotuloTipo(a.tipo) }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <strong>{{ a.planoNome }}</strong>
+                  <small class="bloco">{{ brl(a.valor) }} {{ sufixo(a.periodicidade) }}</small>
+                </td>
+                <td>{{ a.adquiridoEm ? (a.adquiridoEm | date: 'dd/MM/yyyy') : '—' }}</td>
+                <td>{{ a.validoAte ? (a.validoAte | date: 'dd/MM/yyyy') : '—' }}</td>
+                <td><span class="pl-situacao" [ngClass]="a.situacao">{{ rotuloSituacao(a.situacao) }}</span></td>
+                <td class="num">
+                  <strong>{{ brl(a.totalPago) }}</strong>
+                  <small class="bloco">{{ a.compras }} compra{{ a.compras === 1 ? '' : 's' }}</small>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+}
+
+<!-- ===================== MODAL: CADASTRAR / EDITAR ===================== -->
+@if (modalAberto()) {
+  <div class="pl-overlay" (click)="fecharModal()">
+    <div class="pl-modal" role="dialog" aria-modal="true" [attr.aria-label]="editandoId ? 'Editar plano' : 'Novo plano'" (click)="$event.stopPropagation()">
+      <button type="button" class="pl-fechar" (click)="fecharModal()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+
+      <div class="pl-modal-cabecalho">
+        <span class="pl-header-icone"><i class="fa-solid" [class.fa-pen]="editandoId" [class.fa-plus]="!editandoId"></i></span>
+        <div>
+          <h3>{{ editandoId ? 'Editar plano' : 'Novo plano' }}</h3>
+          <p>Preencha os dados e escolha o que o plano oferece.</p>
+        </div>
+      </div>
+
+      <div class="pl-form">
+        <div class="pl-campo">
+          <label for="plNome">Nome do plano</label>
+          <input id="plNome" type="text" maxlength="40" [(ngModel)]="form.nome" placeholder="Ex.: Premium Anual">
+        </div>
+
+        <div class="pl-campo">
+          <label for="plDescricao">Descrição curta <span class="opcional">(opcional)</span></label>
+          <input id="plDescricao" type="text" maxlength="90" [(ngModel)]="form.descricao" placeholder="Uma frase que explique para quem é o plano">
+        </div>
+
+        @if (!editandoId) {
+          <div class="pl-campo">
+            <span class="pl-label">Tipo de plano</span>
+            <div class="pl-opcoes">
+              <button type="button" class="pl-opcao" [class.sel]="form.nivel === 'premium'" (click)="mudarNivel('premium')">
+                <i class="fa-solid fa-crown"></i> Pago
+              </button>
+              <button type="button" class="pl-opcao" [class.sel]="form.nivel === 'gratuito'" [disabled]="jaExisteGratuito()" [title]="jaExisteGratuito() ? 'Já existe um plano gratuito' : ''" (click)="mudarNivel('gratuito')">
+                <i class="fa-solid fa-seedling"></i> Gratuito
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (form.nivel === 'premium') {
+          <div class="pl-linha">
+            <div class="pl-campo">
+              <label for="plPreco">Valor (R$)</label>
+              <input id="plPreco" type="number" min="0" step="0.01" [(ngModel)]="form.preco" placeholder="29,90">
+            </div>
+            <div class="pl-campo">
+              <label for="plPeriodo">Cobrança</label>
+              <select id="plPeriodo" [(ngModel)]="form.periodicidade">
+                @for (per of periodicidades; track per.valor) { <option [value]="per.valor">{{ per.rotulo }} ({{ per.dias }} dias)</option> }
+              </select>
+            </div>
+          </div>
+
+          <div class="pl-checks">
+            <label class="pl-check-linha">
+              <input type="checkbox" [(ngModel)]="form.ativo">
+              <span><strong>Plano ativo</strong><small>Aparece para os profissionais contratarem.</small></span>
+            </label>
+            <label class="pl-check-linha">
+              <input type="checkbox" [(ngModel)]="form.destaque">
+              <span><strong>Destacar como recomendado</strong><small>Mostra a estrela e a etiqueta “Recomendado”.</small></span>
+            </label>
+          </div>
+        }
+
+        <div class="pl-campo">
+          <span class="pl-label">Benefícios do plano</span>
+          <div class="pl-beneficios-editor">
+            @for (b of form.beneficios; track $index) {
+              <div class="pl-beneficio-linha">
+                <input type="text" maxlength="120" [(ngModel)]="form.beneficios[$index]" placeholder="Descreva um benefício" [attr.aria-label]="'Benefício ' + ($index + 1)">
+                <button type="button" class="pl-icone-btn" (click)="moverBeneficio($index, -1)" [disabled]="$index === 0" aria-label="Subir"><i class="fa-solid fa-arrow-up"></i></button>
+                <button type="button" class="pl-icone-btn" (click)="moverBeneficio($index, 1)" [disabled]="$index === form.beneficios.length - 1" aria-label="Descer"><i class="fa-solid fa-arrow-down"></i></button>
+                <button type="button" class="pl-icone-btn perigo" (click)="removerBeneficio($index)" aria-label="Remover benefício"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            }
+            <button type="button" class="pl-add-beneficio" (click)="adicionarBeneficio()"><i class="fa-solid fa-plus"></i> Adicionar benefício</button>
+          </div>
+
+          <div class="pl-sugestoes">
+            <small>Sugestões:</small>
+            @for (s of sugestoes; track s) {
+              @if (!sugestaoJaAdicionada(s)) {
+                <button type="button" class="pl-sugestao" (click)="adicionarBeneficio(s)">+ {{ s }}</button>
+              }
+            }
+          </div>
+        </div>
+
+        @if (erroForm()) {
+          <p class="pl-erro-form" role="alert"><i class="fa-solid fa-circle-exclamation"></i> {{ erroForm() }}</p>
+        }
+      </div>
+
+      <div class="pl-modal-acoes">
+        <button type="button" class="pl-btn pl-btn-secundario" [disabled]="salvando()" (click)="fecharModal()">Cancelar</button>
+        <button type="button" class="pl-btn pl-btn-primario" [disabled]="salvando()" (click)="salvar()">
+          <i class="fa-solid fa-floppy-disk"></i> {{ salvando() ? 'Salvando…' : (editandoId ? 'Salvar alterações' : 'Cadastrar plano') }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ===================== MODAL: CONFIRMAR DESATIVAÇÃO ===================== -->
+@if (planoParaDesativar(); as alvo) {
+  <div class="pl-overlay" (click)="planoParaDesativar.set(null)">
+    <div class="pl-modal pl-modal-pequeno" role="alertdialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="pl-modal-cabecalho">
+        <span class="pl-header-icone alerta"><i class="fa-solid fa-triangle-exclamation"></i></span>
+        <div>
+          <h3>Desativar “{{ alvo.nome }}”?</h3>
+          <p>{{ ativosPorPlano().get(alvo.id) }} profissional(is) assina(m) este plano e continua(m) com os benefícios até o fim da validade. Novos profissionais não poderão contratá-lo.</p>
+        </div>
+      </div>
+      <div class="pl-modal-acoes">
+        <button type="button" class="pl-btn pl-btn-secundario" (click)="planoParaDesativar.set(null)">Cancelar</button>
+        <button type="button" class="pl-btn pl-btn-perigo" (click)="confirmarDesativar()">Desativar plano</button>
+      </div>
+    </div>
+  </div>
+}

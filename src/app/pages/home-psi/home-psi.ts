@@ -6,7 +6,7 @@ import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { LembreteService } from '../../services/lembrete';
 import { carregarReputacao, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
-import { PlanoService, Assinatura } from '../../services/plano';
+import { PlanoService, Assinatura, Plano, PLANOS_PADRAO, formatarBRL, sufixoPeriodicidade } from '../../services/plano';
 import { MODELOS_PSICOLOGIA, ModeloDocumento, IdModelo, modeloPorId } from '../../services/modelos-psicologia';
 import { gerarCertificadoHoras, gerarDocumentoPsicologico, gerarRelatorioAtendimentos, formatarHoras, SessaoCertificado, ConsultaRelatorio } from '../../services/documentos-pdf';
 import { cartaoDoLembrete } from '../../services/lembrete-chat';
@@ -645,7 +645,7 @@ export class HomePsi implements OnInit, OnDestroy {
     const mesmoSlot = (d: Date, h: string) =>
       d.toDateString() === dataClicada.toDateString() &&
       `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` === h;
-    
+
     const agora = new Date();
     const duracaoMinutos = this.duracaoSessaoPsi() || 45;
     const inicio = this.paraMinutos(this.horaInicioExpediente()) ?? 8 * 60;
@@ -1289,31 +1289,32 @@ export class HomePsi implements OnInit, OnDestroy {
   // ==========================================================
   // PLANOS (Premium do psicólogo — pagamento simulado)
   // ==========================================================
-  /** Valor exibido na tela. Pagamento simulado: nada é cobrado. Ajuste aqui se a equipe definir outro. */
-  readonly precoPremium = 'R$ 29,90';
+  /** Planos vêm do catálogo gerenciado pelo ADM (PlanoService.planosParaOfertar). */
+  readonly planosOfertados = signal<Plano[]>([]);
+  readonly planoGratuito = computed<Plano>(() =>
+    this.planosOfertados().find((p) => p.nivel === 'gratuito') ?? { ...PLANOS_PADRAO[0], id: 'padrao-gratuito' });
+  readonly planosPremium = computed(() => this.planosOfertados().filter((p) => p.nivel === 'premium'));
+  readonly brl = formatarBRL;
+  readonly sufixo = sufixoPeriodicidade;
+
   readonly salvandoPlano = signal(false);
-  readonly confirmandoAssinatura = signal(false);
+  /** Plano em que a pessoa clicou "Assinar" (a confirmação só aparece nele). */
+  readonly confirmandoPlanoId = signal<string | null>(null);
   readonly msgPlano = signal<{ tipo: 'ok' | 'erro'; texto: string } | null>(null);
 
-  readonly recursosGratuito = [
-    'Perfil na busca de profissionais',
-    'Agenda, videochamada e chat com as mães',
-    'Lembretes de consulta por e-mail',
-    'Certificado de horas mensal',
-    'Declaração de comparecimento (CFP)',
-  ];
-  readonly recursosPremium = [
-    'Tudo do plano gratuito',
-    'Destaque na busca e selo Premium no perfil',
-    'Modelos de atestado, relatório, laudo e parecer (Resolução CFP 06/2019)',
-    'Preenchimento automático com os dados das consultas',
-    'Relatório de atendimentos em PDF',
-  ];
+  /** O plano pago em que o profissional está agora. */
+  ehPlanoAtual(p: Plano): boolean {
+    const a = this.assinatura();
+    if (!this.isPremium() || !a) return false;
+    if (a.planoId) return a.planoId === p.id;
+    return p.id === this.planosPremium()[0]?.id; // assinatura anterior ao catálogo
+  }
 
   private async carregarPlano(uid: string) {
     const a = await this.planoService.assinatura(uid);
     this.assinatura.set(a);
     this.isPremium.set(await this.planoService.temPremium(uid));
+    this.planosOfertados.set(await this.planoService.planosParaOfertar());
   }
 
   validadePremiumTexto(): string {
@@ -1321,16 +1322,20 @@ export class HomePsi implements OnInit, OnDestroy {
     return v ? v.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
   }
 
-  async assinarPremium() {
+  async assinarPremium(plano: Plano) {
     if (!this.uidAtual || this.salvandoPlano()) return;
     this.salvandoPlano.set(true);
     this.msgPlano.set(null);
     try {
-      const a = await this.planoService.assinarPremiumTeste(this.uidAtual);
+      const a = await this.planoService.assinarPlano(this.uidAtual, plano, {
+        nome: this.nomeCompleto(),
+        email: auth.currentUser?.email || '',
+        tipo: 'psicologo',
+      });
       this.assinatura.set(a);
       this.isPremium.set(true);
-      this.confirmandoAssinatura.set(false);
-      this.msgPlano.set({ tipo: 'ok', texto: 'Premium ativado! Os modelos de documentos já estão liberados.' });
+      this.confirmandoPlanoId.set(null);
+      this.msgPlano.set({ tipo: 'ok', texto: `${plano.nome} ativado! Os modelos de documentos já estão liberados.` });
     } catch (e) {
       console.error('Erro ao assinar:', e);
       this.msgPlano.set({ tipo: 'erro', texto: 'Não foi possível ativar agora. Tente de novo.' });

@@ -141,7 +141,7 @@
     <section class="content" id="agenda" *ngIf="activeSection() === 'agenda'">
       <h2>Minha agenda</h2>
       <p class="secao-sub">Clique em um dia para marcar os horários em que você atende. As mães veem essas vagas na hora de agendar.</p>
-      
+
       <div class="agenda-container">
         <div class="calendar-container">
           <div class="calendar-header">
@@ -184,7 +184,7 @@
         <div class="modal-content premium-modal-psi">
           <h3>Período de Atendimento</h3>
           <p class="data-selecionada">Defina o intervalo de horas em que você deseja atender:</p>
-          
+
           <div class="periodo-inputs-grid" style="display: flex; gap: 16px; margin: 20px 0;">
             <div style="flex: 1;">
               <label style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 6px;">Das horas:</label>
@@ -509,7 +509,7 @@
     <section class="content" id="forum" *ngIf="activeSection() === 'forum'">
       <h2>Fórum da Comunidade</h2>
       <p class="secao-sub">Acolha e oriente as mães da rede Elo Materno.</p>
-      
+
       <div class="forum-toolbar">
         <div class="forum-search-bar">
           <i class="fa-solid fa-magnifying-glass"></i>
@@ -518,7 +518,7 @@
       </div>
 
       <div class="loader" *ngIf="carregandoForum()" style="margin: 40px auto;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-      
+
       <div class="forum-posts-list" *ngIf="!carregandoForum()">
         @for (post of forumFiltrado(); track post.id) {
           <article class="forum-post-card">
@@ -954,7 +954,7 @@
         <div class="pl-atual-icone"><i class="fa-solid" [class.fa-crown]="isPremium()" [class.fa-seedling]="!isPremium()"></i></div>
         <div class="pl-atual-texto">
           <span>Seu plano atual</span>
-          <strong>{{ isPremium() ? 'Premium' : 'Gratuito' }}</strong>
+          <strong>{{ isPremium() ? (assinatura()?.planoNome || 'Premium') : 'Gratuito' }}</strong>
           @if (isPremium() && validadePremiumTexto()) {
             <small>Ativo até {{ validadePremiumTexto() }}</small>
           }
@@ -968,12 +968,12 @@
       <div class="pl-grid">
         <div class="pl-card" [class.atual]="!isPremium()">
           <div class="pl-card-topo">
-            <h3>Gratuito</h3>
+            <h3>{{ planoGratuito().nome }}</h3>
             @if (!isPremium()) { <span class="pl-chip">Seu plano</span> }
           </div>
           <div class="pl-preco"><strong>R$ 0</strong><span>/mês</span></div>
           <ul>
-            @for (r of recursosGratuito; track r) {
+            @for (r of planoGratuito().beneficios; track $index) {
               <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> {{ r }}</li>
             }
           </ul>
@@ -984,36 +984,48 @@
           }
         </div>
 
-        <div class="pl-card pl-card-premium" [class.atual]="isPremium()">
-          <div class="pl-card-topo">
-            <h3><i class="fa-solid fa-crown"></i> Premium</h3>
-            <span class="pl-chip pl-chip-premium">{{ isPremium() ? 'Seu plano' : 'Recomendado' }}</span>
-          </div>
-          <div class="pl-preco"><strong>{{ precoPremium }}</strong><span>/mês</span></div>
-          <ul>
-            @for (r of recursosPremium; track r) {
-              <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> {{ r }}</li>
-            }
-          </ul>
+        @for (plano of planosPremium(); track plano.id) {
+          <div class="pl-card pl-card-premium" [class.atual]="ehPlanoAtual(plano)">
+            <div class="pl-card-topo">
+              <h3><i class="fa-solid fa-crown"></i> {{ plano.nome }}</h3>
+              @if (ehPlanoAtual(plano)) {
+                <span class="pl-chip pl-chip-premium">Seu plano</span>
+              } @else if (plano.destaque) {
+                <span class="pl-chip pl-chip-premium">Recomendado</span>
+              }
+            </div>
+            @if (plano.descricao) { <p class="pl-descricao-plano">{{ plano.descricao }}</p> }
+            <div class="pl-preco"><strong>{{ brl(plano.preco) }}</strong><span>{{ sufixo(plano.periodicidade) }}</span></div>
+            <ul>
+              @for (r of plano.beneficios; track $index) {
+                <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> {{ r }}</li>
+              }
+            </ul>
 
-          @if (!isPremium()) {
-            @if (!confirmandoAssinatura()) {
-              <button type="button" class="pl-btn pl-btn-premium" (click)="confirmandoAssinatura.set(true); msgPlano.set(null)"><i class="fa-solid fa-crown"></i> Assinar Premium</button>
-            } @else {
-              <div class="pl-confirmar">
-                <p><i class="fa-solid fa-circle-info"></i> Pagamento simulado: nenhuma cobrança será feita. O Premium fica ativo por 30 dias.</p>
-                <div class="pl-confirmar-acoes">
-                  <button type="button" class="pl-btn pl-btn-outline" (click)="confirmandoAssinatura.set(false)">Voltar</button>
-                  <button type="button" class="pl-btn pl-btn-premium" [disabled]="salvandoPlano()" (click)="assinarPremium()">{{ salvandoPlano() ? 'Ativando...' : 'Confirmar assinatura' }}</button>
+            @if (!ehPlanoAtual(plano)) {
+              @if (confirmandoPlanoId() !== plano.id) {
+                <button type="button" class="pl-btn pl-btn-premium" (click)="confirmandoPlanoId.set(plano.id); msgPlano.set(null)"><i class="fa-solid fa-crown"></i> Assinar {{ plano.nome }}</button>
+              } @else {
+                <div class="pl-confirmar">
+                  <p><i class="fa-solid fa-circle-info"></i> Pagamento simulado: nenhuma cobrança será feita. O plano fica ativo por {{ plano.duracaoDias }} dias.</p>
+                  <div class="pl-confirmar-acoes">
+                    <button type="button" class="pl-btn pl-btn-outline" (click)="confirmandoPlanoId.set(null)">Voltar</button>
+                    <button type="button" class="pl-btn pl-btn-premium" [disabled]="salvandoPlano()" (click)="assinarPremium(plano)">{{ salvandoPlano() ? 'Ativando...' : 'Confirmar assinatura' }}</button>
+                  </div>
                 </div>
-              </div>
+              }
+            } @else {
+              <button type="button" class="pl-btn pl-btn-premium" (click)="selecionarSecao('documentos'); abaDocumentos.set('modelos')">
+                <i class="fa-solid fa-file-signature"></i> Usar os modelos de documentos
+              </button>
             }
-          } @else {
-            <button type="button" class="pl-btn pl-btn-premium" (click)="selecionarSecao('documentos'); abaDocumentos.set('modelos')">
-              <i class="fa-solid fa-file-signature"></i> Usar os modelos de documentos
-            </button>
-          }
-        </div>
+          </div>
+        } @empty {
+          <div class="pl-card">
+            <div class="pl-card-topo"><h3><i class="fa-solid fa-crown"></i> Premium</h3></div>
+            <p class="pl-descricao-plano">Nenhum plano pago está disponível no momento. Volte em breve!</p>
+          </div>
+        }
       </div>
 
       @if (msgPlano(); as m) {
