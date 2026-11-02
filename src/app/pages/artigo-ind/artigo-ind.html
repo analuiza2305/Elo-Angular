@@ -61,6 +61,9 @@
 
             <div class="artigo-footer-info">
                 <span><i class="fa-solid fa-book-open"></i> Fonte: <strong>{{ artigo()?.fonte || 'ELOMATERNO' }}</strong></span>
+                @if (artigo()?.autorId || artigo()?.parceiroId) {
+                    <span>Publicado por <strong>{{ artigo()?.postadoPor || 'Equipe EloMaterno' }}</strong><app-selos-autor [uid]="artigo()?.autorId || artigo()?.parceiroId"></app-selos-autor></span>
+                }
             </div>
         </article>
     }

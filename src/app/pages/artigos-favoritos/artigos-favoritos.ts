@@ -6,10 +6,11 @@ import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, updateDoc, arrayRemove, collection, getDocs } from 'firebase/firestore';
 
+import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 @Component({
   selector: 'app-artigos-favoritos',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, SelosAutorComponent],
   templateUrl: './artigos-favoritos.html',
   styleUrls: ['./artigos-favoritos.css']
 })

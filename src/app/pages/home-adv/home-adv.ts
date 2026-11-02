@@ -13,8 +13,11 @@ import {
 } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
 import { cartaoDoLembrete } from '../../services/lembrete-chat';
+import { PlanoService, Assinatura, Plano, PLANOS_PADRAO_POR_PUBLICO, formatarBRL, sufixoPeriodicidade } from '../../services/plano';
+import { MODELOS_JURIDICOS, ModeloJuridico } from '../../services/modelos-juridicos';
+import { gerarDocumentoJuridico, gerarRelatorioAtendimentos, formatarHoras, ConsultaRelatorio } from '../../services/documentos-pdf';
 
-type SecaoHomeAdv = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'informacoes';
+type SecaoHomeAdv = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos' | 'informacoes';
 type AbaConsultas = 'Pendentes' | 'Agendadas' | 'Realizadas' | 'Negadas';
 type CategoriaArtigo = 'posts' | 'legislativos' | 'educacionais' | 'dicas';
 
@@ -34,7 +37,21 @@ interface ConsultaView {
   motivo: string;
   statusRaw: string;
   status: 'Pendente' | 'Agendada' | 'Realizada' | 'Negada';
+  /** Fim real da consulta (gravado ao encerrar a chamada); usado para calcular a duração nos relatórios. */
+  realizadoEm: Date | null;
 }
+interface DocFormJuridico {
+  pacienteId: string;
+  interessado: string;
+  solicitante: string;
+  finalidade: string;
+  cidade: string;
+  secoes: Record<string, string>;
+  atendimentosIds: string[];
+}
+const DOC_JURIDICO_VAZIO: DocFormJuridico = {
+  pacienteId: '', interessado: '', solicitante: '', finalidade: '', cidade: '', secoes: {}, atendimentosIds: [],
+};
 interface ArtigoForm {
   titulo: string; descricao: string; resumo: string; categoria: CategoriaArtigo; img: string; link: string;
 }
@@ -66,12 +83,13 @@ const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', catego
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './home-adv.html',
-  styleUrl: './home-adv.css',
+  styleUrls: ['./home-adv.css', './home-adv-premium.css'],
 })
 export class HomeAdv implements OnInit, OnDestroy {
   public router = inject(Router);
   private readonly alerta = inject(AlertaService);
   private lembreteService = inject(LembreteService);
+  private planoService = inject(PlanoService);
   private readonly isBrowser: boolean;
 
   readonly menuItems: MenuItem[] = [
@@ -82,6 +100,8 @@ export class HomeAdv implements OnInit, OnDestroy {
     { target: 'forum', label: 'Fórum', icon: 'fa-solid fa-comments' },
     { target: 'pacientes', label: 'Clientes', icon: 'fa-solid fa-user-group' },
     { target: 'chats', label: 'Chats', icon: 'fa-solid fa-message' },
+    { target: 'documentos', label: 'Documentos', icon: 'fa-solid fa-file-signature' },
+    { target: 'planos', label: 'Planos', icon: 'fa-solid fa-crown' },
   ];
 
   readonly activeSection = signal<SecaoHomeAdv>('dashboard');
@@ -100,6 +120,10 @@ export class HomeAdv implements OnInit, OnDestroy {
   readonly carregandoConsultasHoje = signal(true);
   private uidAtual: string | null = null;
   private advDocId: string | null = null;
+  readonly oab = signal('');
+  readonly cidadeProfissional = signal('');
+  readonly isPremium = signal(false);
+  readonly assinatura = signal<Assinatura | null>(null);
 
   // Passo a passo da agenda: 1) período do dia  2) duração da consulta  3) escolher os horários
   readonly modalConfigPeriodoAberto = signal(false);
@@ -293,6 +317,7 @@ export class HomeAdv implements OnInit, OnDestroy {
       await this.carregarPerfilProfissional(user.uid);
       this.ouvirConsultas(user.uid);
       this.carregarMinhaReputacao(user.uid);
+      this.carregarPlano(user.uid);
       this.lembreteService.iniciarListenerDeConsultas(user.uid, 'advogado');
       this.carregarArtigos();
       this.carregarForum();
@@ -329,6 +354,8 @@ export class HomeAdv implements OnInit, OnDestroy {
       }
       if (dados) {
         this.nomeCompleto.set(dados['nome'] || 'Advogado(a)');
+        this.oab.set(String(dados['oab'] || '').trim());
+        this.cidadeProfissional.set(String(dados['cidade'] || '').trim());
         if (dados['avatar']) this.avatarUrl.set(dados['avatar']);
         this.disponibilidade.set(this.paraDatas(dados['disponibilidade']));
         this.agendados.set(this.paraDatas(dados['agendados']));
@@ -390,6 +417,7 @@ export class HomeAdv implements OnInit, OnDestroy {
             motivo: raw['Motivo'] || 'Não informado',
             statusRaw,
             status: STATUS_LABEL[statusRaw] || 'Pendente',
+            realizadoEm: raw['realizadoEm']?.toDate ? raw['realizadoEm'].toDate() : null,
           };
         });
         this.todasConsultas.set(lista);
@@ -460,7 +488,8 @@ export class HomeAdv implements OnInit, OnDestroy {
 
   async marcarRealizada(c: ConsultaView) {
     try {
-      await updateDoc(doc(db, 'Consultas', c.id), { status: 'realizado' });
+      // realizadoEm = fim da consulta, usado na duração do relatório de atendimentos
+      await updateDoc(doc(db, 'Consultas', c.id), { status: 'realizado', realizadoEm: serverTimestamp(), encerradoPor: 'profissional' });
     } catch (err: any) {
       console.error(err);
       this.alerta.erro('Não foi possível marcar a consulta como realizada.');
@@ -568,7 +597,7 @@ export class HomeAdv implements OnInit, OnDestroy {
     const mesmoSlot = (d: Date, h: string) =>
       d.toDateString() === dataClicada.toDateString() &&
       `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` === h;
-    
+
     const agora = new Date();
     const duracaoMinutos = this.duracaoSessao() || 30;
     const inicio = this.paraMinutos(this.horaInicioExpediente()) ?? 8 * 60;
@@ -935,6 +964,314 @@ export class HomeAdv implements OnInit, OnDestroy {
     }
   }
 
+  // ==========================================================
+  // DOCUMENTOS: relatório de atendimentos + modelos jurídicos
+  // (tudo é gerado no navegador: nada fica salvo na plataforma)
+  // ==========================================================
+  readonly abaDocumentos = signal<'modelos' | 'relatorio'>('modelos');
+  readonly gerandoPdf = signal(false);
+  readonly erroDocumento = signal('');
+
+  /** "OAB 123456/SP" — acrescenta o prefixo quando o cadastro guardou só o número. */
+  private oabFormatada(): string {
+    const o = this.oab();
+    return o.toUpperCase().startsWith('OAB') ? o : `OAB ${o}`;
+  }
+
+  // ----- Relatório de atendimentos (Premium) -----
+  readonly relPeriodo = signal<'mes' | 'mes-passado' | '3m' | '6m' | 'ano'>('mes');
+  readonly opcoesPeriodoRelatorio = [
+    { valor: 'mes', rotulo: 'Este mês' },
+    { valor: 'mes-passado', rotulo: 'Mês passado' },
+    { valor: '3m', rotulo: 'Últimos 3 meses' },
+    { valor: '6m', rotulo: 'Últimos 6 meses' },
+    { valor: 'ano', rotulo: 'Este ano' },
+  ] as const;
+
+  /** Início e fim do período escolhido. */
+  readonly intervaloRelatorio = computed(() => {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = hoje.getMonth();
+    const fimDoMes = (a: number, m: number) => new Date(a, m + 1, 0, 23, 59, 59, 999);
+    switch (this.relPeriodo()) {
+      case 'mes-passado': return { inicio: new Date(ano, mes - 1, 1), fim: fimDoMes(ano, mes - 1) };
+      case '3m': return { inicio: new Date(ano, mes - 2, 1), fim: fimDoMes(ano, mes) };
+      case '6m': return { inicio: new Date(ano, mes - 5, 1), fim: fimDoMes(ano, mes) };
+      case 'ano': return { inicio: new Date(ano, 0, 1), fim: new Date(ano, 11, 31, 23, 59, 59, 999) };
+      default: return { inicio: new Date(ano, mes, 1), fim: fimDoMes(ano, mes) };
+    }
+  });
+
+  readonly periodoRelatorioTexto = computed(() => {
+    const { inicio, fim } = this.intervaloRelatorio();
+    const m = (d: Date) => NOMES_MESES[d.getMonth()].toLowerCase();
+    if (inicio.getMonth() === fim.getMonth() && inicio.getFullYear() === fim.getFullYear()) return `${m(inicio)} de ${inicio.getFullYear()}`;
+    if (inicio.getFullYear() === fim.getFullYear()) return `${m(inicio)} a ${m(fim)} de ${fim.getFullYear()}`;
+    return `${m(inicio)} de ${inicio.getFullYear()} a ${m(fim)} de ${fim.getFullYear()}`;
+  });
+
+  readonly consultasRelatorio = computed<ConsultaRelatorio[]>(() => {
+    const { inicio, fim } = this.intervaloRelatorio();
+    const padrao = this.duracaoSessao() || 30;
+    const situacao: Record<ConsultaView['status'], ConsultaRelatorio['situacao']> = {
+      Realizada: 'Realizada', Agendada: 'Agendada', Pendente: 'Pendente', Negada: 'Recusada',
+    };
+    return this.todasConsultas()
+      .filter((c) => c.dataObj && c.dataObj >= inicio && c.dataObj <= fim)
+      .map((c) => {
+        let duracaoMin: number | null = null;
+        let estimada = false;
+        if (c.status === 'Realizada') {
+          const real = c.realizadoEm ? Math.round((c.realizadoEm.getTime() - c.dataObj!.getTime()) / 60000) : NaN;
+          const valida = real >= 10 && real <= 180;   // ignora encerramentos muito cedo ou esquecidos abertos
+          duracaoMin = valida ? real : padrao;
+          estimada = !valida;
+        }
+        const iniciais = String(c.nome || '').trim().split(/\s+/).filter(Boolean).slice(0, 2)
+          .map((p) => p.charAt(0).toUpperCase() + '.').join(' ');
+        return { data: c.dataObj!, situacao: situacao[c.status] || 'Pendente', duracaoMin, duracaoEstimada: estimada, iniciais };
+      });
+  });
+
+  readonly resumoRelatorio = computed(() => {
+    const l = this.consultasRelatorio();
+    const realizadas = l.filter((c) => c.situacao === 'Realizada');
+    const recusadas = l.filter((c) => c.situacao === 'Recusada').length;
+    const decididas = l.filter((c) => c.situacao !== 'Pendente').length;
+    return {
+      pedidos: l.length,
+      realizadas: realizadas.length,
+      horas: formatarHoras(realizadas.reduce((s, c) => s + (c.duracaoMin || 0), 0)),
+      taxa: decididas ? Math.round(((decididas - recusadas) / decididas) * 100) + '%' : '–',
+    };
+  });
+
+  async baixarRelatorio() {
+    if (!this.uidAtual || this.gerandoPdf()) return;
+    this.erroDocumento.set('');
+    if (!this.isPremium()) {
+      this.erroDocumento.set('O relatório de atendimentos faz parte do Premium.');
+      return;
+    }
+    if (!this.oab()) {
+      this.erroDocumento.set('Cadastre sua OAB no perfil para emitir o relatório.');
+      return;
+    }
+    this.gerandoPdf.set(true);
+    try {
+      const { inicio, fim } = this.intervaloRelatorio();
+      const r = this.reputacao();
+      await gerarRelatorioAtendimentos({
+        nome: this.nomeCompleto(),
+        profissao: 'Advogado(a)',
+        registro: this.oabFormatada(),
+        periodoTexto: this.periodoRelatorioTexto(),
+        inicio,
+        fim,
+        consultas: this.consultasRelatorio(),
+        duracaoPadraoMin: this.duracaoSessao() || 30,
+        reputacao: { media: r.mediaTexto, total: r.total, recomendamPct: r.recomendamPct, bemAvaliado: r.bemAvaliado },
+      });
+    } catch (e) {
+      console.error('Erro ao gerar relatório:', e);
+      this.erroDocumento.set('Não foi possível gerar o PDF. Tente de novo.');
+    } finally {
+      this.gerandoPdf.set(false);
+    }
+  }
+
+  // ----- Modelos de documentos jurídicos -----
+  readonly modelos = MODELOS_JURIDICOS;
+  readonly modeloSelecionado = signal<ModeloJuridico | null>(null);
+  readonly docForm = signal<DocFormJuridico>({ ...DOC_JURIDICO_VAZIO });
+
+  /** Atendimentos realizados com o(a) cliente escolhido(a) (para a declaração). */
+  readonly sessoesDoCliente = computed(() => {
+    const id = this.docForm().pacienteId;
+    if (!id) return [];
+    return this.todasConsultas()
+      .filter((c) => c.maeId === id && c.status === 'Realizada' && c.dataObj)
+      .sort((a, b) => b.dataObj!.getTime() - a.dataObj!.getTime());
+  });
+
+  readonly camposFaltando = computed(() => {
+    const m = this.modeloSelecionado();
+    const f = this.docForm();
+    if (!m) return [];
+    const falta: string[] = [];
+    if (!f.interessado.trim()) falta.push(m.papelCliente);
+    if (m.rotuloSolicitante && m.solicitanteObrigatorio && !f.solicitante.trim()) falta.push(m.rotuloSolicitante);
+    if (m.rotuloFinalidade && !f.finalidade.trim()) falta.push(m.rotuloFinalidade);
+    m.secoes.filter((s) => s.obrigatoria && !(f.secoes[s.id] || '').trim()).forEach((s) => falta.push(s.titulo));
+    return falta;
+  });
+
+  podeUsarModelo(m: ModeloJuridico): boolean {
+    return !m.premium || this.isPremium();
+  }
+
+  escolherModelo(m: ModeloJuridico) {
+    if (!this.podeUsarModelo(m)) return;
+    this.erroDocumento.set('');
+    this.modeloSelecionado.set(m);
+    this.docForm.set({ ...DOC_JURIDICO_VAZIO, secoes: {}, atendimentosIds: [], cidade: this.cidadeProfissional() });
+  }
+
+  voltarParaModelos() {
+    this.modeloSelecionado.set(null);
+    this.erroDocumento.set('');
+  }
+
+  setCampoDoc<K extends keyof DocFormJuridico>(campo: K, valor: DocFormJuridico[K]) {
+    this.docForm.update((f) => ({ ...f, [campo]: valor }));
+  }
+
+  setSecaoDoc(id: string, valor: string) {
+    this.docForm.update((f) => ({ ...f, secoes: { ...f.secoes, [id]: valor } }));
+  }
+
+  /** Ao escolher o(a) cliente, preenche o nome e (na declaração) já marca os atendimentos e sugere o texto. */
+  escolherClienteDoc(id: string) {
+    const p = this.pacientes().find((x) => x.id === id);
+    const nome = p?.nome || '';
+    this.docForm.update((f) => ({ ...f, pacienteId: id, interessado: nome, atendimentosIds: [] }));
+    const m = this.modeloSelecionado();
+    if (m?.id === 'declaracao') {
+      this.docForm.update((f) => ({
+        ...f,
+        atendimentosIds: this.sessoesDoCliente().slice(0, 4).map((c) => c.id),
+        secoes: f.secoes['texto']?.trim()
+          ? f.secoes
+          : { ...f.secoes, texto: `Declaro, para os devidos fins, que ${nome} compareceu a atendimento jurídico na modalidade on-line, por meio da plataforma EloMaterno, nos dias e horários abaixo.` },
+      }));
+    }
+  }
+
+  alternarAtendimentoDoc(id: string) {
+    this.docForm.update((f) => ({
+      ...f,
+      atendimentosIds: f.atendimentosIds.includes(id) ? f.atendimentosIds.filter((x) => x !== id) : [...f.atendimentosIds, id],
+    }));
+  }
+
+  async baixarDocumento() {
+    const m = this.modeloSelecionado();
+    if (!m || this.gerandoPdf()) return;
+    this.erroDocumento.set('');
+    if (!this.podeUsarModelo(m)) { this.erroDocumento.set('Este modelo faz parte do plano Premium.'); return; }
+    if (!this.oab()) { this.erroDocumento.set('Cadastre sua OAB no perfil: ela é obrigatória nos documentos.'); return; }
+    const falta = this.camposFaltando();
+    if (falta.length) { this.erroDocumento.set(`Preencha: ${falta.join(', ')}.`); return; }
+
+    const f = this.docForm();
+    const atendimentos = this.todasConsultas()
+      .filter((c) => f.atendimentosIds.includes(c.id) && c.dataObj)
+      .map((c) => c.dataObj!)
+      .sort((a, b) => a.getTime() - b.getTime());
+
+    this.gerandoPdf.set(true);
+    try {
+      await gerarDocumentoJuridico({
+        modelo: m,
+        profissional: { nome: this.nomeCompleto(), oab: this.oabFormatada() },
+        interessado: f.interessado.trim(),
+        solicitante: f.solicitante.trim(),
+        finalidade: f.finalidade.trim(),
+        secoes: f.secoes,
+        atendimentos,
+        duracaoMin: this.duracaoSessao(),
+        cidade: f.cidade.trim(),
+        data: new Date(),
+      });
+    } catch (e) {
+      console.error('Erro ao gerar documento:', e);
+      this.erroDocumento.set('Não foi possível gerar o PDF. Tente de novo.');
+    } finally {
+      this.gerandoPdf.set(false);
+    }
+  }
+
+  conhecerPremium() {
+    this.selecionarSecao('planos');
+  }
+
+  // ==========================================================
+  // PLANOS (Premium do advogado — pagamento simulado)
+  // ==========================================================
+  /** Planos vêm do catálogo gerenciado pelo ADM (PlanoService.planosParaOfertar('advogado')). */
+  readonly planosOfertados = signal<Plano[]>([]);
+  readonly planoGratuito = computed<Plano>(() =>
+    this.planosOfertados().find((p) => p.nivel === 'gratuito')
+      ?? { ...PLANOS_PADRAO_POR_PUBLICO.advogado[0], id: 'padrao-gratuito-advogado' });
+  readonly planosPremium = computed(() => this.planosOfertados().filter((p) => p.nivel === 'premium'));
+  readonly brl = formatarBRL;
+  readonly sufixo = sufixoPeriodicidade;
+
+  readonly salvandoPlano = signal(false);
+  /** Plano em que a pessoa clicou "Assinar" (a confirmação só aparece nele). */
+  readonly confirmandoPlanoId = signal<string | null>(null);
+  readonly msgPlano = signal<{ tipo: 'ok' | 'erro'; texto: string } | null>(null);
+
+  /** O plano pago em que o(a) advogado(a) está agora. */
+  ehPlanoAtual(p: Plano): boolean {
+    const a = this.assinatura();
+    if (!this.isPremium() || !a) return false;
+    if (a.planoId) return a.planoId === p.id;
+    return p.id === this.planosPremium()[0]?.id; // assinatura anterior ao catálogo
+  }
+
+  private async carregarPlano(uid: string) {
+    const a = await this.planoService.assinatura(uid);
+    this.assinatura.set(a);
+    this.isPremium.set(await this.planoService.temPremium(uid));
+    this.planosOfertados.set(await this.planoService.planosParaOfertar('advogado'));
+  }
+
+  validadePremiumTexto(): string {
+    const v = this.assinatura()?.validoAte;
+    return v ? v.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+  }
+
+  async assinarPremium(plano: Plano) {
+    if (!this.uidAtual || this.salvandoPlano()) return;
+    this.salvandoPlano.set(true);
+    this.msgPlano.set(null);
+    try {
+      const a = await this.planoService.assinarPlano(this.uidAtual, plano, {
+        nome: this.nomeCompleto(),
+        email: auth.currentUser?.email || '',
+        tipo: 'advogado',
+      });
+      this.assinatura.set(a);
+      this.isPremium.set(true);
+      this.confirmandoPlanoId.set(null);
+      this.msgPlano.set({ tipo: 'ok', texto: `${plano.nome} ativado! Os modelos de documentos já estão liberados.` });
+    } catch (e) {
+      console.error('Erro ao assinar:', e);
+      this.msgPlano.set({ tipo: 'erro', texto: 'Não foi possível ativar agora. Tente de novo.' });
+    } finally {
+      this.salvandoPlano.set(false);
+    }
+  }
+
+  async cancelarPremium() {
+    if (!this.uidAtual || this.salvandoPlano()) return;
+    this.salvandoPlano.set(true);
+    this.msgPlano.set(null);
+    try {
+      const a = await this.planoService.cancelarPremium(this.uidAtual);
+      this.assinatura.set(a);
+      this.isPremium.set(false);
+      this.msgPlano.set({ tipo: 'ok', texto: 'Você voltou para o plano gratuito.' });
+    } catch (e) {
+      console.error('Erro ao cancelar:', e);
+      this.msgPlano.set({ tipo: 'erro', texto: 'Não foi possível cancelar agora. Tente de novo.' });
+    } finally {
+      this.salvandoPlano.set(false);
+    }
+  }
+
   selecionarSecao(secao: SecaoHomeAdv): void {
     this.activeSection.set(secao);
     if (this.isBrowser) {
@@ -950,7 +1287,7 @@ export class HomeAdv implements OnInit, OnDestroy {
   private lerUltimaSecaoSalva(): SecaoHomeAdv {
     if (!this.isBrowser) return 'dashboard';
     const salva = localStorage.getItem(CHAVE_ULTIMA_SECAO) as SecaoHomeAdv | null;
-    const validas: SecaoHomeAdv[] = ['dashboard', 'agenda', 'artigos', 'consultas', 'forum', 'pacientes', 'chats', 'informacoes'];
+    const validas: SecaoHomeAdv[] = ['dashboard', 'agenda', 'artigos', 'consultas', 'forum', 'pacientes', 'chats', 'documentos', 'planos', 'informacoes'];
     return salva && validas.includes(salva) ? salva : 'dashboard';
   }
 

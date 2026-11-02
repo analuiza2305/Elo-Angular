@@ -108,7 +108,7 @@
                         <div class="fc-header">
                             <img [src]="post.autorFotoFinal" [alt]="post.autorNomeFinal" class="fc-avatar">
                             <div class="fc-user-info">
-                                <strong class="fc-nome">{{ post.autorNomeFinal }}</strong>
+                                <strong class="fc-nome">{{ post.autorNomeFinal }}</strong><app-selos-autor [uid]="post.autorId" [compacto]="true"></app-selos-autor>
                                 <span class="fc-dot">•</span>
                                 <span class="fc-data">{{ post.dataFormatada }}</span>
                             </div>
@@ -161,7 +161,7 @@
                                 <h4 class="ac-title">{{ artigo.titulo }}</h4>
                                 <p class="ac-excerpt">{{ artigo.resumo || 'Dicas e reflexões essenciais...' | slice:0:75 }}...</p>
                                 <div class="ac-footer">
-                                    <span class="ac-author">{{ artigo.autorNome || 'Equipe EloMaterno' }}</span>
+                                    <span class="ac-author">{{ artigo.autorNome || 'Equipe EloMaterno' }}<app-selos-autor [uid]="artigo.autorId || artigo.parceiroId" [compacto]="true"></app-selos-autor></span>
                                     <span class="ac-ler">Ler <i class="fa-solid fa-arrow-right"></i></span>
                                 </div>
                             </div>

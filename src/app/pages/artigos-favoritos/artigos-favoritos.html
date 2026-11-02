@@ -63,6 +63,7 @@
                         
                         <div class="artigo-footer">
                             <span class="ler-mais">Ler artigo completo <i class="fa-solid fa-arrow-right" style="font-size: 0.75rem;"></i></span>
+                            <app-selos-autor [uid]="artigo.autorId || artigo.parceiroId" [compacto]="true"></app-selos-autor>
                             <button class="btn-externo-card" title="Abrir link externo" (click)="$event.stopPropagation(); abrirLink(artigo.link)">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
                             </button>

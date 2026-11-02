@@ -1,0 +1,91 @@
+<div class="pp-root">
+  <div class="pl-topo">
+    <h2>Planos</h2>
+    <p>Compare o que cada plano oferece e veja o plano atual da sua empresa.</p>
+  </div>
+
+  <div class="pl-atual" [class.premium]="isPremium()">
+    <div class="pl-atual-icone"><i class="fa-solid" [class.fa-crown]="isPremium()" [class.fa-seedling]="!isPremium()"></i></div>
+    <div class="pl-atual-texto">
+      <span>Plano atual da empresa</span>
+      <strong>{{ isPremium() ? (assinatura()?.planoNome || 'Premium') : 'Gratuito' }}</strong>
+      @if (isPremium() && validadePremiumTexto()) {
+        <small>Ativo até {{ validadePremiumTexto() }}</small>
+      }
+    </div>
+    <div class="pl-atual-ilustra" aria-hidden="true">
+      <i class="fa-regular fa-calendar-days"></i>
+      <i class="fa-solid fa-seedling"></i>
+    </div>
+  </div>
+
+  @if (carregando()) {
+    <p class="pl-descricao-plano"><i class="fa-solid fa-spinner fa-spin"></i> Carregando os planos…</p>
+  } @else {
+    <div class="pl-grid">
+      <div class="pl-card" [class.atual]="!isPremium()">
+        <div class="pl-card-topo">
+          <h3>{{ planoGratuito().nome }}</h3>
+          @if (!isPremium()) { <span class="pl-chip">Seu plano</span> }
+        </div>
+        <div class="pl-preco"><strong>R$ 0</strong><span>/mês</span></div>
+        <ul>
+          @for (r of planoGratuito().beneficios; track $index) {
+            <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> {{ r }}</li>
+          }
+        </ul>
+        @if (isPremium()) {
+          <button type="button" class="pl-btn pl-btn-outline" [disabled]="salvandoPlano()" (click)="cancelarPremium()">
+            {{ salvandoPlano() ? 'Salvando...' : 'Voltar para o gratuito' }}
+          </button>
+        }
+      </div>
+
+      @for (plano of planosPremium(); track plano.id) {
+        <div class="pl-card pl-card-premium" [class.atual]="ehPlanoAtual(plano)">
+          <div class="pl-card-topo">
+            <h3><i class="fa-solid fa-crown"></i> {{ plano.nome }}</h3>
+            @if (ehPlanoAtual(plano)) {
+              <span class="pl-chip pl-chip-premium">Seu plano</span>
+            } @else if (plano.destaque) {
+              <span class="pl-chip pl-chip-premium">Recomendado</span>
+            }
+          </div>
+          @if (plano.descricao) { <p class="pl-descricao-plano">{{ plano.descricao }}</p> }
+          <div class="pl-preco"><strong>{{ brl(plano.preco) }}</strong><span>{{ sufixo(plano.periodicidade) }}</span></div>
+          <ul>
+            @for (r of plano.beneficios; track $index) {
+              <li><span class="pl-check"><i class="fa-solid fa-check"></i></span> {{ r }}</li>
+            }
+          </ul>
+
+          @if (!ehPlanoAtual(plano)) {
+            @if (confirmandoPlanoId() !== plano.id) {
+              <button type="button" class="pl-btn pl-btn-premium" (click)="confirmandoPlanoId.set(plano.id); msgPlano.set(null)"><i class="fa-solid fa-crown"></i> Assinar {{ plano.nome }}</button>
+            } @else {
+              <div class="pl-confirmar">
+                <p><i class="fa-solid fa-circle-info"></i> Pagamento simulado: nenhuma cobrança será feita. O plano fica ativo por {{ plano.duracaoDias }} dias.</p>
+                <div class="pl-confirmar-acoes">
+                  <button type="button" class="pl-btn pl-btn-outline" (click)="confirmandoPlanoId.set(null)">Voltar</button>
+                  <button type="button" class="pl-btn pl-btn-premium" [disabled]="salvandoPlano()" (click)="assinarPremium(plano)">{{ salvandoPlano() ? 'Ativando...' : 'Confirmar assinatura' }}</button>
+                </div>
+              </div>
+            }
+          } @else {
+            <p class="pl-descricao-plano"><i class="fa-solid fa-handshake-angle"></i> O selo Apoiador já aparece no perfil, nos artigos e nos eventos da sua empresa.</p>
+          }
+        </div>
+      } @empty {
+        <div class="pl-card">
+          <div class="pl-card-topo"><h3><i class="fa-solid fa-crown"></i> Premium</h3></div>
+          <p class="pl-descricao-plano">Nenhum plano pago está disponível no momento. Volte em breve!</p>
+        </div>
+      }
+    </div>
+
+    @if (msgPlano(); as m) {
+      <p class="pl-msg" [class.erro]="m.tipo === 'erro'" role="status">{{ m.texto }}</p>
+    }
+    <p class="pl-nota"><i class="fa-solid fa-handshake-angle"></i> O selo Apoiador aparece ao lado do nome da empresa nos artigos, nos eventos e no perfil enquanto o Premium estiver ativo.</p>
+  }
+</div>

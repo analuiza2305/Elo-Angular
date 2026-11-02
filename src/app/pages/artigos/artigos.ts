@@ -7,10 +7,11 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
 
+import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 @Component({
   selector: 'app-artigos',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, SelosAutorComponent],
   templateUrl: './artigos.html',
   styleUrls: ['./artigos.css']
 })

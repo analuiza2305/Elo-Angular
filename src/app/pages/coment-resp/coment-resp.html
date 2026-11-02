@@ -12,7 +12,7 @@
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
                 <img [src]="post().autorFotoFinal" class="coment-avatar">
                 <div>
-                    <strong class="coment-autor-nome">{{ post().autorNomeFinal }}</strong>
+                    <strong class="coment-autor-nome">{{ post().autorNomeFinal }}</strong><app-selos-autor [uid]="post().autorId"></app-selos-autor>
                     <span class="coment-data">{{ post().dataFormatada }}</span>
                 </div>
             </div>
@@ -35,7 +35,7 @@
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
                     <img [src]="coment.autorFotoFinal" class="coment-avatar">
                     <div>
-                        <strong class="coment-autor-nome">{{ coment.autorNomeFinal }}</strong>
+                        <strong class="coment-autor-nome">{{ coment.autorNomeFinal }}</strong><app-selos-autor [uid]="coment.autorId"></app-selos-autor>
                         <span class="coment-data">{{ coment.dataFormatada }}</span>
                     </div>
                 </div>
