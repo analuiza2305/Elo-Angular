@@ -314,3 +314,6 @@ button.link-voltar { height: 44px; padding: 0 18px !important; }
 
 :host-context(body[data-theme="dark"]) .btn-favoritar { background: rgba(157, 143, 231, .14); color: #E5DCFF; border-color: rgba(157, 143, 231, .28); }
 :host-context(body[data-theme="dark"]) .btn-favoritar i { color: #D9D0FF !important; }
+
+/* Ajuste 02/11 (auditoria de contraste): ícone do estado vazio herda a cor do círculo */
+.vazio-icon-wrapper i { color: inherit !important; }

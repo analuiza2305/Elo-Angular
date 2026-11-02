@@ -757,25 +757,8 @@ header.header-prof .logout-btn:hover {
   .rep-grid { grid-template-columns: 1fr; gap: 18px; }
 }
 
-/* Modo escuro */
-:host-context(body[data-theme="dark"]) .rep-resumo,
-:host-context(body[data-theme="dark"]) .rep-barra-linha { color: #E2DAFC; }
-:host-context(body[data-theme="dark"]) .rep-media,
-:host-context(body[data-theme="dark"]) .rep-nota-grande strong { color: #F5F0FF; }
-:host-context(body[data-theme="dark"]) .rep-total,
-:host-context(body[data-theme="dark"]) .rep-nota-grande small,
-:host-context(body[data-theme="dark"]) .rep-barra-qtd,
-:host-context(body[data-theme="dark"]) .rep-aviso,
-:host-context(body[data-theme="dark"]) .rep-rodape { color: #C7BBEB; }
-:host-context(body[data-theme="dark"]) .rep-nota-grande { background: #1B2336; }
-:host-context(body[data-theme="dark"]) .rep-barra { background: #262046; }
-:host-context(body[data-theme="dark"]) .rep-elogio { background: #1B2336; color: #E2DAFC; }
-:host-context(body[data-theme="dark"]) .rep-elogio b { background: #262046; color: #BDAFFC; }
-:host-context(body[data-theme="dark"]) .rep-recomenda { background: rgba(16, 185, 129, .14); color: #6EE7B7; }
-:host-context(body[data-theme="dark"]) .rep-recomenda i { color: #6EE7B7 !important; }
-:host-context(body[data-theme="dark"]) .rep-novo { background: #262046; color: #BDAFFC; }
-:host-context(body[data-theme="dark"]) .rep-estrelas i.fa-regular { color: #333A55 !important; }
-:host-context(body[data-theme="dark"]) .rep-rodape { border-top-color: rgba(255, 255, 255, .08); }
+/* Modo escuro: os cards do perfil continuam claros (lilás claríssimo),
+   então a reputação mantém as cores do modo claro. */
 
 /* =========================================================
    SELOS (Premium = pago | Bem avaliado = mérito)
@@ -790,8 +773,6 @@ header.header-prof .logout-btn:hover {
 .selo-premium i { color: #F5C66B !important; }
 .selo-bem-avaliado { background: #E7F8F1; color: #0F7A55; border: 1px solid #A7F3D0; }
 .selo-bem-avaliado i { color: #0F7A55 !important; }
-:host-context(body[data-theme="dark"]) .selo-bem-avaliado { background: rgba(16, 185, 129, .14); color: #6EE7B7; border-color: rgba(110, 231, 183, .35); }
-:host-context(body[data-theme="dark"]) .selo-bem-avaliado i { color: #6EE7B7 !important; }
 @media (max-width: 992px) { .selos-row { justify-content: center; } }
 
 /* =========================================================
@@ -944,3 +925,41 @@ header.header-prof .logout-btn:hover {
 :host-context(body[data-theme="dark"]) .hora-chip.ativo { background: #7C69A9; border-color: #7C69A9; }
 :host-context(body[data-theme="dark"]) .agenda-erro { background: rgba(229, 72, 77, .1); border-color: rgba(229, 72, 77, .35); color: #FECDD3; }
 :host-context(body[data-theme="dark"]) .sucesso-icone { background: rgba(16, 185, 129, .14); }
+/* Ajuste 02/11 (auditoria de contraste): no modo escuro os cards do perfil
+   ficam em lilás claríssimo e o texto continua escuro. O !important é para
+   vencer as regras globais de h1/h2/p do styles.css. */
+:host-context(body[data-theme="dark"]) .profile-hero-card,
+:host-context(body[data-theme="dark"]) .content-box,
+:host-context(body[data-theme="dark"]) .action-card,
+:host-context(body[data-theme="dark"]) .empty-state,
+:host-context(body[data-theme="dark"]) .loading-card {
+  background: #F7F3FF !important;
+  border-color: rgba(157, 143, 231, 0.35) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35) !important;
+}
+:host-context(body[data-theme="dark"]) .profile-header-info h1,
+:host-context(body[data-theme="dark"]) .content-box h2,
+:host-context(body[data-theme="dark"]) .action-card h3,
+:host-context(body[data-theme="dark"]) .empty-state h2,
+:host-context(body[data-theme="dark"]) .rep-subtitulo,
+:host-context(body[data-theme="dark"]) .rep-media,
+:host-context(body[data-theme="dark"]) .rep-nota-grande strong { color: #3E2A72 !important; }
+:host-context(body[data-theme="dark"]) .profile-role,
+:host-context(body[data-theme="dark"]) .profile-role strong,
+:host-context(body[data-theme="dark"]) .bio-text,
+:host-context(body[data-theme="dark"]) .action-card p,
+:host-context(body[data-theme="dark"]) .empty-state p,
+:host-context(body[data-theme="dark"]) .rep-resumo,
+:host-context(body[data-theme="dark"]) .rep-barra-linha,
+:host-context(body[data-theme="dark"]) .rep-total,
+:host-context(body[data-theme="dark"]) .rep-nota-grande small,
+:host-context(body[data-theme="dark"]) .rep-barra-qtd,
+:host-context(body[data-theme="dark"]) .rep-aviso,
+:host-context(body[data-theme="dark"]) .rep-rodape,
+:host-context(body[data-theme="dark"]) .proximo-horario { color: #4A4163 !important; }
+.rep-estrelas i.fa-solid { color: #B7791F !important; }
+:host-context(body[data-theme="dark"]) .btn-edit-profile { color: #52427D !important; border-color: #9C8BC4 !important; background: transparent !important; }
+:host-context(body[data-theme="dark"]) .back-link { color: #C9BCF5; }
+.rep-barra-label i.fa-star { color: #B7791F !important; }
+:host-context(body[data-theme="dark"]) .btn-edit-profile i { color: inherit !important; }
+:host-context(body[data-theme="dark"]) .rep-rodape i { color: #6E5FA0 !important; }

@@ -1166,3 +1166,39 @@ body {
 .primary-box { background: #F1EBFF; color: #4B2C82; }
 :host-context(body[data-theme="dark"]) .warning-box { background: rgba(250, 204, 21, .14); color: #FDE68A; }
 :host-context(body[data-theme="dark"]) .primary-box { background: rgba(157, 143, 231, .16); color: #E5DCFF; }
+
+/* Ajuste 02/11 (auditoria de contraste e responsividade) */
+/* Celular: avatar menor e chips quebrando linha (o card rolava 21px para o lado) */
+@media (max-width: 480px) {
+  .prof-info { gap: 14px; }
+  .avatar-wrapper { width: 64px; height: 64px; }
+  .details { flex: 1; }
+  .rating-chips { max-width: 100%; }
+  .chip-nota { flex-wrap: wrap; row-gap: 4px; }
+}
+
+/* Estrela: âmbar mais escuro sobre o chip amarelo-claro */
+.chip-nota .rating-estrelas i { color: #B7791F !important; }
+:host-context(body[data-theme="dark"]) .chip-nota .rating-estrelas i { color: #FCD34D !important; }
+:host-context(body[data-theme="dark"]) .chip-nota .rating-total { color: #FDE68A; }
+
+/* "Ver perfil completo" um pouco mais escuro no claro, mais claro no escuro */
+.profile-link { color: #5B4A93; }
+:host-context(body[data-theme="dark"]) .profile-link,
+:host-context(body[data-theme="dark"]) .profile-link i { color: #C9BCF5 !important; }
+
+/* Escuro: botão "Agendar" e data selecionada com fundo lilás e texto escuro */
+:host-context(body[data-theme="dark"]) .time-selection-row .btn-primary,
+:host-context(body[data-theme="dark"]) .time-selection-row .btn-primary i { color: #1A1530 !important; }
+:host-context(body[data-theme="dark"]) .date-chip.selected {
+  background: #B9A9F5 !important;
+  border-color: #B9A9F5 !important;
+}
+:host-context(body[data-theme="dark"]) .date-chip.selected .day,
+:host-context(body[data-theme="dark"]) .date-chip.selected .date { color: #1A1530 !important; }
+
+/* Contadores dos filtros */
+.tipo-chip.ativo { background: #6A55A0 !important; border-color: #6A55A0 !important; }
+.tipo-chip.ativo, .tipo-chip.ativo span { color: #FFFFFF !important; }
+.tipo-chip:not(.ativo) span { color: #5B4A93; }
+.tipo-chip.ativo span { background: rgba(26, 21, 48, 0.28) !important; }

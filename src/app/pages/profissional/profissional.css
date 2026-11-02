@@ -148,3 +148,17 @@
         margin-top: 0;
     }
 }
+
+/* Ajuste 02/11 (auditoria de contraste): roxo um pouco mais escuro para
+   texto pequeno e botões com texto branco. CSS não encapsulado, por isso
+   fica preso a app-profissional. */
+app-profissional {
+    --primary-color: #6F5CA3;
+    --text-muted: #6F5CA3;
+}
+body[data-theme="dark"] app-profissional {
+    --primary-color: #9d8fe7;
+    --text-muted: #b8b0d6;
+}
+app-profissional .status-pill.inactive span { color: #4B5563; }
+body[data-theme="dark"] app-profissional .status-pill.inactive span { color: #CBD5E1; }

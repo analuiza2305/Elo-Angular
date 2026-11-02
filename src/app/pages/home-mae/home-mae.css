@@ -548,3 +548,39 @@ body[data-theme="dark"] .banner-image img {
 .hero-saudacao strong { color: #4B2C82; font-weight: 800; }
 :host-context(body[data-theme="dark"]) .hero-saudacao { color: #C9C0EA !important; }
 :host-context(body[data-theme="dark"]) .hero-saudacao strong { color: #E5DCFF !important; }
+
+/* Ajuste 02/11 (auditoria de contraste e responsividade) */
+/* Rodapé do card do fórum: o selo quebra para a linha de baixo em vez de cobrir o "Curtir" */
+.fc-footer { flex-wrap: wrap; gap: 8px 12px; }
+.fc-footer .fc-like { flex-shrink: 0; }
+
+/* Ícones herdam a cor do selo (o styles.css pinta todo <i> de lilás) */
+.badge-respondido i,
+.badge-aguardando i { color: inherit !important; }
+
+/* Ícone do card "mães online": fundo claro com o ícone na mesma cor, mais escuro */
+.card-icone { background: #EFE7FF !important; }
+.card-icone i { color: #5B3D99 !important; }
+:host-context(body[data-theme="dark"]) .card-icone { background: rgba(157, 143, 231, 0.22) !important; }
+:host-context(body[data-theme="dark"]) .card-icone i { color: #DCD2FF !important; }
+
+/* Botões brancos sobre a imagem (bookmark e setas) continuam brancos no escuro */
+.ac-bookmark i,
+.seta-carrossel i { color: #5B3D99 !important; }
+
+/* Links roxos sobre fundo escuro */
+:host-context(body[data-theme="dark"]) .ver-mais,
+:host-context(body[data-theme="dark"]) .ac-ler { color: #C9BCF5 !important; }
+
+/* Textos cinza-lilás pequenos ficavam abaixo de 4.5:1 no claro */
+.card-label,
+.fc-data,
+.fc-dot,
+.fc-like span { color: #6E6488; }
+:host-context(body[data-theme="dark"]) .card-label,
+:host-context(body[data-theme="dark"]) .fc-data,
+:host-context(body[data-theme="dark"]) .fc-dot,
+:host-context(body[data-theme="dark"]) .fc-like span { color: #B8B0D6; }
+
+/* Selo "Aguardando" continua claro no escuro: texto escuro */
+:host-context(body[data-theme="dark"]) .badge-aguardando { color: #5B4A93 !important; }

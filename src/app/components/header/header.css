@@ -200,9 +200,9 @@
 /* =========================================
    5. MODO ESCURO (DARK THEME)
 ========================================= */
-body[data-theme="dark"] .header { background: var(--bg-color); border-bottom: 1px solid rgba(255, 255, 255, 0.08); box-shadow: none; }
-body[data-theme="dark"] .btn-icon, body[data-theme="dark"] .btn-language { background: var(--surface-elevated); color: var(--text-dark); border-color: var(--border-color); box-shadow: var(--shadow); }
-body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:hover { background: var(--surface-muted); color: var(--primary-color); }
+:host-context(body[data-theme="dark"]) .header { background: var(--bg-color); border-bottom: 1px solid rgba(255, 255, 255, 0.08); box-shadow: none; }
+:host-context(body[data-theme="dark"]) .btn-icon, :host-context(body[data-theme="dark"]) .btn-language { background: var(--surface-elevated); color: var(--text-dark); border-color: var(--border-color); box-shadow: var(--shadow); }
+:host-context(body[data-theme="dark"]) .btn-icon:hover, :host-context(body[data-theme="dark"]) .btn-language:hover { background: var(--surface-muted); color: var(--primary-color); }
 
 /* =========================================
    6. RESPONSIVIDADE (MOBILE E TABLET)
@@ -328,6 +328,7 @@ body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:h
 }
 .adm-icon-btn:hover { transform: scale(1.1); background: #F4F0FC; color: #3E2A72; }
 .adm-logout-btn:hover { background: #fdecef; color: #c0344f; }
+.adm-icon-btn i, .adm-sidebar-toggle i { color: inherit; }
 
 .adm-avatar {
   width: 40px;
@@ -337,17 +338,29 @@ body[data-theme="dark"] .btn-icon:hover, body[data-theme="dark"] .btn-language:h
   border: 2px solid #ECE4FF;
 }
 
-body[data-theme="dark"] .adm-header { background: #0f1422; border-bottom-color: rgba(255, 255, 255, 0.12); }
-body[data-theme="dark"] .adm-logo span,
-body[data-theme="dark"] .adm-header-titulo,
-body[data-theme="dark"] .adm-icon-btn,
-body[data-theme="dark"] .adm-sidebar-toggle { color: #efe7ff; }
-body[data-theme="dark"] .adm-icon-btn:hover { background: rgba(255, 255, 255, 0.08); }
+:host-context(body[data-theme="dark"]) .adm-header { background: #0f1422; border-bottom-color: rgba(255, 255, 255, 0.12); }
+:host-context(body[data-theme="dark"]) .adm-logo span,
+:host-context(body[data-theme="dark"]) .adm-header-titulo,
+:host-context(body[data-theme="dark"]) .adm-icon-btn,
+:host-context(body[data-theme="dark"]) .adm-sidebar-toggle { color: #efe7ff; }
+:host-context(body[data-theme="dark"]) .adm-icon-btn:hover { background: rgba(255, 255, 255, 0.08); }
 
 @media (max-width: 1024px) {
   .adm-header-container { padding: 12px 16px; }
   .adm-sidebar-toggle { display: flex; }
   .adm-header-titulo { display: none; }
+}
+
+/* Celular: os 5 botões da direita + logo não cabiam em 375px */
+@media (max-width: 600px) {
+  .adm-header-container { gap: 8px; }
+  .adm-header-left { gap: 6px; }
+  .adm-header-right { gap: 4px; flex-shrink: 0; }
+  .adm-icon-btn, .adm-avatar, .adm-sidebar-toggle { width: 34px; height: 34px; }
+  .adm-icon-btn { font-size: 1rem; }
+}
+@media (max-width: 480px) {
+  .adm-logo span { display: none; }
 }
 
 /* =========================================================
@@ -604,7 +617,7 @@ body[data-theme="dark"] .adm-icon-btn:hover { background: rgba(255, 255, 255, 0.
 .adm-notif-badge {
   position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box;
   display: inline-flex; align-items: center; justify-content: center;
-  background: #e0446f; color: #fff; font-size: 11px; font-weight: 800; line-height: 1;
+  background: #C0344F; color: #fff; font-size: 11px; font-weight: 800; line-height: 1;
   border-radius: 999px; border: 2px solid #fff;
 }
 

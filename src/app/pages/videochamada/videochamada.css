@@ -819,3 +819,6 @@
   from { transform: scale(1); opacity: .6; }
   to   { transform: scale(1.5); opacity: 0; }
 }
+/* Ajuste 02/11 (auditoria de contraste): verde-água mais escuro para o texto branco */
+.btn-entrar-sala { background: linear-gradient(135deg, #0F766E, #115E59); }
+.btn-entrar-sala i { color: #FFFFFF !important; }

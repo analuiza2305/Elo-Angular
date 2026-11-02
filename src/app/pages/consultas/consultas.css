@@ -2196,3 +2196,7 @@ body[data-theme="dark"] .estado-vazio p { color: #C7BBEB !important; }
 
 /* Selo de status: amarelo com texto amarelo-queimado; no escuro, amarelo translúcido com texto amarelo claro */
 :host-context(body[data-theme="dark"]) .badge-pendente { background: rgba(255, 213, 79, .16); color: #FFE08A; }
+
+/* Ajuste 02/11 (auditoria de contraste): abas inativas mais legíveis no claro */
+.consultas-container .tabs > .consulta-tab-btn:not(.ativo) { color: #66578F !important; }
+:host-context(body[data-theme="dark"]) .consultas-container .tabs > .consulta-tab-btn:not(.ativo) { color: #BDAFFC !important; }

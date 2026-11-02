@@ -6506,3 +6506,39 @@ header .profile-img {
   color: #9a6410;
 }
 .sidebar-profile-tag.selo-apoiador[hidden] { display: none; }
+
+/* Ajuste 02/11 (auditoria de contraste) */
+/* Ícones das estatísticas: fundo claro e ícone da mesma cor, mais escuro.
+   No escuro, fundo translúcido da mesma cor e ícone mais claro. */
+.stat-icon.stat-icon-purple { background: #EFE7FF; }
+.stat-icon.stat-icon-yellow { background: #F1ECFA; }
+.stat-icon.stat-icon-coral  { background: #EEE6FF; }
+.stat-icon.stat-icon-blue   { background: #E9E4F5; }
+.stat-icon.stat-icon-purple i { color: #5B3D99 !important; }
+.stat-icon.stat-icon-yellow i { color: #6A55A8 !important; }
+.stat-icon.stat-icon-coral i  { color: #6D3FD6 !important; }
+.stat-icon.stat-icon-blue i   { color: #483478 !important; }
+:host-context(body[data-theme="dark"]) .stat-icon.stat-icon-purple { background: rgba(157, 120, 230, 0.20); }
+:host-context(body[data-theme="dark"]) .stat-icon.stat-icon-yellow { background: rgba(170, 150, 220, 0.18); }
+:host-context(body[data-theme="dark"]) .stat-icon.stat-icon-coral  { background: rgba(140, 100, 240, 0.20); }
+:host-context(body[data-theme="dark"]) .stat-icon.stat-icon-blue   { background: rgba(130, 110, 190, 0.20); }
+:host-context(body[data-theme="dark"]) .stat-icon.stat-icon-purple i { color: #D9C9FF !important; }
+:host-context(body[data-theme="dark"]) .stat-icon.stat-icon-yellow i { color: #DCD2F5 !important; }
+:host-context(body[data-theme="dark"]) .stat-icon.stat-icon-coral i  { color: #CDB8FF !important; }
+:host-context(body[data-theme="dark"]) .stat-icon.stat-icon-blue i   { color: #D2C8EE !important; }
+
+/* "Ações rápidas" continua claro no escuro, então o título fica escuro */
+:host-context(body[data-theme="dark"]) .quick-actions-panel h3 { color: #3E2A72 !important; }
+
+/* Item selecionado do menu no escuro: fundo lilás com texto e ícone escuros */
+:host-context(body[data-theme="dark"]) .sidebar .menu-btn.active,
+:host-context(body[data-theme="dark"]) .sidebar .menu-btn.active i { color: #1A1530 !important; }
+
+/* Gaveta roxa do celular */
+@media (max-width: 768px) {
+  .sidebar .sidebar-group-label { color: #E4DAF5; }
+  .sidebar .last-activities .empty-hint { color: #F3ECFF; }
+}
+
+/* Selo "Apoiador": fundo âmbar-claro, ícone âmbar-escuro */
+.sidebar-profile-tag.selo-apoiador i { color: #B45309 !important; }

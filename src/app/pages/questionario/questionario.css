@@ -243,3 +243,6 @@
 
 /* Ajuste 02/11: rótulo do topo sem pílula (regra do site: sem pills decorativas nos topos) */
 .qb-rotulo { padding: 0 !important; background: none !important; border: none !important; box-shadow: none !important; }
+
+/* Ajuste 02/11 (auditoria de contraste): ícone acompanha a cor do texto do botão */
+.qb-btn i { color: inherit !important; }

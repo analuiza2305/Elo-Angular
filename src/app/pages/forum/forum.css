@@ -14,7 +14,7 @@
   --fr-lilas: #F3ECFF;
   --fr-lilas-forte: #E9E0FF;
   --fr-sombra: 0 10px 30px rgba(82, 66, 125, 0.08);
-  --fr-gradiente: linear-gradient(135deg, #8B78C0, #5E4B92);
+  --fr-gradiente: linear-gradient(135deg, #7A66B3, #5E4B92);
   --fr-verde-bg: #ecfdf3;
   --fr-verde-borda: #bbf7d0;
   --fr-verde: #15803d;
@@ -31,7 +31,7 @@
   --fr-lilas: rgba(157, 143, 231, 0.14);
   --fr-lilas-forte: rgba(157, 143, 231, 0.24);
   --fr-sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
-  --fr-gradiente: linear-gradient(135deg, #9d8fe7, #6c5bb0);
+  --fr-gradiente: linear-gradient(135deg, #7A68C9, #54449A);
   --fr-verde-bg: rgba(34, 197, 94, 0.14);
   --fr-verde-borda: rgba(34, 197, 94, 0.3);
   --fr-verde: #86efac;
@@ -734,7 +734,7 @@ button.fr-acao:hover,
 }
 
 .fr-btn-perigo {
-  background: #C2416F;
+  background: #C0344F;
   color: #ffffff;
 }
 
@@ -1195,4 +1195,10 @@ button.fr-acao:hover,
   :host-context(body[data-theme="dark"]) .fr-hero-texto h1 span { color: #C4B5FD !important; }
   :host-context(body[data-theme="dark"]) .fr-hero-texto p { color: #CFC7EA !important; }
   :host-context(body[data-theme="dark"]) .fr-hero-texto .fr-hero-destaque { color: #C4B5FD !important; }
+}
+
+/* Ajuste 02/11 (auditoria de contraste): frase de destaque do banner claro (desktop) */
+.fr-hero-texto .fr-hero-destaque { color: #5B4A93; }
+@media (min-width: 1024px) {
+  :host-context(body[data-theme="dark"]) .fr-hero-texto .fr-hero-destaque { color: #5B4A93 !important; }
 }
