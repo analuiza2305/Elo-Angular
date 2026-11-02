@@ -11,6 +11,7 @@ import {
 import { onAuthStateChanged } from 'firebase/auth';
 import { carregarReputacoesDeTodos, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
 import { PlanoService } from '../../services/plano';
+import { SeloService } from '../../services/selo';
 import { AlertaService } from '../../core/services/alerta.service';
 import { liberarQuestionarioPara } from '../../services/questionario-acesso';
 
@@ -46,6 +47,7 @@ export class ConsultaListaPsiComponent implements OnInit {
   private router = inject(Router);
   private readonly alerta = inject(AlertaService);
   private planoService = inject(PlanoService);
+  private seloService = inject(SeloService);
   private route = inject(ActivatedRoute);
 
   profissionais = signal<Profissional[]>([]);
@@ -87,14 +89,14 @@ export class ConsultaListaPsiComponent implements OnInit {
     const tipo = this.filtroTipo();
 
     let lista = this.profissionais().filter(p => {
-      const matchTermo = !termo || 
+      const matchTermo = !termo ||
         p.nome.toLowerCase().includes(termo) ||
         p.identificacao.toLowerCase().includes(termo) ||
         p.area.toLowerCase().includes(termo) ||
         p.especializacoes.some(esp => esp.toLowerCase().includes(termo));
 
       const matchDisp = !apenasDisponiveis || p.datasDisponiveis.length > 0;
-      const matchEsp = espFiltro === 'todos' || 
+      const matchEsp = espFiltro === 'todos' ||
         p.area.toLowerCase().includes(espFiltro.toLowerCase()) ||
         p.especializacoes.some(esp => esp.toLowerCase().includes(espFiltro.toLowerCase()));
 
@@ -234,11 +236,12 @@ export class ConsultaListaPsiComponent implements OnInit {
   async carregarProfissionais() {
     this.isLoading.set(true);
     try {
-      const [snapPsi, snapAdv, reputacoes, premiums] = await Promise.all([
+      const [snapPsi, snapAdv, reputacoes, premiums, selos] = await Promise.all([
         getDocs(collection(db, 'psicologos')),
         getDocs(collection(db, 'advogados')),
         carregarReputacoesDeTodos().catch(() => new Map<string, Reputacao>()),
-        this.planoService.premiumAtivos()
+        this.planoService.premiumAtivos(),
+        this.seloService.publicosDeTodos()
       ]);
 
       const docsAll = [
@@ -281,7 +284,8 @@ export class ConsultaListaPsiComponent implements OnInit {
           extrasCount,
           foto,
           reputacao: reputacoes.get(uid) || REPUTACAO_VAZIA,
-          premium: premiums.has(uid),
+          // "premium" aqui significa selo de destaque: plano Premium ativo OU cortesia do ADM.
+          premium: premiums.has(uid) || !!selos.get(uid)?.destaque,
           disponibilidadeRaw,
           disponibilidadeFormatada,
           datasDisponiveis,

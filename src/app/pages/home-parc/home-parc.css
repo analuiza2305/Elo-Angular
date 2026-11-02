@@ -6496,3 +6496,13 @@ header .profile-img {
 .notif-resumo { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 16px; }
 .notif-resumo-item { display: flex !important; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 12px 8px; border-radius: 14px; background: var(--card-bg); }
 .notif-panel > .empty-hint { text-align: center; padding: 28px 16px; margin: 0; }
+
+/* Selo de apoiador (só aparece para empresas com selo ativo; ver SeloService) */
+.sidebar-profile-tag.selo-apoiador {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff4e0;
+  color: #9a6410;
+}
+.sidebar-profile-tag.selo-apoiador[hidden] { display: none; }

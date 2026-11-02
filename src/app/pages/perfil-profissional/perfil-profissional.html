@@ -46,8 +46,8 @@
         @if (premium() || reputacao().bemAvaliado) {
           <div class="selos-row">
             @if (premium()) {
-              <span class="selo selo-premium" title="Perfil em destaque por assinatura Premium">
-                <i class="fa-solid fa-crown"></i> Profissional Premium
+              <span class="selo selo-premium" title="Perfil em destaque na plataforma">
+                <i class="fa-solid fa-star"></i> Perfil em destaque
               </span>
             }
             @if (reputacao().bemAvaliado) {
@@ -59,7 +59,7 @@
         }
         <h1>{{ profissional().nome }}</h1>
         <p class="profile-role">{{ profissional().cargoLabel }} • <strong>{{ profissional().identificacao }}</strong></p>
-        
+
         <div class="tags-container">
           @for (esp of profissional().especializacoes; track esp) {
             <span class="esp-tag">{{ esp }}</span>
@@ -91,7 +91,7 @@
 
     <!-- Grid de Conteúdo -->
     <div class="profile-grid-content">
-      
+
       <div class="profile-main-column">
         <section class="content-box">
           <h2>Sobre o Profissional <button class="btn-edit-profile" *ngIf="isProprioPerfil()" (click)="showOnboardingModal.set(true); onboardingStep.set(2)"><i class="fa-solid fa-pen"></i> Editar</button></h2>
@@ -146,7 +146,7 @@
         <div class="action-card">
           <h3>Agende sua Sessão</h3>
           <p>Converse com este(a) profissional de forma 100% gratuita, sigilosa e humanizada.</p>
-          
+
           @if (datasAgenda().length) {
             <p class="proximo-horario">
               <i class="fa-regular fa-calendar"></i>
@@ -176,7 +176,7 @@
         <div class="action-card">
           <h3>Sua Agenda</h3>
           <p>Seus horários configurados estão abertos para as mães da rede agendarem de forma gratuita.</p>
-          
+
           <button class="btn-primary full-width" (click)="voltar()">
             <i class="ph ph-calendar-plus"></i> Gerenciar Meus Horários
           </button>
@@ -198,7 +198,7 @@
   <div class="modal" *ngIf="showOnboardingModal() && isProprioPerfil()">
     <div class="modal-content onboarding-modal">
       <button class="modal-close" (click)="closeOnboarding()"><i class="fa-solid fa-xmark"></i></button>
-      
+
       <!-- Slide 1: Welcome -->
       <div class="onboarding-slide" *ngIf="onboardingStep() === 1">
         <div class="slide-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
@@ -212,7 +212,7 @@
       <div class="onboarding-slide" *ngIf="onboardingStep() === 2">
         <h2>Complete seu perfil!</h2>
         <p class="subtext">Isso ajuda as mães a encontrarem o profissional ideal para o que precisam no momento.</p>
-        
+
         <div class="form-group">
           <label>Como você descreve seu estilo de trabalho?</label>
           <textarea rows="4" placeholder="Ex: Sou especialista em psicologia perinatal e atuo com foco em TCC, oferecendo um espaço de escuta sem julgamentos..." [ngModel]="editSobreMim()" (ngModelChange)="editSobreMim.set($event)"></textarea>
@@ -338,4 +338,3 @@
     </div>
   </div>
 }
-

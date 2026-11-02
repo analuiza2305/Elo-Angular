@@ -16,9 +16,9 @@
   <div class="search-bar-wrapper">
     <div class="search-bar">
       <i class="ph ph-magnifying-glass search-icon"></i>
-      <input 
-        type="text" 
-        placeholder="Pesquisar profissional (nome, especialidade, CRP/OAB...)" 
+      <input
+        type="text"
+        placeholder="Pesquisar profissional (nome, especialidade, CRP/OAB...)"
         [value]="termoBusca()"
         (input)="termoBusca.set($any($event.target).value)">
       <button class="filter-btn" title="Filtrar profissionais" (click)="abrirFiltros()">
@@ -62,13 +62,13 @@
                 <img [src]="prof.foto" [alt]="prof.tipo" onerror="this.src='img/account_icon.png'">
               </div>
             </div>
-            
+
             <div class="details">
               @if (prof.premium || prof.reputacao.bemAvaliado) {
                 <div class="selos-row">
                   @if (prof.premium) {
-                    <span class="selo selo-premium" title="Perfil em destaque por assinatura Premium">
-                      <i class="fa-solid fa-crown"></i> Profissional Premium
+                    <span class="selo selo-premium" title="Perfil em destaque na plataforma">
+                      <i class="fa-solid fa-star"></i> Perfil em destaque
                     </span>
                   }
                   @if (prof.reputacao.bemAvaliado) {
@@ -146,20 +146,20 @@
             } @else {
               <div class="schedule-available-container">
                 <div class="icon-box primary-box"><i class="ph ph-calendar-check"></i></div>
-                
+
                 <div class="schedule-selection">
                   <p class="section-label">Selecione uma data:</p>
-                  
+
                   <div class="carousel-wrapper">
                     @if (prof.datasDisponiveis.length > 5) {
                       <button class="carousel-btn left" (click)="scrollDatas(scrollContainer, -1)">
                         <i class="ph ph-caret-left"></i>
                       </button>
                     }
-                    
+
                     <div class="date-scroll" #scrollContainer>
                       @for (d of prof.datasDisponiveis; track d.key) {
-                        <button 
+                        <button
                           class="date-chip"
                           [class.selected]="prof.dataSelecionada === d.key"
                           (click)="selecionarData(prof, d.key)">
@@ -181,7 +181,7 @@
                     <div class="time-scroll">
                       @if (horariosDaData(prof).length > 0) {
                         @for (hora of horariosDaData(prof); track hora) {
-                          <button 
+                          <button
                             class="time-chip"
                             [class.ativo]="prof.horarioSelecionado === hora"
                             (click)="selecionarHorario(prof, hora)">
@@ -216,7 +216,7 @@
         <button class="close-btn" (click)="fecharFiltros()"><i class="ph ph-x"></i></button>
       </div>
       <p class="modal-subtitle">Personalize sua busca para encontrar o atendimento ideal.</p>
-      
+
       <div class="input-group">
         <label>Apenas com horários disponíveis</label>
         <label class="checkbox-container">
@@ -261,7 +261,7 @@
         <h2>Confirmar Agendamento</h2>
         <button class="close-btn" (click)="fecharModal()"><i class="ph ph-x"></i></button>
       </div>
-      
+
       <p class="modal-subtitle">Revise os dados da sua consulta abaixo.</p>
 
       <div class="prof-card-mini">
@@ -292,15 +292,15 @@
 
       <div class="input-group">
         <label for="motivo">Motivo da consulta</label>
-        <textarea 
-          id="motivo" 
+        <textarea
+          id="motivo"
           placeholder="Ex: Ansiedade, questões familiares, orientação de divórcio..."
           [value]="motivoConsulta()"
           (input)="motivoConsulta.set($any($event.target).value)"
           rows="3"
         ></textarea>
       </div>
-      
+
       <div class="modal-actions">
         <button class="btn-cancel" (click)="fecharModal()" [disabled]="salvando()">Cancelar</button>
         <button class="btn-confirm" (click)="confirmarAgendamento()" [disabled]="salvando()">
@@ -314,4 +314,3 @@
     </div>
   </div>
 }
-

@@ -6,8 +6,11 @@
  * sem expor quem foi paciente de quem.
  *
  * O selo "Bem avaliado pelas mães" é só por mérito: nenhum plano pago concede esse selo.
+ * A única interferência possível é a SUSPENSÃO feita pelo ADM (`selosPublicos/{uid}.meritoSuspenso`):
+ * enquanto estiver suspenso, `bemAvaliado` fica falso mesmo que as avaliações atinjam o critério.
+ * (Lido direto do Firestore aqui, e não pelo SeloService, para não criar import circular.)
  */
-import { collection, getDocs, query, where, QueryDocumentSnapshot } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where, QueryDocumentSnapshot } from 'firebase/firestore';
 import { db } from '../core/firebase';
 
 /** Elogios rápidos que a mãe pode marcar no pós-consulta (máx. 3). */
@@ -41,12 +44,13 @@ export interface Reputacao {
   distribuicao: number[];        // índice 0 = 1 estrela ... índice 4 = 5 estrelas
   elogiosTop: { elogio: string; qtd: number }[];
   novo: boolean;                 // menos que MINIMO_AVALIACOES
-  bemAvaliado: boolean;          // conquistou o selo
+  bemAvaliado: boolean;          // conquistou o selo (e não está suspenso)
+  suspenso: boolean;             // ADM suspendeu o selo "Bem avaliado"
 }
 
 export const REPUTACAO_VAZIA: Reputacao = {
   total: 0, media: 0, mediaTexto: '–', recomendamPct: null,
-  distribuicao: [0, 0, 0, 0, 0], elogiosTop: [], novo: true, bemAvaliado: false,
+  distribuicao: [0, 0, 0, 0, 0], elogiosTop: [], novo: true, bemAvaliado: false, suspenso: false,
 };
 
 /** Reputação de um profissional. */
@@ -57,7 +61,8 @@ export async function carregarReputacao(profissionalUid: string): Promise<Reputa
     where('avaliadoId', '==', profissionalUid),
     where('tipoAvaliador', '==', 'mae'),
   ));
-  return calcularReputacao(snap.docs);
+  const reputacao = calcularReputacao(snap.docs);
+  return (await meritoSuspenso(profissionalUid)) ? aplicarSuspensao(reputacao) : reputacao;
 }
 
 /** Reputação de todos os profissionais em uma única leitura (para listas). */
@@ -70,9 +75,37 @@ export async function carregarReputacoesDeTodos(): Promise<Map<string, Reputacao
     if (!porProfissional.has(id)) porProfissional.set(id, []);
     porProfissional.get(id)!.push(d);
   }
+  const suspensos = await meritoSuspensoDeTodos();
   const resultado = new Map<string, Reputacao>();
-  porProfissional.forEach((docs, id) => resultado.set(id, calcularReputacao(docs)));
+  porProfissional.forEach((docs, id) => {
+    const reputacao = calcularReputacao(docs);
+    resultado.set(id, suspensos.has(id) ? aplicarSuspensao(reputacao) : reputacao);
+  });
   return resultado;
+}
+
+/** Selo suspenso pelo ADM: mantém nota e avaliações, só tira o selo. */
+function aplicarSuspensao(r: Reputacao): Reputacao {
+  return { ...r, bemAvaliado: false, suspenso: true };
+}
+
+/** Se a leitura falhar (ex.: regras ainda não publicadas), o selo segue só as avaliações. */
+async function meritoSuspenso(uid: string): Promise<boolean> {
+  try {
+    const snap = await getDoc(doc(db, 'selosPublicos', uid));
+    return snap.exists() && snap.data()['meritoSuspenso'] === true;
+  } catch {
+    return false;
+  }
+}
+
+async function meritoSuspensoDeTodos(): Promise<Set<string>> {
+  try {
+    const snap = await getDocs(query(collection(db, 'selosPublicos'), where('meritoSuspenso', '==', true)));
+    return new Set(snap.docs.map((d) => d.id));
+  } catch {
+    return new Set<string>();
+  }
 }
 
 export function ehBemAvaliado(r: Pick<Reputacao, 'total' | 'media' | 'recomendamPct'>): boolean {
@@ -124,5 +157,6 @@ function calcularReputacao(docs: QueryDocumentSnapshot[]): Reputacao {
       .map(([elogio, qtd]) => ({ elogio, qtd })),
     novo: total < MINIMO_AVALIACOES,
     bemAvaliado: ehBemAvaliado({ total, media, recomendamPct }),
+    suspenso: false,
   };
 }

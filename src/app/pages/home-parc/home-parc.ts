@@ -33,6 +33,8 @@ import {
 import { Chart, registerables } from 'chart.js';
 import { auth, db } from '../../core/firebase';
 import { AlertaService } from '../../core/services/alerta.service';
+import { PlanoService } from '../../services/plano';
+import { SeloService } from '../../services/selo';
 
 /**
  * Página do Parceiro (dashboard, calendário, fórum, artigos, relatórios,
@@ -57,6 +59,8 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly router = inject(Router);
   private readonly alerta = inject(AlertaService);
+  private readonly planoService = inject(PlanoService);
+  private readonly seloService = inject(SeloService);
 
   private unsubscribeAuth: Unsubscribe | null = null;
   private unsubscribeForumAuth: Unsubscribe | null = null;
@@ -424,6 +428,21 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   // =============================================================
   // AUTENTICAÇÃO / DADOS DO PARCEIRO
   // =============================================================
+  /** Selo de apoiador na lateral: plano Premium ativo da empresa OU cortesia do ADM. */
+  private async mostrarSeloApoiador(uid: string): Promise<void> {
+    const el = document.getElementById('sidebarSeloApoiador');
+    if (!el) return;
+    try {
+      const [selos, premium] = await Promise.all([
+        this.seloService.publicosDe(uid),
+        this.planoService.temPremium(uid),
+      ]);
+      el.hidden = !(selos.apoiador || premium);
+    } catch {
+      el.hidden = true;
+    }
+  }
+
   private initAuth(): void {
     this.unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -450,6 +469,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
           if (this.dadosParceiroAtual['fotoURL'] && headerAvatar) headerAvatar.src = this.dadosParceiroAtual['fotoURL'];
           if (this.dadosParceiroAtual['fotoURL'] && sidebarAvatar) sidebarAvatar.src = this.dadosParceiroAtual['fotoURL'];
           if (sidebarNomeEmpresa) sidebarNomeEmpresa.textContent = this.sanitize(this.nomeExibicao(this.dadosParceiroAtual));
+          void this.mostrarSeloApoiador(user.uid);
 
           this.carregarArtigosNaAbaArtigos(this.nomeEmpresaAtual);
           await this.carregarEventosParceiro(this.nomeEmpresaAtual);

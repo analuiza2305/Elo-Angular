@@ -1,0 +1,428 @@
+<!-- AVISO -->
+@if (aviso(); as a) {
+  <div class="pl-toast" [class.erro]="a.tipo === 'erro'" role="status" aria-live="polite">
+    <i class="fa-solid" [class.fa-circle-check]="a.tipo === 'ok'" [class.fa-circle-xmark]="a.tipo === 'erro'"></i>
+    {{ a.texto }}
+  </div>
+}
+
+<!-- CABEÇALHO -->
+<header class="pl-header">
+  <div class="pl-header-info">
+    <span class="pl-header-icone"><i class="fa-solid fa-award"></i></span>
+    <div>
+      <h2>Selos</h2>
+      <p>Gerencie os selos de destaque e de apoiador e acompanhe os conquistados por mérito.</p>
+    </div>
+  </div>
+  @if (seloPago(); as selo) {
+    <button type="button" class="pl-btn pl-btn-primario" (click)="abrirConceder()">
+      <i class="fa-solid fa-plus"></i> Conceder selo {{ def(selo).nome.toLowerCase() }}
+    </button>
+  }
+</header>
+
+<!-- INDICADORES -->
+<div class="pl-kpis">
+  <div class="pl-kpi">
+    <span class="pl-kpi-icone roxo"><i class="fa-solid fa-star"></i></span>
+    <div><strong>{{ kpis().destaque }}</strong><span>Destaques ativos</span></div>
+  </div>
+  <div class="pl-kpi">
+    <span class="pl-kpi-icone azul"><i class="fa-solid fa-handshake-angle"></i></span>
+    <div><strong>{{ kpis().apoiador }}</strong><span>Apoiadores ativos</span></div>
+  </div>
+  <div class="pl-kpi">
+    <span class="pl-kpi-icone rosa"><i class="fa-solid fa-heart"></i></span>
+    <div><strong>{{ kpis().merito }}</strong><span>Bem avaliados</span></div>
+  </div>
+  <div class="pl-kpi">
+    <span class="pl-kpi-icone verde"><i class="fa-solid fa-ban"></i></span>
+    <div><strong>{{ kpis().suspensos }}</strong><span>Selos suspensos</span></div>
+  </div>
+</div>
+
+<!-- ABAS -->
+<div class="pl-abas" role="tablist">
+  <button type="button" role="tab" class="pl-aba" [class.ativa]="aba() === 'geral'" [attr.aria-selected]="aba() === 'geral'" (click)="mudarAba('geral')">
+    <i class="fa-solid fa-table-cells-large"></i> Visão geral
+  </button>
+  <button type="button" role="tab" class="pl-aba" [class.ativa]="aba() === 'destaque'" [attr.aria-selected]="aba() === 'destaque'" (click)="mudarAba('destaque')">
+    <i class="fa-solid fa-star"></i> Destaque
+  </button>
+  <button type="button" role="tab" class="pl-aba" [class.ativa]="aba() === 'apoiador'" [attr.aria-selected]="aba() === 'apoiador'" (click)="mudarAba('apoiador')">
+    <i class="fa-solid fa-handshake-angle"></i> Apoiador
+  </button>
+  <button type="button" role="tab" class="pl-aba" [class.ativa]="aba() === 'merito'" [attr.aria-selected]="aba() === 'merito'" (click)="mudarAba('merito')">
+    <i class="fa-solid fa-heart"></i> Mérito
+  </button>
+</div>
+
+@if (carregando()) {
+  <div class="pl-estado"><i class="fa-solid fa-spinner fa-spin"></i> Carregando…</div>
+} @else if (erroCarga()) {
+  <div class="pl-estado erro">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <p>{{ erroCarga() }}</p>
+    <button type="button" class="pl-btn pl-btn-secundario" (click)="carregar()">Tentar de novo</button>
+  </div>
+} @else {
+
+  <!-- ===================== ABA: VISÃO GERAL ===================== -->
+  @if (aba() === 'geral') {
+    <div class="sl-duas-colunas">
+
+      <!-- PAGOS -->
+      <section class="sl-bloco sl-bloco-pago">
+        <div class="sl-bloco-topo">
+          <span class="pl-nivel premium"><i class="fa-solid fa-crown"></i> Benefícios pagos</span>
+          <p>Vêm de um plano Premium ou de cortesia dada pelo ADM. Têm validade e podem ser encerrados.</p>
+        </div>
+        @for (s of pagos; track s.tipo) {
+          <article class="sl-selo-card">
+            <div class="sl-selo-titulo">
+              <span class="sl-selo-icone pago"><i class="fa-solid" [ngClass]="s.icone"></i></span>
+              <div>
+                <h3>{{ s.nome }}</h3>
+                <small>{{ perfisTexto(s.perfis, ' · ') }}</small>
+              </div>
+            </div>
+            <p class="pl-descricao">{{ s.descricao }}</p>
+            <ul class="pl-beneficios">
+              @for (e of s.efeitos; track e) {
+                <li><span class="pl-check"><i class="fa-solid fa-check"></i></span>{{ e }}</li>
+              }
+            </ul>
+            <div class="sl-contagens">
+              @if (s.tipo === 'destaque') {
+                <span><strong>{{ kpis().destaquePlano }}</strong> pelo plano</span>
+                <span><strong>{{ kpis().destaqueCortesia }}</strong> por cortesia</span>
+              } @else {
+                <span><strong>{{ kpis().apoiadorPlano }}</strong> pelo plano</span>
+                <span><strong>{{ kpis().apoiadorCortesia }}</strong> por cortesia</span>
+              }
+            </div>
+            <button type="button" class="pl-btn pl-btn-secundario pl-btn-sm" (click)="mudarAba(s.tipo === 'destaque' ? 'destaque' : 'apoiador')">
+              Gerenciar {{ s.nome.toLowerCase() }} <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </article>
+        }
+      </section>
+
+      <!-- MÉRITO -->
+      <section class="sl-bloco sl-bloco-merito">
+        <div class="sl-bloco-topo">
+          <span class="pl-nivel"><i class="fa-solid fa-medal"></i> Conquistados por mérito</span>
+          <p>Calculados pelas avaliações das mães. Não podem ser comprados nem concedidos: o ADM só pode suspender.</p>
+        </div>
+        @for (s of merito; track s.tipo) {
+          <article class="sl-selo-card">
+            <div class="sl-selo-titulo">
+              <span class="sl-selo-icone merito"><i class="fa-solid" [ngClass]="s.icone"></i></span>
+              <div>
+                <h3>{{ s.nome }}</h3>
+                <small>{{ perfisTexto(s.perfis, ' · ') }}</small>
+              </div>
+            </div>
+            <p class="pl-descricao">{{ s.descricao }}</p>
+            <ul class="pl-beneficios">
+              <li><span class="pl-check"><i class="fa-solid fa-check"></i></span>Pelo menos {{ criterio.avaliacoesMinimas }} avaliações</li>
+              <li><span class="pl-check"><i class="fa-solid fa-check"></i></span>Média mínima de {{ criterio.mediaMinima }} estrelas</li>
+              <li><span class="pl-check"><i class="fa-solid fa-check"></i></span>{{ criterio.recomendacaoMinimaPct }}% ou mais recomendariam</li>
+            </ul>
+            <div class="sl-contagens">
+              <span><strong>{{ kpis().merito }}</strong> conquistaram</span>
+              <span><strong>{{ kpis().suspensos }}</strong> suspensos</span>
+            </div>
+            <button type="button" class="pl-btn pl-btn-secundario pl-btn-sm" (click)="mudarAba('merito')">
+              Acompanhar mérito <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </article>
+        }
+      </section>
+    </div>
+
+    <p class="pl-nota"><i class="fa-solid fa-circle-info"></i> Um profissional pode ter os dois tipos ao mesmo tempo (por exemplo, Destaque pelo plano e Bem avaliado por mérito), mas um não substitui o outro: pagar nunca dá o selo de mérito.</p>
+  }
+
+  <!-- ===================== ABAS: DESTAQUE / APOIADOR ===================== -->
+  @if (seloPago(); as selo) {
+    <div class="sl-resumo">
+      <span class="sl-selo-icone pago"><i class="fa-solid" [ngClass]="def(selo).icone"></i></span>
+      <div>
+        <strong>Selo {{ def(selo).nome }}</strong>
+        <small>{{ def(selo).descricao }} Vale para: {{ perfisTexto(def(selo).perfis, ', ') }}.
+        </small>
+      </div>
+    </div>
+
+    <div class="pl-filtros">
+      <label class="pl-busca">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" placeholder="Buscar por nome ou e-mail" [ngModel]="busca()" (ngModelChange)="busca.set($event)" aria-label="Buscar">
+      </label>
+      <select [ngModel]="filtroSituacao()" (ngModelChange)="filtroSituacao.set($event)" aria-label="Filtrar por situação">
+        <option value="todas">Todas as situações</option>
+        <option value="ativo">Ativos</option>
+        <option value="expirado">Expirados</option>
+        <option value="revogado">Encerrados</option>
+      </select>
+    </div>
+
+    @if (listaPaga().length === 0) {
+      <div class="pl-estado vazio">
+        <span class="pl-estado-icone"><i class="fa-solid fa-award"></i></span>
+        @if (totalPago() === 0) {
+          <h3>Ninguém tem o selo {{ def(selo).nome.toLowerCase() }} ainda</h3>
+          <p>Quem assinar um plano Premium entra aqui automaticamente. Você também pode conceder uma cortesia com validade.</p>
+          <div class="pl-estado-acoes">
+            <button type="button" class="pl-btn pl-btn-primario" (click)="abrirConceder()"><i class="fa-solid fa-plus"></i> Conceder selo</button>
+          </div>
+        } @else {
+          <h3>Nenhum resultado encontrado</h3>
+          <button type="button" class="pl-btn pl-btn-secundario" (click)="limparFiltros()">Limpar filtros</button>
+        }
+      </div>
+    } @else {
+      <div class="pl-tabela-wrap">
+        <table class="pl-tabela">
+          <thead>
+            <tr>
+              <th>{{ selo === 'apoiador' ? 'Empresa' : 'Profissional' }}</th>
+              <th>Origem</th>
+              <th>Desde</th>
+              <th>Válido até</th>
+              <th>Situação</th>
+              <th class="num">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of listaPaga(); track a.chave) {
+              <tr>
+                <td>
+                  <div class="pl-pessoa">
+                    <span class="pl-avatar">{{ iniciais(a.pessoa.nome) }}</span>
+                    <div>
+                      <strong>{{ a.pessoa.nome }}</strong>
+                      <small>{{ a.pessoa.email || 'sem e-mail' }} · {{ rotuloPerfilCurto(a.pessoa.perfil) }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="sl-origem" [ngClass]="a.origem">
+                    <i class="fa-solid" [class.fa-crown]="a.origem === 'plano'" [class.fa-gift]="a.origem === 'cortesia'"></i>
+                    {{ rotuloOrigem(a) }}
+                  </span>
+                  @if (a.motivo) { <small class="bloco" [title]="a.motivo">{{ a.motivo }}</small> }
+                </td>
+                <td>{{ a.desde ? (a.desde | date: 'dd/MM/yyyy') : '—' }}</td>
+                <td>{{ a.validoAte ? (a.validoAte | date: 'dd/MM/yyyy') : 'Sem data final' }}</td>
+                <td><span class="sl-situacao" [ngClass]="a.situacao">{{ rotuloSituacao(a.situacao) }}</span></td>
+                <td class="num">
+                  @if (a.origem === 'cortesia' && a.situacao === 'ativo') {
+                    <button type="button" class="pl-btn pl-btn-secundario pl-btn-sm" (click)="pedirRevogar(a)">
+                      <i class="fa-solid fa-ban"></i> Encerrar
+                    </button>
+                  } @else if (a.origem === 'plano') {
+                    <small title="Este selo acompanha a assinatura. Para encerrar, cancele o plano.">Pelo plano</small>
+                  } @else {
+                    <small>—</small>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <p class="pl-nota"><i class="fa-solid fa-circle-info"></i> O selo que vem de plano Premium acompanha a assinatura e some quando ela vence. A cortesia é separada: tem validade própria e fica registrada com quem concedeu e por quê.</p>
+  }
+
+  <!-- ===================== ABA: MÉRITO ===================== -->
+  @if (aba() === 'merito') {
+    <div class="sl-resumo">
+      <span class="sl-selo-icone merito"><i class="fa-solid fa-heart"></i></span>
+      <div>
+        <strong>Selo Bem avaliado pelas mães</strong>
+        <small>
+          Critério atual: pelo menos {{ criterio.avaliacoesMinimas }} avaliações, média ≥ {{ criterio.mediaMinima }} e
+          {{ criterio.recomendacaoMinimaPct }}% ou mais de recomendação. Ele é calculado sozinho, e o ADM só pode suspendê-lo.
+        </small>
+      </div>
+    </div>
+
+    <div class="pl-filtros">
+      <label class="pl-busca">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" placeholder="Buscar por nome ou e-mail" [ngModel]="busca()" (ngModelChange)="busca.set($event)" aria-label="Buscar profissional">
+      </label>
+    </div>
+    <div class="sl-chips" role="group" aria-label="Filtrar por situação">
+      <button type="button" class="sl-chip" [class.sel]="filtroMerito() === 'todos'" (click)="filtroMerito.set('todos')">Todos <span>{{ contagemMerito('todos') }}</span></button>
+      <button type="button" class="sl-chip" [class.sel]="filtroMerito() === 'ativo'" (click)="filtroMerito.set('ativo')">Conquistaram <span>{{ contagemMerito('ativo') }}</span></button>
+      <button type="button" class="sl-chip" [class.sel]="filtroMerito() === 'em_progresso'" (click)="filtroMerito.set('em_progresso')">Em progresso <span>{{ contagemMerito('em_progresso') }}</span></button>
+      <button type="button" class="sl-chip" [class.sel]="filtroMerito() === 'suspenso'" (click)="filtroMerito.set('suspenso')">Suspensos <span>{{ contagemMerito('suspenso') }}</span></button>
+    </div>
+
+    @if (listaMerito().length === 0) {
+      <div class="pl-estado vazio">
+        <span class="pl-estado-icone"><i class="fa-solid fa-heart"></i></span>
+        <h3>Nenhum profissional encontrado</h3>
+        <button type="button" class="pl-btn pl-btn-secundario" (click)="limparFiltros()">Limpar filtros</button>
+      </div>
+    } @else {
+      <div class="pl-tabela-wrap">
+        <table class="pl-tabela sl-tabela-merito">
+          <thead>
+            <tr>
+              <th>Profissional</th>
+              <th>Avaliações</th>
+              <th>Média</th>
+              <th>Recomendam</th>
+              <th>Progresso até o selo</th>
+              <th>Situação</th>
+              <th class="num">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of listaMerito(); track a.chave) {
+              <tr>
+                <td>
+                  <div class="pl-pessoa">
+                    <span class="pl-avatar">{{ iniciais(a.pessoa.nome) }}</span>
+                    <div>
+                      <strong>{{ a.pessoa.nome }}</strong>
+                      <small>{{ a.pessoa.email || 'sem e-mail' }} · {{ rotuloPerfilCurto(a.pessoa.perfil) }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ a.reputacao?.total ?? 0 }}</td>
+                <td>{{ a.reputacao?.mediaTexto ?? '–' }}</td>
+                <td>{{ recomendaTexto(a) }}</td>
+                <td>
+                  <div class="sl-barras" [attr.aria-label]="'Progresso de ' + a.pessoa.nome">
+                    <div class="sl-barra" title="Avaliações"><span [style.width.%]="progresso(a).avaliacoes"></span></div>
+                    <div class="sl-barra" title="Média"><span [style.width.%]="progresso(a).media"></span></div>
+                    <div class="sl-barra" title="Recomendação"><span [style.width.%]="progresso(a).recomendacao"></span></div>
+                  </div>
+                </td>
+                <td>
+                  <span class="sl-situacao" [ngClass]="a.situacao">{{ a.situacao === 'ativo' ? 'Conquistado' : rotuloSituacao(a.situacao) }}</span>
+                  @if (a.motivo) { <small class="bloco" [title]="a.motivo">{{ a.motivo }}</small> }
+                </td>
+                <td class="num">
+                  @if (a.situacao === 'suspenso') {
+                    <button type="button" class="pl-btn pl-btn-secundario pl-btn-sm" (click)="restaurar(a)">
+                      <i class="fa-solid fa-rotate-left"></i> Restaurar
+                    </button>
+                  } @else {
+                    <button type="button" class="pl-btn pl-btn-secundario pl-btn-sm" (click)="pedirSuspender(a)">
+                      <i class="fa-solid fa-ban"></i> Suspender
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <p class="pl-nota"><i class="fa-solid fa-circle-info"></i> As três barras mostram, na ordem, avaliações, média e recomendação. A suspensão fica registrada com o motivo e pode ser desfeita a qualquer momento.</p>
+  }
+}
+
+<!-- ===================== MODAL: CONCEDER CORTESIA ===================== -->
+@if (modalConcederAberto() && seloPago(); as selo) {
+  <div class="pl-overlay" (click)="fecharConceder()">
+    <div class="pl-modal" role="dialog" aria-modal="true" [attr.aria-label]="'Conceder selo ' + def(selo).nome" (click)="$event.stopPropagation()">
+      <button type="button" class="pl-fechar" (click)="fecharConceder()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+
+      <div class="pl-modal-cabecalho">
+        <span class="pl-header-icone"><i class="fa-solid" [ngClass]="def(selo).icone"></i></span>
+        <div>
+          <h3>Conceder selo {{ def(selo).nome.toLowerCase() }}</h3>
+          <p>Cortesia sem cobrança, com validade e registro de quem concedeu.</p>
+        </div>
+      </div>
+
+      <div class="pl-form">
+        <div class="pl-campo">
+          <label for="slPessoa">{{ selo === 'apoiador' ? 'Empresa parceira' : 'Profissional' }}</label>
+          <input id="slPessoa" type="text" autocomplete="off" [ngModel]="buscaPessoa" (ngModelChange)="aoDigitarPessoa($event)" placeholder="Digite o nome ou e-mail para buscar">
+          @if (!pessoaEscolhida) {
+            <div class="sl-lista-pessoas" role="listbox">
+              @for (p of pessoasElegiveis(); track p.uid) {
+                <button type="button" role="option" class="sl-pessoa-opcao" (click)="escolherPessoa(p)">
+                  <span class="pl-avatar">{{ iniciais(p.nome) }}</span>
+                  <span>
+                    <strong>{{ p.nome }}</strong>
+                    <small>{{ p.email || 'sem e-mail' }} · {{ rotuloPerfilCurto(p.perfil) }}@if (p.statusCadastro === 'pendente') { · cadastro pendente }</small>
+                  </span>
+                </button>
+              } @empty {
+                <p class="sl-lista-vazia">Ninguém disponível para este selo{{ buscaPessoa ? ' com essa busca' : '' }}.</p>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="pl-campo">
+          <label for="slValidade">Validade</label>
+          <select id="slValidade" [(ngModel)]="validadeDias">
+            @for (v of validades; track v.rotulo) { <option [ngValue]="v.dias">{{ v.rotulo }}</option> }
+          </select>
+        </div>
+
+        <div class="pl-campo">
+          <label for="slMotivo">Motivo <span class="opcional">(opcional)</span></label>
+          <input id="slMotivo" type="text" maxlength="120" [(ngModel)]="motivoCortesia" placeholder="Ex.: parceria de lançamento, campanha de divulgação">
+        </div>
+
+        @if (erroForm()) {
+          <p class="pl-erro-form" role="alert"><i class="fa-solid fa-circle-exclamation"></i> {{ erroForm() }}</p>
+        }
+      </div>
+
+      <div class="pl-modal-acoes">
+        <button type="button" class="pl-btn pl-btn-secundario" [disabled]="salvando()" (click)="fecharConceder()">Cancelar</button>
+        <button type="button" class="pl-btn pl-btn-primario" [disabled]="salvando()" (click)="confirmarConceder()">
+          <i class="fa-solid fa-award"></i> {{ salvando() ? 'Concedendo…' : 'Conceder selo' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ===================== MODAL: ENCERRAR / SUSPENDER ===================== -->
+@if (alvoConfirmacao(); as alvo) {
+  <div class="pl-overlay" (click)="cancelarConfirmacao()">
+    <div class="pl-modal pl-modal-pequeno" role="alertdialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="pl-modal-cabecalho">
+        <span class="pl-header-icone alerta"><i class="fa-solid fa-triangle-exclamation"></i></span>
+        <div>
+          @if (alvo.acao === 'revogar') {
+            <h3>Encerrar a cortesia de {{ alvo.atribuicao.pessoa.nome }}?</h3>
+            <p>O selo {{ def(alvo.atribuicao.selo).nome.toLowerCase() }} deixa de aparecer agora. Se a pessoa tiver plano Premium ativo, o selo do plano continua.</p>
+          } @else {
+            <h3>Suspender o selo de {{ alvo.atribuicao.pessoa.nome }}?</h3>
+            <p>O selo “Bem avaliado” deixa de aparecer mesmo que as avaliações atinjam o critério. Você pode restaurar depois.</p>
+          }
+        </div>
+      </div>
+      <div class="pl-form">
+        <div class="pl-campo">
+          <label for="slMotivoAcao">Motivo @if (alvo.acao === 'revogar') { <span class="opcional">(opcional)</span> }</label>
+          <input id="slMotivoAcao" type="text" maxlength="160" [(ngModel)]="motivoConfirmacao" placeholder="Fica registrado junto do selo">
+        </div>
+      </div>
+      <div class="pl-modal-acoes">
+        <button type="button" class="pl-btn pl-btn-secundario" [disabled]="salvando()" (click)="cancelarConfirmacao()">Cancelar</button>
+        <button type="button" class="pl-btn pl-btn-perigo" [disabled]="salvando()" (click)="confirmarAcao()">
+          {{ salvando() ? 'Salvando…' : (alvo.acao === 'revogar' ? 'Encerrar cortesia' : 'Suspender selo') }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

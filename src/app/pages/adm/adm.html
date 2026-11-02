@@ -170,6 +170,10 @@
       <i class="fa-solid fa-crown"></i>
       <span>Planos</span>
     </button>
+    <button type="button" class="menu-btn" [class.active]="abaAtiva === 'selos'" (click)="mudarAba('selos')">
+      <i class="fa-solid fa-award"></i>
+      <span>Selos</span>
+    </button>
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'relatorios'" (click)="mudarAba('relatorios')">
       <i class="fa-solid fa-chart-pie"></i>
       <span>Relatórios</span>
@@ -2320,6 +2324,14 @@
   <section class="content" id="planos" [class.hidden]="abaAtiva !== 'planos'">
     @if (abaAtiva === 'planos') {
       <app-adm-planos />
+    }
+  </section>
+
+
+  <!-- SELOS -->
+  <section class="content" id="selos" [class.hidden]="abaAtiva !== 'selos'">
+    @if (abaAtiva === 'selos') {
+      <app-adm-selos />
     }
   </section>
 

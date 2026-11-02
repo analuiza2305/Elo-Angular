@@ -12,6 +12,7 @@ import { liberarQuestionarioPara } from '../../services/questionario-acesso';
 import { onAuthStateChanged } from 'firebase/auth';
 import { carregarReputacao, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
 import { PlanoService } from '../../services/plano';
+import { SeloService } from '../../services/selo';
 import { AlertaService } from '../../core/services/alerta.service';
 
 @Component({
@@ -27,6 +28,7 @@ export class PerfilProfissionalComponent implements OnInit {
   private readonly alerta = inject(AlertaService);
   private location = inject(Location);
   private planoService = inject(PlanoService);
+  private seloService = inject(SeloService);
   isBrowser = false;
 
   profissional = signal<any>(null);
@@ -112,12 +114,12 @@ export class PerfilProfissionalComponent implements OnInit {
   showOnboardingModal = signal<boolean>(false);
   onboardingStep = signal<number>(1);
   dontShowAgain = signal<boolean>(false);
-  
+
   // Profile Edit Data
   editSobreMim = signal<string>('');
   editTags = signal<string[]>([]);
   availableTags = [
-    'Depressão', 'Ansiedade', 'TEA', 'TDAH', 'Luto', 'Maternidade Atípica', 
+    'Depressão', 'Ansiedade', 'TEA', 'TDAH', 'Luto', 'Maternidade Atípica',
     'Relacionamentos', 'Carreira', 'Saúde Mental', 'Acolhimento', 'Direito de Família', 'Divórcio', 'Pensão'
   ];
   isSavingProfile = signal<boolean>(false);
@@ -129,7 +131,7 @@ export class PerfilProfissionalComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       const paramUid = params['uid'];
-      
+
       onAuthStateChanged(auth, (user) => {
         if (user) {
           // Verifica se quem está acessando é o próprio profissional
@@ -190,9 +192,9 @@ export class PerfilProfissionalComponent implements OnInit {
         const data = (docSnap as any).data();
         const isPsi = tipo === 'psicologo';
         this.isPsicologo.set(isPsi);
-        
+
         const biografiaFallback = 'Profissional dedicado(a) a oferecer um atendimento humanizado, seguro e acolhedor.';
-        
+
         this.profissional.set({
           id: (docSnap as any).id, // Firestore ID
           uid: data['uid'] || uid,
@@ -212,7 +214,7 @@ export class PerfilProfissionalComponent implements OnInit {
         this.buscarReputacao(this.profissional().uid);
       } else {
           // Fallback caso não encontre
-          this.isMae.set(true); 
+          this.isMae.set(true);
       }
     } catch (err) {
       console.error('Erro ao carregar perfil:', err);
@@ -225,12 +227,14 @@ export class PerfilProfissionalComponent implements OnInit {
   private async buscarReputacao(uid: string) {
     this.carregandoReputacao.set(true);
     try {
-      const [rep, premium] = await Promise.all([
+      const [rep, premium, selos] = await Promise.all([
         carregarReputacao(uid),
-        this.planoService.temPremium(uid)
+        this.planoService.temPremium(uid),
+        this.seloService.publicosDe(uid)
       ]);
       this.reputacao.set(rep);
-      this.premium.set(premium);
+      // "premium" aqui é o selo de destaque: plano Premium ativo OU cortesia do ADM.
+      this.premium.set(premium || selos.destaque);
     } catch (e) {
       console.warn('Não foi possível carregar a reputação', e);
       this.reputacao.set(REPUTACAO_VAZIA);
@@ -243,7 +247,7 @@ export class PerfilProfissionalComponent implements OnInit {
     if (this.isBrowser && this.isProprioPerfil() && this.profissional()) {
       const profId = this.profissional().uid || this.profissional().id;
       const dontShow = localStorage.getItem(`onboarding_done_${profId}`);
-      
+
       if (!dontShow) {
         if (!this.profissional().sobreMim || !this.profissional().tags?.length) {
             this.showOnboardingModal.set(true);
@@ -256,7 +260,7 @@ export class PerfilProfissionalComponent implements OnInit {
 
   nextStep() { this.onboardingStep.set(this.onboardingStep() + 1); }
   prevStep() { this.onboardingStep.set(this.onboardingStep() - 1); }
-  
+
   closeOnboarding() {
     this.showOnboardingModal.set(false);
     if (this.dontShowAgain() && this.profissional()) {
@@ -282,21 +286,21 @@ export class PerfilProfissionalComponent implements OnInit {
         if(prof && prof.id && prof.tipo) {
             const colecao = prof.tipo === 'psicologo' ? 'psicologos' : 'advogados';
             const ref = doc(db, colecao, prof.id);
-            
+
             await updateDoc(ref, {
                 sobreMim: this.editSobreMim(),
                 tags: this.editTags(),
                 especializacoes: this.editTags()
             });
-            
+
             this.profissional.update(p => ({
-                ...p, 
-                sobreMim: this.editSobreMim(), 
+                ...p,
+                sobreMim: this.editSobreMim(),
                 biografia: this.editSobreMim(),
                 tags: this.editTags(),
                 especializacoes: this.editTags()
             }));
-            
+
             if (this.dontShowAgain()) {
                 localStorage.setItem(`onboarding_done_${prof.uid || prof.id}`, 'true');
             }
@@ -429,8 +433,8 @@ export class PerfilProfissionalComponent implements OnInit {
   logout() { auth.signOut().then(() => this.router.navigate(['/login-profissional'])); }
 
   toggleAccessibilityMenu() { this.accessibilityMenuOpen.set(!this.accessibilityMenuOpen()); }
-  toggleTheme() { 
-      this.isDarkMode.set(!this.isDarkMode()); 
+  toggleTheme() {
+      this.isDarkMode.set(!this.isDarkMode());
       document.body.setAttribute('data-theme', this.isDarkMode() ? 'dark' : 'light');
   }
   aumentarFonte() {}
