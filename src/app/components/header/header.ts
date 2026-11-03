@@ -245,7 +245,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     switch (tipo) {
       case 'consulta_confirmada': return 'fa-solid fa-calendar-check';
       case 'consulta_recusada': return 'fa-solid fa-calendar-xmark';
-      case 'advertencia_post': return 'fa-solid fa-triangle-exclamation';
+      case 'advertencia_post':
+      case 'advertencia_conta': return 'fa-solid fa-triangle-exclamation';
       case 'post_removido': return 'fa-solid fa-ban';
       case 'horario_disponivel': return 'fa-solid fa-calendar-plus';
       default: return 'fa-solid fa-bell';
