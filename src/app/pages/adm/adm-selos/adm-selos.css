@@ -350,3 +350,188 @@
 :host-context(body[data-theme="dark"]) .sl-selo-icone.pago { background: rgba(255, 196, 77, 0.14); color: #FFD98A; }
 :host-context(body[data-theme="dark"]) .sl-selo-icone.merito { background: rgba(230, 133, 166, 0.16); color: #FFB8D0; }
 :host-context(body[data-theme="dark"]) .pl-estado-icone { color: #D9D0FF; }
+
+
+/* =========================================================
+   AJUSTE 03/11 (4): ACABAMENTO CLEAN (mesmo padrão do painel)
+   ========================================================= */
+.pl-header { margin-bottom: 24px; }
+.pl-header-info { gap: 16px; }
+.pl-header-icone { background: #EFE8FD !important; color: #6A55A8 !important; box-shadow: none !important; border-radius: 16px; }
+.pl-header-icone.alerta { background: #FFF1DC !important; color: #A65B06 !important; }
+.pl-header h2 { font-size: 1.55rem; font-weight: 700; letter-spacing: -0.3px; color: #2E2550; }
+.pl-header p { color: #7A7296; }
+.pl-kpi, .pl-card, .pl-tabela-wrap, .sl-selo-card, .sl-resumo {
+  border-color: transparent !important;
+  box-shadow: 0 1px 2px rgba(60, 40, 110, 0.03), 0 10px 30px rgba(60, 40, 110, 0.05) !important;
+  border-radius: 22px;
+}
+.pl-kpi { padding: 18px 20px; }
+.pl-kpi strong { font-size: 1.5rem; font-weight: 700; }
+.pl-kpi-icone { width: 46px; height: 46px; }
+.pl-card { padding: 24px; }
+.pl-card:hover { box-shadow: 0 1px 2px rgba(60, 40, 110, 0.03), 0 14px 34px rgba(60, 40, 110, 0.08) !important; }
+.pl-card.destaque { box-shadow: 0 0 0 2px #D9CCF5, 0 10px 30px rgba(60, 40, 110, 0.06) !important; }
+.sl-bloco { border-color: transparent; background: var(--lilas-card-2, #F5F1FE); }
+.pl-btn { border-radius: 14px; }
+.pl-btn-primario { box-shadow: 0 6px 16px rgba(82, 66, 125, 0.18); }
+.pl-btn-secundario { border-color: #E4DAF8; background: transparent; }
+.pl-avatar { background: #EFE8FD; color: #5A3F94; }
+.pl-tabela th { background: #F4EFFE; color: #6E5F9C; font-weight: 700; border: none; }
+.pl-tabela thead th:first-child { border-radius: 14px 0 0 14px; }
+.pl-tabela thead th:last-child { border-radius: 0 14px 14px 0; }
+.pl-tabela td { border-top-color: #F1ECFC; }
+.pl-tabela-wrap { padding: 8px 10px; }
+.pl-busca, .pl-filtros select { border: 1px solid #EEE8FB; background: #FDFCFF; }
+.pl-opcao { border-color: #EEE8FB; }
+.pl-opcao.sel { border-color: #CDBEF2; background: #F2ECFE; color: #4B2C82; }
+:host-context(body[data-theme="dark"]) .pl-header-icone { background: rgba(157, 143, 231, 0.16) !important; color: #D9D0FF !important; }
+:host-context(body[data-theme="dark"]) .pl-header h2 { color: #F2EDFF; }
+:host-context(body[data-theme="dark"]) .pl-header p { color: #B8B0D6; }
+:host-context(body[data-theme="dark"]) .pl-kpi,
+:host-context(body[data-theme="dark"]) .pl-card,
+:host-context(body[data-theme="dark"]) .pl-tabela-wrap,
+:host-context(body[data-theme="dark"]) .sl-selo-card,
+:host-context(body[data-theme="dark"]) .sl-resumo { border-color: rgba(255, 255, 255, 0.06) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) .pl-avatar { background: rgba(157, 143, 231, 0.18); color: #E2DAFC; }
+:host-context(body[data-theme="dark"]) .pl-tabela th { background: rgba(157, 143, 231, 0.1); color: #C4B5FD; }
+:host-context(body[data-theme="dark"]) .pl-tabela td { border-top-color: rgba(255, 255, 255, 0.06); }
+:host-context(body[data-theme="dark"]) .pl-busca,
+:host-context(body[data-theme="dark"]) .pl-filtros select { background: #141A26; border-color: rgba(255, 255, 255, 0.1); }
+:host-context(body[data-theme="dark"]) .pl-opcao.sel { background: rgba(157, 143, 231, 0.16); color: #F2EDFF; border-color: rgba(157, 143, 231, 0.4); }
+:host-context(body[data-theme="dark"]) .pl-btn-secundario { border-color: rgba(255, 255, 255, 0.12); }
+
+
+/* =========================================================
+   AJUSTE 03/11 (5): ícones dos indicadores na cor certa,
+   cabeçalho em banner suave e modais modernos
+   ========================================================= */
+/* ".pl-kpi span" (texto cinza) também pegava o quadradinho do ícone */
+.pl-kpi .pl-kpi-icone.roxo { color: #52427D !important; }
+.pl-kpi .pl-kpi-icone.verde { color: #0F7A55 !important; }
+.pl-kpi .pl-kpi-icone.azul { color: #2F5FC0 !important; }
+.pl-kpi .pl-kpi-icone.rosa { color: #B8416C !important; }
+.pl-kpi .pl-kpi-icone { font-size: 1.05rem; }
+
+.pl-header {
+  position: relative; overflow: hidden; isolation: isolate;
+  background: linear-gradient(120deg, #EEE6FE 0%, #F5F0FF 55%, #FBF8FF 100%);
+  border: 1px solid #ECE4FB; border-radius: 26px; padding: 24px 28px; margin-bottom: 22px;
+}
+.pl-header::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  right: -50px; top: -80px; width: 260px; height: 260px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 105, 169, 0.16) 0%, rgba(124, 105, 169, 0) 70%);
+}
+.pl-header::after {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  right: 220px; bottom: -90px; width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(230, 133, 166, 0.12) 0%, rgba(230, 133, 166, 0) 70%);
+}
+.pl-header > .pl-header-info > .pl-header-icone {
+  width: 54px; height: 54px; border-radius: 18px; font-size: 1.25rem;
+  background: #FFFFFF !important; color: #6A55A8 !important; box-shadow: 0 8px 20px rgba(108, 75, 191, 0.12) !important;
+}
+.pl-header h2 { font-size: 1.6rem; }
+.pl-header p { color: #6B6390; }
+.pl-header .pl-btn-primario { border-radius: 999px; padding: 12px 22px; }
+
+/* modais */
+.pl-overlay { background: rgba(46, 33, 74, 0.28); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.pl-modal { background: #FCFAFF; border: 1px solid #EEE8FB; border-radius: 28px; padding: 30px; box-shadow: 0 30px 80px rgba(46, 33, 74, 0.18); }
+.pl-fechar { width: 38px; height: 38px; background: #F2ECFE; color: #5A3F94; }
+.pl-fechar:hover { background: #E6DCFC; }
+.pl-fechar i { color: inherit !important; }
+.pl-modal-cabecalho h3 { color: #2E2550; font-weight: 700; }
+.pl-modal-cabecalho p { color: #6B6390; }
+.pl-campo label, .pl-label { color: #3E2A72; font-weight: 700; }
+.pl-form input[type='text'], .pl-form input[type='number'], .pl-form input[type='date'], .pl-form select {
+  background: #F6F2FE; border: 1px solid transparent; border-radius: 14px; color: #2F2A40;
+}
+.pl-form input:focus, .pl-form select:focus { background: #FFFFFF; border-color: #C9B8F2; box-shadow: 0 0 0 4px rgba(124, 105, 169, 0.12); }
+.pl-checks { background: #F6F2FE; border-radius: 18px; }
+.pl-modal-acoes .pl-btn { border-radius: 999px; padding: 12px 22px; }
+.pl-modal-acoes .pl-btn-secundario { background: #F2ECFE; border-color: transparent; color: #4B2C82; }
+.pl-modal-acoes .pl-btn-secundario:not(:disabled):hover { background: #E6DCFC; }
+.pl-modal-acoes .pl-btn-primario { background: linear-gradient(135deg, #7C69A9 0%, #52427D 100%); }
+.pl-modal-acoes .pl-btn-perigo { background: linear-gradient(135deg, #D9566F 0%, #B0304A 100%); box-shadow: 0 8px 18px rgba(176, 48, 74, 0.2); }
+.pl-erro-form { border-radius: 14px; }
+
+:host-context(body[data-theme="dark"]) .pl-kpi .pl-kpi-icone.roxo { color: #D9D0FF !important; }
+:host-context(body[data-theme="dark"]) .pl-kpi .pl-kpi-icone.verde { color: #86EFC0 !important; }
+:host-context(body[data-theme="dark"]) .pl-kpi .pl-kpi-icone.azul { color: #A9D2FF !important; }
+:host-context(body[data-theme="dark"]) .pl-kpi .pl-kpi-icone.rosa { color: #FFB8D0 !important; }
+:host-context(body[data-theme="dark"]) .pl-header { background: linear-gradient(120deg, #221F3D 0%, #1A1F31 60%, #161C2B 100%); border-color: rgba(255, 255, 255, 0.06); }
+:host-context(body[data-theme="dark"]) .pl-header > .pl-header-info > .pl-header-icone { background: rgba(157, 143, 231, 0.16) !important; color: #D9D0FF !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) .pl-modal { background: #141A26; border-color: rgba(255, 255, 255, 0.08); }
+:host-context(body[data-theme="dark"]) .pl-fechar,
+:host-context(body[data-theme="dark"]) .pl-modal-acoes .pl-btn-secundario { background: rgba(157, 143, 231, 0.16); color: #E2DAFC; }
+:host-context(body[data-theme="dark"]) .pl-modal-cabecalho h3,
+:host-context(body[data-theme="dark"]) .pl-campo label,
+:host-context(body[data-theme="dark"]) .pl-label { color: #F2EDFF; }
+:host-context(body[data-theme="dark"]) .pl-modal-cabecalho p { color: #B8B0D6; }
+:host-context(body[data-theme="dark"]) .pl-form input[type='text'],
+:host-context(body[data-theme="dark"]) .pl-form input[type='number'],
+:host-context(body[data-theme="dark"]) .pl-form input[type='date'],
+:host-context(body[data-theme="dark"]) .pl-form select,
+:host-context(body[data-theme="dark"]) .pl-checks { background: #0F1422; color: #F4F1FF; }
+
+
+/* =========================================================
+   AJUSTE 03/11 (6): ícone na cor do botão/pílula + modais
+   ========================================================= */
+.pl-btn i, .pl-aba i, .pl-opcao i, .pl-nivel i, .pl-status i, .sl-origem i, .dv-tag i,
+.pl-add-beneficio i, .pl-icone-btn i, .pl-check i, .pl-toast i, .pl-fechar i, .sl-chip i,
+.pl-header-icone i, .pl-estado-icone i, .sl-selo-icone i { color: inherit !important; }
+.pl-assinantes-info i, .pl-nota i { color: #7C69A9 !important; }
+.pl-estrela { color: #C98A04 !important; }
+.pl-modal {
+  background: linear-gradient(180deg, #F3EDFF 0%, #FBF9FF 160px, #FDFCFF 100%) !important;
+  border: 1px solid #ECE4FB !important; border-radius: 30px !important;
+  box-shadow: 0 2px 6px rgba(43, 30, 74, 0.05), 0 32px 80px rgba(43, 30, 74, 0.22) !important;
+  scrollbar-width: thin; scrollbar-color: #D9CCF5 transparent;
+}
+.pl-modal::-webkit-scrollbar { width: 8px; }
+.pl-modal::-webkit-scrollbar-track { background: transparent; margin: 26px 0; }
+.pl-modal::-webkit-scrollbar-thumb { background: #D9CCF5; border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+.pl-fechar { border: 1px solid #ECE4FB !important; background: #FFFFFF !important; color: #6A55A8 !important; }
+.pl-fechar:hover { background: #F2ECFE !important; }
+.pl-modal-cabecalho .pl-header-icone { background: #FFFFFF !important; color: #6A55A8 !important; box-shadow: 0 6px 16px rgba(108, 75, 191, 0.12) !important; }
+.pl-modal-cabecalho .pl-header-icone.alerta { background: #FFF3DC !important; color: #9A6206 !important; }
+.pl-form input[type='text'], .pl-form input[type='number'], .pl-form input[type='date'], .pl-form select {
+  background: #FFFFFF !important; border: 1px solid #E6DDF8 !important;
+}
+.pl-opcao { background: #FFFFFF; border: 1px solid #E6DDF8; }
+.pl-checks { background: #FFFFFF !important; border: 1px solid #EFE9FB; }
+:host-context(body[data-theme="dark"]) .pl-modal { background: #141A26 !important; border-color: rgba(255, 255, 255, 0.08) !important; }
+:host-context(body[data-theme="dark"]) .pl-fechar { background: #1B2336 !important; color: #E2DAFC !important; border-color: rgba(255, 255, 255, 0.1) !important; }
+:host-context(body[data-theme="dark"]) .pl-modal-cabecalho .pl-header-icone { background: rgba(157, 143, 231, 0.16) !important; color: #D9D0FF !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) .pl-form input[type='text'],
+:host-context(body[data-theme="dark"]) .pl-form input[type='number'],
+:host-context(body[data-theme="dark"]) .pl-form input[type='date'],
+:host-context(body[data-theme="dark"]) .pl-form select,
+:host-context(body[data-theme="dark"]) .pl-opcao,
+:host-context(body[data-theme="dark"]) .pl-checks { background: #0F1422 !important; border-color: rgba(255, 255, 255, 0.12) !important; color: #F4F1FF; }
+:host-context(body[data-theme="dark"]) .pl-assinantes-info i,
+:host-context(body[data-theme="dark"]) .pl-nota i { color: #C4B5FD !important; }
+
+
+/* =========================================================
+   AJUSTE 03/11 (6): modais com rolagem bonita e ícones dos
+   botões sempre na cor do texto do botão
+   ========================================================= */
+.pl-modal { scrollbar-width: thin; scrollbar-color: #D9CCF5 transparent; clip-path: inset(0 round 28px); animation: plModalSobe 0.24s ease-out; }
+.pl-modal::-webkit-scrollbar { width: 6px; }
+.pl-modal::-webkit-scrollbar-thumb { background: #D9CCF5; border-radius: 999px; }
+.pl-modal::-webkit-scrollbar-track { background: transparent; margin: 22px 0; }
+@keyframes plModalSobe { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pl-modal { animation: none; } }
+.pl-modal-cabecalho { padding-bottom: 18px; border-bottom: 1px solid #EFE8FC; }
+.pl-modal-cabecalho .pl-header-icone { background: #EFE8FD !important; color: #6A55A8 !important; box-shadow: none !important; }
+.pl-modal-cabecalho .pl-header-icone.alerta { background: #FFF3DC !important; color: #9A6206 !important; }
+.pl-btn i, .pl-aba i, .pl-opcao i, .pl-add-beneficio i, .pl-icone-btn i, .pl-fechar i, .sl-chip i, .pl-header-icone i { color: inherit !important; }
+.pl-opcao.sel { background: #F2ECFE !important; border-color: #CDBEF2 !important; color: #4B2C82 !important; }
+.pl-opcao:disabled { opacity: 0.5; }
+:host-context(body[data-theme="dark"]) .pl-modal-cabecalho { border-bottom-color: rgba(255, 255, 255, 0.07); }
+:host-context(body[data-theme="dark"]) .pl-modal-cabecalho .pl-header-icone { background: rgba(157, 143, 231, 0.16) !important; color: #D9D0FF !important; }
+:host-context(body[data-theme="dark"]) .pl-opcao.sel { background: rgba(157, 143, 231, 0.16) !important; color: #F2EDFF !important; border-color: rgba(157, 143, 231, 0.4) !important; }

@@ -3851,7 +3851,7 @@ async carregarUsuarios(): Promise<void> {
       total: itens.length,
       eventos: itens.filter(i => i.origem === 'eventos').length,
       artigos: itens.filter(i => i.origem === 'artigos').length,
-      denunciados: itens.filter(i => (i.moderacao?.denuncias || 0) > 0 && !i.moderacao?.removido).length
+      denunciados: itens.filter(i => this.statusConteudo(i) === 'denunciado').length
     };
   }
 
@@ -3886,7 +3886,7 @@ async carregarUsuarios(): Promise<void> {
         case 'artigos':
           return item.origem === 'artigos';
         case 'denuncias':
-          return (item.moderacao?.denuncias || 0) > 0 && !item.moderacao?.removido;
+          return this.statusConteudo(item) === 'denunciado';
         default:
           return true;
       }
@@ -3916,10 +3916,61 @@ async carregarUsuarios(): Promise<void> {
     if (item.moderacao?.removido) {
       return 'removido';
     }
-    if ((item.moderacao?.denuncias || 0) > 0) {
-      return 'denunciado';
-    }
-    return 'ok';
+    return this.conteudoTemDenunciaAberta(item) ? 'denunciado' : 'ok';
+  }
+
+  /** Denúncias (da coleção denunciasConteudo) feitas sobre este artigo/evento. */
+  denunciasDoConteudo(item: ConteudoAdm): DenunciaAdm[] {
+    const tipo = item.origem === 'artigos' ? 'artigo' : 'evento';
+    return this.denunciasLista.filter((d) => d.tipo === tipo && d.alvoId === item.id);
+  }
+
+  /**
+   * Está denunciado se houver denúncia em aberto. Se a denúncia já foi resolvida na tela
+   * "Denúncias", o conteúdo volta a ficar "Ok". O contador antigo (moderacao.denuncias) só
+   * vale quando não há nenhum registro de denúncia para o conteúdo.
+   */
+  conteudoTemDenunciaAberta(item: ConteudoAdm): boolean {
+    const registros = this.denunciasDoConteudo(item);
+    if (registros.length) return registros.some((d) => this.denunciaEmAberto(d));
+    return (item.moderacao?.denuncias || 0) > 0;
+  }
+
+  /** Motivos das denúncias em aberto, para mostrar no "Analisar denúncia" e no "Visualizar". */
+  motivosDenunciaConteudo(item: ConteudoAdm): string {
+    const motivos = this.denunciasDoConteudo(item)
+      .filter((d) => this.denunciaEmAberto(d))
+      .map((d) => d.detalhes ? `${d.motivo}: "${d.detalhes}"` : d.motivo);
+    if (motivos.length) return [...new Set(motivos)].join(' · ');
+    return item.moderacao?.motivoDenuncia || 'Nenhum motivo informado pelo denunciante.';
+  }
+
+  // --- Modal "Visualizar" (olhinho da tabela de Moderação) ---
+  conteudoVisualizado: ConteudoAdm | null = null;
+
+  abrirVisualizarConteudo(item: ConteudoAdm): void {
+    this.fecharOpcoesConteudo();
+    this.conteudoVisualizado = item;
+  }
+
+  fecharVisualizarConteudo(): void {
+    this.conteudoVisualizado = null;
+  }
+
+  /** Abre o conteúdo como o público vê (artigo na página dele; evento na lista de eventos). */
+  abrirConteudoNoSite(item: ConteudoAdm): void {
+    const url = item.origem === 'artigos' ? `/artigo_ind?id=${encodeURIComponent(item.id)}` : '/eventos';
+    window.open(url, '_blank', 'noopener');
+  }
+
+  /** A partir do "Visualizar": fecha a visualização e segue para a ação escolhida. */
+  acaoPelaVisualizacao(acao: 'deletar' | 'restaurar' | 'analisar'): void {
+    const item = this.conteudoVisualizado;
+    if (!item) return;
+    this.conteudoVisualizado = null;
+    if (acao === 'deletar') this.abrirModalDeletarConteudo(item);
+    else if (acao === 'restaurar') void this.restaurarConteudo(item);
+    else this.abrirModalAnalisarDenuncia(item);
   }
 
   toggleOpcoesConteudo(item: ConteudoAdm): void {
@@ -4028,6 +4079,7 @@ async carregarUsuarios(): Promise<void> {
         });
         this.registrarUltimoConteudoModerado(item, 'Denúncia removida');
         void this.resolverDenunciasDoAlvo(item.origem === 'artigos' ? 'artigo' : 'evento', item.id);
+        this.mostrarToastAdm('Denúncia encerrada: o conteúdo continua publicado.', 'ok');
       } else {
         await updateDoc(doc(db, item.origem, item.id), {
           'moderacao.removido': true,
@@ -4036,6 +4088,7 @@ async carregarUsuarios(): Promise<void> {
         });
         this.registrarUltimoConteudoModerado(item, 'Post Deletado');
         void this.resolverDenunciasDoAlvo(item.origem === 'artigos' ? 'artigo' : 'evento', item.id);
+        this.mostrarToastAdm(`${item.tipo} removido do site. Dá para restaurar depois.`, 'ok');
       }
 
       this.conteudoParaAnalisar = null;
@@ -4095,6 +4148,7 @@ async carregarUsuarios(): Promise<void> {
 
       this.registrarUltimoConteudoModerado(item, 'Post Deletado');
       void this.resolverDenunciasDoAlvo(item.origem === 'artigos' ? 'artigo' : 'evento', item.id);
+      this.mostrarToastAdm(`${item.tipo} removido do site. Dá para restaurar depois.`, 'ok');
       this.conteudoParaDeletar = null;
       this.motivoDelecaoConteudo = '';
     } catch (error) {
@@ -4113,8 +4167,10 @@ async carregarUsuarios(): Promise<void> {
         'moderacao.motivoRemocao': ''
       });
       this.registrarUltimoConteudoModerado(item, 'Post Restaurado');
+      this.mostrarToastAdm(`${item.tipo} restaurado: voltou a aparecer no site.`, 'ok');
     } catch (error) {
       console.error('Erro ao restaurar conteúdo:', error);
+      this.mostrarToastAdm('Não foi possível restaurar agora. Tente novamente.', 'erro');
     }
   }
 

@@ -5596,3 +5596,774 @@ tr.linha-clicavel:hover { background: var(--menu-btn-hover); }
 }
 #moderacao .mod-tabela { min-width: 0; }
 @media (max-width: 1100px) { #moderacao .mod-tabela { min-width: 860px; } }
+
+
+/* =========================================================
+   AJUSTE 03/11 (3): VIBE SOFT EM LILÁS CLARÍSSIMO
+   No lugar do branco, tudo em tons de lilás bem claro; o texto
+   continua firme (nada apagado) e o hover do menu fica como está.
+   As variáveis abaixo também chegam em Planos, Selos e Divulgação.
+   ========================================================= */
+:host {
+  --lilas-pagina: #F5F1FE;
+  --lilas-card: #FBF9FF;
+  --lilas-card-2: #F5F1FE;
+  --lilas-borda: #EEE8FB;
+  --lilas-linha: #F1ECFC;
+  --lilas-hover: #F5F0FE;
+  --lilas-cabecalho: #F4EFFE;
+  --card-bg: var(--lilas-card);
+  --muted-bg: var(--lilas-card-2);
+  --glass-border: var(--lilas-borda);
+  --shadow-soft: 0 4px 16px rgba(108, 75, 191, 0.04);
+  --shadow-card: 0 4px 16px rgba(108, 75, 191, 0.04);
+  background: linear-gradient(160deg, #F8F5FF 0%, #F3EEFD 100%);
+}
+
+/* ---------- cartões: lilás claríssimo com borda lilás ---------- */
+.home-stat, .home-painel, .dash-panel, .stat-card, .usr-resumo-card, .forum-filtro-card,
+.forum-post-card, .rel-stat-card, .rel-custos-form, .config-conta-card, .request-card,
+.mod-tabela-card, .rel-header, .config-admin-topbar {
+  background: var(--lilas-card);
+  border: 1px solid var(--lilas-borda) !important;
+  box-shadow: 0 4px 16px rgba(108, 75, 191, 0.04) !important;
+}
+/* o menu fica um tom mais claro, para o hover dele continuar aparecendo igual */
+.sidebar { background: #FDFCFF; border: 1px solid var(--lilas-borda); box-shadow: 0 4px 16px rgba(108, 75, 191, 0.04); }
+
+/* textos firmes */
+.page-title, .pagina-topo .page-title { color: #3E2A72 !important; }
+.page-subtitle { color: #5E5582 !important; }
+.home-painel h3, .dash-panel h3 { color: #3E2A72 !important; }
+.home-stat-info strong, .usr-resumo-info strong, .stat-number { color: #3E2A72 !important; }
+.home-stat-info span, .usr-resumo-info span, .stat-label { color: #3B3552 !important; }
+.home-stat-info small { color: #6B6390 !important; }
+
+/* ícones dos cartões num lilás um pouco mais fundo, para destacar no fundo lilás */
+.icone-roxo, .activity-icon.icone-roxo, .stat-icon-purple, .forum-filtro-icone.icone-neutro,
+.rel-stat-purple .rel-stat-icone, .rel-panel-icone, .rel-header-icone, .config-conta-icone,
+.config-admin-tabela-icone, .config-modal-icone, .mod-conteudo-icone { background: #EFE8FD !important; }
+
+/* ---------- campos de busca e filtros ---------- */
+.mae-search-box, .mae-filtro-status, .filtro-campo input, .filtro-campo select, .rel-custos-campo input {
+  background: #FDFCFF !important;
+  border: 1px solid var(--lilas-borda) !important;
+  box-shadow: none !important;
+}
+.usr-abas { border-bottom-color: var(--lilas-linha); }
+.usr-resumo-card.ativo { border-color: #D3C6F2 !important; box-shadow: 0 0 0 3px rgba(124, 105, 169, 0.07) !important; }
+
+/* ---------- TABELAS: soft e modernas ---------- */
+.dash-panel.user-table, .maes-table-panel, .usr-tabela-painel {
+  background: var(--lilas-card) !important;
+  border-radius: 24px;
+  padding: 8px 10px 10px;
+}
+.maes-contador { color: #5E5582 !important; font-weight: 700 !important; padding: 12px 12px 10px !important; }
+.user-table table, .mod-tabela { border-collapse: separate; border-spacing: 0; }
+
+/* cabeçalho em faixa lilás arredondada */
+.user-table th, .mod-tabela th {
+  background: var(--lilas-cabecalho) !important;
+  color: #6E5F9C !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px !important;
+  border-bottom: none !important;
+}
+.user-table thead th:first-child, .mod-tabela thead th:first-child { border-radius: 14px 0 0 14px !important; }
+.user-table thead th:last-child, .mod-tabela thead th:last-child { border-radius: 0 14px 14px 0 !important; }
+
+/* linhas: sem listra, separador lilás fino, hover lilás */
+.user-table td, .mod-tabela td {
+  padding: 14px 12px !important;
+  border-bottom: 1px solid var(--lilas-linha) !important;
+  color: #3B3552;
+  font-size: 0.88rem;
+}
+.user-table tbody tr, .mod-tabela tbody tr { background: transparent !important; transition: background 0.15s ease; }
+.user-table tbody tr:hover, .mod-tabela tbody tr:hover { background: var(--lilas-hover) !important; }
+.user-table tbody tr:hover td:first-child { border-radius: 14px 0 0 14px; }
+.user-table tbody tr:hover td:last-child { border-radius: 0 14px 14px 0; }
+.user-table tbody tr:last-child td, .mod-tabela tbody tr:last-child td { border-bottom: none !important; }
+
+/* nome firme, detalhe em lilás acinzentado */
+.usr-nome-e-email strong, .mae-nome-cel > span:not(.mae-avatar-iniciais), .mod-conteudo-texto strong {
+  color: #2F2A40 !important; font-weight: 600 !important;
+}
+.usr-nome-e-email small, .prof-registro-mini { color: #6B6390 !important; }
+
+/* status: pílula com bolinha */
+.status {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 11px 4px 9px !important; border-radius: 999px;
+  font-size: 0.75rem !important; font-weight: 600 !important;
+}
+.status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.status.ativo { background: #EAF8F0; color: #1D7A50; }
+.status.pendente { background: #FEF5E0; color: #8A5F08; }
+.status.recusado { background: #F0EAFE; color: #5B44A8; }
+.status.inativo { background: #FDECF0; color: #AE2E49; }
+.status.concluido { background: #EDF0FC; color: #43509A; }
+
+/* ação da linha: pílula lilás visível */
+.user-table .link-btn, .prof-ver-perfil-btn {
+  background: #F2ECFE !important; color: #5A3F94 !important;
+  padding: 7px 14px !important; border-radius: 999px !important;
+  font-weight: 600 !important; font-size: 0.8rem !important; text-decoration: none !important;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.user-table .link-btn:hover, .prof-ver-perfil-btn:hover { background: #E6DCFC !important; color: #4B2C82 !important; transform: none; }
+
+/* ---------- popups "Ver perfil" e Configurações no mesmo lilás ---------- */
+.mae-drawer.ap-perfil, .ap-topo { background: var(--lilas-pagina); }
+.ap-hero, .ap-box { background: var(--lilas-card); border-color: var(--lilas-borda); }
+.ap-metrica, .ap-lista li, .ap-avaliacao, .ap-vazio { background: var(--lilas-card-2); }
+.ap-fechar { background: var(--lilas-card); }
+.mae-drawer-legado { background: var(--lilas-pagina); }
+.mae-drawer-legado .mae-perfil-header { background: var(--lilas-pagina); }
+.mae-drawer-legado .mae-perfil-grid, .mae-drawer-legado .mae-mini-card, .mae-drawer-legado .prof-checklist { background: var(--lilas-card); border-color: var(--lilas-borda); }
+.config-perfil-card { background: linear-gradient(135deg, #F4EEFE 0%, var(--lilas-card) 100%); border-color: var(--lilas-borda); }
+.suspender-modal { background: var(--lilas-card); }
+
+/* ---------- modo escuro: mantém os tons escuros de antes ---------- */
+:host-context(body[data-theme="dark"]) {
+  --lilas-card: #141A26;
+  --lilas-card-2: #1F2738;
+  --lilas-borda: rgba(255, 255, 255, 0.08);
+  --lilas-linha: rgba(255, 255, 255, 0.06);
+  --lilas-hover: rgba(157, 143, 231, 0.08);
+  --lilas-cabecalho: rgba(157, 143, 231, 0.1);
+  --lilas-pagina: #0F1422;
+}
+:host-context(body[data-theme="dark"]) .sidebar { background: #141A26; }
+:host-context(body[data-theme="dark"]) .home-stat,
+:host-context(body[data-theme="dark"]) .home-painel,
+:host-context(body[data-theme="dark"]) .dash-panel,
+:host-context(body[data-theme="dark"]) .stat-card,
+:host-context(body[data-theme="dark"]) .usr-resumo-card { box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) .page-title,
+:host-context(body[data-theme="dark"]) .home-painel h3,
+:host-context(body[data-theme="dark"]) .dash-panel h3,
+:host-context(body[data-theme="dark"]) .home-stat-info strong,
+:host-context(body[data-theme="dark"]) .usr-resumo-info strong,
+:host-context(body[data-theme="dark"]) .stat-number { color: #F2EDFF !important; }
+:host-context(body[data-theme="dark"]) .page-subtitle,
+:host-context(body[data-theme="dark"]) .home-stat-info small,
+:host-context(body[data-theme="dark"]) .maes-contador { color: #B8B0D6 !important; }
+:host-context(body[data-theme="dark"]) .home-stat-info span,
+:host-context(body[data-theme="dark"]) .usr-resumo-info span,
+:host-context(body[data-theme="dark"]) .stat-label,
+:host-context(body[data-theme="dark"]) .user-table td,
+:host-context(body[data-theme="dark"]) .mod-tabela td { color: #DDD6F3 !important; }
+:host-context(body[data-theme="dark"]) .user-table th,
+:host-context(body[data-theme="dark"]) .mod-tabela th { color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) .usr-nome-e-email strong,
+:host-context(body[data-theme="dark"]) .mae-nome-cel > span:not(.mae-avatar-iniciais),
+:host-context(body[data-theme="dark"]) .mod-conteudo-texto strong { color: #F2EDFF !important; }
+:host-context(body[data-theme="dark"]) .usr-nome-e-email small,
+:host-context(body[data-theme="dark"]) .prof-registro-mini { color: #A39BC2 !important; }
+:host-context(body[data-theme="dark"]) .mae-search-box,
+:host-context(body[data-theme="dark"]) .mae-filtro-status,
+:host-context(body[data-theme="dark"]) .filtro-campo input,
+:host-context(body[data-theme="dark"]) .filtro-campo select,
+:host-context(body[data-theme="dark"]) .rel-custos-campo input { background: #141A26 !important; }
+:host-context(body[data-theme="dark"]) .status.ativo { background: rgba(16, 185, 129, 0.14); color: #86EFC0; }
+:host-context(body[data-theme="dark"]) .status.pendente { background: rgba(255, 196, 77, 0.14); color: #FFD98A; }
+:host-context(body[data-theme="dark"]) .status.recusado { background: rgba(157, 143, 231, 0.16); color: #D9D0FF; }
+:host-context(body[data-theme="dark"]) .status.inativo { background: rgba(240, 108, 138, 0.14); color: #FFB8C8; }
+:host-context(body[data-theme="dark"]) .status.concluido { background: rgba(120, 140, 230, 0.16); color: #C3CCFF; }
+:host-context(body[data-theme="dark"]) .user-table .link-btn,
+:host-context(body[data-theme="dark"]) .prof-ver-perfil-btn { background: rgba(157, 143, 231, 0.16) !important; color: #E2DAFC !important; }
+:host-context(body[data-theme="dark"]) .user-table .link-btn:hover,
+:host-context(body[data-theme="dark"]) .prof-ver-perfil-btn:hover { background: #9D8FE7 !important; color: #1A1530 !important; }
+:host-context(body[data-theme="dark"]) .prof-engajamento { color: #86EFC0 !important; }
+:host-context(body[data-theme="dark"]) .icone-roxo,
+:host-context(body[data-theme="dark"]) .stat-icon-purple { background: rgba(157, 143, 231, 0.18) !important; }
+:host-context(body[data-theme="dark"]) .config-perfil-card { background: linear-gradient(135deg, #232A3F 0%, #1B2336 100%); }
+:host-context(body[data-theme="dark"]) .usr-tipo.tipo-mae { background: rgba(230, 133, 166, 0.16); color: #FFB8D0; }
+:host-context(body[data-theme="dark"]) .usr-tipo.tipo-psicologo { background: rgba(90, 169, 230, 0.16); color: #A9D2FF; }
+:host-context(body[data-theme="dark"]) .usr-tipo.tipo-parceiro { background: rgba(16, 185, 129, 0.14); color: #86EFC0; }
+:host-context(body[data-theme="dark"]) .usr-tipo.tipo-advogado { background: rgba(157, 143, 231, 0.16); color: #D9D0FF; }
+
+/* versão bem leve: ícones em pastel clarinho e números menos pesados */
+.icone-rosa, .activity-icon.icone-rosa, .rel-stat-pink .rel-stat-icone { background: #FDF0F5 !important; }
+.icone-azul, .activity-icon.icone-azul, .stat-icon-blue, .rel-stat-blue .rel-stat-icone { background: #EEF4FF !important; }
+.icone-verde, .activity-icon.icone-verde, .stat-icon-teal, .rel-stat-green .rel-stat-icone { background: #EBF8F2 !important; }
+.icone-laranja, .activity-icon.icone-laranja, .stat-icon-laranja, .forum-filtro-icone.icone-laranja,
+.forum-filtro-icone.icone-alerta { background: #FFF5E8 !important; }
+.home-stat-info strong, .usr-resumo-info strong, .stat-number { font-weight: 700 !important; }
+.page-title, .pagina-topo .page-title { font-weight: 700 !important; }
+.home-stat:hover, .usr-resumo-card:hover, .stat-card:hover, .forum-filtro-card:hover {
+  box-shadow: 0 8px 22px rgba(108, 75, 191, 0.07) !important;
+}
+
+
+/* =========================================================
+   AJUSTE 03/11 (4): ACABAMENTO CLEAN
+   - um só modelo de cabeçalho em todas as telas (ícone suave +
+     título + subtítulo, sem caixa em volta);
+   - cartões sem borda, só uma sombra bem difusa;
+   - cartões de Relatórios sem fundo colorido;
+   - banner da home um pouco mais enxuto;
+   - espaçamentos e cantos iguais em tudo.
+   ========================================================= */
+
+/* ---------- cabeçalho padrão das telas ---------- */
+.cab-pagina { display: flex; align-items: center; gap: 16px; width: 100%; margin: 2px 0 24px !important; }
+.cab-texto { min-width: 0; }
+.cab-texto .page-title { width: auto !important; margin: 0 0 3px !important; }
+.cab-texto .page-subtitle { width: auto !important; margin: 0 !important; max-width: 720px; }
+.cab-icone, .rel-header-icone {
+  width: 48px; height: 48px; min-width: 48px; border-radius: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #EFE8FD !important; color: #6A55A8 !important; font-size: 1.15rem;
+  box-shadow: none !important;
+}
+.cab-icone i, .rel-header-icone i { color: inherit !important; }
+.page-title, .rel-header-titulo { font-size: 1.55rem !important; font-weight: 700 !important; letter-spacing: -0.3px; color: #2E2550 !important; }
+.page-subtitle, .rel-header-subtitulo { font-size: 0.92rem !important; color: #7A7296 !important; line-height: 1.5; }
+
+/* Relatórios e Configurações: o cabeçalho deixa de ser uma caixa */
+.rel-header {
+  background: transparent !important; border: none !important; box-shadow: none !important;
+  padding: 0 !important; margin: 2px 0 24px !important; width: 100% !important;
+}
+.rel-header-info { gap: 16px; }
+
+/* ---------- cartões: sem borda, sombra difusa, cantos iguais ---------- */
+.home-stat, .home-painel, .dash-panel, .stat-card, .usr-resumo-card, .forum-filtro-card,
+.forum-post-card, .rel-stat-card, .rel-custos-form, .config-conta-card, .request-card,
+.mod-tabela-card, .sidebar {
+  border-color: transparent !important;
+  box-shadow: 0 1px 2px rgba(60, 40, 110, 0.03), 0 10px 30px rgba(60, 40, 110, 0.05) !important;
+  border-radius: 22px !important;
+}
+.home-stat:hover, .usr-resumo-card:hover, .stat-card:hover, .forum-filtro-card:hover, .rel-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 1px 2px rgba(60, 40, 110, 0.03), 0 14px 34px rgba(60, 40, 110, 0.08) !important;
+}
+.usr-resumo-card.ativo, .forum-filtro-card.active {
+  box-shadow: 0 0 0 2px #D9CCF5, 0 10px 30px rgba(60, 40, 110, 0.06) !important;
+}
+
+/* indicadores: mesmo desenho em todas as telas */
+.home-stat, .stat-card, .usr-resumo-card, .rel-stat-card { padding: 18px 20px !important; gap: 14px !important; }
+.rel-stat-card { background: var(--lilas-card) !important; }
+.home-stat-icone, .usr-resumo-icone, .stat-icon, .rel-stat-icone, .forum-filtro-icone {
+  width: 46px !important; height: 46px !important; min-width: 46px !important; border-radius: 14px !important; font-size: 1.05rem !important;
+}
+.home-stat-info strong, .usr-resumo-info strong, .stat-number, .rel-stat-valor { font-size: 1.6rem !important; line-height: 1.1; }
+.usr-resumo-info span, .stat-label, .rel-stat-label { font-size: 0.82rem !important; }
+
+/* ---------- banner da home mais enxuto ---------- */
+.home-hero { padding: 38px 46px !important; border-radius: 26px; margin-bottom: 24px; }
+.home-hero h2 { font-size: 2.2rem !important; margin-bottom: 8px !important; }
+.home-hero p { font-size: 1rem !important; max-width: 560px; }
+
+/* ---------- "precisa da sua atenção" sem caixinhas ---------- */
+.atencao-item { border: none !important; background: var(--lilas-card-2) !important; border-radius: 16px; }
+.atencao-item:hover { background: var(--lilas-hover) !important; }
+.home-painel h3, .dash-panel h3 { font-size: 1.05rem !important; font-weight: 700 !important; }
+
+/* ---------- busca e filtros arredondados e sem sombra ---------- */
+.mae-search-box { border-radius: 999px !important; padding: 10px 18px !important; }
+.filtro-campo input, .filtro-campo select { border-radius: 12px !important; }
+.mae-filtro-status { border-radius: 999px !important; padding: 4px !important; }
+
+/* ---------- tabelas: um pouco mais de respiro ---------- */
+.user-table td, .mod-tabela td { padding: 15px 14px !important; }
+.user-table th, .mod-tabela th { padding: 12px 14px !important; }
+.mae-avatar-mini { width: 34px !important; height: 34px !important; min-width: 34px !important; }
+
+/* ---------- modo escuro ---------- */
+:host-context(body[data-theme="dark"]) .cab-icone,
+:host-context(body[data-theme="dark"]) .rel-header-icone { background: rgba(157, 143, 231, 0.16) !important; color: #D9D0FF !important; }
+:host-context(body[data-theme="dark"]) .page-title,
+:host-context(body[data-theme="dark"]) .rel-header-titulo { color: #F2EDFF !important; }
+:host-context(body[data-theme="dark"]) .page-subtitle,
+:host-context(body[data-theme="dark"]) .rel-header-subtitulo { color: #B8B0D6 !important; }
+:host-context(body[data-theme="dark"]) .home-stat,
+:host-context(body[data-theme="dark"]) .home-painel,
+:host-context(body[data-theme="dark"]) .dash-panel,
+:host-context(body[data-theme="dark"]) .stat-card,
+:host-context(body[data-theme="dark"]) .usr-resumo-card,
+:host-context(body[data-theme="dark"]) .forum-filtro-card,
+:host-context(body[data-theme="dark"]) .forum-post-card,
+:host-context(body[data-theme="dark"]) .rel-stat-card,
+:host-context(body[data-theme="dark"]) .sidebar { border-color: rgba(255, 255, 255, 0.06) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) .usr-resumo-card.ativo,
+:host-context(body[data-theme="dark"]) .forum-filtro-card.active { box-shadow: 0 0 0 2px rgba(157, 143, 231, 0.45) !important; }
+
+
+/* =========================================================
+   AJUSTE 03/11 (5): CABEÇALHO EM BANNER SUAVE, FILTROS
+   AGRUPADOS E MODAIS MODERNOS
+   ========================================================= */
+
+/* ---------- cabeçalho de cada tela: banner lilás suave ---------- */
+.cab-pagina, .rel-header {
+  position: relative; overflow: hidden; isolation: isolate;
+  background: linear-gradient(120deg, #EEE6FE 0%, #F5F0FF 55%, #FBF8FF 100%) !important;
+  border: 1px solid #ECE4FB !important;
+  border-radius: 26px !important;
+  padding: 24px 28px !important;
+  margin: 0 0 22px !important;
+  box-shadow: none !important;
+}
+.cab-pagina::before, .rel-header::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  right: -50px; top: -80px; width: 260px; height: 260px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 105, 169, 0.16) 0%, rgba(124, 105, 169, 0) 70%);
+}
+.cab-pagina::after, .rel-header::after {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  right: 160px; bottom: -90px; width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(230, 133, 166, 0.12) 0%, rgba(230, 133, 166, 0) 70%);
+}
+.cab-icone, .rel-header-icone {
+  width: 54px !important; height: 54px !important; min-width: 54px !important; border-radius: 18px !important;
+  background: #FFFFFF !important; color: #6A55A8 !important; font-size: 1.25rem !important;
+  box-shadow: 0 8px 20px rgba(108, 75, 191, 0.12) !important;
+}
+.cab-texto .page-title, .rel-header-titulo { font-size: 1.6rem !important; }
+.cab-texto .page-subtitle, .rel-header-subtitulo { color: #6B6390 !important; }
+
+/* Moderação: tira o vão entre o cabeçalho e os cartões */
+#moderacao .stats-grid { margin-top: 0 !important; }
+#moderacao .mod-layout { gap: 0 !important; }
+
+/* ---------- barra de busca + filtros agrupada num painel só ---------- */
+.maes-toolbar, .forum-search-row {
+  background: #FBF9FF; border: 1px solid #EEE8FB; border-radius: 22px;
+  padding: 14px 16px !important; margin-bottom: 18px !important; width: 100% !important;
+}
+.maes-toolbar:has(+ .filtros-extra), .forum-search-row:has(+ .filtros-extra) {
+  border-bottom: none; border-radius: 22px 22px 0 0; margin-bottom: 0 !important; padding-bottom: 8px !important;
+}
+.maes-toolbar + .filtros-extra, .forum-search-row + .filtros-extra {
+  background: #FBF9FF; border: 1px solid #EEE8FB; border-top: none; border-radius: 0 0 22px 22px;
+  padding: 6px 16px 16px !important; margin: 0 0 18px !important;
+}
+.maes-toolbar .mae-search-box, .forum-search-row .mae-search-box,
+.maes-toolbar .mae-filtro-status { background: #F4EFFE !important; border-color: transparent !important; }
+.filtros-extra .filtro-campo input, .filtros-extra .filtro-campo select { background: #F4EFFE !important; border-color: transparent !important; }
+.filtros-extra .filtro-campo span { font-size: 0.74rem; color: #7A7296; font-weight: 700; }
+.maes-toolbar .prof-filtros-btn { background: #F4EFFE; border-color: transparent; box-shadow: none; color: #5A3F94; }
+
+/* ---------- MODAIS: fundo e caixa ---------- */
+.suspender-overlay, .config-modal-overlay, .forum-modal-fundo, .mae-drawer-fundo {
+  background: rgba(46, 33, 74, 0.28) !important;
+  backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important;
+}
+.suspender-modal, .config-modal, .forum-modal, .mae-drawer:not(.ap-perfil) {
+  background: #FCFAFF !important;
+  border: 1px solid #EEE8FB !important;
+  border-radius: 28px !important;
+  box-shadow: 0 30px 80px rgba(46, 33, 74, 0.18) !important;
+}
+.suspender-modal { padding: 30px !important; max-width: 500px; }
+
+/* botão de fechar redondinho */
+.suspender-fechar-btn, .config-modal-fechar-btn, .mae-fechar-btn, .ap-fechar {
+  width: 38px !important; height: 38px !important; min-width: 38px !important; border-radius: 50% !important;
+  background: #F2ECFE !important; color: #5A3F94 !important; border: none !important; box-shadow: none !important;
+}
+.suspender-fechar-btn:hover, .config-modal-fechar-btn:hover, .mae-fechar-btn:hover, .ap-fechar:hover { background: #E6DCFC !important; }
+.suspender-fechar-btn i, .config-modal-fechar-btn i, .mae-fechar-btn i, .ap-fechar i { color: inherit !important; }
+
+/* cabeçalho dos modais */
+.suspender-icone, .config-modal-icone { width: 48px !important; height: 48px !important; border-radius: 16px !important; font-size: 1.1rem !important; }
+.suspender-icone { background: #FDECF0 !important; color: #AE2E49 !important; }
+.suspender-icone-alerta { background: #FFF3DD !important; color: #A65B06 !important; }
+.suspender-icone-sucesso { background: #E6F7EE !important; color: #1D7A50 !important; }
+.config-modal-icone { background: #EFE8FD !important; color: #6A55A8 !important; }
+.suspender-cabecalho-texto h3, .forum-modal-titulo, .mae-drawer-titulo, .config-modal-header h3 {
+  color: #2E2550 !important; font-weight: 700 !important;
+}
+.suspender-cabecalho-texto p { color: #6B6390 !important; }
+.config-modal-bar { background: linear-gradient(90deg, #C9B8F2, #E8B7CB) !important; opacity: 0.6; }
+
+/* cartão de quem está sendo moderado */
+.suspender-mae-card { background: #F5F1FE !important; border: none !important; border-radius: 18px !important; }
+.suspender-mae-nome { color: #2E2550 !important; font-weight: 700 !important; }
+.suspender-alerta-box { background: #FFF8EA !important; border: none !important; border-radius: 16px !important; }
+.mae-drawer-suspensao { background: #FDF0F3 !important; border-radius: 18px; }
+
+/* campos */
+.suspender-campo label { color: #3E2A72 !important; font-weight: 700 !important; font-size: 0.86rem !important; }
+.suspender-campo select, .suspender-campo textarea, .den-parecer, .prof-observacoes-textarea, .config-modal input, .config-modal select, .config-modal textarea {
+  background: #F6F2FE !important; border: 1px solid transparent !important; border-radius: 14px !important;
+  color: #2F2A40 !important; transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.suspender-campo select:focus, .suspender-campo textarea:focus, .den-parecer:focus, .prof-observacoes-textarea:focus,
+.config-modal input:focus, .config-modal select:focus, .config-modal textarea:focus {
+  outline: none; background: #FFFFFF !important; border-color: #C9B8F2 !important; box-shadow: 0 0 0 4px rgba(124, 105, 169, 0.12) !important;
+}
+
+/* botões em pílula */
+.suspender-acoes { gap: 10px !important; margin-top: 8px; }
+.suspender-btn-cancelar, .filtro-limpar {
+  background: #F2ECFE !important; color: #4B2C82 !important; border: none !important; border-radius: 999px !important; font-weight: 700 !important;
+}
+.suspender-btn-cancelar:hover, .filtro-limpar:hover { background: #E6DCFC !important; }
+.suspender-btn-confirmar, .mae-drawer-btn-ok, .den-btn-resolver {
+  background: linear-gradient(135deg, #7C69A9 0%, #52427D 100%) !important; color: #FFFFFF !important;
+  border: none !important; border-radius: 999px !important; font-weight: 700 !important;
+  box-shadow: 0 8px 18px rgba(82, 66, 125, 0.22) !important;
+}
+.suspender-btn-confirmar:hover, .mae-drawer-btn-ok:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.suspender-btn-confirmar i, .mae-drawer-btn-ok i { color: inherit !important; }
+.suspender-btn-sucesso { background: linear-gradient(135deg, #34A57A 0%, #1D7A50 100%) !important; box-shadow: 0 8px 18px rgba(29, 122, 80, 0.2) !important; }
+.mae-drawer-btn-perigo { background: #FDECF0 !important; color: #AE2E49 !important; border-radius: 999px !important; }
+
+/* detalhe da denúncia e post do fórum */
+.mae-drawer-topo { border-bottom-color: #F0EAFC !important; padding: 20px 26px !important; }
+.mae-drawer-corpo { padding: 22px 26px !important; }
+.mae-drawer-rodape { border-top-color: #F0EAFC !important; padding: 16px 26px 22px !important; }
+.mae-drawer-dados div { border-bottom: 1px solid #F0EAFC !important; }
+.forum-modal-topo, .forum-modal-resumo { border-color: #F0EAFC !important; }
+.forum-resposta { background: #F6F2FE !important; border-radius: 16px !important; border: none !important; }
+.forum-resposta.especialista { background: #ECF8F2 !important; }
+
+/* ---------- modo escuro ---------- */
+:host-context(body[data-theme="dark"]) .cab-pagina,
+:host-context(body[data-theme="dark"]) .rel-header {
+  background: linear-gradient(120deg, #221F3D 0%, #1A1F31 60%, #161C2B 100%) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+:host-context(body[data-theme="dark"]) .cab-icone,
+:host-context(body[data-theme="dark"]) .rel-header-icone { background: rgba(157, 143, 231, 0.16) !important; color: #D9D0FF !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) .cab-texto .page-subtitle,
+:host-context(body[data-theme="dark"]) .rel-header-subtitulo { color: #B8B0D6 !important; }
+:host-context(body[data-theme="dark"]) .maes-toolbar,
+:host-context(body[data-theme="dark"]) .forum-search-row,
+:host-context(body[data-theme="dark"]) .maes-toolbar + .filtros-extra,
+:host-context(body[data-theme="dark"]) .forum-search-row + .filtros-extra { background: #141A26; border-color: rgba(255, 255, 255, 0.06); }
+:host-context(body[data-theme="dark"]) .maes-toolbar .mae-search-box,
+:host-context(body[data-theme="dark"]) .forum-search-row .mae-search-box,
+:host-context(body[data-theme="dark"]) .maes-toolbar .mae-filtro-status,
+:host-context(body[data-theme="dark"]) .filtros-extra .filtro-campo input,
+:host-context(body[data-theme="dark"]) .filtros-extra .filtro-campo select,
+:host-context(body[data-theme="dark"]) .maes-toolbar .prof-filtros-btn { background: #1F2738 !important; color: #E2DAFC; }
+:host-context(body[data-theme="dark"]) .suspender-modal,
+:host-context(body[data-theme="dark"]) .config-modal,
+:host-context(body[data-theme="dark"]) .forum-modal,
+:host-context(body[data-theme="dark"]) .mae-drawer:not(.ap-perfil) { background: #141A26 !important; border-color: rgba(255, 255, 255, 0.08) !important; }
+:host-context(body[data-theme="dark"]) .suspender-fechar-btn,
+:host-context(body[data-theme="dark"]) .config-modal-fechar-btn,
+:host-context(body[data-theme="dark"]) .mae-fechar-btn,
+:host-context(body[data-theme="dark"]) .ap-fechar,
+:host-context(body[data-theme="dark"]) .suspender-btn-cancelar,
+:host-context(body[data-theme="dark"]) .filtro-limpar { background: rgba(157, 143, 231, 0.16) !important; color: #E2DAFC !important; }
+:host-context(body[data-theme="dark"]) .suspender-cabecalho-texto h3,
+:host-context(body[data-theme="dark"]) .forum-modal-titulo,
+:host-context(body[data-theme="dark"]) .mae-drawer-titulo,
+:host-context(body[data-theme="dark"]) .config-modal-header h3,
+:host-context(body[data-theme="dark"]) .suspender-mae-nome,
+:host-context(body[data-theme="dark"]) .suspender-campo label { color: #F2EDFF !important; }
+:host-context(body[data-theme="dark"]) .suspender-cabecalho-texto p { color: #B8B0D6 !important; }
+:host-context(body[data-theme="dark"]) .suspender-mae-card,
+:host-context(body[data-theme="dark"]) .forum-resposta { background: #1F2738 !important; }
+:host-context(body[data-theme="dark"]) .suspender-alerta-box { background: rgba(255, 196, 77, 0.1) !important; }
+:host-context(body[data-theme="dark"]) .suspender-campo select,
+:host-context(body[data-theme="dark"]) .suspender-campo textarea,
+:host-context(body[data-theme="dark"]) .den-parecer,
+:host-context(body[data-theme="dark"]) .prof-observacoes-textarea,
+:host-context(body[data-theme="dark"]) .config-modal input,
+:host-context(body[data-theme="dark"]) .config-modal select,
+:host-context(body[data-theme="dark"]) .config-modal textarea { background: #0F1422 !important; color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) .mae-drawer-topo,
+:host-context(body[data-theme="dark"]) .mae-drawer-rodape,
+:host-context(body[data-theme="dark"]) .mae-drawer-dados div,
+:host-context(body[data-theme="dark"]) .forum-modal-topo,
+:host-context(body[data-theme="dark"]) .forum-modal-resumo { border-color: rgba(255, 255, 255, 0.07) !important; }
+
+:host-context(body[data-theme="dark"]) .suspender-alerta-box strong,
+:host-context(body[data-theme="dark"]) .suspender-alerta-box p { color: #FFD98A !important; }
+:host-context(body[data-theme="dark"]) .suspender-icone { background: rgba(240, 108, 138, 0.16) !important; color: #FFB8C8 !important; }
+:host-context(body[data-theme="dark"]) .suspender-icone-alerta { background: rgba(255, 196, 77, 0.14) !important; color: #FFD98A !important; }
+:host-context(body[data-theme="dark"]) .suspender-icone-sucesso { background: rgba(16, 185, 129, 0.14) !important; color: #86EFC0 !important; }
+:host-context(body[data-theme="dark"]) .config-modal-icone { background: rgba(157, 143, 231, 0.16) !important; color: #D9D0FF !important; }
+.suspender-icone i, .config-modal-icone i { color: inherit !important; }
+
+
+/* =========================================================
+   AJUSTE 03/11 (6): MODAIS BONITOS + CONTRASTE DOS ÍCONES
+   ========================================================= */
+
+/* ---------- ícone sempre na cor do botão/pílula onde está ----------
+   O styles.css pinta todo <i> de roxo escuro; dentro de botão roxo
+   (Exportar, Salvar, Resolver...) o ícone sumia. */
+button:not(.menu-btn):not(.drawer-close) i, a i,
+.usr-tipo i, .status i, .mod-status i, .forum-badge i, .ap-selo i, .atencao-total i,
+.mod-ver-chip i, .den-tag i { color: inherit !important; }
+.atencao-seta { color: #9A8EC2 !important; }
+.rel-custos-texto strong i { color: #B8416C !important; }
+.forum-badge.badge-alerta { background: #FFF1D6 !important; color: #7A5200 !important; }
+
+/* ---------- estrutura comum dos modais ---------- */
+.suspender-modal, .config-modal, .forum-modal, .mae-drawer, .mae-drawer-legado {
+  background: linear-gradient(180deg, #F3EDFF 0%, #FBF9FF 160px, #FDFCFF 100%) !important;
+  border: 1px solid #ECE4FB !important;
+  border-radius: 30px !important;
+  box-shadow: 0 2px 6px rgba(43, 30, 74, 0.05), 0 32px 80px rgba(43, 30, 74, 0.22) !important;
+}
+.suspender-modal { max-width: 520px !important; padding: 30px 32px !important; }
+
+/* barra de rolagem fininha, por dentro dos cantos arredondados */
+.suspender-modal, .config-modal, .forum-modal, .mae-drawer-legado, .mae-drawer-corpo, .ap-corpo {
+  scrollbar-width: thin; scrollbar-color: #D9CCF5 transparent;
+}
+.suspender-modal::-webkit-scrollbar, .config-modal::-webkit-scrollbar, .forum-modal::-webkit-scrollbar,
+.mae-drawer-legado::-webkit-scrollbar, .mae-drawer-corpo::-webkit-scrollbar, .ap-corpo::-webkit-scrollbar { width: 8px; }
+.suspender-modal::-webkit-scrollbar-track, .config-modal::-webkit-scrollbar-track, .forum-modal::-webkit-scrollbar-track,
+.mae-drawer-legado::-webkit-scrollbar-track, .mae-drawer-corpo::-webkit-scrollbar-track, .ap-corpo::-webkit-scrollbar-track { background: transparent; margin: 26px 0; }
+.suspender-modal::-webkit-scrollbar-thumb, .config-modal::-webkit-scrollbar-thumb, .forum-modal::-webkit-scrollbar-thumb,
+.mae-drawer-legado::-webkit-scrollbar-thumb, .mae-drawer-corpo::-webkit-scrollbar-thumb, .ap-corpo::-webkit-scrollbar-thumb {
+  background: #D9CCF5; border-radius: 999px; border: 2px solid transparent; background-clip: padding-box;
+}
+
+/* cabeçalho fixo dos popups grandes no mesmo lilás do topo */
+.mae-drawer-topo, .mae-drawer-legado .mae-perfil-header { background: #F3EDFF !important; border-bottom: 1px solid #ECE4FB !important; }
+.mae-drawer-titulo { font-size: 1.15rem !important; font-weight: 700 !important; color: #2E2550 !important; }
+.mae-drawer-rodape { background: #FDFCFF; }
+
+/* seções internas como cartões brancos */
+.mae-drawer-secao { background: #FFFFFF; border: 1px solid #EFE9FB; border-radius: 20px; padding: 18px 20px !important; }
+.mae-drawer-secao h4, .mae-perfil-secao h4 { color: #3E2A72 !important; font-size: 0.98rem !important; font-weight: 700 !important; }
+.mae-drawer-corpo { gap: 16px !important; }
+.mae-drawer-vazio { width: 100%; box-sizing: border-box; background: #F6F2FE !important; border-radius: 14px !important; color: #5A5275 !important; font-style: italic; }
+.mae-drawer-dados div { padding: 11px 0 !important; border-bottom: 1px solid #F1ECFC !important; }
+.mae-drawer-dados div:last-child { border-bottom: none !important; }
+.mae-drawer-dados dt { color: #6B6390 !important; }
+.mae-drawer-dados dt i { color: #9A8EC2 !important; }
+.mae-drawer-dados dd { color: #2F2A40 !important; font-weight: 600 !important; }
+.den-motivo strong { color: #2E2550; }
+
+/* rodapé com botões em pílula */
+.den-rodape { gap: 10px !important; }
+.den-rodape .filtro-limpar, .mae-drawer-rodape .filtro-limpar {
+  background: #FFFFFF !important; border: 1px solid #E4DAF8 !important; color: #4B2C82 !important;
+  border-radius: 999px !important; padding: 12px 18px !important; font-weight: 700 !important;
+}
+.den-rodape .filtro-limpar:hover { background: #F2ECFE !important; }
+.den-btn-resolver, .mae-drawer-btn-ok {
+  border-radius: 999px !important; padding: 14px 20px !important;
+  background: linear-gradient(135deg, #8B78C0 0%, #5B4790 100%) !important; color: #FFFFFF !important;
+  box-shadow: 0 10px 22px rgba(82, 66, 125, 0.25) !important;
+}
+
+/* cartão do post dentro do modal de advertência/remoção */
+.suspender-modal .forum-post-card {
+  background: #FFFFFF !important; border: 1px solid #EFE9FB !important; border-radius: 20px !important;
+  box-shadow: none !important; padding: 18px 20px !important;
+}
+.suspender-modal .forum-post-conteudo { color: #3B3552; line-height: 1.6; }
+.aviso-autora { border-radius: 16px !important; }
+
+/* ---------- modal "Visualizar" da Moderação ---------- */
+.mod-ver-icone { background: #EFE8FD !important; color: #6A55A8 !important; }
+.mod-ver-status { display: flex; flex-wrap: wrap; gap: 8px; margin: -4px 0 14px; }
+.mod-ver-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: #FFF1D6; color: #7A5200; font-size: 0.78rem; font-weight: 700; }
+.mod-ver-texto {
+  background: #FFFFFF; border: 1px solid #EFE9FB; border-radius: 18px; padding: 16px 18px; margin-bottom: 16px;
+  color: #3B3552; line-height: 1.6; max-height: 220px; overflow-y: auto; white-space: pre-line;
+}
+.mod-ver-link {
+  display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; padding: 0;
+  background: none !important; border: none; color: #6A55A8; font-weight: 700; font-size: 0.88rem; cursor: pointer;
+}
+.mod-ver-link:hover { text-decoration: underline; }
+.mod-ver-btn-deletar { background: linear-gradient(135deg, #D9566F 0%, #B0304A 100%) !important; box-shadow: 0 10px 22px rgba(176, 48, 74, 0.22) !important; }
+.mod-btn-icone { cursor: pointer; }
+
+/* ---------- modo escuro ---------- */
+:host-context(body[data-theme="dark"]) .suspender-modal,
+:host-context(body[data-theme="dark"]) .config-modal,
+:host-context(body[data-theme="dark"]) .forum-modal,
+:host-context(body[data-theme="dark"]) .mae-drawer,
+:host-context(body[data-theme="dark"]) .mae-drawer-legado { background: #141A26 !important; border-color: rgba(255, 255, 255, 0.08) !important; }
+:host-context(body[data-theme="dark"]) .mae-drawer-topo,
+:host-context(body[data-theme="dark"]) .mae-drawer-legado .mae-perfil-header,
+:host-context(body[data-theme="dark"]) .mae-drawer-rodape { background: #141A26 !important; border-color: rgba(255, 255, 255, 0.08) !important; }
+:host-context(body[data-theme="dark"]) .mae-drawer-titulo,
+:host-context(body[data-theme="dark"]) .mae-drawer-secao h4,
+:host-context(body[data-theme="dark"]) .mae-perfil-secao h4,
+:host-context(body[data-theme="dark"]) .den-motivo strong,
+:host-context(body[data-theme="dark"]) .mae-drawer-dados dd { color: #F2EDFF !important; }
+:host-context(body[data-theme="dark"]) .mae-drawer-secao,
+:host-context(body[data-theme="dark"]) .suspender-modal .forum-post-card,
+:host-context(body[data-theme="dark"]) .mod-ver-texto { background: #1B2336 !important; border-color: rgba(255, 255, 255, 0.07) !important; color: #DDD6F3; }
+:host-context(body[data-theme="dark"]) .mae-drawer-vazio { background: #1F2738 !important; color: #C4BBE3 !important; }
+:host-context(body[data-theme="dark"]) .mae-drawer-dados dt { color: #B8B0D6 !important; }
+:host-context(body[data-theme="dark"]) .mae-drawer-dados div { border-color: rgba(255, 255, 255, 0.06) !important; }
+:host-context(body[data-theme="dark"]) .den-rodape .filtro-limpar,
+:host-context(body[data-theme="dark"]) .mae-drawer-rodape .filtro-limpar { background: transparent !important; color: #E2DAFC !important; border-color: rgba(255, 255, 255, 0.14) !important; }
+:host-context(body[data-theme="dark"]) .suspender-modal .forum-post-conteudo { color: #DDD6F3; }
+:host-context(body[data-theme="dark"]) .mod-ver-link { color: #C4B5FD; }
+:host-context(body[data-theme="dark"]) .mod-ver-icone { background: rgba(157, 143, 231, 0.16) !important; color: #D9D0FF !important; }
+:host-context(body[data-theme="dark"]) .mod-ver-chip,
+:host-context(body[data-theme="dark"]) .forum-badge.badge-alerta { background: rgba(255, 196, 77, 0.14) !important; color: #FFD98A !important; }
+:host-context(body[data-theme="dark"]) .rel-custos-texto strong i { color: #FFB8D0 !important; }
+/* selos de status da Moderação em pastel */
+.mod-status { border-radius: 999px !important; padding: 5px 12px !important; font-weight: 700 !important; font-size: 0.76rem !important; }
+.mod-status-ok { background: #EAF8F0 !important; color: #1D7A50 !important; }
+.mod-status-denunciado { background: #FFF1D6 !important; color: #7A5200 !important; }
+.mod-status-deletado { background: #FDECF0 !important; color: #AE2E49 !important; }
+:host-context(body[data-theme="dark"]) .mod-status-ok { background: rgba(16, 185, 129, 0.14) !important; color: #86EFC0 !important; }
+:host-context(body[data-theme="dark"]) .mod-status-denunciado { background: rgba(255, 196, 77, 0.14) !important; color: #FFD98A !important; }
+:host-context(body[data-theme="dark"]) .mod-status-deletado { background: rgba(240, 108, 138, 0.14) !important; color: #FFB8C8 !important; }
+
+
+/* =========================================================
+   AJUSTE 03/11 (6): MODAIS BONITOS, CONTRASTE DOS ÍCONES
+   E AÇÕES DA MODERAÇÃO
+   ========================================================= */
+
+/* ---------- 1. MODAIS: rolagem bonita (sem a barra cinza cortando o canto) ---------- */
+.suspender-modal, .config-modal, .forum-modal, .mae-drawer-legado, .ap-corpo, .mae-drawer-corpo {
+  scrollbar-width: thin;
+  scrollbar-color: #D9CCF5 transparent;
+}
+.suspender-modal::-webkit-scrollbar, .config-modal::-webkit-scrollbar, .forum-modal::-webkit-scrollbar,
+.mae-drawer-legado::-webkit-scrollbar, .ap-corpo::-webkit-scrollbar, .mae-drawer-corpo::-webkit-scrollbar { width: 6px; }
+.suspender-modal::-webkit-scrollbar-thumb, .config-modal::-webkit-scrollbar-thumb, .forum-modal::-webkit-scrollbar-thumb,
+.mae-drawer-legado::-webkit-scrollbar-thumb, .ap-corpo::-webkit-scrollbar-thumb, .mae-drawer-corpo::-webkit-scrollbar-thumb { background: #D9CCF5; border-radius: 999px; }
+.suspender-modal::-webkit-scrollbar-track, .config-modal::-webkit-scrollbar-track, .forum-modal::-webkit-scrollbar-track,
+.mae-drawer-legado::-webkit-scrollbar-track, .ap-corpo::-webkit-scrollbar-track, .mae-drawer-corpo::-webkit-scrollbar-track { background: transparent; margin: 22px 0; }
+.suspender-modal, .config-modal, .forum-modal { clip-path: inset(0 round 28px); }
+
+/* entrada suave */
+.suspender-modal, .config-modal, .forum-modal { animation: modalSobe 0.24s ease-out; }
+@keyframes modalSobe { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .suspender-modal, .config-modal, .forum-modal { animation: none; } }
+
+/* ---------- 2. Cabeçalho dos modais com uma linha suave embaixo ---------- */
+.suspender-cabecalho { padding-bottom: 18px; margin-bottom: 20px !important; border-bottom: 1px solid #EFE8FC; }
+.mae-drawer-legado .mae-perfil-header { background: linear-gradient(180deg, #F4EEFF 0%, #FBF9FF 100%) !important; }
+.mae-drawer-topo { background: linear-gradient(180deg, #F4EEFF 0%, #FBF9FF 100%); }
+.mae-drawer-titulo { font-size: 1.15rem !important; }
+
+/* ---------- 3. Cartões e caixas dentro dos modais ---------- */
+.forum-modal-preview, .mod-vis-cartao {
+  background: #FFFFFF !important; border: 1px solid #EEE7FB !important; border-radius: 20px !important;
+  box-shadow: 0 6px 18px rgba(108, 75, 191, 0.06) !important; padding: 18px 20px !important;
+}
+.mod-motivo-denuncia-box, .mae-drawer-vazio {
+  width: 100%; box-sizing: border-box;
+  background: #F6F2FE !important; border-radius: 16px !important; padding: 14px 16px !important;
+  color: #3B3552 !important; line-height: 1.5;
+}
+.aviso-autora { border-radius: 16px !important; padding: 14px 16px !important; }
+.mae-drawer-dados div { padding: 12px 0 !important; }
+.mae-drawer-dados dt i { color: #8A78C6 !important; }
+
+/* checklist de documentos: pílula "Enviado" / "Faltando" no lugar da bolinha */
+.prof-checklist { gap: 0 !important; padding: 6px 18px !important; }
+.prof-checklist-item { padding: 12px 0; border-bottom: 1px solid #F1ECFC; color: #3B3552 !important; font-weight: 600; }
+.prof-checklist-item:last-child { border-bottom: none; }
+.prof-checklist-dot {
+  width: auto !important; height: auto !important; min-width: 0 !important; border-radius: 999px !important;
+  padding: 4px 11px; font-size: 0.74rem; font-weight: 700; background: #FDECF0 !important; color: #AE2E49;
+}
+.prof-checklist-dot::before { content: "Faltando"; }
+.prof-checklist-dot.ok { background: #EAF8F0 !important; color: #1D7A50; }
+.prof-checklist-dot.ok::before { content: "Enviado"; }
+
+/* botões de escolha dentro dos modais (Remover denúncia / Deletar post) */
+.mod-acoes-toggle { display: flex; gap: 10px; }
+.mod-acao-btn {
+  flex: 1; padding: 12px 14px; border-radius: 14px !important; border: 1px solid #E6DDF8 !important;
+  background: #FFFFFF !important; color: #4B2C82 !important; font-weight: 700;
+}
+.mod-acao-btn.selecionada { background: #F1EAFE !important; border-color: #B9A8E8 !important; box-shadow: 0 0 0 3px rgba(124, 105, 169, 0.12); }
+.mod-acao-btn-perigo { color: #AE2E49 !important; }
+.mod-acao-btn-perigo.selecionada { background: #FDECF0 !important; border-color: #F0B3C1 !important; box-shadow: 0 0 0 3px rgba(192, 52, 79, 0.1); }
+
+/* ---------- 4. Modal "Visualizar" da Moderação ---------- */
+.mod-visualizar { max-width: 540px !important; }
+.mod-vis-selos { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.mod-vis-titulo { margin: 0 0 6px; font-size: 1.15rem; font-weight: 700; color: #2E2550; line-height: 1.35; }
+.mod-vis-texto { margin: 0 0 12px; color: #5E5582; line-height: 1.55; font-size: 0.92rem; }
+.mod-vis-dados { margin: 0; display: flex; flex-direction: column; }
+.mod-vis-dados div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #F1ECFC; }
+.mod-vis-dados dt { color: #6B6390; font-weight: 600; font-size: 0.86rem; display: flex; gap: 8px; align-items: center; }
+.mod-vis-dados dt i { color: #8A78C6 !important; width: 16px; text-align: center; }
+.mod-vis-dados dd { margin: 0; color: #2F2A40; font-weight: 700; font-size: 0.88rem; text-align: right; }
+.mod-vis-cartao { margin-bottom: 16px; }
+.mod-btn-remover-site { background: linear-gradient(135deg, #D9566F 0%, #B0304A 100%) !important; box-shadow: 0 10px 22px rgba(176, 48, 74, 0.22) !important; }
+
+/* ---------- 5. Ações da tabela da Moderação (sem menu que some) ---------- */
+.mod-acoes-cel { display: flex; gap: 8px; justify-content: flex-end; }
+.mod-btn-icone {
+  width: 36px; height: 36px; border-radius: 12px !important; border: none !important;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #F2ECFE !important; color: #5A3F94 !important; transition: background 0.15s ease, transform 0.15s ease;
+}
+.mod-btn-icone:hover { background: #E6DCFC !important; transform: translateY(-1px); }
+.mod-btn-analisar { background: #FFF3DC !important; color: #9A6206 !important; }
+.mod-btn-analisar:hover { background: #FFE8B8 !important; }
+.mod-btn-deletar { background: #FDECF0 !important; color: #AE2E49 !important; }
+.mod-btn-deletar:hover { background: #FAD7DF !important; }
+.mod-btn-restaurar { border-radius: 999px !important; background: #EAF8F0 !important; color: #1D7A50 !important; padding: 8px 14px !important; font-weight: 700 !important; border: none !important; }
+.mod-btn-restaurar:hover { background: #D7F1E3 !important; }
+
+/* ---------- 6. CONTRASTE DOS ÍCONES: ícone sempre na cor do texto do próprio botão ---------- */
+.rel-export-btn i, .rel-custos-btn i, .suspender-btn-confirmar i, .suspender-btn-cancelar i, .filtro-limpar i,
+.mod-btn-icone i, .mod-btn-restaurar i, .prof-filtros-btn i, .config-editar-perfil-btn i, .mae-drawer-btn-ok i,
+.mae-drawer-btn-perigo i, .ap-btn i, .mod-acao-btn i, .forum-btn-abrir i, .forum-btn-advertir i, .forum-btn-remover i,
+.den-btn-resolver i, .creditos-saldo-btn i, .usr-abas button i, .mae-filtro-status button i, .mod-tab i,
+.link-btn i, .prof-ver-perfil-btn i, .atencao-item .atencao-seta, .rel-select-wrap i, .mae-search-box i {
+  color: inherit !important;
+}
+.rel-export-btn { background: linear-gradient(135deg, #8B78C0 0%, #5B4790 100%) !important; color: #FFFFFF !important; border-radius: 999px !important; }
+.mod-tab.active { color: #FFFFFF !important; }
+.mae-search-box i { color: #8A78C6 !important; }
+
+/* seletor de mês dos Relatórios: tira a seta duplicada */
+.rel-select-wrap { color: #4B2C82; }
+.rel-select-wrap select { -webkit-appearance: none; appearance: none; padding-right: 4px; }
+.rel-select-wrap select::-ms-expand { display: none; }
+
+/* ---------- 7. Modo escuro ---------- */
+:host-context(body[data-theme="dark"]) .suspender-cabecalho { border-bottom-color: rgba(255, 255, 255, 0.07); }
+:host-context(body[data-theme="dark"]) .mae-drawer-legado .mae-perfil-header,
+:host-context(body[data-theme="dark"]) .mae-drawer-topo { background: #141A26 !important; }
+:host-context(body[data-theme="dark"]) .forum-modal-preview,
+:host-context(body[data-theme="dark"]) .mod-vis-cartao { background: #1B2336 !important; border-color: rgba(255, 255, 255, 0.08) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) .mod-motivo-denuncia-box,
+:host-context(body[data-theme="dark"]) .mae-drawer-vazio { background: #1F2738 !important; color: #DDD6F3 !important; }
+:host-context(body[data-theme="dark"]) .prof-checklist-item { color: #DDD6F3 !important; border-bottom-color: rgba(255, 255, 255, 0.06); }
+:host-context(body[data-theme="dark"]) .prof-checklist-dot { background: rgba(240, 108, 138, 0.14) !important; color: #FFB8C8; }
+:host-context(body[data-theme="dark"]) .prof-checklist-dot.ok { background: rgba(16, 185, 129, 0.14) !important; color: #86EFC0; }
+:host-context(body[data-theme="dark"]) .mod-acao-btn { background: #1B2336 !important; border-color: rgba(255, 255, 255, 0.12) !important; color: #E2DAFC !important; }
+:host-context(body[data-theme="dark"]) .mod-acao-btn.selecionada { background: rgba(157, 143, 231, 0.18) !important; }
+:host-context(body[data-theme="dark"]) .mod-acao-btn-perigo { color: #FFB8C8 !important; }
+:host-context(body[data-theme="dark"]) .mod-vis-titulo,
+:host-context(body[data-theme="dark"]) .mod-vis-dados dd { color: #F2EDFF; }
+:host-context(body[data-theme="dark"]) .mod-vis-texto,
+:host-context(body[data-theme="dark"]) .mod-vis-dados dt { color: #B8B0D6; }
+:host-context(body[data-theme="dark"]) .mod-vis-dados div { border-top-color: rgba(255, 255, 255, 0.07); }
+:host-context(body[data-theme="dark"]) .mod-btn-icone { background: rgba(157, 143, 231, 0.16) !important; color: #E2DAFC !important; }
+:host-context(body[data-theme="dark"]) .mod-btn-analisar { background: rgba(255, 196, 77, 0.14) !important; color: #FFD98A !important; }
+:host-context(body[data-theme="dark"]) .mod-btn-deletar { background: rgba(240, 108, 138, 0.14) !important; color: #FFB8C8 !important; }
+:host-context(body[data-theme="dark"]) .mod-btn-restaurar { background: rgba(16, 185, 129, 0.14) !important; color: #86EFC0 !important; }
+:host-context(body[data-theme="dark"]) .rel-select-wrap { color: #E2DAFC; }
+:host-context(body[data-theme="dark"]) .mae-search-box i { color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) .mod-vis-titulo { color: #F2EDFF !important; }
+:host-context(body[data-theme="dark"]) .usr-tipo.den-tipo-artigo { background: rgba(90, 169, 230, 0.16); color: #A9D2FF; }
+:host-context(body[data-theme="dark"]) .usr-tipo.den-tipo-evento { background: rgba(16, 185, 129, 0.14); color: #86EFC0; }
+:host-context(body[data-theme="dark"]) .usr-tipo.den-tipo-post { background: rgba(157, 143, 231, 0.16); color: #D9D0FF; }
+/* Moderação: "Dados Gerais" e "Últimos conteúdos moderados" voltam para cima,
+   logo depois dos cartões de números e antes da tabela */
+#moderacao .mod-layout { display: flex !important; flex-direction: column; gap: 22px !important; }
+#moderacao .mod-col-principal { display: contents !important; }
+#moderacao .mod-col-principal > .cab-pagina { order: 0; margin-bottom: 0 !important; }
+#moderacao .mod-col-principal > .stats-grid { order: 1; margin: 0 !important; padding: 0 !important; width: 100% !important; }
+#moderacao .mod-col-lateral { order: 2; width: 100% !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 20px !important; }
+#moderacao .mod-col-principal > .mod-tabela-card { order: 3; margin-top: 0 !important; }
+#moderacao .mod-col-lateral .dash-panel { margin: 0; height: 100%; }
+@media (max-width: 900px) { #moderacao .mod-col-lateral { grid-template-columns: 1fr !important; } }

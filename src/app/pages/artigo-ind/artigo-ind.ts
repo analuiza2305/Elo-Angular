@@ -114,7 +114,7 @@ export class ArtigoInd implements OnInit, AfterViewInit {
       const artigoRef = doc(db, 'artigos', id);
       const artigoSnap = await getDoc(artigoRef);
 
-      if (artigoSnap.exists()) {
+      if (artigoSnap.exists() && !artigoSnap.data()?.['moderacao']?.removido) {
         const data = artigoSnap.data();
         let dataString = '26 de set.';
         const rawDate = data['data'] ?? data['date'] ?? null;

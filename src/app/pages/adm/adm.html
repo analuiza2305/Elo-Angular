@@ -304,9 +304,12 @@
 
   <!-- USUÁRIOS (todos: mães, profissionais e parceiros) -->
   <section class="content" id="usuarios" [class.hidden]="abaAtiva !== 'usuarios'">
-    <div class="pagina-topo">
-      <h2 class="page-title">Usuários</h2>
-      <p class="page-subtitle">Todas as pessoas da plataforma num só lugar: mães, profissionais e parceiros.</p>
+    <div class="pagina-topo cab-pagina">
+      <span class="cab-icone"><i class="fa-solid fa-users"></i></span>
+      <div class="cab-texto">
+        <h2 class="page-title">Usuários</h2>
+        <p class="page-subtitle">Todas as pessoas da plataforma num só lugar: mães, profissionais e parceiros.</p>
+      </div>
     </div>
 
     <!-- resumo clicável -->
@@ -1575,9 +1578,12 @@
 
   <!-- APROVAÇÕES (cadastros de psicólogos e advogados) -->
   <section class="content" id="aprovacoes" [class.hidden]="abaAtiva !== 'aprovacoes'">
-    <div class="pagina-topo">
-      <h2 class="page-title">Aprovações</h2>
-      <p class="page-subtitle">Confira o CRP/OAB e os dados de quem quer atender na plataforma. Clique numa linha para analisar.</p>
+    <div class="pagina-topo cab-pagina">
+      <span class="cab-icone"><i class="fa-solid fa-user-check"></i></span>
+      <div class="cab-texto">
+        <h2 class="page-title">Aprovações</h2>
+        <p class="page-subtitle">Confira o CRP/OAB e os dados de quem quer atender na plataforma. Clique numa linha para analisar.</p>
+      </div>
     </div>
 
     <div class="usr-resumo">
@@ -1793,9 +1799,12 @@
 
   <!-- DENÚNCIAS (posts do fórum, artigos e eventos) -->
   <section class="content" id="denuncias" [class.hidden]="abaAtiva !== 'denuncias'">
-    <div class="pagina-topo">
-      <h2 class="page-title">Denúncias</h2>
-      <p class="page-subtitle">Tudo que as usuárias denunciaram, em tempo real. Clique numa linha para abrir o conteúdo e decidir.</p>
+    <div class="pagina-topo cab-pagina">
+      <span class="cab-icone"><i class="fa-solid fa-flag"></i></span>
+      <div class="cab-texto">
+        <h2 class="page-title">Denúncias</h2>
+        <p class="page-subtitle">Tudo que as usuárias denunciaram, em tempo real. Clique numa linha para abrir o conteúdo e decidir.</p>
+      </div>
     </div>
 
     <div class="usr-resumo">
@@ -1983,12 +1992,12 @@
 
       <!-- COLUNA PRINCIPAL (esquerda) -->
       <div class="creditos-col mod-col-principal">
-        <div class="mod-hero">
-          <div class="mod-hero-texto">
-            <h2 class="page-title">Moderação de Conteúdo:</h2>
-            <p class="page-subtitle">Modere Eventos e Artigos publicados</p>
+        <div class="pagina-topo cab-pagina">
+          <span class="cab-icone"><i class="fa-solid fa-shield-halved"></i></span>
+          <div class="cab-texto">
+            <h2 class="page-title">Moderação de Conteúdo</h2>
+            <p class="page-subtitle">Acompanhe os eventos e artigos publicados e tome uma ação quando precisar.</p>
           </div>
-          <i class="fa-solid fa-shield-halved mod-hero-icone" aria-hidden="true"></i>
         </div>
 
         <div class="stats-grid">
@@ -2115,28 +2124,17 @@
                         <button type="button" class="mod-btn-restaurar" (click)="restaurarConteudo(item)">Restaurar Post</button>
                       } @else {
                         <div class="mod-acoes-cel">
-                          <button type="button" class="mod-btn-icone" title="Visualizar">
+                          <button type="button" class="mod-btn-icone" title="Visualizar" aria-label="Visualizar conteúdo" (click)="$event.stopPropagation(); abrirVisualizarConteudo(item)">
                             <i class="fa-regular fa-eye"></i>
                           </button>
-
-                          <div class="mod-opcoes-wrap">
-                            <button type="button" class="mod-btn-opcoes" (click)="$event.stopPropagation(); toggleOpcoesConteudo(item)">
-                              <i class="fa-solid fa-bars"></i> Opções
+                          @if (statusConteudo(item) === 'denunciado') {
+                            <button type="button" class="mod-btn-icone mod-btn-analisar" title="Analisar denúncia" aria-label="Analisar denúncia" (click)="$event.stopPropagation(); abrirModalAnalisarDenuncia(item)">
+                              <i class="fa-solid fa-magnifying-glass"></i>
                             </button>
-
-                            @if (opcoesConteudoAbertasId === item.id) {
-                              <div class="mod-opcoes-menu" (click)="$event.stopPropagation()">
-                                @if (statusConteudo(item) === 'denunciado') {
-                                  <button type="button" (click)="abrirModalAnalisarDenuncia(item)">
-                                    <i class="fa-solid fa-magnifying-glass"></i> Analisar Denúncia
-                                  </button>
-                                }
-                                <button type="button" class="mod-opcoes-deletar" (click)="abrirModalDeletarConteudo(item)">
-                                  <i class="fa-solid fa-trash"></i> Deletar
-                                </button>
-                              </div>
-                            }
-                          </div>
+                          }
+                          <button type="button" class="mod-btn-icone mod-btn-deletar" title="Remover do site" aria-label="Remover do site" (click)="$event.stopPropagation(); abrirModalDeletarConteudo(item)">
+                            <i class="fa-regular fa-trash-can"></i>
+                          </button>
                         </div>
                       }
                     </td>
@@ -2205,8 +2203,13 @@
 
   <!-- FÓRUM (MODERAÇÃO DOS POSTS REAIS) -->
   <section class="content" id="forum" [class.hidden]="abaAtiva !== 'forum'">
-    <h2 class="page-title">Moderação do Fórum</h2>
-    <p class="page-subtitle">Acompanhe as publicações reais do fórum e aplique advertências ou remova conteúdos que violem as diretrizes da comunidade.</p>
+    <div class="pagina-topo cab-pagina">
+      <span class="cab-icone"><i class="fa-solid fa-comments"></i></span>
+      <div class="cab-texto">
+        <h2 class="page-title">Moderação do Fórum</h2>
+        <p class="page-subtitle">Acompanhe as publicações reais do fórum e aplique advertências ou remova conteúdos que violem as diretrizes da comunidade.</p>
+      </div>
+    </div>
 
     <div class="forum-search-row">
       <div class="mae-search-box forum-search-box">
@@ -2938,6 +2941,84 @@
 }
 
 
+<!-- MODAL: VISUALIZAR CONTEÚDO (olhinho da Moderação) -->
+@if (conteudoVisualizado; as item) {
+  <div class="suspender-overlay" (click)="fecharVisualizarConteudo()">
+    <div class="suspender-modal mod-visualizar" (click)="$event.stopPropagation()">
+      <button type="button" class="suspender-fechar-btn" (click)="fecharVisualizarConteudo()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="suspender-cabecalho">
+        <span class="suspender-icone config-modal-icone"><i class="fa-regular" [ngClass]="item.tipo === 'Evento' ? 'fa-calendar' : 'fa-file-lines'"></i></span>
+        <div class="suspender-cabecalho-texto">
+          <h3>{{ item.tipo }} publicado</h3>
+          <p>Confira o conteúdo antes de decidir o que fazer.</p>
+        </div>
+      </div>
+
+      <div class="mod-vis-cartao">
+        <div class="mod-vis-selos">
+          <span class="usr-tipo" [ngClass]="item.origem === 'eventos' ? 'den-tipo-evento' : 'den-tipo-artigo'">{{ item.tipo }}</span>
+          @if (statusConteudo(item) === 'denunciado') {
+            <span class="status pendente">Denunciado</span>
+          } @else if (statusConteudo(item) === 'removido') {
+            <span class="status inativo">Removido do site</span>
+          } @else {
+            <span class="status ativo">Publicado</span>
+          }
+        </div>
+        <h4 class="mod-vis-titulo">{{ item.titulo }}</h4>
+        @if (item.assunto) { <p class="mod-vis-texto">{{ item.assunto }}</p> }
+        <dl class="mod-vis-dados">
+          <div><dt><i class="fa-regular fa-user"></i> Publicado por</dt><dd>{{ item.usuarioNome }}</dd></div>
+          <div><dt><i class="fa-regular fa-calendar"></i> Data</dt><dd>{{ item.dataFormatada }}</dd></div>
+          <div><dt><i class="fa-regular fa-flag"></i> Denúncias</dt><dd>{{ denunciasDoConteudo(item).length || (item.moderacao?.denuncias || 0) }}</dd></div>
+        </dl>
+      </div>
+
+      @if (statusConteudo(item) === 'denunciado') {
+        <div class="suspender-alerta-box">
+          <i class="fa-solid fa-flag"></i>
+          <div>
+            <strong>Motivo da denúncia</strong>
+            <p>{{ motivosDenunciaConteudo(item) }}</p>
+          </div>
+        </div>
+      }
+      @if (statusConteudo(item) === 'removido' && item.moderacao?.motivoRemocao) {
+        <div class="suspender-alerta-box">
+          <i class="fa-solid fa-ban"></i>
+          <div>
+            <strong>Por que foi removido</strong>
+            <p>{{ item.moderacao?.motivoRemocao }}</p>
+          </div>
+        </div>
+      }
+
+      <div class="suspender-acoes mod-vis-acoes">
+        <button type="button" class="suspender-btn-cancelar" (click)="abrirConteudoNoSite(item)">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir no site
+        </button>
+        @if (statusConteudo(item) === 'removido') {
+          <button type="button" class="suspender-btn-confirmar suspender-btn-sucesso" (click)="acaoPelaVisualizacao('restaurar')">
+            <i class="fa-solid fa-rotate-left"></i> Restaurar
+          </button>
+        } @else if (statusConteudo(item) === 'denunciado') {
+          <button type="button" class="suspender-btn-confirmar" (click)="acaoPelaVisualizacao('analisar')">
+            <i class="fa-solid fa-magnifying-glass"></i> Analisar denúncia
+          </button>
+        } @else {
+          <button type="button" class="suspender-btn-confirmar mod-btn-remover-site" (click)="acaoPelaVisualizacao('deletar')">
+            <i class="fa-regular fa-trash-can"></i> Remover do site
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+
 <!-- MODAL: ANALISAR DENÚNCIA (moderação de conteúdo) -->
 @if (conteudoParaAnalisar) {
   <div class="suspender-overlay" (click)="fecharModalAnalisarDenuncia()">
@@ -2972,7 +3053,7 @@
       <div class="suspender-campo">
         <label>Motivo da denúncia</label>
         <div class="mod-motivo-denuncia-box">
-          {{ conteudoParaAnalisar.moderacao?.motivoDenuncia || 'Nenhum motivo informado pelo denunciante.' }}
+          {{ motivosDenunciaConteudo(conteudoParaAnalisar) }}
         </div>
       </div>
 
@@ -3023,6 +3104,85 @@
 
 
 <!-- MODAL: DELETAR CONTEÚDO (artigo/evento) -->
+<!-- MODAL: VISUALIZAR CONTEÚDO (Moderação) -->
+@if (conteudoVisualizado; as item) {
+  <div class="suspender-overlay" (click)="fecharVisualizarConteudo()">
+    <div class="suspender-modal mod-ver-modal" role="dialog" aria-modal="true" aria-label="Visualizar conteúdo" (click)="$event.stopPropagation()">
+      <button type="button" class="suspender-fechar-btn" (click)="fecharVisualizarConteudo()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="suspender-cabecalho">
+        <span class="suspender-icone mod-ver-icone"><i class="fa-regular" [ngClass]="item.tipo === 'Evento' ? 'fa-calendar' : 'fa-file-lines'"></i></span>
+        <div class="suspender-cabecalho-texto">
+          <h3>{{ item.titulo }}</h3>
+          <p>{{ item.tipo }} publicado por {{ item.usuarioNome }} · {{ item.dataFormatada }}</p>
+        </div>
+      </div>
+
+      <div class="mod-ver-status">
+        @if (statusConteudo(item) === 'removido') {
+          <span class="mod-status mod-status-deletado">Deletado</span>
+        } @else if (statusConteudo(item) === 'denunciado') {
+          <span class="mod-status mod-status-denunciado">Denunciado</span>
+        } @else {
+          <span class="mod-status mod-status-ok">Ok</span>
+        }
+        @if ((item.moderacao?.denuncias || 0) > 0) {
+          <span class="mod-ver-chip"><i class="fa-solid fa-flag"></i> {{ item.moderacao?.denuncias }} {{ item.moderacao?.denuncias === 1 ? 'denúncia' : 'denúncias' }}</span>
+        }
+      </div>
+
+      <div class="mod-ver-texto">
+        {{ item.assunto || 'Este conteúdo não tem descrição.' }}
+      </div>
+
+      @if (statusConteudo(item) === 'removido' && item.moderacao?.motivoRemocao) {
+        <div class="suspender-alerta-box">
+          <i class="fa-solid fa-circle-info"></i>
+          <div>
+            <strong>Motivo da remoção</strong>
+            <p>{{ item.moderacao?.motivoRemocao }}</p>
+          </div>
+        </div>
+      } @else if (statusConteudo(item) === 'denunciado' && item.moderacao?.motivoDenuncia) {
+        <div class="suspender-alerta-box">
+          <i class="fa-solid fa-flag"></i>
+          <div>
+            <strong>Motivo da denúncia</strong>
+            <p>{{ item.moderacao?.motivoDenuncia }}</p>
+          </div>
+        </div>
+      }
+
+      <button type="button" class="mod-ver-link" (click)="abrirConteudoNoSite(item)">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        {{ item.origem === 'artigos' ? 'Abrir o artigo no site' : 'Abrir a página de eventos' }}
+      </button>
+
+      <div class="suspender-acoes">
+        @if (statusConteudo(item) === 'removido') {
+          <button type="button" class="suspender-btn-cancelar" (click)="fecharVisualizarConteudo()">Fechar</button>
+          <button type="button" class="suspender-btn-confirmar suspender-btn-sucesso" (click)="acaoPelaVisualizacao('restaurar')">
+            <i class="fa-solid fa-rotate-left"></i> Restaurar
+          </button>
+        } @else {
+          @if (statusConteudo(item) === 'denunciado') {
+            <button type="button" class="suspender-btn-cancelar" (click)="acaoPelaVisualizacao('analisar')">
+              <i class="fa-solid fa-magnifying-glass"></i> Analisar denúncia
+            </button>
+          } @else {
+            <button type="button" class="suspender-btn-cancelar" (click)="fecharVisualizarConteudo()">Fechar</button>
+          }
+          <button type="button" class="suspender-btn-confirmar mod-ver-btn-deletar" (click)="acaoPelaVisualizacao('deletar')">
+            <i class="fa-solid fa-trash"></i> Deletar
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}
+
 @if (conteudoParaDeletar) {
   <div class="suspender-overlay" (click)="fecharModalDeletarConteudo()">
     <div class="suspender-modal" (click)="$event.stopPropagation()">

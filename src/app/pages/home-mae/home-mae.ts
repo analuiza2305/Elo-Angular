@@ -133,11 +133,11 @@ export class HomeMaeComponent implements OnInit {
 
   async carregarUltimosArtigos() {
     try {
-      const q = query(collection(db, 'artigos'), orderBy('datahorapost', 'desc'), limit(6));
+      const q = query(collection(db, 'artigos'), orderBy('datahorapost', 'desc'), limit(12));
       const snap = await getDocs(q);
       const user = this.currentUser();
       
-      const artigos = snap.docs.map(d => {
+      const artigos = snap.docs.filter(d => !d.data()?.['moderacao']?.removido).map(d => {
         const data = d.data();
         return {
           id: d.id,
@@ -145,15 +145,15 @@ export class HomeMaeComponent implements OnInit {
           salvo: user ? (data['artigosSalvos']?.includes(user.uid) || false) : false
         };
       });
-      this.ultimosArtigos.set(artigos);
+      this.ultimosArtigos.set(artigos.slice(0, 6));
     } catch (e) { console.error(e); }
   }
 
   async carregarUltimosEventos() {
     try {
-      const q = query(collection(db, 'eventos'), orderBy('data', 'desc'), limit(2));
+      const q = query(collection(db, 'eventos'), orderBy('data', 'desc'), limit(6));
       const snap = await getDocs(q);
-      const eventos = snap.docs.map(docSnap => {
+      const eventos = snap.docs.filter(d => !d.data()?.['moderacao']?.removido).map(docSnap => {
         const data = docSnap.data();
         const rawDate = data['data'] ?? data['date'];
         const dataFormatada = rawDate?.toDate ? rawDate.toDate() : (new Date(rawDate));
@@ -163,7 +163,7 @@ export class HomeMaeComponent implements OnInit {
           horaFormatada: dataFormatada ? dataFormatada.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : ''
         };
       });
-      this.ultimosEventos.set(eventos);
+      this.ultimosEventos.set(eventos.slice(0, 2));
       this.isLoading.set(false);
     } catch (e) { this.isLoading.set(false); }
   }

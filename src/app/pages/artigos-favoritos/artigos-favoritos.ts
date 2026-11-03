@@ -54,7 +54,7 @@ export class ArtigosFavoritos implements OnInit {
         const lista: any[] = [];
 
         artigosSnap.forEach(docSnap => {
-          if (idsFavoritos.includes(docSnap.id)) {
+          if (idsFavoritos.includes(docSnap.id) && !docSnap.data()?.['moderacao']?.removido) {
             const data = docSnap.data();
             let dataString = '26 de set.';
             let dataObj = null;

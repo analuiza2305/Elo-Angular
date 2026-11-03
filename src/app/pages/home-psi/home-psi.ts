@@ -743,7 +743,7 @@ export class HomePsi implements OnInit, OnDestroy {
       this.carregandoArtigos.set(true);
       const snap = await getDocs(collection(db, 'artigos'));
       this.artigos.set(
-        snap.docs.map((d) => {
+        snap.docs.filter((d) => !d.data()?.['moderacao']?.removido).map((d) => {
           const a: any = d.data();
           const quando = a['datahorapost'] ?? a['data'] ?? null;
           const tempo = quando?.toDate ? quando.toDate().getTime() : quando ? new Date(quando).getTime() || 0 : 0;

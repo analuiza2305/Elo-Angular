@@ -83,6 +83,7 @@ export class Eventos implements OnInit {
       
       snap.forEach(docSnap => {
         const data = docSnap.data();
+        if (data?.['moderacao']?.removido) return; // removido pela moderação
         let dataFormatada = '';
         let dataObj = null;
         let dia = '23';

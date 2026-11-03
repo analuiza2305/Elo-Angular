@@ -89,7 +89,7 @@ export class Artigos implements OnInit {
       const snap = await getDocs(collection(db, 'artigos'));
       const user = this.currentUser();
       
-      const artigos = snap.docs.map(d => {
+      const artigos = snap.docs.filter(d => !d.data()?.['moderacao']?.removido).map(d => {
         const data = d.data();
         return {
           id: d.id,
