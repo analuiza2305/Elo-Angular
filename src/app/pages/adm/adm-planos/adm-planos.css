@@ -238,3 +238,28 @@
   .pl-abas { display: flex; width: 100%; }
   .pl-aba { flex: 1; justify-content: center; }
 }
+
+
+/* =========================================================
+   AJUSTE 03/11: ícone sempre no tom do próprio fundo
+   (fundo pastel + ícone no tom escuro da mesma cor). O styles.css
+   pinta todo <i> de roxo, por isso o "inherit !important".
+   ========================================================= */
+.pl-kpi-icone i,
+.pl-header-icone i,
+.pl-estado-icone i,
+.sl-selo-icone i { color: inherit !important; }
+.pl-header-icone { background: linear-gradient(135deg, #7C69A9, #52427D); color: #FFFFFF; box-shadow: 0 8px 18px rgba(82, 66, 125, 0.22); }
+.pl-kpi-icone.roxo { background: #ECE4FF; color: #52427D; }
+.pl-kpi-icone.verde { background: #E2F6EE; color: #0F7A55; }
+.pl-kpi-icone.azul { background: #E3EEFF; color: #2F5FC0; }
+.pl-kpi-icone.rosa { background: #FDE8F0; color: #B8416C; }
+.sl-selo-icone.pago { background: #FFF0DD; color: #A65B06; }
+.sl-selo-icone.merito { background: #FDE8F0; color: #B8416C; }
+:host-context(body[data-theme="dark"]) .pl-kpi-icone.roxo { background: rgba(157, 143, 231, 0.18); color: #D9D0FF; }
+:host-context(body[data-theme="dark"]) .pl-kpi-icone.verde { background: rgba(16, 185, 129, 0.16); color: #86EFC0; }
+:host-context(body[data-theme="dark"]) .pl-kpi-icone.azul { background: rgba(90, 169, 230, 0.16); color: #A9D2FF; }
+:host-context(body[data-theme="dark"]) .pl-kpi-icone.rosa { background: rgba(230, 133, 166, 0.16); color: #FFB8D0; }
+:host-context(body[data-theme="dark"]) .sl-selo-icone.pago { background: rgba(255, 196, 77, 0.14); color: #FFD98A; }
+:host-context(body[data-theme="dark"]) .sl-selo-icone.merito { background: rgba(230, 133, 166, 0.16); color: #FFB8D0; }
+:host-context(body[data-theme="dark"]) .pl-estado-icone { color: #D9D0FF; }

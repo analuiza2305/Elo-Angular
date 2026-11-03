@@ -5494,3 +5494,105 @@ tr.linha-clicavel:hover { background: var(--menu-btn-hover); }
 @media (max-width: 560px) {
   .rel-stats-grid, .rel-donuts-grid { grid-template-columns: 1fr; }
 }
+
+
+/* =========================================================
+   AJUSTE 03/11 (2): ÍCONE NO TOM DO FUNDO, TABELAS SEM CORTE,
+   MENU CABENDO NA TELA
+   Regra dos ícones: fundo pastel + ícone no tom escuro da mesma cor
+   (claro) / fundo translúcido + ícone claro da mesma cor (escuro).
+   Fundo forte (roxo cheio, gradiente) = ícone branco.
+   ========================================================= */
+
+/* o styles.css pinta todo <i> de roxo: aqui o ícone herda a cor do quadradinho */
+.home-stat-icone i, .usr-resumo-icone i, .stat-icon i, .forum-filtro-icone i, .rel-stat-icone i,
+.rel-insight-icone i, .rel-panel-icone i, .rel-header-icone i, .config-conta-icone i,
+.config-admin-hero-icone i, .config-admin-tabela-icone i, .config-modal-icone i, .mod-conteudo-icone i,
+.activity-icon i, .suspender-icone i, .atencao-item .activity-icon i { color: inherit !important; }
+
+/* paleta única dos quadradinhos de ícone */
+.icone-roxo, .activity-icon.icone-roxo, .stat-icon-purple, .forum-filtro-icone.icone-neutro,
+.rel-stat-purple .rel-stat-icone, .rel-panel-icone, .rel-header-icone, .config-conta-icone,
+.config-admin-tabela-icone, .config-modal-icone, .mod-conteudo-icone { background: #ECE4FF !important; color: #52427D !important; }
+.icone-rosa, .activity-icon.icone-rosa, .rel-stat-pink .rel-stat-icone { background: #FDE8F0 !important; color: #B8416C !important; }
+.icone-azul, .activity-icon.icone-azul, .stat-icon-blue, .rel-stat-blue .rel-stat-icone { background: #E3EEFF !important; color: #2F5FC0 !important; }
+.icone-verde, .activity-icon.icone-verde, .stat-icon-teal, .rel-stat-green .rel-stat-icone,
+.rel-insight-sucesso .rel-insight-icone { background: #E2F6EE !important; color: #0F7A55 !important; }
+.icone-laranja, .activity-icon.icone-laranja, .stat-icon-laranja, .stat-icon-yellow, .forum-filtro-icone.icone-laranja,
+.forum-filtro-icone.icone-alerta, .rel-insight-alerta .rel-insight-icone { background: #FFF0DD !important; color: #A65B06 !important; }
+.icone-vermelho, .activity-icon.icone-vermelho, .stat-icon-coral, .forum-filtro-icone.icone-perigo,
+.rel-insight-perigo .rel-insight-icone { background: #FDE8EC !important; color: #A3243F !important; }
+.config-admin-hero-icone { background: linear-gradient(135deg, #7C69A9, #52427D) !important; color: #FFFFFF !important; }
+
+:host-context(body[data-theme="dark"]) .icone-roxo,
+:host-context(body[data-theme="dark"]) .activity-icon.icone-roxo,
+:host-context(body[data-theme="dark"]) .stat-icon-purple,
+:host-context(body[data-theme="dark"]) .forum-filtro-icone.icone-neutro,
+:host-context(body[data-theme="dark"]) .rel-stat-purple .rel-stat-icone,
+:host-context(body[data-theme="dark"]) .rel-panel-icone,
+:host-context(body[data-theme="dark"]) .rel-header-icone,
+:host-context(body[data-theme="dark"]) .config-conta-icone,
+:host-context(body[data-theme="dark"]) .config-admin-tabela-icone,
+:host-context(body[data-theme="dark"]) .config-modal-icone,
+:host-context(body[data-theme="dark"]) .mod-conteudo-icone { background: rgba(157, 143, 231, 0.18) !important; color: #D9D0FF !important; }
+:host-context(body[data-theme="dark"]) .icone-rosa,
+:host-context(body[data-theme="dark"]) .activity-icon.icone-rosa,
+:host-context(body[data-theme="dark"]) .rel-stat-pink .rel-stat-icone { background: rgba(230, 133, 166, 0.16) !important; color: #FFB8D0 !important; }
+:host-context(body[data-theme="dark"]) .icone-azul,
+:host-context(body[data-theme="dark"]) .activity-icon.icone-azul,
+:host-context(body[data-theme="dark"]) .stat-icon-blue,
+:host-context(body[data-theme="dark"]) .rel-stat-blue .rel-stat-icone { background: rgba(90, 169, 230, 0.16) !important; color: #A9D2FF !important; }
+:host-context(body[data-theme="dark"]) .icone-verde,
+:host-context(body[data-theme="dark"]) .activity-icon.icone-verde,
+:host-context(body[data-theme="dark"]) .stat-icon-teal,
+:host-context(body[data-theme="dark"]) .rel-stat-green .rel-stat-icone,
+:host-context(body[data-theme="dark"]) .rel-insight-sucesso .rel-insight-icone { background: rgba(16, 185, 129, 0.16) !important; color: #86EFC0 !important; }
+:host-context(body[data-theme="dark"]) .icone-laranja,
+:host-context(body[data-theme="dark"]) .activity-icon.icone-laranja,
+:host-context(body[data-theme="dark"]) .stat-icon-laranja,
+:host-context(body[data-theme="dark"]) .stat-icon-yellow,
+:host-context(body[data-theme="dark"]) .forum-filtro-icone.icone-laranja,
+:host-context(body[data-theme="dark"]) .forum-filtro-icone.icone-alerta,
+:host-context(body[data-theme="dark"]) .rel-insight-alerta .rel-insight-icone { background: rgba(255, 196, 77, 0.14) !important; color: #FFD98A !important; }
+:host-context(body[data-theme="dark"]) .icone-vermelho,
+:host-context(body[data-theme="dark"]) .activity-icon.icone-vermelho,
+:host-context(body[data-theme="dark"]) .stat-icon-coral,
+:host-context(body[data-theme="dark"]) .forum-filtro-icone.icone-perigo,
+:host-context(body[data-theme="dark"]) .rel-insight-perigo .rel-insight-icone { background: rgba(240, 108, 138, 0.16) !important; color: #FFB8C8 !important; }
+
+/* item ativo do menu (gradiente roxo) = ícone branco */
+.menu-btn.active i { color: #FFFFFF !important; }
+
+/* ---------- menu cabendo inteiro na altura da tela ---------- */
+@media (min-width: 1025px) {
+  .sidebar { padding: 16px 12px; gap: 2px; top: 88px; max-height: calc(100vh - 104px); }
+}
+.menu-btn { padding: 9px 14px; font-size: 14px; gap: 12px; border-radius: 14px; }
+.menu-btn i { font-size: 16px; width: 20px; }
+.sidebar-group-label { font-size: 0.66rem; padding: 0 14px 6px; }
+.menu-btn + .sidebar-group-label { margin-top: 10px; }
+.sidebar-spacer { min-height: 6px; }
+.menu-btn-sair { margin-top: 4px; }
+@media (min-width: 1025px) and (max-height: 760px) {
+  .menu-btn { padding: 7px 14px; }
+  .menu-btn + .sidebar-group-label { margin-top: 6px; }
+}
+
+/* ---------- tabelas cabendo na largura (sem cortar a última coluna) ---------- */
+.dash-panel.user-table, .maes-table-panel, .usr-tabela-painel { padding: 10px 12px; overflow: hidden; }
+.usr-tabela-scroll, .prof-table-scroll { width: 100%; overflow-x: auto; }
+.usr-tabela-scroll table, .prof-table-scroll table, .user-table table { min-width: 0; width: 100%; table-layout: auto; }
+.user-table th, .user-table td { padding: 14px 12px; white-space: normal; }
+.user-table th { white-space: nowrap; font-size: 0.78rem; }
+.user-table td:first-child, .user-table td:has(.usr-nome-e-email) { min-width: 180px; }
+.user-table td .status, .user-table td .usr-tipo, .user-table td .link-btn,
+.user-table td .prof-ver-perfil-btn, .user-table td .prof-doc-ok, .user-table td .prof-doc-pendente { white-space: nowrap; }
+.user-table td:last-child, .user-table th:last-child { width: 1%; white-space: nowrap; text-align: right; padding-right: 16px; }
+.usr-tipo, .status { padding: 4px 12px; font-size: 0.76rem; }
+/* em telas estreitas a tabela rola de lado em vez de espremer */
+@media (max-width: 1100px) {
+  .usr-tabela-scroll table, .prof-table-scroll table, #denuncias .user-table table { min-width: 820px; }
+  .dash-panel.user-table, .maes-table-panel, .usr-tabela-painel { overflow: visible; }
+}
+#moderacao .mod-tabela { min-width: 0; }
+@media (max-width: 1100px) { #moderacao .mod-tabela { min-width: 860px; } }
