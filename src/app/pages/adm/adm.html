@@ -37,7 +37,7 @@
         </button>
       }
       @if (notificacoesAdm.length === 0) {
-        <p class="adm-notif-vazio">Tudo em dia por aqui. 🎉</p>
+        <p class="adm-notif-vazio"><i class="fa-regular fa-face-smile"></i> Tudo em dia por aqui.</p>
       }
     </div>
   </div>
@@ -201,7 +201,7 @@
   <!-- HOME -->
   <!-- Usando [class.hidden] em vez de *ngIf para não destruir o Canvas do gráfico -->
   <section class="content" id="home" [class.hidden]="abaAtiva !== 'home'">
-    <div class="home-hero">
+    <div class="home-hero" [style.--mouse-x]="heroMouseX" [style.--mouse-y]="heroMouseY" (mousemove)="onHeroMouseMove($event)" (mouseleave)="onHeroMouseLeave()">
       <div class="home-hero-texto">
         <h2>Olá, {{ adminPrimeiroNome }}!</h2>
         <p>Aqui está o panorama de acolhimento do EloMaterno hoje. Tudo o que aparece nesta tela vem do banco de dados, em tempo real.</p>
@@ -222,7 +222,7 @@
       </button>
 
       <button type="button" class="home-stat" (click)="mudarAba('usuarios'); mudarVisaoUsuarios('profissionais')">
-        <span class="home-stat-icone icone-azul"><i class="fa-solid fa-user-doctor"></i></span>
+        <span class="home-stat-icone icone-azul"><i class="fa-solid fa-user-group"></i></span>
         <span class="home-stat-info">
           <strong>{{ profissionaisAtivos }}</strong>
           <span>Profissionais ativos</span>
@@ -320,7 +320,7 @@
         <span class="usr-resumo-info"><strong>{{ resumoUsuarios.maes }}</strong><span>Mães</span></span>
       </button>
       <button type="button" class="usr-resumo-card" [class.ativo]="usuariosVisao === 'profissionais'" (click)="mudarVisaoUsuarios('profissionais')">
-        <span class="usr-resumo-icone icone-azul"><i class="fa-solid fa-user-doctor"></i></span>
+        <span class="usr-resumo-icone icone-azul"><i class="fa-solid fa-user-group"></i></span>
         <span class="usr-resumo-info"><strong>{{ resumoUsuarios.profissionais }}</strong><span>Profissionais</span></span>
       </button>
       <button type="button" class="usr-resumo-card" [class.ativo]="usuariosVisao === 'parceiros'" (click)="mudarVisaoUsuarios('parceiros')">
@@ -541,106 +541,108 @@
       </div>
     }
 
-    <!-- PERFIL DA MÃE (gaveta lateral) -->
+    <!-- PERFIL DA MÃE (popup no mesmo padrão do perfil público do site) -->
     @if (maeSelecionada) {
       <div class="mae-drawer-fundo" (click)="fecharPerfilMae()"></div>
-      <aside class="mae-drawer" role="dialog" aria-modal="true" aria-label="Perfil da mãe">
-        <div class="mae-drawer-topo">
-          <span class="mae-drawer-titulo">Perfil da mãe</span>
-          <button type="button" class="mae-fechar-btn" (click)="fecharPerfilMae()" aria-label="Fechar perfil">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+      <aside class="mae-drawer ap-perfil" role="dialog" aria-modal="true" aria-label="Perfil da mãe">
+        <div class="ap-topo">
+          <span class="ap-topo-titulo">Perfil da mãe</span>
+          <button type="button" class="ap-fechar" (click)="fecharPerfilMae()" aria-label="Fechar perfil"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <div class="mae-drawer-corpo">
-          <div class="mae-drawer-cabeca">
-            @if (maeSelecionada.avatar) {
-              <img [src]="maeSelecionada.avatar" alt="" class="mae-drawer-avatar">
-            } @else {
-              <span class="mae-drawer-avatar mae-avatar-iniciais">{{ iniciaisNome(maeSelecionada.nome) }}</span>
-            }
-            <div class="mae-drawer-ident">
-              <h3>{{ maeSelecionada.nome }}</h3>
-              <span class="mae-drawer-email">{{ maeSelecionada.email }}</span>
-              <div class="mae-drawer-tags">
-                <span class="status" [ngClass]="maeSelecionada.status === 'ativo' ? 'ativo' : 'inativo'">
+        <div class="ap-corpo">
+          <section class="ap-hero">
+            <div class="ap-avatar-wrap">
+              @if (maeSelecionada.avatar) {
+                <img [src]="maeSelecionada.avatar" alt="" class="ap-avatar">
+              } @else {
+                <span class="ap-avatar mae-avatar-iniciais">{{ iniciaisNome(maeSelecionada.nome) }}</span>
+              }
+            </div>
+            <div class="ap-hero-info">
+              <div class="ap-selos">
+                <span class="ap-selo" [ngClass]="maeSelecionada.status === 'ativo' ? 'ap-selo-ok' : 'ap-selo-perigo'">
+                  <i class="fa-solid" [ngClass]="maeSelecionada.status === 'ativo' ? 'fa-circle-check' : 'fa-ban'"></i>
                   {{ maeSelecionada.status === 'ativo' ? 'Conta ativa' : 'Conta suspensa' }}
                 </span>
-                <span class="usr-tipo tipo-mae">Mãe</span>
+                @if (maeSelecionada.advertenciasForum > 0) {
+                  <span class="ap-selo ap-selo-alerta"><i class="fa-solid fa-triangle-exclamation"></i> {{ maeSelecionada.advertenciasForum }} {{ maeSelecionada.advertenciasForum === 1 ? 'advertência' : 'advertências' }}</span>
+                }
               </div>
+              <h2 class="ap-nome">{{ maeSelecionada.nome }}</h2>
+              <p class="ap-papel">Mãe • <strong>na rede desde {{ formatarData(maeSelecionada.criadoEm) }}</strong></p>
+              <div class="ap-tags">
+                <span class="ap-tag">{{ maeSelecionada.email }}</span>
+                @if (maeSelecionada.cidade) { <span class="ap-tag">{{ maeSelecionada.cidade }}{{ maeSelecionada.uf ? ' - ' + maeSelecionada.uf : '' }}</span> }
+              </div>
+              @if (maeAvaliacoes.length > 0) {
+                <div class="ap-rep">
+                  <span class="ap-estrelas">@for (cheia of estrelas(maeAvaliacaoMedia); track $index) { <i [class]="cheia ? 'fa-solid fa-star' : 'fa-regular fa-star'"></i> }</span>
+                  <strong class="ap-media">{{ maeAvaliacaoMedia | number:'1.1-1' }}</strong>
+                  <span class="ap-total">({{ maeAvaliacoes.length }} {{ maeAvaliacoes.length === 1 ? 'avaliação' : 'avaliações' }} de profissionais)</span>
+                </div>
+              }
             </div>
-          </div>
-
-          <div class="mae-drawer-metricas">
-            <div class="mae-metrica">
-              <i class="fa-regular fa-calendar"></i>
-              <strong>{{ formatarData(maeSelecionada.criadoEm) }}</strong>
-              <span>Cadastro</span>
+            <div class="ap-hero-acoes">
+              <button type="button" class="ap-btn ap-btn-advertir" (click)="abrirModalAdvertenciaMae(maeSelecionada)">
+                <i class="fa-solid fa-triangle-exclamation"></i> Advertir
+              </button>
+              @if (maeSelecionada.status === 'ativo') {
+                <button type="button" class="ap-btn ap-btn-suspender" (click)="abrirModalSuspensao(maeSelecionada)">
+                  <i class="fa-solid fa-ban"></i> Suspender
+                </button>
+              } @else {
+                <button type="button" class="ap-btn ap-btn-reativar" (click)="abrirModalReativacao(maeSelecionada)">
+                  <i class="fa-solid fa-user-check"></i> Reativar
+                </button>
+              }
             </div>
-            <div class="mae-metrica">
-              <i class="fa-solid fa-shield-halved"></i>
-              <strong>{{ maeSelecionada.status === 'ativo' ? 'Ativa' : 'Suspensa' }}</strong>
-              <span>Conta</span>
-            </div>
-            <div class="mae-metrica">
-              <i class="fa-regular fa-comment-dots"></i>
-              <strong>{{ maeTotalInteracoes }}</strong>
-              <span>Posts no fórum</span>
-            </div>
-            <div class="mae-metrica" [class.mae-metrica-alerta]="maeSelecionada.advertenciasForum > 0">
-              <i class="fa-solid fa-triangle-exclamation"></i>
-              <strong>{{ maeSelecionada.advertenciasForum }}</strong>
-              <span>Advertências</span>
-            </div>
-          </div>
-
-          <section class="mae-drawer-secao">
-            <h4>Contato e dados pessoais</h4>
-            @if (maeSelecionada.telefone || maeSelecionada.cidade || maeSelecionada.dataNascimento || maeSelecionada.endereco || maeSelecionada.filhos) {
-              <dl class="mae-drawer-dados">
-                @if (maeSelecionada.telefone) {
-                  <div><dt><i class="fa-solid fa-phone"></i> Telefone</dt><dd>{{ maeSelecionada.telefone }}</dd></div>
-                }
-                @if (maeSelecionada.cidade) {
-                  <div><dt><i class="fa-solid fa-location-dot"></i> Cidade</dt><dd>{{ maeSelecionada.cidade }}{{ maeSelecionada.uf ? ' - ' + maeSelecionada.uf : '' }}</dd></div>
-                }
-                @if (maeSelecionada.endereco) {
-                  <div><dt><i class="fa-solid fa-house"></i> Endereço</dt><dd>{{ maeSelecionada.endereco }}</dd></div>
-                }
-                @if (maeSelecionada.dataNascimento) {
-                  <div><dt><i class="fa-solid fa-cake-candles"></i> Nascimento</dt><dd>{{ formatarDataNascimento(maeSelecionada.dataNascimento) }} ({{ calcularIdade(maeSelecionada.dataNascimento) }} anos)</dd></div>
-                }
-                @if (maeSelecionada.filhos) {
-                  <div><dt><i class="fa-solid fa-baby"></i> Filhos</dt><dd>{{ maeSelecionada.filhos }}</dd></div>
-                }
-              </dl>
-            } @else {
-              <p class="mae-drawer-vazio">Esta mãe ainda não preencheu telefone, cidade ou outros dados no perfil. O contato disponível é o e-mail acima.</p>
-            }
           </section>
 
           @if (maeSelecionada.status !== 'ativo') {
-            <section class="mae-drawer-secao mae-drawer-suspensao">
-              <h4><i class="fa-solid fa-ban"></i> Motivo da suspensão</h4>
+            <section class="ap-box ap-box-perigo">
+              <h3><i class="fa-solid fa-ban"></i> Motivo da suspensão</h3>
               <p><strong>{{ textoMotivoSuspensao(maeSelecionada.motivoSuspensao) }}</strong></p>
-              @if (maeSelecionada.observacoesSuspensao) {
-                <p>{{ maeSelecionada.observacoesSuspensao }}</p>
-              }
+              @if (maeSelecionada.observacoesSuspensao) { <p>{{ maeSelecionada.observacoesSuspensao }}</p> }
             </section>
           }
 
-          <section class="mae-drawer-secao">
-            <h4>Últimos posts no fórum</h4>
+          <div class="ap-grid">
+            <section class="ap-box">
+              <h3>Sobre a mãe</h3>
+              @if (maeSelecionada.telefone || maeSelecionada.cidade || maeSelecionada.dataNascimento || maeSelecionada.endereco || maeSelecionada.filhos) {
+                <dl class="ap-dados">
+                  @if (maeSelecionada.telefone) { <div><dt><i class="fa-solid fa-phone"></i> Telefone</dt><dd>{{ maeSelecionada.telefone }}</dd></div> }
+                  @if (maeSelecionada.endereco) { <div><dt><i class="fa-solid fa-house"></i> Endereço</dt><dd>{{ maeSelecionada.endereco }}</dd></div> }
+                  @if (maeSelecionada.dataNascimento) { <div><dt><i class="fa-solid fa-cake-candles"></i> Nascimento</dt><dd>{{ formatarDataNascimento(maeSelecionada.dataNascimento) }} ({{ calcularIdade(maeSelecionada.dataNascimento) }} anos)</dd></div> }
+                  @if (maeSelecionada.filhos) { <div><dt><i class="fa-solid fa-baby"></i> Filhos</dt><dd>{{ maeSelecionada.filhos }}</dd></div> }
+                </dl>
+              } @else {
+                <p class="ap-vazio">Ela ainda não preencheu telefone, cidade ou outros dados. O contato disponível é o e-mail.</p>
+              }
+            </section>
+
+            <section class="ap-box">
+              <h3>Na plataforma</h3>
+              <div class="ap-metricas">
+                <div class="ap-metrica"><strong>{{ maeTotalInteracoes }}</strong><span>Posts no fórum</span></div>
+                <div class="ap-metrica" [class.ap-metrica-alerta]="maeSelecionada.advertenciasForum > 0"><strong>{{ maeSelecionada.advertenciasForum }}</strong><span>Advertências</span></div>
+              </div>
+            </section>
+          </div>
+
+          <section class="ap-box">
+            <h3>Últimos posts no fórum</h3>
             @if (maePerfilCarregando) {
-              <p class="mae-drawer-vazio">Carregando...</p>
+              <p class="ap-vazio">Carregando...</p>
             } @else if (maePostsRecentes.length === 0) {
-              <p class="mae-drawer-vazio">Nenhum post com o nome dela. (Posts anônimos não aparecem aqui, de propósito.)</p>
+              <p class="ap-vazio">Nenhum post com o nome dela. Posts anônimos não aparecem aqui, de propósito.</p>
             } @else {
-              <ul class="mae-posts-lista">
+              <ul class="ap-lista">
                 @for (post of maePostsRecentes; track post.id) {
                   <li>
-                    <span class="mae-post-titulo">{{ post.titulo }}</span>
-                    <span class="mae-post-meta">
+                    <span class="ap-lista-titulo">{{ post.titulo }}</span>
+                    <span class="ap-lista-meta">
                       {{ post.dataFormatada }}
                       @if (post.estado === 'removido') { <span class="mae-post-chip chip-removido">Removido</span> }
                       @else if (post.estado === 'advertido') { <span class="mae-post-chip chip-advertido">Advertido</span> }
@@ -652,39 +654,86 @@
           </section>
 
           @if (maeAvaliacoes.length > 0) {
-            <section class="mae-drawer-secao">
-              <h4>Avaliações feitas por profissionais · média {{ maeAvaliacaoMedia | number:'1.1-1' }}</h4>
-              <div class="mae-avaliacoes-lista">
+            <section class="ap-box">
+              <h3>O que os profissionais dizem</h3>
+              <div class="ap-avaliacoes">
                 @for (av of maeAvaliacoes; track av.id) {
-                  <div class="mae-avaliacao-card">
-                    <div class="mae-avaliacao-avatar"><i class="fa-solid fa-user-doctor"></i></div>
-                    <div class="mae-avaliacao-conteudo">
-                      <div class="mae-avaliacao-topo">
-                        <strong>{{ av.profissionalNome }} - {{ av.especialidade }}</strong>
-                        <span class="mae-avaliacao-nota"><i class="fa-solid fa-star"></i> {{ av.nota | number:'1.1-1' }}</span>
-                      </div>
-                      <p>{{ av.comentario }}</p>
+                  <div class="ap-avaliacao">
+                    <div class="ap-avaliacao-topo">
+                      <strong>{{ av.profissionalNome }}</strong>
+                      <span class="ap-avaliacao-nota"><i class="fa-solid fa-star"></i> {{ av.nota | number:'1.1-1' }}</span>
                     </div>
+                    <p>{{ av.comentario }}</p>
                   </div>
                 }
               </div>
             </section>
           }
         </div>
-
-        <div class="mae-drawer-rodape">
-          @if (maeSelecionada.status === 'ativo') {
-            <button type="button" class="mae-drawer-btn-perigo" (click)="abrirModalSuspensao(maeSelecionada)">
-              <i class="fa-solid fa-user-slash"></i> Suspender conta
-            </button>
-          } @else {
-            <button type="button" class="mae-drawer-btn-ok" (click)="abrirModalReativacao(maeSelecionada)">
-              <i class="fa-solid fa-user-check"></i> Reativar conta
-            </button>
-          }
-        </div>
       </aside>
     }
+
+    <!-- MODAL: ADVERTIR CONTA (mãe) -->
+    @if (maeParaAdvertir) {
+      <div class="suspender-overlay" (click)="fecharModalAdvertenciaMae()">
+        <div class="suspender-modal" (click)="$event.stopPropagation()">
+          <button type="button" class="suspender-fechar-btn" (click)="fecharModalAdvertenciaMae()" aria-label="Fechar">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+
+          <div class="suspender-cabecalho">
+            <span class="suspender-icone suspender-icone-alerta"><i class="fa-solid fa-triangle-exclamation"></i></span>
+            <div class="suspender-cabecalho-texto">
+              <h3>Advertir conta</h3>
+              <p>Ela recebe um aviso no sino e precisa confirmar que leu.</p>
+            </div>
+          </div>
+
+          <div class="suspender-mae-card">
+            @if (maeParaAdvertir.avatar) {
+              <img [src]="maeParaAdvertir.avatar" alt="" class="suspender-mae-avatar">
+            } @else {
+              <span class="suspender-mae-avatar mae-avatar-iniciais">{{ iniciaisNome(maeParaAdvertir.nome) }}</span>
+            }
+            <div class="suspender-mae-nome">{{ maeParaAdvertir.nome }}</div>
+            <div class="suspender-mae-detalhes"><span>{{ maeParaAdvertir.email }}</span></div>
+          </div>
+
+          <div class="suspender-campo">
+            <label for="motivoAdvertenciaMae">Motivo da advertência</label>
+            <select id="motivoAdvertenciaMae" [(ngModel)]="motivoAdvertenciaMae">
+              <option value="" disabled>Selecione um motivo</option>
+              @for (motivo of motivosSuspensao; track motivo.valor) { <option [value]="motivo.valor">{{ motivo.texto }}</option> }
+            </select>
+          </div>
+
+          <div class="suspender-campo">
+            <label for="observacoesAdvertenciaMae">Observações (opcional)</label>
+            <textarea id="observacoesAdvertenciaMae" rows="3" [(ngModel)]="observacoesAdvertenciaMae" placeholder="Explique com carinho o que aconteceu e o que ela pode fazer diferente"></textarea>
+          </div>
+
+          @if (erroAdvertenciaMae) {
+            <p class="suspender-erro">{{ erroAdvertenciaMae }}</p>
+          }
+
+          <div class="suspender-alerta-box">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+              <strong>Atenção</strong>
+              <p>Esta será a {{ (maeParaAdvertir.advertenciasForum || 0) + 1 }}ª advertência dela. Na 3ª, a conta é suspensa automaticamente.</p>
+            </div>
+          </div>
+
+          <div class="suspender-acoes">
+            <button type="button" class="suspender-btn-cancelar" [disabled]="advertindoMae" (click)="fecharModalAdvertenciaMae()">Cancelar</button>
+            <button type="button" class="suspender-btn-confirmar" [disabled]="advertindoMae" (click)="confirmarAdvertenciaMae()">
+              <i class="fa-solid fa-triangle-exclamation"></i> {{ advertindoMae ? 'Advertindo...' : 'Advertir conta' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
 
     <!-- VISÕES: APROVAÇÕES / PROFISSIONAIS / PARCEIROS (antiga aba "Parceiros") -->
     <!-- SUBABA: PROFISSIONAIS (lista completa) -->
@@ -788,127 +837,114 @@
           }
         </div>
 
-        <!-- PERFIL DO PROFISSIONAL (mesmo padrão do "Perfil da mãe") -->
+        <!-- PERFIL DO PROFISSIONAL (popup no mesmo padrão do perfil público do site) -->
         @if (profissionalListaSelecionado) {
           <div class="mae-drawer-fundo" (click)="fecharPerfilProfissionalLista()"></div>
-          <aside class="mae-drawer mae-drawer-legado" role="dialog" aria-modal="true">
-            <div class="mae-perfil-header">
-              <div>
-                <h3>Perfil do profissional</h3>
-                <p class="mae-perfil-subtitulo">Revise as informações do perfil do profissional</p>
-              </div>
-              <button type="button" class="mae-fechar-btn" (click)="fecharPerfilProfissionalLista()" aria-label="Fechar perfil">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
+          <aside class="mae-drawer ap-perfil" role="dialog" aria-modal="true" aria-label="Perfil do profissional">
+            <div class="ap-topo">
+              <span class="ap-topo-titulo">Perfil do profissional</span>
+              <button type="button" class="ap-fechar" (click)="fecharPerfilProfissionalLista()" aria-label="Fechar perfil"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <div class="mae-perfil-topo">
-              @if (profissionalListaSelecionado.avatar) {
-                <img [src]="profissionalListaSelecionado.avatar" alt="" class="mae-perfil-avatar">
-              } @else {
-                <span class="mae-perfil-avatar mae-avatar-iniciais mae-avatar-iniciais-grande">{{ iniciaisNome(profissionalListaSelecionado.nome) }}</span>
+            <div class="ap-corpo">
+              <section class="ap-hero">
+                <div class="ap-avatar-wrap">
+                  @if (profissionalListaSelecionado.avatar) {
+                    <img [src]="profissionalListaSelecionado.avatar" alt="" class="ap-avatar">
+                  } @else {
+                    <span class="ap-avatar mae-avatar-iniciais">{{ iniciaisNome(profissionalListaSelecionado.nome) }}</span>
+                  }
+                </div>
+                <div class="ap-hero-info">
+                  <div class="ap-selos">
+                    <span class="ap-selo" [ngClass]="profissionalListaSelecionado.status === 'ativo' ? 'ap-selo-ok' : 'ap-selo-perigo'">
+                      <i class="fa-solid" [ngClass]="profissionalListaSelecionado.status === 'ativo' ? 'fa-circle-check' : 'fa-ban'"></i>
+                      {{ profissionalListaSelecionado.status === 'ativo' ? 'Conta ativa' : 'Conta suspensa' }}
+                    </span>
+                    @if (profissionalListaSelecionado.advertencias > 0) {
+                      <span class="ap-selo ap-selo-alerta"><i class="fa-solid fa-triangle-exclamation"></i> {{ profissionalListaSelecionado.advertencias }} {{ profissionalListaSelecionado.advertencias === 1 ? 'advertência' : 'advertências' }}</span>
+                    }
+                  </div>
+                  <h2 class="ap-nome">{{ profissionalListaSelecionado.nome }}</h2>
+                  <p class="ap-papel">{{ profissionalListaSelecionado.categoria }} • <strong>{{ profissionalListaSelecionado.registro }}</strong></p>
+                  <div class="ap-tags">
+                    <span class="ap-tag">{{ profissionalListaSelecionado.detalhes.email }}</span>
+                    @if (profissionalListaSelecionado.detalhes.endereco && profissionalListaSelecionado.detalhes.endereco !== '—') { <span class="ap-tag">{{ profissionalListaSelecionado.detalhes.endereco }}</span> }
+                  </div>
+                  <div class="ap-rep">
+                    @if (profissionalListaSelecionado.avaliacoes.length > 0) {
+                      <span class="ap-estrelas">@for (cheia of estrelas(profissionalListaAvaliacaoMedia); track $index) { <i [class]="cheia ? 'fa-solid fa-star' : 'fa-regular fa-star'"></i> }</span>
+                      <strong class="ap-media">{{ profissionalListaAvaliacaoMedia | number:'1.1-1' }}</strong>
+                      <span class="ap-total">({{ profissionalListaSelecionado.avaliacoes.length }} {{ profissionalListaSelecionado.avaliacoes.length === 1 ? 'avaliação' : 'avaliações' }})</span>
+                    } @else {
+                      <span class="ap-novo"><i class="fa-solid fa-seedling"></i> Ainda sem avaliações</span>
+                    }
+                  </div>
+                </div>
+                <div class="ap-hero-acoes">
+                  <button type="button" class="ap-btn ap-btn-advertir" (click)="advertirProfissionalLista(profissionalListaSelecionado)">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Advertir
+                  </button>
+                  @if (profissionalListaSelecionado.status === 'ativo') {
+                    <button type="button" class="ap-btn ap-btn-suspender" (click)="suspenderProfissionalLista(profissionalListaSelecionado)">
+                      <i class="fa-solid fa-ban"></i> Suspender
+                    </button>
+                  } @else {
+                    <button type="button" class="ap-btn ap-btn-reativar" (click)="reativarCadastroLista('profissional', profissionalListaSelecionado)">
+                      <i class="fa-solid fa-user-check"></i> Reativar
+                    </button>
+                  }
+                </div>
+              </section>
+
+              @if (profissionalListaSelecionado.status !== 'ativo' && profissionalListaSelecionado.motivoSuspensao) {
+                <section class="ap-box ap-box-perigo">
+                  <h3><i class="fa-solid fa-ban"></i> Motivo da suspensão</h3>
+                  <p><strong>{{ textoMotivoSuspensao(profissionalListaSelecionado.motivoSuspensao) }}</strong></p>
+                  @if (profissionalListaSelecionado.observacoesSuspensao) { <p>{{ profissionalListaSelecionado.observacoesSuspensao }}</p> }
+                </section>
               }
-              <div class="mae-perfil-topo-info">
-                <strong>{{ profissionalListaSelecionado.nome }}</strong>
-                <span>{{ profissionalListaSelecionado.detalhes.email }}</span>
-                <span>{{ profissionalListaSelecionado.categoria }}</span>
-                <span>{{ profissionalListaSelecionado.detalhes.endereco }}</span>
-                <span class="status" [ngClass]="profissionalListaSelecionado.status === 'ativo' ? 'ativo' : 'inativo'">
-                  {{ profissionalListaSelecionado.status === 'ativo' ? 'Ativo' : 'Inativo' }}
-                </span>
-              </div>
-            </div>
 
-            <div class="prof-perfil-acoes">
-              <button type="button" class="btn-advertir" (click)="advertirProfissionalLista(profissionalListaSelecionado)">
-                <i class="fa-solid fa-triangle-exclamation"></i> Advertir usuário
-              </button>
-              <button type="button" class="btn-suspender-perfil" (click)="suspenderProfissionalLista(profissionalListaSelecionado)">
-                <i class="fa-solid fa-ban"></i> Suspender usuário
-              </button>
-            </div>
+              <div class="ap-grid">
+                <section class="ap-box">
+                  <h3>Informações</h3>
+                  <dl class="ap-dados">
+                    <div><dt><i class="fa-solid fa-id-card"></i> Nome completo</dt><dd>{{ profissionalListaSelecionado.nomeCompleto || '—' }}</dd></div>
+                    <div><dt><i class="fa-solid fa-cake-candles"></i> Nascimento</dt><dd>{{ profissionalListaSelecionado.detalhes.dataNascimento || '—' }}@if (profissionalListaSelecionado.detalhes.idade) { ({{ profissionalListaSelecionado.detalhes.idade }} anos) }</dd></div>
+                    <div><dt><i class="fa-regular fa-envelope"></i> E-mail</dt><dd>{{ profissionalListaSelecionado.detalhes.email || '—' }}</dd></div>
+                    <div><dt><i class="fa-solid fa-phone"></i> Telefone</dt><dd>{{ profissionalListaSelecionado.detalhes.telefone || '—' }}</dd></div>
+                    <div><dt><i class="fa-solid fa-location-dot"></i> Endereço</dt><dd>{{ profissionalListaSelecionado.detalhes.endereco || '—' }}</dd></div>
+                  </dl>
+                </section>
 
-            <div class="mae-perfil-secao">
-              <h4>Informações do profissional</h4>
-              <div class="mae-perfil-grid">
-                <div class="mae-perfil-campo">
-                  <span class="mae-campo-label">Nome completo</span>
-                  <span class="mae-campo-valor">{{ profissionalListaSelecionado.nomeCompleto }}</span>
-                </div>
-                <div class="mae-perfil-campo">
-                  <span class="mae-campo-label">Data de Nascimento</span>
-                  <span class="mae-campo-valor">{{ profissionalListaSelecionado.detalhes.dataNascimento }}@if (profissionalListaSelecionado.detalhes.idade) { ({{ profissionalListaSelecionado.detalhes.idade }} anos) }</span>
-                </div>
-                <div class="mae-perfil-campo">
-                  <span class="mae-campo-label">Email</span>
-                  <span class="mae-campo-valor">{{ profissionalListaSelecionado.detalhes.email }}</span>
-                </div>
-                <div class="mae-perfil-campo">
-                  <span class="mae-campo-label">Endereço</span>
-                  <span class="mae-campo-valor">{{ profissionalListaSelecionado.detalhes.endereco }}</span>
-                </div>
-                <div class="mae-perfil-campo">
-                  <span class="mae-campo-label">Telefone</span>
-                  <span class="mae-campo-valor">{{ profissionalListaSelecionado.detalhes.telefone }}</span>
-                </div>
-                <div class="mae-perfil-campo">
-                  <span class="mae-campo-label">Profissional</span>
-                  <span class="mae-campo-valor">{{ profissionalListaSelecionado.detalhes.profissao }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="mae-perfil-cards">
-              <div class="mae-mini-card">
-                <span class="mae-mini-card-titulo">Avaliação geral</span>
-                @if (profissionalListaSelecionado.avaliacoes.length > 0) {
-                  <div class="mae-estrelas">
-                    <i class="fa-solid fa-star" *ngFor="let cheia of estrelas(profissionalListaAvaliacaoMedia)" [class.vazia]="!cheia"></i>
+                <section class="ap-box">
+                  <h3>Na plataforma</h3>
+                  <div class="ap-metricas">
+                    <div class="ap-metrica"><strong>{{ profissionalListaSelecionado.totalConsultas }}</strong><span>Consultas</span></div>
+                    <div class="ap-metrica"><strong>{{ profissionalListaSelecionado.conteudos }}</strong><span>Conteúdos</span></div>
+                    <div class="ap-metrica" [class.ap-metrica-alerta]="profissionalListaSelecionado.advertencias > 0"><strong>{{ profissionalListaSelecionado.advertencias || 0 }}</strong><span>Advertências</span></div>
                   </div>
-                  <span class="mae-mini-card-numero">{{ profissionalListaAvaliacaoMedia }}</span>
-                  <span class="mae-mini-card-legenda">Com base em {{ profissionalListaSelecionado.avaliacoes.length }} avaliaç{{ profissionalListaSelecionado.avaliacoes.length === 1 ? 'ão' : 'ões' }}</span>
+                </section>
+              </div>
+
+              <section class="ap-box">
+                <h3>O que as mães dizem</h3>
+                @if (profissionalListaSelecionado.avaliacoes.length > 0) {
+                  <div class="ap-avaliacoes">
+                    @for (av of profissionalListaSelecionado.avaliacoes; track av.id) {
+                      <div class="ap-avaliacao">
+                        <div class="ap-avaliacao-topo">
+                          <strong>{{ av.autorNome }}</strong>
+                          <span class="ap-avaliacao-nota"><i class="fa-solid fa-star"></i> {{ av.nota | number:'1.1-1' }}</span>
+                        </div>
+                        <p>{{ av.comentario }}</p>
+                      </div>
+                    }
+                  </div>
                 } @else {
-                  <span class="mae-mini-card-numero">—</span>
-                  <span class="mae-mini-card-legenda">Ainda sem avaliações</span>
+                  <p class="ap-vazio">Ainda não há avaliações registradas para este profissional.</p>
                 }
-              </div>
-
-              <div class="mae-mini-card">
-                <span class="mae-mini-card-titulo">Total de consultas</span>
-                <i class="fa-regular fa-comment-dots mae-mini-card-icone"></i>
-                <span class="mae-mini-card-numero">{{ profissionalListaSelecionado.totalConsultas }}</span>
-                <span class="mae-mini-card-legenda">Comentários no fórum</span>
-              </div>
-            </div>
-
-            <div class="mae-perfil-secao">
-              <div class="mae-secao-header">
-                <h4>Histórico de avaliações</h4>
-                @if (profissionalListaSelecionado.avaliacoes.length > 0) {
-                  <button type="button" class="ver-mais-btn">Ver todas</button>
-                }
-              </div>
-
-              <div class="mae-avaliacoes-lista">
-                <div class="mae-avaliacao-card" *ngFor="let av of profissionalListaSelecionado.avaliacoes">
-                  <div class="mae-avaliacao-avatar">
-                    <i class="fa-solid fa-circle-user"></i>
-                  </div>
-                  <div class="mae-avaliacao-conteudo">
-                    <div class="mae-avaliacao-topo">
-                      <strong>{{ av.autorNome }}</strong>
-                      <span class="mae-avaliacao-nota">
-                        <i class="fa-solid fa-star"></i> {{ av.nota | number:'1.1-1' }}
-                      </span>
-                    </div>
-                    <p>{{ av.comentario }}</p>
-                  </div>
-                </div>
-
-                @if (profissionalListaSelecionado.avaliacoes.length === 0) {
-                  <p class="activity-empty">Ainda não há avaliações registradas para este profissional.</p>
-                }
-              </div>
+              </section>
             </div>
           </aside>
         }
@@ -1149,127 +1185,114 @@
           }
         </div>
 
-        <!-- PERFIL DO PARCEIRO (mesmo padrão do "Perfil do profissional") -->
+        <!-- PERFIL DO PARCEIRO (popup no mesmo padrão do perfil público do site) -->
         @if (parceiroListaSelecionado) {
           <div class="mae-drawer-fundo" (click)="fecharPerfilParceiroLista()"></div>
-          <aside class="mae-drawer mae-drawer-legado" role="dialog" aria-modal="true">
-            <div class="mae-perfil-header">
-              <div>
-                <h3>Perfil do parceiro</h3>
-                <p class="mae-perfil-subtitulo">Revise as informações do perfil da empresa parceira</p>
-              </div>
-              <button type="button" class="mae-fechar-btn" (click)="fecharPerfilParceiroLista()" aria-label="Fechar perfil">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
+          <aside class="mae-drawer ap-perfil" role="dialog" aria-modal="true" aria-label="Perfil do parceiro">
+            <div class="ap-topo">
+              <span class="ap-topo-titulo">Perfil do parceiro</span>
+              <button type="button" class="ap-fechar" (click)="fecharPerfilParceiroLista()" aria-label="Fechar perfil"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <div class="mae-perfil-topo">
-              @if (parceiroListaSelecionado.avatar) {
-                <img [src]="parceiroListaSelecionado.avatar" alt="" class="mae-perfil-avatar">
-              } @else {
-                <span class="mae-perfil-avatar mae-avatar-iniciais mae-avatar-iniciais-grande">{{ iniciaisNome(parceiroListaSelecionado.nome) }}</span>
+            <div class="ap-corpo">
+              <section class="ap-hero">
+                <div class="ap-avatar-wrap">
+                  @if (parceiroListaSelecionado.avatar) {
+                    <img [src]="parceiroListaSelecionado.avatar" alt="" class="ap-avatar">
+                  } @else {
+                    <span class="ap-avatar mae-avatar-iniciais">{{ iniciaisNome(parceiroListaSelecionado.nome) }}</span>
+                  }
+                </div>
+                <div class="ap-hero-info">
+                  <div class="ap-selos">
+                    <span class="ap-selo" [ngClass]="parceiroListaSelecionado.status === 'ativo' ? 'ap-selo-ok' : 'ap-selo-perigo'">
+                      <i class="fa-solid" [ngClass]="parceiroListaSelecionado.status === 'ativo' ? 'fa-circle-check' : 'fa-ban'"></i>
+                      {{ parceiroListaSelecionado.status === 'ativo' ? 'Conta ativa' : 'Conta suspensa' }}
+                    </span>
+                    @if (parceiroListaSelecionado.advertencias > 0) {
+                      <span class="ap-selo ap-selo-alerta"><i class="fa-solid fa-triangle-exclamation"></i> {{ parceiroListaSelecionado.advertencias }} {{ parceiroListaSelecionado.advertencias === 1 ? 'advertência' : 'advertências' }}</span>
+                    }
+                  </div>
+                  <h2 class="ap-nome">{{ parceiroListaSelecionado.nome }}</h2>
+                  <p class="ap-papel">Empresa parceira • <strong>CNPJ {{ parceiroListaSelecionado.cnpj }}</strong></p>
+                  <div class="ap-tags">
+                    @if (parceiroListaSelecionado.detalhes.segmento && parceiroListaSelecionado.detalhes.segmento !== '—') { <span class="ap-tag">{{ parceiroListaSelecionado.detalhes.segmento }}</span> }
+                    <span class="ap-tag">{{ parceiroListaSelecionado.detalhes.email }}</span>
+                  </div>
+                  <div class="ap-rep">
+                    @if (parceiroListaSelecionado.avaliacoes.length > 0) {
+                      <span class="ap-estrelas">@for (cheia of estrelas(parceiroListaAvaliacaoMedia); track $index) { <i [class]="cheia ? 'fa-solid fa-star' : 'fa-regular fa-star'"></i> }</span>
+                      <strong class="ap-media">{{ parceiroListaAvaliacaoMedia | number:'1.1-1' }}</strong>
+                      <span class="ap-total">({{ parceiroListaSelecionado.avaliacoes.length }} {{ parceiroListaSelecionado.avaliacoes.length === 1 ? 'avaliação' : 'avaliações' }})</span>
+                    } @else {
+                      <span class="ap-novo"><i class="fa-solid fa-seedling"></i> Ainda sem avaliações</span>
+                    }
+                  </div>
+                </div>
+                <div class="ap-hero-acoes">
+                  <button type="button" class="ap-btn ap-btn-advertir" (click)="advertirParceiroLista(parceiroListaSelecionado)">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Advertir
+                  </button>
+                  @if (parceiroListaSelecionado.status === 'ativo') {
+                    <button type="button" class="ap-btn ap-btn-suspender" (click)="suspenderParceiroLista(parceiroListaSelecionado)">
+                      <i class="fa-solid fa-ban"></i> Suspender
+                    </button>
+                  } @else {
+                    <button type="button" class="ap-btn ap-btn-reativar" (click)="reativarCadastroLista('parceiro', parceiroListaSelecionado)">
+                      <i class="fa-solid fa-user-check"></i> Reativar
+                    </button>
+                  }
+                </div>
+              </section>
+
+              @if (parceiroListaSelecionado.status !== 'ativo' && parceiroListaSelecionado.motivoSuspensao) {
+                <section class="ap-box ap-box-perigo">
+                  <h3><i class="fa-solid fa-ban"></i> Motivo da suspensão</h3>
+                  <p><strong>{{ textoMotivoSuspensao(parceiroListaSelecionado.motivoSuspensao) }}</strong></p>
+                  @if (parceiroListaSelecionado.observacoesSuspensao) { <p>{{ parceiroListaSelecionado.observacoesSuspensao }}</p> }
+                </section>
               }
-              <div class="mae-perfil-topo-info">
-                <strong>{{ parceiroListaSelecionado.nome }}</strong>
-                <span>{{ parceiroListaSelecionado.detalhes.email }}</span>
-                <span>{{ parceiroListaSelecionado.categoria }}</span>
-                <span>{{ parceiroListaSelecionado.detalhes.endereco }}</span>
-                <span class="status" [ngClass]="parceiroListaSelecionado.status === 'ativo' ? 'ativo' : 'inativo'">
-                  {{ parceiroListaSelecionado.status === 'ativo' ? 'Ativo' : 'Inativo' }}
-                </span>
-              </div>
-            </div>
 
-            <div class="prof-perfil-acoes">
-              <button type="button" class="btn-advertir" (click)="advertirParceiroLista(parceiroListaSelecionado)">
-                <i class="fa-solid fa-triangle-exclamation"></i> Advertir usuário
-              </button>
-              <button type="button" class="btn-suspender-perfil" (click)="suspenderParceiroLista(parceiroListaSelecionado)">
-                <i class="fa-solid fa-ban"></i> Suspender usuário
-              </button>
-            </div>
+              <div class="ap-grid">
+                <section class="ap-box">
+                  <h3>Informações</h3>
+                  <dl class="ap-dados">
+                    <div><dt><i class="fa-solid fa-building"></i> Razão social</dt><dd>{{ parceiroListaSelecionado.nomeCompleto || '—' }}</dd></div>
+                    <div><dt><i class="fa-solid fa-id-card"></i> CNPJ</dt><dd>{{ parceiroListaSelecionado.detalhes.cnpj || '—' }}</dd></div>
+                    <div><dt><i class="fa-regular fa-envelope"></i> E-mail</dt><dd>{{ parceiroListaSelecionado.detalhes.email || '—' }}</dd></div>
+                    <div><dt><i class="fa-solid fa-phone"></i> Telefone</dt><dd>{{ parceiroListaSelecionado.detalhes.telefone || '—' }}</dd></div>
+                    <div><dt><i class="fa-solid fa-location-dot"></i> Endereço</dt><dd>{{ parceiroListaSelecionado.detalhes.endereco || '—' }}</dd></div>
+                  </dl>
+                </section>
 
-            <div class="mae-perfil-secao">
-              <h4>Informações do parceiro</h4>
-              <div class="mae-perfil-grid">
-                <div class="mae-perfil-campo">
-                  <span class="mae-campo-label">Razão social</span>
-                  <span class="mae-campo-valor">{{ parceiroListaSelecionado.nomeCompleto }}</span>
-                </div>
-                <div class="mae-perfil-campo">
-                  <span class="mae-campo-label">CNPJ</span>
-                  <span class="mae-campo-valor">{{ parceiroListaSelecionado.detalhes.cnpj }}</span>
-                </div>
-                <div class="mae-perfil-campo">
-                  <span class="mae-campo-label">Email</span>
-                  <span class="mae-campo-valor">{{ parceiroListaSelecionado.detalhes.email }}</span>
-                </div>
-                <div class="mae-perfil-campo">
-                  <span class="mae-campo-label">Endereço</span>
-                  <span class="mae-campo-valor">{{ parceiroListaSelecionado.detalhes.endereco }}</span>
-                </div>
-                <div class="mae-perfil-campo">
-                  <span class="mae-campo-label">Telefone</span>
-                  <span class="mae-campo-valor">{{ parceiroListaSelecionado.detalhes.telefone }}</span>
-                </div>
-                <div class="mae-perfil-campo">
-                  <span class="mae-campo-label">Segmento</span>
-                  <span class="mae-campo-valor">{{ parceiroListaSelecionado.detalhes.segmento }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="mae-perfil-cards">
-              <div class="mae-mini-card">
-                <span class="mae-mini-card-titulo">Avaliação geral</span>
-                @if (parceiroListaSelecionado.avaliacoes.length > 0) {
-                  <div class="mae-estrelas">
-                    <i class="fa-solid fa-star" *ngFor="let cheia of estrelas(parceiroListaAvaliacaoMedia)" [class.vazia]="!cheia"></i>
+                <section class="ap-box">
+                  <h3>Na plataforma</h3>
+                  <div class="ap-metricas">
+                    <div class="ap-metrica"><strong>{{ parceiroListaSelecionado.totalInteracoes }}</strong><span>Comentários no fórum</span></div>
+                    <div class="ap-metrica"><strong>{{ parceiroListaSelecionado.eventos }}</strong><span>Eventos</span></div>
+                    <div class="ap-metrica" [class.ap-metrica-alerta]="parceiroListaSelecionado.advertencias > 0"><strong>{{ parceiroListaSelecionado.advertencias || 0 }}</strong><span>Advertências</span></div>
                   </div>
-                  <span class="mae-mini-card-numero">{{ parceiroListaAvaliacaoMedia }}</span>
-                  <span class="mae-mini-card-legenda">Com base em {{ parceiroListaSelecionado.avaliacoes.length }} avaliaç{{ parceiroListaSelecionado.avaliacoes.length === 1 ? 'ão' : 'ões' }}</span>
+                </section>
+              </div>
+
+              <section class="ap-box">
+                <h3>O que as mães dizem</h3>
+                @if (parceiroListaSelecionado.avaliacoes.length > 0) {
+                  <div class="ap-avaliacoes">
+                    @for (av of parceiroListaSelecionado.avaliacoes; track av.id) {
+                      <div class="ap-avaliacao">
+                        <div class="ap-avaliacao-topo">
+                          <strong>{{ av.autorNome }}</strong>
+                          <span class="ap-avaliacao-nota"><i class="fa-solid fa-star"></i> {{ av.nota | number:'1.1-1' }}</span>
+                        </div>
+                        <p>{{ av.comentario }}</p>
+                      </div>
+                    }
+                  </div>
                 } @else {
-                  <span class="mae-mini-card-numero">—</span>
-                  <span class="mae-mini-card-legenda">Ainda sem avaliações</span>
+                  <p class="ap-vazio">Ainda não há avaliações registradas para este parceiro.</p>
                 }
-              </div>
-
-              <div class="mae-mini-card">
-                <span class="mae-mini-card-titulo">Total de interações</span>
-                <i class="fa-regular fa-comment-dots mae-mini-card-icone"></i>
-                <span class="mae-mini-card-numero">{{ parceiroListaSelecionado.totalInteracoes }}</span>
-                <span class="mae-mini-card-legenda">Comentários no fórum</span>
-              </div>
-            </div>
-
-            <div class="mae-perfil-secao">
-              <div class="mae-secao-header">
-                <h4>Histórico de avaliações</h4>
-                @if (parceiroListaSelecionado.avaliacoes.length > 0) {
-                  <button type="button" class="ver-mais-btn">Ver todas</button>
-                }
-              </div>
-
-              <div class="mae-avaliacoes-lista">
-                <div class="mae-avaliacao-card" *ngFor="let av of parceiroListaSelecionado.avaliacoes">
-                  <div class="mae-avaliacao-avatar">
-                    <i class="fa-solid fa-circle-user"></i>
-                  </div>
-                  <div class="mae-avaliacao-conteudo">
-                    <div class="mae-avaliacao-topo">
-                      <strong>{{ av.autorNome }}</strong>
-                      <span class="mae-avaliacao-nota">
-                        <i class="fa-solid fa-star"></i> {{ av.nota | number:'1.1-1' }}
-                      </span>
-                    </div>
-                    <p>{{ av.comentario }}</p>
-                  </div>
-                </div>
-
-                @if (parceiroListaSelecionado.avaliacoes.length === 0) {
-                  <p class="activity-empty">Ainda não há avaliações registradas para este parceiro.</p>
-                }
-              </div>
+              </section>
             </div>
           </aside>
         }
@@ -1873,7 +1896,7 @@
         </table>
       </div>
       @if (denunciasFiltradas.length === 0) {
-        <p class="activity-empty">Nenhuma denúncia com esses filtros. 🎉</p>
+        <p class="activity-empty">Nenhuma denúncia com esses filtros.</p>
       }
     </div>
 
@@ -2493,7 +2516,7 @@
 
       <div class="config-perfil-card">
         <div class="config-perfil-avatar-wrap">
-          <span class="config-perfil-avatar"></span>
+          <img class="config-perfil-avatar" [src]="adminAvatar" alt="Foto de perfil do administrador">
           <button type="button" class="config-perfil-avatar-editar" (click)="editarPerfilAdmin()" aria-label="Editar avatar">
             <i class="fa-solid fa-pen"></i>
           </button>
