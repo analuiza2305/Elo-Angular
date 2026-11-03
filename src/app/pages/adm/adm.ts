@@ -1230,6 +1230,23 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     return this.adminNome.split(' ')[0];
   }
 
+  // Banner da home: o brilho segue o mouse (mesmo efeito da home do psicólogo/advogado)
+  heroMouseX = '50%';
+  heroMouseY = '50%';
+
+  onHeroMouseMove(event: MouseEvent): void {
+    const alvo = event.currentTarget as HTMLElement | null;
+    if (!alvo) return;
+    const rect = alvo.getBoundingClientRect();
+    this.heroMouseX = `${((event.clientX - rect.left) / rect.width) * 100}%`;
+    this.heroMouseY = `${((event.clientY - rect.top) / rect.height) * 100}%`;
+  }
+
+  onHeroMouseLeave(): void {
+    this.heroMouseX = '50%';
+    this.heroMouseY = '50%';
+  }
+
   /** Lista de mães já filtrada pela busca (nome/email) e pelo status selecionado. */
   get maesFiltradas(): MaeData[] {
     const termo = this.termoBuscaMae.trim().toLowerCase();
@@ -3070,6 +3087,126 @@ async carregarUsuarios(): Promise<void> {
     mae.status = novoStatus;
     if (this.maeSelecionada?.id === mae.id) {
       this.maeSelecionada = { ...this.maeSelecionada, status: novoStatus, ...extras };
+    }
+  }
+
+  // --- Modal "Advertir conta" (mãe) ---
+  maeParaAdvertir: MaeData | null = null;
+  motivoAdvertenciaMae: string = '';
+  observacoesAdvertenciaMae: string = '';
+  advertindoMae: boolean = false;
+  erroAdvertenciaMae: string = '';
+
+  abrirModalAdvertenciaMae(mae: MaeData): void {
+    this.maeParaAdvertir = mae;
+    this.motivoAdvertenciaMae = '';
+    this.observacoesAdvertenciaMae = '';
+    this.erroAdvertenciaMae = '';
+  }
+
+  fecharModalAdvertenciaMae(): void {
+    if (this.advertindoMae) {
+      return;
+    }
+    this.maeParaAdvertir = null;
+    this.motivoAdvertenciaMae = '';
+    this.observacoesAdvertenciaMae = '';
+    this.erroAdvertenciaMae = '';
+  }
+
+  /**
+   * Advertência na conta da mãe: avisa no sino (ela precisa confirmar que leu)
+   * e soma no contador de advertências. Na 3ª, a conta é suspensa, igual aos profissionais.
+   */
+  async confirmarAdvertenciaMae(): Promise<void> {
+    const mae = this.maeParaAdvertir;
+    if (!mae) {
+      return;
+    }
+    if (!this.motivoAdvertenciaMae) {
+      this.erroAdvertenciaMae = 'Selecione um motivo para a advertência.';
+      return;
+    }
+
+    this.advertindoMae = true;
+    this.erroAdvertenciaMae = '';
+    const motivoTexto = this.textoMotivoSuspensao(this.motivoAdvertenciaMae);
+    const observacoes = this.observacoesAdvertenciaMae.trim();
+
+    try {
+      const lote = writeBatch(db);
+      lote.set(doc(collection(db, 'notificacoes')), {
+        destinatarioId: mae.id,
+        tipo: 'advertencia_conta',
+        titulo: 'Você recebeu uma advertência da moderação',
+        mensagem: (`A equipe do EloMaterno registrou uma advertência na sua conta. Motivo: ${motivoTexto}.`
+          + (observacoes ? ` Observação da equipe: ${observacoes}` : '')
+          + ' Na terceira advertência a conta é suspensa.').slice(0, 950),
+        motivo: motivoTexto,
+        observacoes,
+        exigeCiencia: true,
+        cienteEm: null,
+        link: '/perfil',
+        lida: false,
+        criadoEm: serverTimestamp()
+      });
+      lote.update(doc(db, 'usuarios', mae.id), {
+        advertenciasForum: increment(1),
+        ultimaAdvertencia: { motivo: motivoTexto, observacoes, admin: this.adminNome },
+        ultimaAdvertenciaEm: serverTimestamp()
+      });
+      await lote.commit();
+
+      mae.advertenciasForum = (mae.advertenciasForum || 0) + 1;
+      if (this.maeSelecionada?.id === mae.id) {
+        this.maeSelecionada = { ...this.maeSelecionada, advertenciasForum: mae.advertenciasForum };
+      }
+
+      if (mae.advertenciasForum >= 3 && mae.status === 'ativo') {
+        await this.atualizarStatusMae(mae, 'inativo', {
+          motivoSuspensao: this.motivoAdvertenciaMae,
+          observacoesSuspensao: ('Suspensa automaticamente na 3ª advertência. ' + observacoes).trim(),
+          suspensoEm: serverTimestamp(),
+        });
+        this.mostrarToastAdm('Terceira advertência: a conta foi suspensa e a mãe foi avisada.', 'aviso');
+      } else {
+        this.mostrarToastAdm('Advertência aplicada. A mãe foi avisada e precisará confirmar que leu.', 'ok');
+      }
+
+      this.maeParaAdvertir = null;
+      this.motivoAdvertenciaMae = '';
+      this.observacoesAdvertenciaMae = '';
+    } catch (error) {
+      console.error('Erro ao advertir mãe:', error);
+      this.erroAdvertenciaMae = 'Não foi possível aplicar a advertência agora (nada foi gravado). Tente novamente.';
+    } finally {
+      this.advertindoMae = false;
+    }
+  }
+
+  /** Reativa a conta de um profissional ou parceiro suspenso (botão no perfil). */
+  async reativarCadastroLista(tipo: 'profissional' | 'parceiro', item: ProfissionalLista | ParceiroEmpresaLista): Promise<void> {
+    const antes = {
+      status: item.status,
+      motivoSuspensao: item.motivoSuspensao,
+      observacoesSuspensao: item.observacoesSuspensao,
+      suspensoEm: item.suspensoEm,
+    };
+    item.status = 'ativo';
+    item.motivoSuspensao = '';
+    item.observacoesSuspensao = '';
+    item.suspensoEm = '';
+    try {
+      await this.salvarModeracaoCadastro(tipo, item);
+      if (tipo === 'profissional' && this.profissionalListaSelecionado?.id === item.id) {
+        this.profissionalListaSelecionado = { ...(item as ProfissionalLista) };
+      }
+      if (tipo === 'parceiro' && this.parceiroListaSelecionado?.id === item.id) {
+        this.parceiroListaSelecionado = { ...(item as ParceiroEmpresaLista) };
+      }
+      this.mostrarToastAdm('Conta reativada.', 'ok');
+    } catch {
+      Object.assign(item, antes);
     }
   }
 
