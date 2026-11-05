@@ -205,23 +205,41 @@
       <div class="mobile-links-grid">
         <span class="mobile-section-label">Gerenciar</span>
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'home'" (click)="irAbaAdm('home')"><i class="fa-solid fa-table-cells-large"></i> Home</button>
+        @if (podeAbaAdm('usuarios')) {
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'usuarios'" (click)="irAbaAdm('usuarios')"><i class="fa-solid fa-users"></i> Usuários</button>
+        }
+        @if (podeAbaAdm('aprovacoes')) {
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'aprovacoes'" (click)="irAbaAdm('aprovacoes')"><i class="fa-solid fa-user-check"></i> Aprovações
           @if (aprovacoesAdm > 0) { <span class="notif-badge-inline">{{ aprovacoesAdm }}</span> }
         </button>
+        }
 
-        <span class="mobile-section-label">Conteúdo e moderação</span>
+        @if (podeAbaAdm('denuncias') || podeAbaAdm('forum') || podeAbaAdm('moderacao')) { <span class="mobile-section-label">Conteúdo e moderação</span> }
+        @if (podeAbaAdm('denuncias')) {
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'denuncias'" (click)="irAbaAdm('denuncias')"><i class="fa-solid fa-flag"></i> Denúncias
           @if (denunciasAdm > 0) { <span class="notif-badge-inline">{{ denunciasAdm }}</span> }
         </button>
+        }
+        @if (podeAbaAdm('forum')) {
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'forum'" (click)="irAbaAdm('forum')"><i class="fa-regular fa-comments"></i> Fórum</button>
+        }
+        @if (podeAbaAdm('moderacao')) {
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'moderacao'" (click)="irAbaAdm('moderacao')"><i class="fa-solid fa-shield-halved"></i> Moderação</button>
+        }
 
-        <span class="mobile-section-label">Financeiro</span>
+        @if (podeAbaAdm('planos') || podeAbaAdm('divulgacao') || podeAbaAdm('selos') || podeAbaAdm('relatorios')) { <span class="mobile-section-label">Financeiro</span> }
+        @if (podeAbaAdm('planos')) {
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'planos'" (click)="irAbaAdm('planos')"><i class="fa-solid fa-crown"></i> Planos</button>
+        }
+        @if (podeAbaAdm('divulgacao')) {
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'divulgacao'" (click)="irAbaAdm('divulgacao')"><i class="fa-solid fa-bullhorn"></i> Divulgação</button>
+        }
+        @if (podeAbaAdm('selos')) {
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'selos'" (click)="irAbaAdm('selos')"><i class="fa-solid fa-award"></i> Selos</button>
+        }
+        @if (podeAbaAdm('relatorios')) {
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'relatorios'" (click)="irAbaAdm('relatorios')"><i class="fa-solid fa-chart-pie"></i> Relatórios</button>
+        }
 
         <span class="mobile-section-label">Sistema</span>
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'configuracoes'" (click)="irAbaAdm('configuracoes')"><i class="fa-solid fa-gear"></i> Configurações</button>

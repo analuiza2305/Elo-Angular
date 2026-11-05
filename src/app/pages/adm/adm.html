@@ -8,6 +8,7 @@
   [abaAdmAtiva]="abaAtiva"
   [denunciasAdm]="denunciasAbertas"
   [aprovacoesAdm]="pendentesAprovacao"
+  [abasAdmPermitidas]="abasPermitidasAdm"
   (abaAdm)="mudarAba($event)"
   (sairAdm)="sairDaConta()">
 </app-header>
@@ -138,10 +139,13 @@
       <i class="fa-solid fa-grip"></i>
       <span>Home</span>
     </button>
+    @if (pode('usuarios')) {
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'usuarios'" (click)="mudarAba('usuarios')">
       <i class="fa-solid fa-users"></i>
       <span>Usuários</span>
     </button>
+    }
+    @if (pode('aprovacoes')) {
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'aprovacoes'" (click)="mudarAba('aprovacoes')">
       <i class="fa-solid fa-user-check"></i>
       <span>Aprovações</span>
@@ -149,9 +153,13 @@
         <span class="menu-badge" title="Cadastros aguardando aprovação">{{ pendentesAprovacao }}</span>
       }
     </button>
+    }
 
+    @if (pode('denuncias') || pode('forum') || pode('moderacao')) {
     <div class="sidebar-group-label">Conteúdo e moderação</div>
+    }
 
+    @if (pode('denuncias')) {
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'denuncias'" (click)="mudarAba('denuncias')">
       <i class="fa-solid fa-flag"></i>
       <span>Denúncias</span>
@@ -159,33 +167,48 @@
         <span class="menu-badge" title="Denúncias em aberto">{{ denunciasAbertas }}</span>
       }
     </button>
+    }
+    @if (pode('forum')) {
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'forum'" (click)="mudarAba('forum')">
       <i class="fa-regular fa-comments"></i>
       <span>Fórum</span>
     </button>
+    }
+    @if (pode('moderacao')) {
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'moderacao'" (click)="mudarAba('moderacao')">
       <i class="fa-solid fa-shield-halved"></i>
       <span>Moderação</span>
     </button>
+    }
 
+    @if (pode('planos') || pode('divulgacao') || pode('selos') || pode('relatorios')) {
     <div class="sidebar-group-label">Financeiro</div>
+    }
 
+    @if (pode('planos')) {
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'planos'" (click)="mudarAba('planos')">
       <i class="fa-solid fa-crown"></i>
       <span>Planos</span>
     </button>
+    }
+    @if (pode('divulgacao')) {
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'divulgacao'" (click)="mudarAba('divulgacao')">
       <i class="fa-solid fa-bullhorn"></i>
       <span>Divulgação</span>
     </button>
+    }
+    @if (pode('selos')) {
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'selos'" (click)="mudarAba('selos')">
       <i class="fa-solid fa-award"></i>
       <span>Selos</span>
     </button>
+    }
+    @if (pode('relatorios')) {
     <button type="button" class="menu-btn" [class.active]="abaAtiva === 'relatorios'" (click)="mudarAba('relatorios')">
       <i class="fa-solid fa-chart-pie"></i>
       <span>Relatórios</span>
     </button>
+    }
 
     <div class="sidebar-group-label">Sistema</div>
 
@@ -2524,20 +2547,22 @@
       <div class="config-perfil-card">
         <div class="config-perfil-avatar-wrap">
           <img class="config-perfil-avatar" [src]="adminAvatar" alt="Foto de perfil do administrador">
-          <button type="button" class="config-perfil-avatar-editar" (click)="editarPerfilAdmin()" aria-label="Editar avatar">
+          <button type="button" class="config-perfil-avatar-editar" (click)="editarPerfilAdmin()" aria-label="Editar perfil">
             <i class="fa-solid fa-pen"></i>
           </button>
         </div>
 
         <div class="config-perfil-info">
-          <strong>{{ configAdminLogado.nome }}</strong>
-          <span class="config-perfil-badge">{{ configAdminLogado.cargo }}</span>
-          <span class="config-perfil-desde">Desde {{ configAdminLogado.desde }}</span>
+          <strong>{{ configAdminLogado.nome || adminNome }}</strong>
+          <span class="config-perfil-badge">{{ rotuloNivelLogado }}</span>
+          @if (configAdminLogado.desde) {
+            <span class="config-perfil-desde">Desde {{ configAdminLogado.desde }}</span>
+          }
         </div>
 
         <div class="config-perfil-contato">
-          <span><i class="fa-regular fa-envelope"></i> E-mail: <a [href]="'mailto:' + configAdminLogado.email">{{ configAdminLogado.email }}</a></span>
-          <span><i class="fa-solid fa-mobile-screen"></i> Cell: {{ configAdminLogado.telefone }}</span>
+          <span><i class="fa-regular fa-envelope"></i> E-mail: <a [href]="'mailto:' + configAdminLogado.email">{{ configAdminLogado.email || '—' }}</a></span>
+          <span><i class="fa-solid fa-mobile-screen"></i> Celular: {{ configAdminLogado.telefone || 'não informado' }}</span>
         </div>
 
         <button type="button" class="config-editar-perfil-btn" (click)="editarPerfilAdmin()">
@@ -2559,7 +2584,7 @@
             <span class="config-conta-icone"><i class="fa-solid fa-user"></i></span>
             <span class="config-conta-texto">
               <strong>Meu perfil</strong>
-              <span>Dados pessoais e cargo.</span>
+              <span>Dados pessoais, cargo e permissões.</span>
             </span>
             <i class="fa-solid fa-chevron-right config-conta-seta"></i>
           </button>
@@ -2568,34 +2593,36 @@
             <span class="config-conta-icone"><i class="fa-solid fa-shield-halved"></i></span>
             <span class="config-conta-texto">
               <strong>Segurança</strong>
-              <span>Dados pessoais, contato e cargo.</span>
+              <span>Senha e acesso à conta.</span>
             </span>
             <i class="fa-solid fa-chevron-right config-conta-seta"></i>
           </button>
 
-          <div class="config-conta-item config-conta-item-destaque">
-            <div class="config-outros-adm-topo">
-              <span class="config-conta-icone config-conta-icone-duplo"><i class="fa-solid fa-user-group"></i></span>
-              <span class="config-conta-texto">
-                <strong>Outros administradores</strong>
-                <span>{{ configAdministradoresLista.length }} administradores ativos</span>
-              </span>
-            </div>
+          @if (pode('admins')) {
+            <div class="config-conta-item config-conta-item-destaque">
+              <div class="config-outros-adm-topo">
+                <span class="config-conta-icone config-conta-icone-duplo"><i class="fa-solid fa-user-group"></i></span>
+                <span class="config-conta-texto">
+                  <strong>Equipe de administradores</strong>
+                  <span>{{ adminsAtivos }} {{ adminsAtivos === 1 ? 'administrador ativo' : 'administradores ativos' }}</span>
+                </span>
+              </div>
 
-            <div class="config-gerir-adm-box">
-              <strong>Gerir administradores</strong>
-              <p>Adicione, edite ou desative contas administrativas registradas na plataforma.</p>
-              <button type="button" class="config-acessar-btn" (click)="abrirGerirAdministradores()">
-                Acessar <i class="fa-solid fa-chevron-right"></i>
-              </button>
+              <div class="config-gerir-adm-box">
+                <strong>Gerir administradores</strong>
+                <p>Adicione, mude o nível ou desative contas administrativas e defina as permissões de cada nível.</p>
+                <button type="button" class="config-acessar-btn" (click)="abrirGerirAdministradores()">
+                  Acessar <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
             </div>
-          </div>
+          }
 
           <button type="button" class="config-conta-item" (click)="abrirConfigModal('notificacoes')">
             <span class="config-conta-icone"><i class="fa-solid fa-bell"></i></span>
             <span class="config-conta-texto">
               <strong>Notificações</strong>
-              <span>Dados pessoais, contato e cargo.</span>
+              <span>Escolha o que aparece no sino.</span>
             </span>
             <i class="fa-solid fa-chevron-right config-conta-seta"></i>
           </button>
@@ -2604,8 +2631,9 @@
             <span class="config-conta-icone"><i class="fa-solid fa-file-lines"></i></span>
             <span class="config-conta-texto">
               <strong>Termo do admin</strong>
-              <span>Termo de bom uso do admin.</span>
+              <span>{{ configTermoAceito ? 'Aceito em ' + configTermoAceitoEm : 'Leia e aceite o termo de bom uso.' }}</span>
             </span>
+            @if (!configTermoAceito) { <span class="cfg-pendente">Pendente</span> }
             <i class="fa-solid fa-chevron-right config-conta-seta"></i>
           </button>
         </div>
@@ -2617,18 +2645,10 @@
 
       <div class="config-admin-topbar">
         <div class="config-tabs">
-          <button
-            type="button"
-            class="config-tab"
-            [class.active]="configAdministradoresSubAba === 'administradores'"
-            (click)="mudarConfigAdministradoresSubAba('administradores')">
+          <button type="button" class="config-tab" [class.active]="configAdministradoresSubAba === 'administradores'" (click)="mudarConfigAdministradoresSubAba('administradores')">
             Administradores
           </button>
-          <button
-            type="button"
-            class="config-tab"
-            [class.active]="configAdministradoresSubAba === 'permissoes'"
-            (click)="mudarConfigAdministradoresSubAba('permissoes')">
+          <button type="button" class="config-tab" [class.active]="configAdministradoresSubAba === 'permissoes'" (click)="mudarConfigAdministradoresSubAba('permissoes')">
             Permissões
           </button>
         </div>
@@ -2639,28 +2659,21 @@
       </div>
 
       @if (configAdministradoresSubAba === 'administradores') {
-        <div class="dash-panel config-admin-hero">
-          <span class="config-admin-hero-icone"><i class="fa-solid fa-user-group"></i></span>
-          <div class="config-admin-hero-texto">
-            <h3>Equipe de administradores</h3>
-            <p>Gerenciamento de usuários que possuem acesso a conta de administrador.</p>
-          </div>
-          <span class="config-admin-hero-ilustracao"><i class="fa-solid fa-heart"></i></span>
-        </div>
-
         <div class="dash-panel config-admin-tabela-card">
           <div class="config-admin-tabela-header">
             <div class="config-admin-tabela-titulo">
               <span class="config-admin-tabela-icone"><i class="fa-solid fa-user-group"></i></span>
               <div>
                 <strong>Administradores da plataforma</strong>
-                <span>{{ configAdministradoresLista.length }} administradores ativos</span>
+                <span>{{ adminsAtivos }} ativos de {{ configAdministradoresLista.length }}</span>
               </div>
             </div>
 
-            <button type="button" class="config-convidar-btn" (click)="convidarAdministrador()">
-              <i class="fa-solid fa-plus"></i> Convidar novo administrador
-            </button>
+            @if (ehSuperAdmin) {
+              <button type="button" class="config-convidar-btn" (click)="abrirModalNovoAdm()">
+                <i class="fa-solid fa-plus"></i> Adicionar administrador
+              </button>
+            }
           </div>
 
           <div class="prof-table-scroll">
@@ -2676,30 +2689,43 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let adm of configAdministradoresLista">
-                  <td>
-                    <div class="mae-nome-cel">
-                      @if (adm.avatar) {
-                        <img [src]="adm.avatar" alt="" class="mae-avatar-mini">
+                @for (adm of configAdministradoresLista; track adm.id) {
+                  <tr [class.cfg-linha-inativa]="adm.status === 'inativo'">
+                    <td>
+                      <div class="mae-nome-cel">
+                        @if (adm.avatar) {
+                          <img [src]="adm.avatar" alt="" class="mae-avatar-mini">
+                        } @else {
+                          <span class="mae-avatar-mini mae-avatar-iniciais">{{ iniciaisNome(adm.nome) }}</span>
+                        }
+                        <span>{{ adm.nome }}@if (adm.id === adminUid) { <small class="cfg-voce">você</small> }</span>
+                      </div>
+                    </td>
+                    <td>{{ adm.email }}</td>
+                    <td><span class="config-nivel-badge" [class]="'config-nivel-badge nivel-' + adm.nivel">{{ adm.nivelAcesso }}</span></td>
+                    <td>{{ adm.permissoes }}</td>
+                    <td>
+                      <span class="config-status-dot" [class.ativo]="adm.status === 'ativo'"></span>
+                      {{ adm.status === 'ativo' ? 'Ativo' : 'Inativo' }}
+                    </td>
+                    <td>
+                      @if (ehSuperAdmin && adm.id !== adminUid) {
+                        <div class="cfg-acoes">
+                          <button type="button" class="mod-btn-icone" (click)="abrirEditarAdm(adm)" title="Mudar nível" aria-label="Mudar nível">
+                            <i class="fa-solid fa-user-pen"></i>
+                          </button>
+                          <button type="button" class="mod-btn-icone" (click)="alternarStatusAdm(adm)" [title]="adm.status === 'ativo' ? 'Desativar acesso' : 'Reativar acesso'" [attr.aria-label]="adm.status === 'ativo' ? 'Desativar acesso' : 'Reativar acesso'">
+                            <i class="fa-solid" [class.fa-user-slash]="adm.status === 'ativo'" [class.fa-user-check]="adm.status !== 'ativo'"></i>
+                          </button>
+                        </div>
                       } @else {
-                        <span class="mae-avatar-mini mae-avatar-iniciais">{{ iniciaisNome(adm.nome) }}</span>
+                        <span class="cfg-sem-acao">—</span>
                       }
-                      <span>{{ adm.nome }}</span>
-                    </div>
-                  </td>
-                  <td>{{ adm.email }}</td>
-                  <td><span class="config-nivel-badge">{{ adm.nivelAcesso }}</span></td>
-                  <td>{{ adm.permissoes }}</td>
-                  <td>
-                    <span class="config-status-dot" [class.ativo]="adm.status === 'ativo'"></span>
-                    {{ adm.status === 'ativo' ? 'Ativo' : 'Inativo' }}
-                  </td>
-                  <td>
-                    <button type="button" class="config-acoes-btn" aria-label="Mais ações">
-                      <i class="fa-solid fa-ellipsis"></i>
-                    </button>
-                  </td>
-                </tr>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="6" class="cfg-vazio">Carregando a equipe...</td></tr>
+                }
               </tbody>
             </table>
           </div>
@@ -2707,21 +2733,12 @@
       }
 
       @if (configAdministradoresSubAba === 'permissoes') {
-        <div class="dash-panel config-admin-hero">
-          <span class="config-admin-hero-icone"><i class="fa-solid fa-user-shield"></i></span>
-          <div class="config-admin-hero-texto">
-            <h3>Controle de níveis e permissões de administradores</h3>
-            <p>Gerenciamento de permissões referente ao nível de administrador.</p>
-          </div>
-          <span class="config-admin-hero-ilustracao"><i class="fa-solid fa-heart"></i></span>
-        </div>
-
         <div class="dash-panel config-permissoes-card">
           <div class="config-admin-tabela-titulo">
-            <span class="config-admin-tabela-icone"><i class="fa-solid fa-user-group"></i></span>
+            <span class="config-admin-tabela-icone"><i class="fa-solid fa-user-shield"></i></span>
             <div>
               <strong>Permissões por nível</strong>
-              <span>Configure o que cada nível de administrador terá acesso:</span>
+              <span>{{ ehSuperAdmin ? 'Clique para liberar ou bloquear uma área. Salva na hora.' : 'Só super admins podem alterar.' }}</span>
             </div>
           </div>
 
@@ -2729,39 +2746,42 @@
             <table class="user-table config-permissoes-tabela">
               <thead>
                 <tr>
-                  <th>Permissões</th>
+                  <th>Área do painel</th>
                   <th>Super admin</th>
                   <th>Administrador</th>
                   <th>Moderador</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let perm of configPermissoesPorNivel">
-                  <td>
-                    <div class="mae-nome-cel">
-                      <span class="config-permissao-dot"></span>
-                      <span>{{ perm.nome }}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <button type="button" class="config-permissao-check" [class.on]="perm.superAdmin" (click)="alternarPermissaoNivel(perm, 'superAdmin')" aria-label="Super admin">
-                      @if (perm.superAdmin) { <i class="fa-solid fa-check"></i> }
-                    </button>
-                  </td>
-                  <td>
-                    <button type="button" class="config-permissao-check" [class.on]="perm.administrador" (click)="alternarPermissaoNivel(perm, 'administrador')" aria-label="Administrador">
-                      @if (perm.administrador) { <i class="fa-solid fa-check"></i> }
-                    </button>
-                  </td>
-                  <td>
-                    <button type="button" class="config-permissao-check" [class.on]="perm.moderador" (click)="alternarPermissaoNivel(perm, 'moderador')" aria-label="Moderador">
-                      @if (perm.moderador) { <i class="fa-solid fa-check"></i> }
-                    </button>
-                  </td>
-                </tr>
+                @for (perm of permissoesDisponiveis; track perm.chave) {
+                  <tr>
+                    <td>
+                      <div class="cfg-perm-nome">
+                        <strong>{{ perm.nome }}</strong>
+                        <small>{{ perm.desc }}</small>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="config-permissao-check on travado" title="Super admin sempre tem acesso"><i class="fa-solid fa-check"></i></span>
+                    </td>
+                    @for (nivel of ['administrador', 'moderador']; track nivel) {
+                      <td>
+                        @if (perm.soSuper) {
+                          <span class="config-permissao-check travado" title="Só super admin"><i class="fa-solid fa-lock"></i></span>
+                        } @else {
+                          <button type="button" class="config-permissao-check" [class.on]="nivelTemPermissao($any(nivel), perm.chave)" [disabled]="!ehSuperAdmin"
+                                  (click)="alternarPermissaoNivel(perm.chave, $any(nivel))" [attr.aria-label]="perm.nome + ' para ' + rotuloNivel(nivel)">
+                            @if (nivelTemPermissao($any(nivel), perm.chave)) { <i class="fa-solid fa-check"></i> }
+                          </button>
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
               </tbody>
             </table>
           </div>
+          <p class="cfg-nota"><i class="fa-solid fa-circle-info"></i> Home e a própria conta (Configurações) ficam sempre liberadas para todos os níveis.</p>
         </div>
       }
     }
@@ -3254,63 +3274,105 @@
         <span class="config-modal-icone"><i class="fa-solid fa-user"></i></span>
         <div>
           <h3>Meu perfil</h3>
-          <p>Dados pessoais.</p>
+          <p>{{ perfilEditando ? 'Edite seus dados e salve.' : 'Dados pessoais, cargo e permissões.' }}</p>
         </div>
       </div>
 
-      <div class="config-modal-bar">Configurações pessoais:</div>
-
-      <div class="config-perfil-secao">
-        <h4>Cargo e permissões:</h4>
-
-        <div class="config-perfil-linha">
-          <span class="config-perfil-linha-label">Cargo:</span>
-          <span class="config-nivel-badge">{{ configAdminLogado.cargo }}</span>
-        </div>
-
-        <div class="config-perfil-linha">
-          <span class="config-perfil-linha-label">Setor:</span>
-          <span class="config-perfil-linha-valor">{{ configAdminLogado.setor }}</span>
-        </div>
-
-        <div class="config-perfil-linha config-perfil-linha-top">
-          <span class="config-perfil-linha-label">Permissões:</span>
-          <div class="config-permissoes-chips">
-            <span class="config-permissao-chip" *ngFor="let p of configAdminLogado.permissoesPerfil">{{ p }}</span>
+      @if (!perfilEditando) {
+        <div class="config-perfil-secao">
+          <h4>Cargo e permissões</h4>
+          <div class="config-perfil-linha">
+            <span class="config-perfil-linha-label">Nível:</span>
+            <span class="config-nivel-badge">{{ rotuloNivelLogado }}</span>
+          </div>
+          <div class="config-perfil-linha">
+            <span class="config-perfil-linha-label">Setor:</span>
+            <span class="config-perfil-linha-valor">{{ configAdminLogado.setor || 'não informado' }}</span>
+          </div>
+          <div class="config-perfil-linha config-perfil-linha-top">
+            <span class="config-perfil-linha-label">Acessa:</span>
+            <div class="config-permissoes-chips">
+              <span class="config-permissao-chip">Home</span>
+              @for (p of permissoesDoLogado; track p) { <span class="config-permissao-chip">{{ p }}</span> }
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="config-perfil-secao">
-        <h4>Dados:</h4>
-
-        <div class="config-perfil-linha">
-          <span class="config-perfil-linha-label">Cidade:</span>
-          <span class="config-perfil-linha-valor">{{ configAdminLogado.cidade }}</span>
-          <button type="button" class="config-alterar-btn" (click)="alterarDadoPessoal('cidade')">Alterar</button>
+        <div class="config-perfil-secao">
+          <h4>Dados</h4>
+          <div class="config-perfil-linha">
+            <span class="config-perfil-linha-label">Nome:</span>
+            <span class="config-perfil-linha-valor">{{ configAdminLogado.nome || '—' }}</span>
+          </div>
+          <div class="config-perfil-linha">
+            <span class="config-perfil-linha-label">Celular:</span>
+            <span class="config-perfil-linha-valor">{{ configAdminLogado.telefone || 'não informado' }}</span>
+          </div>
+          <div class="config-perfil-linha">
+            <span class="config-perfil-linha-label">Cidade:</span>
+            <span class="config-perfil-linha-valor">{{ configAdminLogado.cidade || 'não informada' }}</span>
+          </div>
+          <div class="config-perfil-linha">
+            <span class="config-perfil-linha-label">Gênero:</span>
+            <span class="config-perfil-linha-valor">{{ configAdminLogado.genero || 'não informado' }}</span>
+          </div>
+          <button type="button" class="config-pill-btn cfg-editar-dados" (click)="iniciarEdicaoPerfil()">
+            <i class="fa-solid fa-pen"></i> Editar dados
+          </button>
         </div>
 
-        <div class="config-perfil-linha">
-          <span class="config-perfil-linha-label">Gênero:</span>
-          <span class="config-perfil-linha-valor">{{ configAdminLogado.genero }}</span>
-          <button type="button" class="config-alterar-btn" (click)="alterarDadoPessoal('genero')">Alterar</button>
+        <div class="config-perfil-rodape">
+          <button type="button" class="config-sair-btn" (click)="sairDaConta()">
+            <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
+          </button>
+          <button type="button" class="config-deletar-btn" (click)="deletarConta()">
+            <i class="fa-solid fa-trash"></i> Excluir conta
+          </button>
         </div>
+      } @else {
+        <form class="cfg-form" (ngSubmit)="salvarPerfilAdm()">
+          <span class="cfg-label">Foto</span>
+          <div class="cfg-avatares">
+            @for (a of avataresAdm; track a) {
+              <button type="button" class="cfg-avatar-opcao" [class.sel]="formPerfilAdm.avatar === a" (click)="formPerfilAdm.avatar = a" [attr.aria-label]="'Escolher avatar'">
+                <img [src]="a" alt="">
+              </button>
+            }
+          </div>
 
-        <div class="config-perfil-linha">
-          <span class="config-perfil-linha-label">CPF:</span>
-          <span class="config-perfil-linha-valor">{{ configAdminLogado.cpf }}</span>
-          <button type="button" class="config-alterar-btn" (click)="alterarDadoPessoal('cpf')">Alterar</button>
-        </div>
-      </div>
+          <div class="cfg-grade">
+            <label class="cfg-campo">
+              <span class="cfg-label">Nome</span>
+              <input type="text" name="nome" [(ngModel)]="formPerfilAdm.nome" maxlength="80" required>
+            </label>
+            <label class="cfg-campo">
+              <span class="cfg-label">Celular</span>
+              <input type="tel" name="telefone" [ngModel]="formPerfilAdm.telefone" (ngModelChange)="formatarTelefoneAdm($event)" placeholder="(11) 99999-9999" inputmode="numeric">
+            </label>
+            <label class="cfg-campo">
+              <span class="cfg-label">Cidade</span>
+              <input type="text" name="cidade" [(ngModel)]="formPerfilAdm.cidade" maxlength="60" placeholder="Ex: São Paulo">
+            </label>
+            <label class="cfg-campo">
+              <span class="cfg-label">Gênero</span>
+              <select name="genero" [(ngModel)]="formPerfilAdm.genero">
+                <option value="">Não informar</option>
+                @for (g of generosAdm; track g) { <option [value]="g">{{ g }}</option> }
+              </select>
+            </label>
+            <label class="cfg-campo cfg-campo-cheio">
+              <span class="cfg-label">Setor</span>
+              <input type="text" name="setor" [(ngModel)]="formPerfilAdm.setor" maxlength="60" placeholder="Ex: Moderação, Desenvolvimento">
+            </label>
+          </div>
+          <p class="cfg-nota">O e-mail é o do login e não muda por aqui.</p>
 
-      <div class="config-perfil-rodape">
-        <button type="button" class="config-sair-btn" (click)="sairDaConta()">
-          <i class="fa-solid fa-right-from-bracket"></i> Sair da conta
-        </button>
-        <button type="button" class="config-deletar-btn" (click)="deletarConta()">
-          <i class="fa-solid fa-trash"></i> Deletar Conta
-        </button>
-      </div>
+          <div class="cfg-form-acoes">
+            <button type="button" class="cfg-btn-sec" (click)="perfilEditando = false">Cancelar</button>
+            <button type="submit" class="cfg-btn" [disabled]="salvandoPerfilAdm">{{ salvandoPerfilAdm ? 'Salvando...' : 'Salvar' }}</button>
+          </div>
+        </form>
+      }
     </div>
   </div>
 }
@@ -3328,37 +3390,30 @@
         <span class="config-modal-icone"><i class="fa-solid fa-shield-halved"></i></span>
         <div>
           <h3>Segurança</h3>
-          <p>Configurações pessoais de segurança</p>
+          <p>Senha e acesso à conta.</p>
         </div>
       </div>
 
-      <div class="config-modal-bar">Configurações de segurança</div>
-
-      <div class="config-senha-row">
-        <span class="config-senha-label">Senha:</span>
-        <span class="config-senha-data">Última alteração: {{ configSenhaUltimaAlteracao }}</span>
-        <span class="config-senha-dots">**********</span>
+      <div class="cfg-seg-item">
+        <span class="cfg-seg-ic"><i class="fa-solid fa-key"></i></span>
+        <div class="cfg-seg-txt">
+          <strong>Senha</strong>
+          <span>Enviamos um link para {{ configAdminLogado.email || 'o seu e-mail' }} para você criar uma nova senha.</span>
+        </div>
         <button type="button" class="config-pill-btn" (click)="alterarSenha()">Alterar senha</button>
       </div>
 
-      <p class="config-dispositivos-label">Dispositivos conectados:</p>
-
-      <div class="config-dispositivo-card" *ngFor="let disp of configDispositivos">
-        <strong class="config-dispositivo-nome">{{ disp.nome }}</strong>
-
-        <div class="config-dispositivo-info">
-          <span>
-            Status:
-            <span class="config-status-dot" [class.ativo]="disp.status === 'conectado'"></span>
-            {{ disp.status === 'conectado' ? 'Conectado' : 'Desconectado' }}
-          </span>
-          <span>Data do acesso: {{ disp.dataAcesso }}</span>
+      <div class="cfg-seg-item">
+        <span class="cfg-seg-ic"><i class="fa-solid fa-laptop"></i></span>
+        <div class="cfg-seg-txt">
+          <strong>Este dispositivo</strong>
+          <span>{{ dispositivoAtual }} · <span class="config-status-dot ativo"></span> Conectado</span>
+          <span>Último login: {{ ultimoAcessoAdm }} · Conta criada em {{ contaCriadaAdm }}</span>
         </div>
-
-        <button type="button" class="config-desconectar-btn" (click)="desconectarDispositivo(disp)">
-          Desconectar
-        </button>
+        <button type="button" class="config-desconectar-btn" (click)="sairDaConta()">Sair</button>
       </div>
+
+      <p class="cfg-nota"><i class="fa-solid fa-circle-info"></i> Se achar que alguém entrou na sua conta, troque a senha: depois disso a senha antiga para de funcionar.</p>
     </div>
   </div>
 }
@@ -3376,42 +3431,25 @@
         <span class="config-modal-icone"><i class="fa-solid fa-bell"></i></span>
         <div>
           <h3>Notificações</h3>
-          <p>Gerenciador de notificações.</p>
+          <p>Escolha o que aparece no sino do painel. Salva na hora.</p>
         </div>
       </div>
 
-      <div class="config-modal-bar">Gerencie suas notificações</div>
-
-      <div class="prof-table-scroll">
-        <table class="user-table config-notif-tabela">
-          <thead>
-            <tr>
-              <th>Notificação</th>
-              <th>Descrição</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let n of configNotificacoes">
-              <td>{{ n.titulo }}</td>
-              <td>{{ n.descricao }}</td>
-              <td>
-                <div class="config-switch-wrap">
-                  <span class="config-switch-label" [class.on]="n.ativo">{{ n.ativo ? 'ON' : 'OFF' }}</span>
-                  <button
-                    type="button"
-                    class="creditos-switch"
-                    [class.on]="n.ativo"
-                    role="switch"
-                    [attr.aria-checked]="n.ativo"
-                    (click)="alternarNotificacao(n)">
-                    <span class="creditos-switch-bolinha"></span>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="cfg-notif-lista">
+        @for (n of configNotificacoes; track n.chave) {
+          <div class="cfg-notif-item">
+            <div class="cfg-seg-txt">
+              <strong>{{ n.titulo }}</strong>
+              <span>{{ n.descricao }}</span>
+            </div>
+            <div class="config-switch-wrap">
+              <span class="config-switch-label" [class.on]="n.ativo">{{ n.ativo ? 'ON' : 'OFF' }}</span>
+              <button type="button" class="creditos-switch" [class.on]="n.ativo" role="switch" [attr.aria-checked]="n.ativo" [attr.aria-label]="n.titulo" (click)="alternarNotificacao(n)">
+                <span class="creditos-switch-bolinha"></span>
+              </button>
+            </div>
+          </div>
+        }
       </div>
     </div>
   </div>
@@ -3475,16 +3513,136 @@
       </div>
 
       <div class="config-termo-aceite">
-        <p>Declaro que li e aceito os Termos de Uso, comprometendo-me a seguir e cumprir as orientações e obrigações estabelecidas nos Termos de Uso do Administrador.</p>
+        <p>Declaro que li e aceito os Termos de Uso, comprometendo-me a seguir e cumprir as orientações e obrigações estabelecidas nos Termos de Uso do Administrador.@if (configTermoAceito) { <strong class="cfg-aceito-em">Aceito em {{ configTermoAceitoEm || 'agora' }}.</strong> }</p>
         <button
           type="button"
           class="config-termo-checkbox"
           [class.checked]="configTermoAceito"
+          [disabled]="configTermoAceito"
           (click)="alternarTermoAceito()"
           aria-label="Aceitar termos de uso">
           @if (configTermoAceito) { <i class="fa-solid fa-check"></i> }
         </button>
       </div>
+    </div>
+  </div>
+}
+
+
+<!-- MODAL: ADICIONAR ADMINISTRADOR (Configurações) -->
+@if (modalNovoAdmAberto) {
+  <div class="config-modal-overlay" (click)="fecharModalNovoAdm()">
+    <div class="config-modal cfg-modal-estreito" (click)="$event.stopPropagation()">
+      <button type="button" class="config-modal-fechar-btn" (click)="fecharModalNovoAdm()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="config-modal-header">
+        <span class="config-modal-icone"><i class="fa-solid fa-user-plus"></i></span>
+        <div>
+          <h3>Adicionar administrador</h3>
+          <p>Dê acesso ao painel para uma conta que já existe no Elo Materno.</p>
+        </div>
+      </div>
+
+      <form class="cfg-form" (ngSubmit)="adicionarAdministrador()">
+        <label class="cfg-campo">
+          <span class="cfg-label">E-mail da conta</span>
+          <input type="email" name="emailNovoAdm" [(ngModel)]="formNovoAdm.email" placeholder="pessoa@email.com" autocomplete="off" required>
+        </label>
+
+        <span class="cfg-label">Nível de acesso</span>
+        <div class="cfg-niveis">
+          @for (n of niveisAdm; track n.valor) {
+            <button type="button" class="cfg-nivel-opcao" [class.sel]="formNovoAdm.nivel === n.valor" (click)="formNovoAdm.nivel = n.valor">
+              <strong>{{ n.rotulo }}</strong>
+              <small>{{ n.desc }}</small>
+            </button>
+          }
+        </div>
+
+        @if (erroNovoAdm) { <p class="cfg-erro"><i class="fa-solid fa-circle-exclamation"></i> {{ erroNovoAdm }}</p> }
+        <p class="cfg-aviso"><i class="fa-solid fa-triangle-exclamation"></i> A conta passa a entrar direto no painel de admin. Se você remover o acesso depois, ela volta a ser o que era antes.</p>
+
+        <div class="cfg-form-acoes">
+          <button type="button" class="cfg-btn-sec" (click)="fecharModalNovoAdm()">Cancelar</button>
+          <button type="submit" class="cfg-btn" [disabled]="salvandoNovoAdm">{{ salvandoNovoAdm ? 'Adicionando...' : 'Adicionar' }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- MODAL: EDITAR ADMINISTRADOR (Configurações) -->
+@if (admEditando) {
+  <div class="config-modal-overlay" (click)="fecharEditarAdm()">
+    <div class="config-modal cfg-modal-estreito" (click)="$event.stopPropagation()">
+      <button type="button" class="config-modal-fechar-btn" (click)="fecharEditarAdm()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="config-modal-header">
+        <span class="config-modal-icone"><i class="fa-solid fa-user-pen"></i></span>
+        <div>
+          <h3>{{ admEditando.nome }}</h3>
+          <p>{{ admEditando.email }}@if (admEditando.desde) { · admin desde {{ admEditando.desde }} }</p>
+        </div>
+      </div>
+
+      <div class="cfg-form">
+        <span class="cfg-label">Nível de acesso</span>
+        <div class="cfg-niveis">
+          @for (n of niveisAdm; track n.valor) {
+            <button type="button" class="cfg-nivel-opcao" [class.sel]="formEditarAdm.nivel === n.valor" (click)="formEditarAdm.nivel = n.valor">
+              <strong>{{ n.rotulo }}</strong>
+              <small>{{ n.desc }}</small>
+            </button>
+          }
+        </div>
+
+        <div class="cfg-form-acoes">
+          <button type="button" class="cfg-btn-sec" (click)="fecharEditarAdm()">Cancelar</button>
+          <button type="button" class="cfg-btn" [disabled]="salvandoEditarAdm || formEditarAdm.nivel === admEditando.nivel" (click)="salvarNivelAdm()">Salvar nível</button>
+        </div>
+
+        <div class="cfg-zona-perigo">
+          <button type="button" class="cfg-btn-perigo-sec" (click)="alternarStatusAdm(admEditando)">
+            <i class="fa-solid" [class.fa-user-slash]="admEditando.status === 'ativo'" [class.fa-user-check]="admEditando.status !== 'ativo'"></i>
+            {{ admEditando.status === 'ativo' ? 'Desativar acesso' : 'Reativar acesso' }}
+          </button>
+          <button type="button" class="cfg-btn-perigo" (click)="removerAdministrador(admEditando)">
+            <i class="fa-solid fa-user-minus"></i> Remover da equipe
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL: EXCLUIR A PRÓPRIA CONTA (Configurações) -->
+@if (modalExcluirContaAberto) {
+  <div class="config-modal-overlay" (click)="fecharExcluirConta()">
+    <div class="config-modal cfg-modal-estreito" (click)="$event.stopPropagation()">
+      <button type="button" class="config-modal-fechar-btn" (click)="fecharExcluirConta()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="config-modal-header">
+        <span class="config-modal-icone cfg-icone-perigo"><i class="fa-solid fa-trash"></i></span>
+        <div>
+          <h3>Excluir minha conta</h3>
+          <p>Isso apaga a sua conta de administrador e não pode ser desfeito.</p>
+        </div>
+      </div>
+      <form class="cfg-form" (ngSubmit)="confirmarExcluirConta()">
+        <label class="cfg-campo">
+          <span class="cfg-label">Para confirmar, digite EXCLUIR</span>
+          <input type="text" name="confirmacaoExcluir" [(ngModel)]="confirmacaoExcluir" autocomplete="off">
+        </label>
+        <div class="cfg-form-acoes">
+          <button type="button" class="cfg-btn-sec" (click)="fecharExcluirConta()">Cancelar</button>
+          <button type="submit" class="cfg-btn-perigo" [disabled]="excluindoConta || confirmacaoExcluir.trim().toUpperCase() !== 'EXCLUIR'">
+            {{ excluindoConta ? 'Excluindo...' : 'Excluir conta' }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 }

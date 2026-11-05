@@ -96,6 +96,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   @Input() aprovacoesAdm = 0;
   /** Admin: item escolhido na gaveta do celular. */
   @Output() abaAdm = new EventEmitter<string>();
+  /** Abas que o nível do admin logado pode abrir (null = todas). */
+  @Input() abasAdmPermitidas: string[] | null = null;
+  podeAbaAdm(aba: string): boolean { return !this.abasAdmPermitidas || this.abasAdmPermitidas.includes(aba); }
 
   // Controles de Menus
   isMobileMenuOpen = false;

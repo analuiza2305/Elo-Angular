@@ -35,7 +35,8 @@ export const adminGuard: CanActivateFn = async () => {
 
   try {
     const snap = await getDoc(doc(db, 'usuarios', user.uid));
-    if (snap.exists() && snap.data()['tipo'] === 'admin') {
+    // admin desativado pela equipe (Configurações > Equipe) não entra mais
+    if (snap.exists() && snap.data()['tipo'] === 'admin' && snap.data()['adminStatus'] !== 'inativo') {
       return true;
     }
   } catch (e) {

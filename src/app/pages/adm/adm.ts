@@ -20,9 +20,11 @@ import {
   serverTimestamp,
   increment,
   writeBatch,
+  setDoc,
+  limit,
   Unsubscribe
 } from 'firebase/firestore';
-import { onAuthStateChanged, signOut, sendPasswordResetEmail } from 'firebase/auth';
+import { onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from 'firebase/auth';
 
 import { Chart, registerables } from 'chart.js';
 
@@ -156,28 +158,38 @@ interface AdminUsuario {
   nome: string;
   email: string;
   avatar?: string;
+  nivel: NivelAdm;
   nivelAcesso: string;
   permissoes: string;
   status: 'ativo' | 'inativo';
+  desde: string;
+  tipoAnterior: string;
 }
 
-/** Linha da tabela "Permissões por nível". */
-interface PermissaoPorNivel {
-  nome: string;
-  superAdmin: boolean;
-  administrador: boolean;
-  moderador: boolean;
-}
+type NivelAdm = 'superAdmin' | 'administrador' | 'moderador';
 
-/** Dispositivo logado listado no modal "Segurança". */
-interface DispositivoConectado {
-  nome: string;
-  status: 'conectado' | 'desconectado';
-  dataAcesso: string;
-}
+/** Áreas do painel que podem ser liberadas por nível (a chave é a aba). */
+const PERMISSOES_ADM: { chave: string; nome: string; desc: string; soSuper?: boolean }[] = [
+  { chave: 'usuarios', nome: 'Usuários', desc: 'Ver mães, profissionais e parceiros; advertir e suspender.' },
+  { chave: 'aprovacoes', nome: 'Aprovações', desc: 'Aprovar ou recusar cadastros de psicólogos e advogados.' },
+  { chave: 'denuncias', nome: 'Denúncias', desc: 'Analisar e resolver denúncias.' },
+  { chave: 'forum', nome: 'Fórum', desc: 'Moderar posts e respostas do fórum.' },
+  { chave: 'moderacao', nome: 'Moderação de conteúdo', desc: 'Ocultar ou excluir artigos e eventos.' },
+  { chave: 'planos', nome: 'Planos', desc: 'Planos e assinaturas.' },
+  { chave: 'divulgacao', nome: 'Divulgação', desc: 'Pacotes de divulgação de parceiros.' },
+  { chave: 'selos', nome: 'Selos', desc: 'Selos de destaque e apoiador.' },
+  { chave: 'relatorios', nome: 'Relatórios', desc: 'Relatórios financeiros e gráficos.' },
+  { chave: 'admins', nome: 'Equipe e permissões', desc: 'Adicionar administradores e mudar permissões.', soSuper: true },
+];
+
+const PERMISSOES_PADRAO: Record<'administrador' | 'moderador', string[]> = {
+  administrador: ['usuarios', 'aprovacoes', 'denuncias', 'forum', 'moderacao', 'planos', 'divulgacao', 'selos', 'relatorios'],
+  moderador: ['usuarios', 'denuncias', 'forum', 'moderacao'],
+};
 
 /** Linha da tabela do modal "Notificações". */
 interface NotificacaoConfig {
+  chave: string;
   titulo: string;
   descricao: string;
   ativo: boolean;
@@ -1639,14 +1651,23 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   }
 
   // =========================================================
-  // CONFIGURAÇÕES
-  // TODO: ainda não existe nenhuma coleção `admins`/`permissoes` no
-  // Firestore deste projeto. Os dados abaixo são de exemplo só para a tela
-  // não ficar vazia; assim que o backend expuser essas coleções, é só
-  // trocar os valores fixos por leituras/escritas reais (onSnapshot,
-  // updateDoc, etc.), seguindo o mesmo padrão já usado para "Mães" e
-  // "Parceiros" mais acima nesta classe.
+  // CONFIGURAÇÕES (ligado ao Firestore — 05/11)
+  //
+  // - Conta do admin logado: usuarios/{uid} (nome, telefone, cidade,
+  //   genero, setor, avatar, nivelAdmin, adminDesde, notificacoesAdm,
+  //   termoAdmAceito...).
+  // - Equipe: todos os usuarios com tipo === 'admin'.
+  // - Permissões por nível: configuracoes/permissoesAdm
+  //   { administrador: string[], moderador: string[] }.
+  //   Super admin sempre pode tudo. Admin antigo sem nivelAdmin = super admin.
   // =========================================================
+
+  readonly permissoesDisponiveis = PERMISSOES_ADM;
+  readonly niveisAdm: { valor: NivelAdm; rotulo: string; desc: string }[] = [
+    { valor: 'superAdmin', rotulo: 'Super admin', desc: 'Acesso total, inclusive à equipe e às permissões.' },
+    { valor: 'administrador', rotulo: 'Administrador', desc: 'Acesso às áreas liberadas para administradores.' },
+    { valor: 'moderador', rotulo: 'Moderador', desc: 'Acesso às áreas liberadas para moderadores.' },
+  ];
 
   /** Qual "tela" da aba Configurações está sendo exibida. */
   configSubTela: 'principal' | 'administradores' = 'principal';
@@ -1657,61 +1678,197 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   /** Qual modal de Configurações está aberto no momento (nenhum = null). */
   configModalAberto: 'perfil' | 'seguranca' | 'notificacoes' | 'termo' | null = null;
 
-  configAdminLogado = {
-    nome: 'Ana Luiza Bertarelli',
-    cargo: 'Super admin',
-    desde: '23/02/26',
-    email: 'bertarellianaluiza@gmail.com',
-    telefone: '(11) 98159-0183',
-    setor: 'Desenvolvedora',
-    permissoesPerfil: ['Função disponível', 'Função disponível', 'Função disponível', 'Função disponível'],
-    cidade: 'São Paulo',
-    genero: 'Cis',
-    cpf: '111.111.111-11',
+  adminUid = '';
+  nivelAdmLogado: NivelAdm = 'superAdmin';
+  permissoesAdm: Record<'administrador' | 'moderador', string[]> = {
+    administrador: [...PERMISSOES_PADRAO.administrador],
+    moderador: [...PERMISSOES_PADRAO.moderador],
   };
 
-  configAdministradoresLista: AdminUsuario[] = [
-    { id: '1', nome: 'Michelly Moreira', email: 'michelly@elomaterno', nivelAcesso: 'Super admin', permissoes: 'Todas.', status: 'ativo' },
-    { id: '2', nome: 'Michelly Moreira', email: 'michelly@elomaterno', nivelAcesso: 'Super admin', permissoes: 'Todas.', status: 'ativo' },
-    { id: '3', nome: 'Michelly Moreira', email: 'michelly@elomaterno', nivelAcesso: 'Super admin', permissoes: 'Todas.', status: 'ativo' },
-    { id: '4', nome: 'Michelly Moreira', email: 'michelly@elomaterno', nivelAcesso: 'Super admin', permissoes: 'Todas.', status: 'ativo' },
-  ];
+  configAdminLogado = {
+    nome: '',
+    email: '',
+    telefone: '',
+    cidade: '',
+    genero: '',
+    setor: '',
+    desde: '',
+  };
 
-  configPermissoesPorNivel: PermissaoPorNivel[] = [
-    { nome: 'A definir', superAdmin: true, administrador: true, moderador: true },
-    { nome: 'A definir', superAdmin: true, administrador: true, moderador: false },
-    { nome: 'A definir', superAdmin: true, administrador: false, moderador: false },
-    { nome: 'A definir', superAdmin: true, administrador: false, moderador: false },
-  ];
-
-  configSenhaUltimaAlteracao: string = '23/07/26';
-
-  configDispositivos: DispositivoConectado[] = [
-    { nome: 'Windows', status: 'conectado', dataAcesso: '23/07/26' },
-  ];
+  configAdministradoresLista: AdminUsuario[] = [];
 
   configNotificacoes: NotificacaoConfig[] = [
-    { titulo: 'Novas denúncias', descricao: 'Notificar quando um conteúdo for denunciado', ativo: true },
-    { titulo: 'Novas denúncias', descricao: 'Notificar quando um conteúdo for denunciado', ativo: true },
-    { titulo: 'Novas denúncias', descricao: 'Notificar quando um conteúdo for denunciado', ativo: true },
-    { titulo: 'Novas denúncias', descricao: 'Notificar quando um conteúdo for denunciado', ativo: true },
+    { chave: 'cadastros', titulo: 'Cadastros para aprovar', descricao: 'Psicólogos e advogados esperando análise.', ativo: true },
+    { chave: 'parceiros', titulo: 'Novos parceiros', descricao: 'Empresas que acabaram de se cadastrar.', ativo: true },
+    { chave: 'denuncias', titulo: 'Novas denúncias', descricao: 'Posts, artigos, eventos e perfis denunciados.', ativo: true },
+    { chave: 'popups', titulo: 'Avisos na tela', descricao: 'Mostrar um aviso no canto da tela quando algo novo chegar.', ativo: true },
   ];
 
-  configTermoExpandido: boolean = false;
-  configTermoAceito: boolean = false;
+  configTermoExpandido = false;
+  configTermoAceito = false;
+  configTermoAceitoEm = '';
+
+  // edição do perfil
+  perfilEditando = false;
+  salvandoPerfilAdm = false;
+  formPerfilAdm = { nome: '', telefone: '', cidade: '', genero: '', setor: '', avatar: '' };
+  readonly generosAdm = ['Mulher', 'Homem', 'Não-binário', 'Prefiro não dizer'];
+  readonly avataresAdm = Array.from({ length: 33 }, (_, i) => `./img/mamaesemfundo/${i + 1}.png`);
+
+  // equipe
+  modalNovoAdmAberto = false;
+  formNovoAdm = { email: '', nivel: 'moderador' as NivelAdm };
+  salvandoNovoAdm = false;
+  erroNovoAdm = '';
+  admEditando: AdminUsuario | null = null;
+  formEditarAdm: { nivel: NivelAdm } = { nivel: 'moderador' };
+  salvandoEditarAdm = false;
+
+  // excluir a própria conta
+  modalExcluirContaAberto = false;
+  confirmacaoExcluir = '';
+  excluindoConta = false;
+
+  private unsubEquipeAdm: Unsubscribe | null = null;
+  private unsubPermissoesAdm: Unsubscribe | null = null;
+  private unsubPerfilAdm: Unsubscribe | null = null;
+
+  get rotuloNivelLogado(): string { return this.rotuloNivel(this.nivelAdmLogado); }
+  get ehSuperAdmin(): boolean { return this.nivelAdmLogado === 'superAdmin'; }
+  get adminsAtivos(): number { return this.configAdministradoresLista.filter((a) => a.status === 'ativo').length; }
+
+  rotuloNivel(n: NivelAdm | string): string {
+    return this.niveisAdm.find((x) => x.valor === n)?.rotulo || 'Super admin';
+  }
+
+  /** O nível logado pode abrir esta aba? Home e Configurações (a própria conta) sempre podem. */
+  pode(aba: string): boolean {
+    if (aba === 'home' || aba === 'configuracoes' || aba === 'parceiros') return aba === 'parceiros' ? this.pode('usuarios') : true;
+    if (this.nivelAdmLogado === 'superAdmin') return true;
+    return (this.permissoesAdm[this.nivelAdmLogado] || []).includes(aba);
+  }
+
+  /** Lista das abas liberadas (vai para o menu do celular, no header). */
+  get abasPermitidasAdm(): string[] {
+    return ['home', ...PERMISSOES_ADM.map((p) => p.chave).filter((c) => this.pode(c)), 'configuracoes'];
+  }
+
+  /** Nomes das áreas que o nível logado acessa (aparece no "Meu perfil"). */
+  get permissoesDoLogado(): string[] {
+    return PERMISSOES_ADM.filter((p) => this.pode(p.chave)).map((p) => p.nome);
+  }
+
+  nivelTemPermissao(nivel: NivelAdm, chave: string): boolean {
+    if (nivel === 'superAdmin') return true;
+    return (this.permissoesAdm[nivel] || []).includes(chave);
+  }
+
+  resumoPermissoes(nivel: NivelAdm): string {
+    if (nivel === 'superAdmin') return 'Todas as áreas';
+    const n = (this.permissoesAdm[nivel] || []).length;
+    return n === 0 ? 'Só a Home' : `${n} de ${PERMISSOES_ADM.length} áreas`;
+  }
+
+  private dataCurta(v: any): string {
+    const d: Date | null = v?.toDate ? v.toDate() : v ? new Date(v) : null;
+    if (!d || isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  }
+
+  /** Liga a aba Configurações ao banco (chamado quando o admin logado é conhecido). */
+  private carregarConfiguracoesAdm(uid: string, email: string, criadoEm?: string): void {
+    this.adminUid = uid;
+    this.configAdminLogado.email = email || '';
+
+    this.unsubPerfilAdm?.();
+    this.unsubPerfilAdm = onSnapshot(doc(db, 'usuarios', uid), (snap) => {
+      if (!snap.exists()) return;
+      const d: any = snap.data();
+      if (d.adminStatus === 'inativo') {
+        this.mostrarToastAdm('Seu acesso de administrador foi desativado.', 'erro');
+        this.sairDaConta();
+        return;
+      }
+      this.nivelAdmLogado = (d.nivelAdmin as NivelAdm) || 'superAdmin';
+      this.configAdminLogado = {
+        nome: d.nome || this.adminNome,
+        email: d.email || email || '',
+        telefone: d.telefone || '',
+        cidade: d.cidade || '',
+        genero: d.genero || '',
+        setor: d.setor || '',
+        desde: this.dataCurta(d.adminDesde || d.criadoEm || d.createdAt || criadoEm),
+      };
+      if (d.nome) this.adminNome = d.nome;
+      if (d.avatar) this.adminAvatar = d.avatar;
+      const prefs = d.notificacoesAdm || {};
+      this.configNotificacoes.forEach((n) => (n.ativo = prefs[n.chave] !== false));
+      this.configTermoAceito = !!d.termoAdmAceito;
+      this.configTermoAceitoEm = this.dataCurta(d.termoAdmAceitoEm);
+      this.garantirAbaPermitida();
+      this.reconstruirNotificacoes();
+    }, (e) => console.warn('Não foi possível ler o perfil do admin:', e));
+    this.unsubscribes.push(() => this.unsubPerfilAdm?.());
+
+    this.unsubPermissoesAdm?.();
+    this.unsubPermissoesAdm = onSnapshot(doc(db, 'configuracoes', 'permissoesAdm'), (snap) => {
+      const d: any = snap.exists() ? snap.data() : {};
+      this.permissoesAdm = {
+        administrador: Array.isArray(d.administrador) ? d.administrador : [...PERMISSOES_PADRAO.administrador],
+        moderador: Array.isArray(d.moderador) ? d.moderador : [...PERMISSOES_PADRAO.moderador],
+      };
+      this.garantirAbaPermitida();
+      this.atualizarTela();
+    }, (e) => console.warn('Não foi possível ler as permissões:', e));
+    this.unsubscribes.push(() => this.unsubPermissoesAdm?.());
+
+    this.unsubEquipeAdm?.();
+    this.unsubEquipeAdm = onSnapshot(query(collection(db, 'usuarios'), where('tipo', '==', 'admin')), (snap) => {
+      this.configAdministradoresLista = snap.docs.map((s) => {
+        const d: any = s.data();
+        const nivel: NivelAdm = d.nivelAdmin || 'superAdmin';
+        return {
+          id: s.id,
+          nome: d.nome || 'Sem nome',
+          email: d.email || '',
+          avatar: d.avatar || '',
+          nivel,
+          nivelAcesso: this.rotuloNivel(nivel),
+          permissoes: this.resumoPermissoes(nivel),
+          status: d.adminStatus === 'inativo' ? 'inativo' : 'ativo',
+          desde: this.dataCurta(d.adminDesde || d.criadoEm || d.createdAt),
+          tipoAnterior: d.tipoAnterior || '',
+        } as AdminUsuario;
+      }).sort((a, b) => (a.status === b.status ? a.nome.localeCompare(b.nome) : a.status === 'ativo' ? -1 : 1));
+      this.atualizarTela();
+    }, (e) => console.warn('Não foi possível listar os administradores:', e));
+    this.unsubscribes.push(() => this.unsubEquipeAdm?.());
+  }
+
+  /** Se o nível perdeu acesso à aba aberta, volta para a Home. */
+  private garantirAbaPermitida(): void {
+    if (!this.pode(this.abaAtiva)) {
+      this.abaAtiva = 'home';
+      setTimeout(() => this.atualizarGraficoRede(), 0);
+    }
+    if (this.configSubTela === 'administradores' && !this.pode('admins')) this.configSubTela = 'principal';
+  }
 
   /** Abre um dos modais de Configurações ('perfil' | 'seguranca' | 'notificacoes' | 'termo'). */
   abrirConfigModal(modal: 'perfil' | 'seguranca' | 'notificacoes' | 'termo'): void {
     this.configModalAberto = modal;
+    this.perfilEditando = false;
   }
 
   /** Fecha qualquer modal de Configurações aberto. */
   fecharConfigModal(): void {
     this.configModalAberto = null;
+    this.perfilEditando = false;
   }
 
   /** Vai para a tela "Administradores/Permissões" (botão "Acessar" do card "Outros administradores"). */
   abrirGerirAdministradores(): void {
+    if (!this.pode('admins')) { this.mostrarToastAdm('Só super admins gerenciam a equipe.', 'aviso'); return; }
     this.configSubTela = 'administradores';
     this.configAdministradoresSubAba = 'administradores';
   }
@@ -1726,36 +1883,70 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     this.configAdministradoresSubAba = aba;
   }
 
-  /** TODO: abrirá o fluxo de convite por e-mail assim que existir no backend. */
-  convidarAdministrador(): void {
-  }
+  // ---------------- meu perfil ----------------
 
-  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção `admins` existir. */
-  alternarNotificacao(item: NotificacaoConfig): void {
-    item.ativo = !item.ativo;
-  }
-
-  /** TODO: só atualiza em memória — plugar no Firestore quando a coleção `permissoes` existir. */
-  alternarPermissaoNivel(item: PermissaoPorNivel, nivel: 'superAdmin' | 'administrador' | 'moderador'): void {
-    item[nivel] = !item[nivel];
-  }
-
-  /** Mostra/recolhe o item 4 ("Consequências") do termo de uso do admin. */
-  alternarTermoExpandido(): void {
-    this.configTermoExpandido = !this.configTermoExpandido;
-  }
-
-  /** TODO: só atualiza em memória — plugar no Firestore (campo `termoAceito`) quando existir. */
-  alternarTermoAceito(): void {
-    this.configTermoAceito = !this.configTermoAceito;
-  }
-
-  /** TODO: abrirá o formulário de edição de dados pessoais (cidade/gênero/CPF). */
-  alterarDadoPessoal(campo: 'cidade' | 'genero' | 'cpf'): void {
-  }
-
-  /** TODO: abrirá o formulário de edição de perfil (nome/e-mail/telefone/avatar). */
+  /** Botão "Editar perfil" / lápis do avatar: abre o modal já no modo de edição. */
   editarPerfilAdmin(): void {
+    this.configModalAberto = 'perfil';
+    this.iniciarEdicaoPerfil();
+  }
+
+  iniciarEdicaoPerfil(): void {
+    const c = this.configAdminLogado;
+    this.formPerfilAdm = { nome: c.nome, telefone: c.telefone, cidade: c.cidade, genero: c.genero, setor: c.setor, avatar: this.adminAvatar };
+    this.perfilEditando = true;
+  }
+
+  formatarTelefoneAdm(valor: string): void {
+    const d = (valor || '').replace(/\D/g, '').slice(0, 11);
+    let f = d;
+    if (d.length > 10) f = `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+    else if (d.length > 6) f = `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+    else if (d.length > 2) f = `(${d.slice(0, 2)}) ${d.slice(2)}`;
+    else if (d.length) f = `(${d}`;
+    this.formPerfilAdm.telefone = f;
+  }
+
+  async salvarPerfilAdm(): Promise<void> {
+    const f = this.formPerfilAdm;
+    if (!f.nome.trim()) { this.mostrarToastAdm('O nome não pode ficar vazio.', 'aviso'); return; }
+    if (!this.adminUid || this.salvandoPerfilAdm) return;
+    this.salvandoPerfilAdm = true;
+    try {
+      await updateDoc(doc(db, 'usuarios', this.adminUid), {
+        nome: f.nome.trim(), telefone: f.telefone.trim(), cidade: f.cidade.trim(),
+        genero: f.genero, setor: f.setor.trim(), avatar: f.avatar || null,
+      });
+      this.perfilEditando = false;
+      this.mostrarToastAdm('Perfil atualizado.', 'ok');
+    } catch (e) {
+      console.error(e);
+      this.mostrarToastAdm('Não foi possível salvar o perfil.', 'erro');
+    } finally {
+      this.salvandoPerfilAdm = false;
+      this.atualizarTela();
+    }
+  }
+
+  // ---------------- segurança ----------------
+
+  get dispositivoAtual(): string {
+    if (typeof navigator === 'undefined') return 'Este navegador';
+    const ua = navigator.userAgent;
+    const so = /Android/i.test(ua) ? 'Android' : /iPhone|iPad/i.test(ua) ? 'iPhone/iPad' : /Windows/i.test(ua) ? 'Windows'
+      : /Mac OS/i.test(ua) ? 'Mac' : /Linux/i.test(ua) ? 'Linux' : 'Dispositivo';
+    const nav = /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /Chrome\//.test(ua) ? 'Chrome'
+      : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'navegador';
+    return `${so} · ${nav}`;
+  }
+
+  get ultimoAcessoAdm(): string {
+    const t = auth.currentUser?.metadata?.lastSignInTime;
+    return t ? new Date(t).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
+  }
+
+  get contaCriadaAdm(): string {
+    return this.dataCurta(auth.currentUser?.metadata?.creationTime) || '—';
   }
 
   /** Envia o e-mail de redefinição de senha do Firebase para o e-mail do admin logado. */
@@ -1770,13 +1961,200 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       .catch((e) => { console.error(e); this.mostrarToastAdm('Não foi possível enviar o e-mail agora.', 'erro'); });
   }
 
-  private alterarSenhaLegado(): void {
+  // ---------------- notificações ----------------
+
+  notificacaoLigada(chave: string): boolean {
+    return this.configNotificacoes.find((n) => n.chave === chave)?.ativo !== false;
   }
 
-  /** TODO: só atualiza em memória — plugar na revogação real da sessão do dispositivo. */
-  desconectarDispositivo(dispositivo: DispositivoConectado): void {
-    dispositivo.status = 'desconectado';
+  async alternarNotificacao(item: NotificacaoConfig): Promise<void> {
+    item.ativo = !item.ativo;
+    this.reconstruirNotificacoes();
+    if (!this.adminUid) return;
+    try {
+      await updateDoc(doc(db, 'usuarios', this.adminUid), { [`notificacoesAdm.${item.chave}`]: item.ativo });
+    } catch (e) {
+      console.error(e);
+      item.ativo = !item.ativo;
+      this.mostrarToastAdm('Não foi possível salvar a preferência.', 'erro');
+      this.reconstruirNotificacoes();
+    }
   }
+
+  // ---------------- termo ----------------
+
+  /** Mostra/recolhe o item 4 ("Consequências") do termo de uso do admin. */
+  alternarTermoExpandido(): void {
+    this.configTermoExpandido = !this.configTermoExpandido;
+  }
+
+  async alternarTermoAceito(): Promise<void> {
+    if (this.configTermoAceito || !this.adminUid) return;
+    try {
+      await updateDoc(doc(db, 'usuarios', this.adminUid), { termoAdmAceito: true, termoAdmAceitoEm: serverTimestamp() });
+      this.mostrarToastAdm('Termo aceito. Obrigada!', 'ok');
+    } catch (e) {
+      console.error(e);
+      this.mostrarToastAdm('Não foi possível registrar o aceite.', 'erro');
+    }
+  }
+
+  // ---------------- equipe de administradores ----------------
+
+  abrirModalNovoAdm(): void {
+    if (!this.ehSuperAdmin) return;
+    this.formNovoAdm = { email: '', nivel: 'moderador' };
+    this.erroNovoAdm = '';
+    this.modalNovoAdmAberto = true;
+  }
+
+  fecharModalNovoAdm(): void { this.modalNovoAdmAberto = false; }
+
+  /** Dá acesso de admin a uma conta que já existe no Elo Materno (achada pelo e-mail). */
+  async adicionarAdministrador(): Promise<void> {
+    const email = this.formNovoAdm.email.trim().toLowerCase();
+    this.erroNovoAdm = '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { this.erroNovoAdm = 'Digite um e-mail válido.'; return; }
+    if (this.salvandoNovoAdm) return;
+    this.salvandoNovoAdm = true;
+    try {
+      let snap = await getDocs(query(collection(db, 'usuarios'), where('email', '==', email), limit(1)));
+      if (snap.empty) snap = await getDocs(query(collection(db, 'usuarios'), where('email', '==', this.formNovoAdm.email.trim()), limit(1)));
+      if (snap.empty) {
+        this.erroNovoAdm = 'Não existe conta com esse e-mail. A pessoa precisa se cadastrar no Elo Materno primeiro.';
+        return;
+      }
+      const alvo = snap.docs[0];
+      const d: any = alvo.data();
+      if (d.tipo === 'admin') {
+        if (d.adminStatus === 'inativo') {
+          await updateDoc(alvo.ref, { adminStatus: 'ativo', nivelAdmin: this.formNovoAdm.nivel });
+          this.mostrarToastAdm(`${d.nome || email} foi reativado(a) como ${this.rotuloNivel(this.formNovoAdm.nivel)}.`, 'ok');
+          this.modalNovoAdmAberto = false;
+        } else {
+          this.erroNovoAdm = 'Essa pessoa já é administradora.';
+        }
+        return;
+      }
+      await updateDoc(alvo.ref, {
+        tipoAnterior: d.tipo || '',
+        tipo: 'admin',
+        nivelAdmin: this.formNovoAdm.nivel,
+        adminStatus: 'ativo',
+        adminDesde: serverTimestamp(),
+        adminAdicionadoPor: this.adminUid,
+      });
+      this.mostrarToastAdm(`${d.nome || email} agora é ${this.rotuloNivel(this.formNovoAdm.nivel)}.`, 'ok');
+      this.modalNovoAdmAberto = false;
+    } catch (e) {
+      console.error(e);
+      this.erroNovoAdm = 'Não foi possível adicionar agora. Confira as regras do Firestore.';
+    } finally {
+      this.salvandoNovoAdm = false;
+      this.atualizarTela();
+    }
+  }
+
+  abrirEditarAdm(adm: AdminUsuario): void {
+    if (!this.ehSuperAdmin) return;
+    this.admEditando = adm;
+    this.formEditarAdm = { nivel: adm.nivel };
+  }
+
+  fecharEditarAdm(): void { this.admEditando = null; }
+
+  /** Quantos super admins ativos sobram se este sair/mudar (nunca pode ficar zero). */
+  private superAdminsAtivosSem(id: string): number {
+    return this.configAdministradoresLista.filter((a) => a.id !== id && a.status === 'ativo' && a.nivel === 'superAdmin').length;
+  }
+
+  async salvarNivelAdm(): Promise<void> {
+    const adm = this.admEditando;
+    if (!adm || this.salvandoEditarAdm) return;
+    const novo = this.formEditarAdm.nivel;
+    if (adm.nivel === 'superAdmin' && novo !== 'superAdmin' && this.superAdminsAtivosSem(adm.id) === 0) {
+      this.mostrarToastAdm('Precisa existir pelo menos um super admin ativo.', 'aviso');
+      return;
+    }
+    this.salvandoEditarAdm = true;
+    try {
+      await updateDoc(doc(db, 'usuarios', adm.id), { nivelAdmin: novo });
+      this.mostrarToastAdm(`${adm.nome} agora é ${this.rotuloNivel(novo)}.`, 'ok');
+      this.admEditando = null;
+    } catch (e) {
+      console.error(e);
+      this.mostrarToastAdm('Não foi possível alterar o nível.', 'erro');
+    } finally {
+      this.salvandoEditarAdm = false;
+      this.atualizarTela();
+    }
+  }
+
+  async alternarStatusAdm(adm: AdminUsuario): Promise<void> {
+    if (!this.ehSuperAdmin) return;
+    if (adm.id === this.adminUid) { this.mostrarToastAdm('Você não pode desativar a sua própria conta.', 'aviso'); return; }
+    const desativar = adm.status === 'ativo';
+    if (desativar && adm.nivel === 'superAdmin' && this.superAdminsAtivosSem(adm.id) === 0) {
+      this.mostrarToastAdm('Precisa existir pelo menos um super admin ativo.', 'aviso');
+      return;
+    }
+    try {
+      await updateDoc(doc(db, 'usuarios', adm.id), { adminStatus: desativar ? 'inativo' : 'ativo' });
+      this.mostrarToastAdm(desativar ? `${adm.nome} não consegue mais entrar no painel.` : `${adm.nome} foi reativado(a).`, 'ok');
+      if (this.admEditando?.id === adm.id) this.admEditando = null;
+    } catch (e) {
+      console.error(e);
+      this.mostrarToastAdm('Não foi possível alterar o status.', 'erro');
+    }
+  }
+
+  /** Tira o acesso de admin: a conta volta a ser o que era antes (ou mãe, se não houver registro). */
+  async removerAdministrador(adm: AdminUsuario): Promise<void> {
+    if (!this.ehSuperAdmin) return;
+    if (adm.id === this.adminUid) { this.mostrarToastAdm('Você não pode remover o seu próprio acesso.', 'aviso'); return; }
+    if (adm.nivel === 'superAdmin' && this.superAdminsAtivosSem(adm.id) === 0) {
+      this.mostrarToastAdm('Precisa existir pelo menos um super admin ativo.', 'aviso');
+      return;
+    }
+    try {
+      await updateDoc(doc(db, 'usuarios', adm.id), {
+        tipo: adm.tipoAnterior || 'mae',
+        adminStatus: 'removido',
+        adminRemovidoPor: this.adminUid,
+        adminRemovidoEm: serverTimestamp(),
+      });
+      this.mostrarToastAdm(`${adm.nome} não é mais administrador(a).`, 'ok');
+      this.admEditando = null;
+    } catch (e) {
+      console.error(e);
+      this.mostrarToastAdm('Não foi possível remover o acesso.', 'erro');
+    }
+  }
+
+  /** Liga/desliga uma permissão de um nível (super admin não muda: sempre tem tudo). */
+  async alternarPermissaoNivel(chave: string, nivel: 'administrador' | 'moderador'): Promise<void> {
+    if (!this.ehSuperAdmin) { this.mostrarToastAdm('Só super admins alteram permissões.', 'aviso'); return; }
+    const perm = PERMISSOES_ADM.find((p) => p.chave === chave);
+    if (perm?.soSuper) return;
+    const atual = new Set(this.permissoesAdm[nivel]);
+    atual.has(chave) ? atual.delete(chave) : atual.add(chave);
+    const anterior = this.permissoesAdm[nivel];
+    this.permissoesAdm = { ...this.permissoesAdm, [nivel]: [...atual] };
+    try {
+      await setDoc(doc(db, 'configuracoes', 'permissoesAdm'), {
+        [nivel]: [...atual],
+        atualizadoEm: serverTimestamp(),
+        atualizadoPor: this.adminUid,
+      }, { merge: true });
+    } catch (e) {
+      console.error(e);
+      this.permissoesAdm = { ...this.permissoesAdm, [nivel]: anterior };
+      this.mostrarToastAdm('Não foi possível salvar a permissão.', 'erro');
+    }
+    this.atualizarTela();
+  }
+
+  // ---------------- sair / excluir ----------------
 
   /** Encerra a sessão do admin e volta para o login. */
   async sairDaConta(): Promise<void> {
@@ -1788,8 +2166,39 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     this.router.navigateByUrl('/login-profissional');
   }
 
-  /** TODO: plugar no fluxo real de exclusão de conta (com confirmação extra). */
   deletarConta(): void {
+    if (this.nivelAdmLogado === 'superAdmin' && this.superAdminsAtivosSem(this.adminUid) === 0) {
+      this.mostrarToastAdm('Você é o único super admin. Promova outra pessoa antes de excluir a sua conta.', 'aviso');
+      return;
+    }
+    this.confirmacaoExcluir = '';
+    this.modalExcluirContaAberto = true;
+  }
+
+  fecharExcluirConta(): void { this.modalExcluirContaAberto = false; }
+
+  async confirmarExcluirConta(): Promise<void> {
+    const user = auth.currentUser;
+    if (!user || this.confirmacaoExcluir.trim().toUpperCase() !== 'EXCLUIR' || this.excluindoConta) return;
+    const ultimo = Number(new Date(user.metadata.lastSignInTime || 0));
+    if (Date.now() - ultimo > 5 * 60 * 1000) {
+      this.mostrarToastAdm('Por segurança, saia e entre de novo antes de excluir a conta.', 'aviso');
+      return;
+    }
+    this.excluindoConta = true;
+    try {
+      await deleteDoc(doc(db, 'usuarios', user.uid));
+      await deleteUser(user);
+      this.router.navigateByUrl('/');
+    } catch (e: any) {
+      console.error(e);
+      this.mostrarToastAdm(e?.code === 'auth/requires-recent-login'
+        ? 'Por segurança, saia e entre de novo antes de excluir a conta.'
+        : 'Não foi possível excluir a conta agora.', 'erro');
+    } finally {
+      this.excluindoConta = false;
+      this.atualizarTela();
+    }
   }
 
   private redeChart: any = null;
@@ -2110,6 +2519,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   }
 
   mostrarToastAdm(texto: string, tipo: 'ok' | 'aviso' | 'erro' | 'novo' = 'ok'): void {
+    if (tipo === 'novo' && !this.notificacaoLigada('popups')) return;
     this.toastAdm = { texto, tipo };
     clearTimeout(this.toastTimer);
     this.toastTimer = setTimeout(() => { this.toastAdm = null; this.atualizarTela(); }, 5000);
@@ -2158,8 +2568,12 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       });
     });
 
-    itens.forEach((n) => (n.naoLida = !this.notificacoesLidas.has(n.id)));
-    this.notificacoesAdm = itens;
+    const filtradas = itens.filter((n) =>
+      (n.id.startsWith('prof:') ? this.notificacaoLigada('cadastros') && this.pode('aprovacoes')
+        : n.id.startsWith('parc:') ? this.notificacaoLigada('parceiros') && this.pode('usuarios')
+        : n.id.startsWith('den:') ? this.notificacaoLigada('denuncias') && this.pode('denuncias') : true));
+    filtradas.forEach((n) => (n.naoLida = !this.notificacoesLidas.has(n.id)));
+    this.notificacoesAdm = filtradas;
 
     // tudo que muda as notificações (cadastros, posts, conteúdo) também muda os números da Home
     this.recalcularIndicadores();
@@ -2500,6 +2914,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       if (firebaseUser.photoURL) {
         this.adminAvatar = firebaseUser.photoURL;
       }
+      this.carregarConfiguracoesAdm(firebaseUser.uid, firebaseUser.email || '', firebaseUser.metadata?.creationTime);
       this.atualizarTela();
       // o nome e a foto de verdade ficam no documento do usuário
       try {
@@ -2520,6 +2935,10 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   mudarAba(aba: string): void {
     // A antiga aba "Parceiros" foi unida à aba "Usuários".
     if (aba === 'parceiros') aba = 'usuarios';
+    if (!this.pode(aba)) {
+      this.mostrarToastAdm('O seu nível de acesso não libera essa área.', 'aviso');
+      return;
+    }
     this.abaAtiva = aba;
     this.sidebarAberta = false;
 
