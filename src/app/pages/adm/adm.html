@@ -5,6 +5,10 @@
   [avatarAdm]="adminAvatar"
   (notificacoesAdm)="alternarPainelNotificacoes()"
   (menuAdm)="abrirOuFecharSidebar()"
+  [abaAdmAtiva]="abaAtiva"
+  [denunciasAdm]="denunciasAbertas"
+  [aprovacoesAdm]="pendentesAprovacao"
+  (abaAdm)="mudarAba($event)"
   (sairAdm)="sairDaConta()">
 </app-header>
 

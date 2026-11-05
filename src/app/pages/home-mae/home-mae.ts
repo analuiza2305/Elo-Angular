@@ -82,6 +82,16 @@ export class HomeMaeComponent implements OnInit {
 
   closeModal() { this.showWelcomeModal.set(false); }
 
+  formatarTelefone(valor: string) {
+    const d = (valor || '').replace(/\D/g, '').slice(0, 11);
+    let f = d;
+    if (d.length > 10) f = `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+    else if (d.length > 6) f = `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+    else if (d.length > 2) f = `(${d.slice(0, 2)}) ${d.slice(2)}`;
+    else if (d.length) f = `(${d}`;
+    this.perfilForm.telefone = f;
+  }
+
   async saveProfile() {
     const user = this.currentUser();
     if (!user) return;

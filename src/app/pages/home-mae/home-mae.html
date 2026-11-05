@@ -279,27 +279,64 @@
     </main>
 
     @if (showWelcomeModal()) {
-        <div class="modal">
-            <div class="modal-content">
-                <span class="close" (click)="closeModal()">&times;</span>
-                <h2>Complete seu perfil</h2>
-                <p>Para uma melhor experiência, preencha as informações adicionais:</p>
-                <form (submit)="saveProfile()">
-                    <label for="cidade">Cidade:</label>
-                    <input type="text" id="cidade" [(ngModel)]="perfilForm.cidade" name="cidade" placeholder="Ex: São Paulo">
+        <div class="bv-fundo" (click)="closeModal()">
+            <section class="bv-modal" role="dialog" aria-modal="true" aria-labelledby="bv-titulo" (click)="$event.stopPropagation()">
+                <button type="button" class="bv-fechar" (click)="closeModal()" aria-label="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
 
-                    <label for="emprego">Emprego:</label>
-                    <input type="text" id="emprego" [(ngModel)]="perfilForm.emprego" name="emprego" placeholder="Ex: Atendente">
+                <div class="bv-topo">
+                    <div class="bv-selo" aria-hidden="true">
+                        <img src="/img/logo_icon.png" alt="">
+                    </div>
+                    <span class="bv-etapa">Seu perfil</span>
+                    <h2 id="bv-titulo">Boas-vindas{{ heroUserName() ? ', ' + heroUserName() : '' }}!</h2>
+                    <p class="bv-sub">Conte um pouquinho sobre você. Assim a gente indica conteúdos, eventos e apoio que combinam com a sua rotina.</p>
+                </div>
 
-                    <label for="filhos">Número de filhos:</label>
-                    <input type="text" id="filhos" [(ngModel)]="perfilForm.filhos" name="filhos" placeholder="Ex: 2">
+                <form class="bv-form" (submit)="saveProfile()">
+                    <div class="bv-grade">
+                        <div class="bv-item">
+                            <label for="cidade">Cidade</label>
+                            <div class="bv-campo">
+                                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                                <input type="text" id="cidade" [(ngModel)]="perfilForm.cidade" name="cidade" placeholder="Ex: São Paulo" autocomplete="address-level2">
+                            </div>
+                        </div>
 
-                    <label for="telefone">Telefone:</label>
-                    <input type="text" id="telefone" [(ngModel)]="perfilForm.telefone" name="telefone" required placeholder="Ex: (11) 99999-9999">
+                        <div class="bv-item">
+                            <label for="emprego">Trabalho</label>
+                            <div class="bv-campo">
+                                <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
+                                <input type="text" id="emprego" [(ngModel)]="perfilForm.emprego" name="emprego" placeholder="Ex: Atendente" autocomplete="organization-title">
+                            </div>
+                        </div>
 
-                    <button type="submit">Salvar e Continuar</button>
+                        <div class="bv-item">
+                            <label for="filhos">Número de filhos</label>
+                            <div class="bv-campo">
+                                <i class="fa-solid fa-children" aria-hidden="true"></i>
+                                <input type="text" id="filhos" [(ngModel)]="perfilForm.filhos" name="filhos" placeholder="Ex: 2" inputmode="numeric" maxlength="2">
+                            </div>
+                        </div>
+
+                        <div class="bv-item">
+                            <label for="telefone">Telefone</label>
+                            <div class="bv-campo">
+                                <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                                <input type="tel" id="telefone" [ngModel]="perfilForm.telefone" (ngModelChange)="formatarTelefone($event)" name="telefone" placeholder="(11) 99999-9999" inputmode="numeric" autocomplete="tel">
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="bv-aviso"><i class="fa-solid fa-lock" aria-hidden="true"></i> Essas informações ficam no seu perfil e você pode mudar quando quiser.</p>
+
+                    <div class="bv-acoes">
+                        <button type="button" class="bv-depois" (click)="closeModal()">Preencher depois</button>
+                        <button type="submit" class="bv-salvar">Salvar e continuar <i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
                 </form>
-            </div>
+            </section>
         </div>
     }
 

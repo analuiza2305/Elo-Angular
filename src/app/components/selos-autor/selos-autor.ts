@@ -38,14 +38,16 @@ import { SelosAutor, SelosAutorService } from '../../services/selos-autor';
     :host { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px; vertical-align: middle; margin-left: 6px; }
     :host:empty { display: none; }
     .sa {
-      display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px;
-      font-size: .68rem; font-weight: 700; line-height: 1.5; white-space: nowrap; cursor: help;
+      display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px; border-radius: 999px;
+      font-size: .7rem; font-weight: 700; line-height: 1; letter-spacing: .01em; white-space: nowrap; cursor: help;
+      font-family: inherit;
     }
-    .sa i { font-size: .62rem; }
-    .sa-destaque { background: linear-gradient(135deg, #7C69A9, #52427D); color: #fff; }
-    .sa-destaque i { color: #F5C66B; }
-    .sa-apoiador { background: #FFF4E0; color: #9A6410; border: 1px solid #FCE3B8; }
-    .sa-bem { background: #E7F8F1; color: #0F7A55; border: 1px solid #A7F3D0; }
+    .sa i { font-size: .64rem; color: inherit !important; }
+    .sa-destaque { background: #EFE8FF; color: #5B3FA8; }
+    .sa-destaque i { color: #C9922E !important; }
+    .sa-apoiador { background: #FFF3DF; color: #8A5A0B; }
+    .sa-bem { background: #E3F6EE; color: #17714F; }
+    :host-context(body[data-theme="dark"]) .sa-destaque { background: rgba(185, 168, 245, .16); color: #D6CBFF; }
     :host-context(body[data-theme="dark"]) .sa-apoiador { background: rgba(251, 191, 36, .14); color: #FBBF24; border-color: rgba(251, 191, 36, .3); }
     :host-context(body[data-theme="dark"]) .sa-bem { background: rgba(16, 185, 129, .14); color: #6EE7B7; border-color: rgba(110, 231, 183, .35); }
   `],

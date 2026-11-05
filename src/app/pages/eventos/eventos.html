@@ -68,7 +68,7 @@
     } @else {
         <div class="eventos-grid">
             @for (evento of eventosFiltrados(); track evento.id) {
-                <div class="evento-card">
+                <div class="evento-card" [class.is-destaque]="evento.visibilidade && evento.visibilidade !== 'basico'" [class.is-premium]="evento.visibilidade === 'premium'">
                     @if (evento.capa) {
                         <div class="evento-cover-container">
                             <img [src]="evento.capa" [alt]="evento.titulo" class="evento-cover">
@@ -77,6 +77,12 @@
                             <span class="categoria-badge">
                                 <i class="fa-solid fa-bookmark"></i> {{ evento.categoria || 'Evento' }}
                             </span>
+                            @if (evento.visibilidade && evento.visibilidade !== 'basico') {
+                                <span class="vis-selo vis-selo-capa" [class.premium]="evento.visibilidade === 'premium'">
+                                    <i class="fa-solid" [class.fa-crown]="evento.visibilidade === 'premium'" [class.fa-star]="evento.visibilidade !== 'premium'"></i>
+                                    {{ evento.visibilidade === 'premium' ? 'Premium' : 'Destaque' }}
+                                </span>
+                            }
                             <!-- Bloco de Data Flutuante -->
                             <div class="calendar-date-box">
                                 <span class="cal-dia">{{ evento.dia || '23' }}</span>
@@ -85,7 +91,7 @@
                         </div>
                     }
                     <div class="evento-body">
-                        @if (evento.visibilidade && evento.visibilidade !== 'basico') {
+                        @if (!evento.capa && evento.visibilidade && evento.visibilidade !== 'basico') {
                             <span class="vis-selo" [class.premium]="evento.visibilidade === 'premium'">
                                 <i class="fa-solid" [class.fa-crown]="evento.visibilidade === 'premium'" [class.fa-star]="evento.visibilidade !== 'premium'"></i>
                                 {{ evento.visibilidade === 'premium' ? 'Destaque Premium' : 'Em destaque' }}
@@ -96,9 +102,13 @@
                             <i class="fa-regular fa-clock"></i> {{ evento.dataFormatada || 'Data a definir' }}
                         </span>
                         @if (evento.enviadoPor) {
-                            <span class="evento-meta">
-                                <i class="fa-regular fa-building"></i> {{ evento.enviadoPor }}<app-selos-autor [uid]="evento.parceiroId"></app-selos-autor>
-                            </span>
+                            <div class="ev-org">
+                                <span class="ev-org-ic"><i class="fa-regular fa-building"></i></span>
+                                <div class="ev-org-txt">
+                                    <small>Organizado por</small>
+                                    <span class="ev-org-nome"><strong>{{ evento.enviadoPor }}</strong><app-selos-autor [uid]="evento.parceiroId"></app-selos-autor></span>
+                                </div>
+                            </div>
                         }
                         <p class="evento-descricao">{{ evento.descricao }}</p>
                         
@@ -139,38 +149,76 @@
 
 <!-- MODAL DE DETALHES -->
 @if (showModalDetalhes()) {
-    <div class="modal" style="display: flex;" (click)="fecharModais()">
-        <div class="modal-content modal-evento event-modal-full" (click)="$event.stopPropagation()">
-            <button class="close-btn-float" (click)="fecharModais()">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            @if (eventoSelecionado()?.capa) {
-                <img [src]="eventoSelecionado().capa" [alt]="eventoSelecionado().titulo" class="modal-img-full">
-            }
-            <div class="modal-body-text">
-                <h2 class="modal-titulo">{{ eventoSelecionado()?.titulo }}</h2>
-                
-                <div class="modal-meta-box">
-                    <span><i class="fa-solid fa-location-dot"></i> {{ eventoSelecionado()?.local || 'Online / Presencial' }}</span>
-                    <span>•</span>
-                    <span><i class="fa-regular fa-calendar"></i> {{ eventoSelecionado()?.dataFormatada }}</span>
-                    @if (eventoSelecionado()?.enviadoPor) {
-                        <span>•</span>
-                        <span><i class="fa-regular fa-building"></i> {{ eventoSelecionado()?.enviadoPor }}<app-selos-autor [uid]="eventoSelecionado()?.parceiroId"></app-selos-autor></span>
+    <div class="evm-fundo" (click)="fecharModais()">
+        <section class="evm" role="dialog" aria-modal="true" aria-labelledby="evm-titulo" (click)="$event.stopPropagation()">
+            <div class="evm-capa" [class.sem-foto]="!eventoSelecionado()?.capa">
+                @if (eventoSelecionado()?.capa) {
+                    <img [src]="eventoSelecionado().capa" [alt]="eventoSelecionado().titulo">
+                }
+                <div class="evm-capa-chips">
+                    <span class="evm-chip"><i class="fa-solid fa-bookmark"></i> {{ eventoSelecionado()?.categoria || 'Evento' }}</span>
+                    @if (eventoSelecionado()?.visibilidade && eventoSelecionado()?.visibilidade !== 'basico') {
+                        <span class="evm-chip evm-chip-vis" [class.premium]="eventoSelecionado()?.visibilidade === 'premium'">
+                            <i class="fa-solid" [class.fa-crown]="eventoSelecionado()?.visibilidade === 'premium'" [class.fa-star]="eventoSelecionado()?.visibilidade !== 'premium'"></i>
+                            {{ eventoSelecionado()?.visibilidade === 'premium' ? 'Premium' : 'Destaque' }}
+                        </span>
                     }
                 </div>
-                
-                <p class="modal-descricao" [innerHTML]="eventoSelecionado()?.descricao"></p>
-                
-                <div class="modal-acoes">
-                    @if (isInscrito(eventoSelecionado()?.id)) {
-                        <button class="btn-cancelar-red" (click)="cancelarInscricao()">Cancelar Inscrição</button>
-                    } @else {
-                        <button class="btn-inscrever" (click)="inscrever()">Quero me Inscrever</button>
-                    }
+                <button type="button" class="evm-fechar" (click)="fecharModais()" aria-label="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="evm-data" aria-hidden="true">
+                    <strong>{{ eventoSelecionado()?.dia || '--' }}</strong>
+                    <span>{{ eventoSelecionado()?.mes || '' }}</span>
                 </div>
             </div>
-        </div>
+
+            <div class="evm-corpo">
+                @if (isInscrito(eventoSelecionado()?.id)) {
+                    <span class="evm-inscrita"><i class="fa-solid fa-circle-check"></i> Você está inscrita</span>
+                }
+                <h2 id="evm-titulo" class="evm-titulo">{{ eventoSelecionado()?.titulo }}</h2>
+
+                <div class="evm-infos">
+                    <div class="evm-info">
+                        <span class="evm-ic ic-lilas"><i class="fa-regular fa-calendar"></i></span>
+                        <div><small>Quando</small><strong>{{ eventoSelecionado()?.dataFormatada || 'Data a definir' }}</strong></div>
+                    </div>
+                    <div class="evm-info">
+                        <span class="evm-ic ic-rosa"><i class="fa-solid fa-location-dot"></i></span>
+                        <div><small>Onde</small><strong>{{ eventoSelecionado()?.local || 'Online / Presencial' }}</strong></div>
+                    </div>
+                </div>
+
+                @if (eventoSelecionado()?.enviadoPor) {
+                    <div class="evm-org">
+                        <span class="evm-ic ic-branco"><i class="fa-regular fa-building"></i></span>
+                        <div>
+                            <small>Organizado por</small>
+                            <span class="evm-org-nome"><strong>{{ eventoSelecionado()?.enviadoPor }}</strong><app-selos-autor [uid]="eventoSelecionado()?.parceiroId"></app-selos-autor></span>
+                        </div>
+                    </div>
+                }
+
+                <h3 class="evm-sub">Sobre o evento</h3>
+                <p class="evm-descricao" [innerHTML]="eventoSelecionado()?.descricao"></p>
+            </div>
+
+            <div class="evm-acoes">
+                <button type="button" class="evm-btn-icone" (click)="compartilharEvento(eventoSelecionado())" title="Compartilhar evento" aria-label="Compartilhar evento">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </button>
+                @if (isInscrito(eventoSelecionado()?.id)) {
+                    <button type="button" class="evm-btn evm-btn-cancelar" (click)="cancelarInscricao()">
+                        <i class="fa-solid fa-xmark"></i> Cancelar inscrição
+                    </button>
+                } @else {
+                    <button type="button" class="evm-btn evm-btn-inscrever" (click)="inscrever()">
+                        Quero me inscrever <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                }
+            </div>
+        </section>
     </div>
 }
 

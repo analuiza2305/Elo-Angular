@@ -392,3 +392,40 @@ body {
 .ac-bookmark i { color: #5B3D99 !important; }
 :host-context(body[data-theme="dark"]) .ac-ler,
 :host-context(body[data-theme="dark"]) .ac-ler i { color: #C9BCF5 !important; }
+
+/* =========================================================
+   SELOS NO CARD DE ARTIGO (05/11)
+   ========================================================= */
+.vis-selo-canto {
+  left: auto !important; right: 14px; top: 64px; bottom: auto !important;
+  height: 28px; padding: 0 11px !important; border: none !important;
+  background: rgba(255, 255, 255, .92) !important; color: #5B3FA8 !important;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 6px 16px rgba(46, 35, 80, .18) !important;
+}
+.vis-selo-canto.premium { background: linear-gradient(135deg, #7C5FCB, #583E8E) !important; color: #fff !important; }
+.vis-selo-canto i { color: #E3A93B !important; }
+.vis-selo-canto.premium i { color: #F5C66B !important; }
+.artigo-card-novo.is-premium { box-shadow: 0 0 0 2px rgba(124, 95, 203, .35), 0 14px 34px rgba(88, 62, 142, .14) !important; }
+
+.artigo-card-novo .ac-footer { gap: 12px; }
+.artigo-card-novo .ac-author {
+  display: flex !important; align-items: center; gap: 8px;
+  min-width: 0; flex: 1;
+}
+.ac-author-ic {
+  flex: 0 0 30px; height: 30px; display: grid; place-items: center;
+  border-radius: 10px; background: #F1ECFF;
+}
+.ac-author-ic i { color: #6C4BBF !important; font-size: .8rem; margin: 0 !important; }
+.ac-author-nome {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: .85rem; font-weight: 700; color: #3E2A72;
+}
+.artigo-card-novo .ac-author app-selos-autor { margin-left: 0; flex-wrap: nowrap; }
+.artigo-card-novo .ac-ler { flex: 0 0 auto; }
+
+:host-context(body[data-theme="dark"]) .ac-author-ic { background: rgba(157, 143, 231, .14); }
+:host-context(body[data-theme="dark"]) .ac-author-ic i { color: #C9BCFF !important; }
+:host-context(body[data-theme="dark"]) .ac-author-nome { color: #F4F1FF; }
+:host-context(body[data-theme="dark"]) .vis-selo-canto:not(.premium) { background: rgba(23, 27, 45, .88) !important; color: #E5DEFF !important; }

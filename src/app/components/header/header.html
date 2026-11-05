@@ -133,8 +133,9 @@
     <div class="adm-header-container">
       <div class="adm-header-left">
         <!-- Só aparece no celular/tablet, abre a gaveta do menu -->
-        <button type="button" class="adm-sidebar-toggle" aria-label="Abrir menu" (click)="toggleMenuAdm()">
+        <button type="button" class="adm-sidebar-toggle" aria-label="Abrir menu" (click)="toggleMobileMenu()">
           <i class="fa-solid fa-bars"></i>
+          @if ((notificacoesNaoLidas + denunciasAdm) > 0 && !isMobileMenuOpen) { <span class="notif-badge" aria-hidden="true">{{ (notificacoesNaoLidas + denunciasAdm) > 9 ? '9+' : (notificacoesNaoLidas + denunciasAdm) }}</span> }
         </button>
 
         <a routerLink="/admin" class="adm-logo" aria-label="Ir para o painel do administrador">
@@ -163,7 +164,7 @@
           </ul>
         </div>
 
-        <button type="button" class="adm-icon-btn" title="Alternar tema" aria-label="Alternar tema" (click)="toggleTheme()">
+        <button type="button" class="adm-icon-btn adm-tema-btn" title="Alternar tema" aria-label="Alternar tema" (click)="toggleTheme()">
           <i class="fa-solid" [class.fa-moon]="!isDarkMode" [class.fa-sun]="isDarkMode"></i>
         </button>
 
@@ -183,6 +184,89 @@
         }
       </div>
     </div>
+
+    <!-- GAVETA DO CELULAR (mesmo desenho da gaveta da mãe) -->
+    <div class="mobile-backdrop adm-mobile" [class.active]="isMobileMenuOpen" (click)="toggleMobileMenu()"></div>
+    <nav class="mobile-drawer adm-mobile" [class.active]="isMobileMenuOpen" aria-label="Menu do administrador">
+      <div class="mobile-nav-header">
+        <span class="mobile-nav-title"><img src="./img/logo_icon.png" alt="" class="mobile-nav-logo"> elomaterno</span>
+        <button type="button" class="btn-close-mobile" aria-label="Fechar menu" (click)="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <button type="button" class="mobile-profile-card" (click)="irAbaAdm('configuracoes')" aria-label="Ir para as configurações da minha conta">
+        @if (avatarAdm) { <img [src]="avatarAdm" alt="Foto do administrador"> }
+        <div class="mobile-profile-info">
+          <strong>{{ nomeAdm || 'Administrador' }}</strong>
+          <span>Administradora</span>
+        </div>
+        <i class="fa-solid fa-chevron-right mobile-profile-arrow" aria-hidden="true"></i>
+      </button>
+
+      <div class="mobile-links-grid">
+        <span class="mobile-section-label">Gerenciar</span>
+        <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'home'" (click)="irAbaAdm('home')"><i class="fa-solid fa-table-cells-large"></i> Home</button>
+        <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'usuarios'" (click)="irAbaAdm('usuarios')"><i class="fa-solid fa-users"></i> Usuários</button>
+        <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'aprovacoes'" (click)="irAbaAdm('aprovacoes')"><i class="fa-solid fa-user-check"></i> Aprovações
+          @if (aprovacoesAdm > 0) { <span class="notif-badge-inline">{{ aprovacoesAdm }}</span> }
+        </button>
+
+        <span class="mobile-section-label">Conteúdo e moderação</span>
+        <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'denuncias'" (click)="irAbaAdm('denuncias')"><i class="fa-solid fa-flag"></i> Denúncias
+          @if (denunciasAdm > 0) { <span class="notif-badge-inline">{{ denunciasAdm }}</span> }
+        </button>
+        <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'forum'" (click)="irAbaAdm('forum')"><i class="fa-regular fa-comments"></i> Fórum</button>
+        <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'moderacao'" (click)="irAbaAdm('moderacao')"><i class="fa-solid fa-shield-halved"></i> Moderação</button>
+
+        <span class="mobile-section-label">Financeiro</span>
+        <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'planos'" (click)="irAbaAdm('planos')"><i class="fa-solid fa-crown"></i> Planos</button>
+        <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'divulgacao'" (click)="irAbaAdm('divulgacao')"><i class="fa-solid fa-bullhorn"></i> Divulgação</button>
+        <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'selos'" (click)="irAbaAdm('selos')"><i class="fa-solid fa-award"></i> Selos</button>
+        <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'relatorios'" (click)="irAbaAdm('relatorios')"><i class="fa-solid fa-chart-pie"></i> Relatórios</button>
+
+        <span class="mobile-section-label">Sistema</span>
+        <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'configuracoes'" (click)="irAbaAdm('configuracoes')"><i class="fa-solid fa-gear"></i> Configurações</button>
+      </div>
+
+      <div class="mobile-notif-section">
+        <button type="button" class="mobile-acc-btn" (click)="toggleMobileMenu(); notificacoesAdm.emit()">
+          <i class="fa-solid fa-bell"></i>
+          <span>Notificações</span>
+          @if (notificacoesNaoLidas > 0) { <span class="notif-badge-inline">{{ notificacoesNaoLidas > 9 ? '9+' : notificacoesNaoLidas }}</span> }
+        </button>
+      </div>
+
+      <div class="mobile-accessibility-section">
+        <span class="mobile-section-label">Acessibilidade e Tema</span>
+        <button type="button" class="mobile-acc-btn" (click)="toggleTheme()">
+          <i class="fa-solid" [class.fa-moon]="!isDarkMode" [class.fa-sun]="isDarkMode"></i>
+          <span>{{ isDarkMode ? 'Modo Claro' : 'Modo Escuro' }}</span>
+        </button>
+        <button type="button" class="mobile-acc-btn" (click)="toggleMenu()">
+          <i class="fa-solid fa-universal-access"></i>
+          <span>Opções de Acessibilidade</span>
+        </button>
+        @if (menuAberto()) {
+          <ul class="mobile-acc-sublist">
+            <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
+            <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
+            <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
+            <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
+            <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
+            <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
+            <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
+            <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
+            <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
+            <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+          </ul>
+        }
+      </div>
+
+      <div class="mobile-logout-box">
+        <button type="button" class="btn-mobile-logout" (click)="toggleMobileMenu(); sairAdm.emit()">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair da conta
+        </button>
+      </div>
+    </nav>
   </header>
 }
 

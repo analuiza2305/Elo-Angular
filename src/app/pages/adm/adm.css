@@ -6516,3 +6516,66 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
   .home-stats, #moderacao .stats-grid, .forum-filtro-cards, .usr-resumo, .rel-stats-grid { grid-template-columns: 1fr !important; }
   .filtros-extra { grid-template-columns: 1fr; }
 }
+
+/* =========================================================
+   GAVETA DO MENU NO CELULAR (05/11): foto no tamanho certo e
+   o atalho de modo escuro (que saiu do cabeçalho)
+   ========================================================= */
+/* o styles.css estica toda imagem a 100% no celular; a foto da gaveta não pode */
+.drawer-avatar {
+  width: 48px !important; height: 48px !important; min-width: 48px; max-width: 48px !important;
+  flex-shrink: 0; border-radius: 50% !important; object-fit: cover;
+  border: 2px solid #FFFFFF; box-shadow: 0 0 0 2px #E9E0FF;
+}
+.drawer-profile { align-items: center !important; }
+.drawer-profile-info { flex: 1; }
+.drawer-atalho { display: none; }
+
+@media (max-width: 1024px) {
+  .drawer-atalho {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    margin: 10px 0 4px; padding: 12px 14px; border-radius: 16px;
+    border: 1px solid #ECE4FB; background: #FFFFFF; color: #4B2C82;
+    font-family: inherit; font-size: 0.92rem; font-weight: 700; cursor: pointer;
+  }
+  .drawer-atalho i { color: #6A55A8 !important; width: 20px; text-align: center; }
+  .drawer-atalho > span:first-of-type { flex: 1; text-align: left; }
+  .drawer-atalho-chave {
+    position: relative; width: 40px; height: 22px; border-radius: 999px; background: #DCD2F5; transition: background 0.2s ease;
+  }
+  .drawer-atalho-chave span {
+    position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%;
+    background: #FFFFFF; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18); transition: transform 0.2s ease;
+  }
+  .drawer-atalho-chave.ligada { background: #7C69A9; }
+  .drawer-atalho-chave.ligada span { transform: translateX(18px); }
+
+  :host-context(body[data-theme="dark"]) .drawer-atalho { background: #1B2336; border-color: rgba(255, 255, 255, 0.1); color: #F2EDFF; }
+  :host-context(body[data-theme="dark"]) .drawer-atalho i { color: #C4B5FD !important; }
+  :host-context(body[data-theme="dark"]) .drawer-atalho-chave { background: rgba(255, 255, 255, 0.16); }
+  :host-context(body[data-theme="dark"]) .drawer-atalho-chave.ligada { background: #9D8FE7; }
+  :host-context(body[data-theme="dark"]) .drawer-avatar { border-color: #1B2336; box-shadow: 0 0 0 2px rgba(157, 143, 231, 0.4); }
+}
+
+
+/* =========================================================
+   MENU DO CELULAR IGUAL AO DA MÃE (05/11)
+   Até 900px quem aparece é a gaveta do cabeçalho (mesmo desenho da
+   gaveta da mãe); a barra lateral antiga do painel fica escondida.
+   Entre 901 e 1024px a barra lateral continua fixa ao lado.
+   ========================================================= */
+@media (max-width: 900px) {
+  .sidebar, #sidebar-overlay { display: none !important; }
+}
+@media (min-width: 901px) and (max-width: 1024px) {
+  .main-container { display: flex !important; gap: 16px !important; padding: 18px 16px 40px 12px !important; }
+  .sidebar {
+    position: sticky !important; top: 88px !important; left: auto !important;
+    transform: none !important; width: 210px !important; height: auto !important;
+    max-height: calc(100vh - 104px) !important; border-radius: 22px !important; z-index: 1 !important;
+    padding: 14px 10px !important;
+  }
+  .sidebar .drawer-top { display: none !important; }
+  #sidebar-overlay { display: none !important; }
+  .menu-btn { padding: 8px 12px !important; font-size: 13.5px !important; gap: 10px !important; }
+}

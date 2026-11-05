@@ -89,6 +89,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   @Input() nomeAdm = '';
   @Input() avatarAdm = '';
   @Output() sairAdm = new EventEmitter<void>();
+  /** Admin: aba aberta no painel (para marcar o item ativo na gaveta do celular). */
+  @Input() abaAdmAtiva = 'home';
+  /** Admin: números das bolinhas da gaveta (denúncias em aberto e cadastros aguardando). */
+  @Input() denunciasAdm = 0;
+  @Input() aprovacoesAdm = 0;
+  /** Admin: item escolhido na gaveta do celular. */
+  @Output() abaAdm = new EventEmitter<string>();
 
   // Controles de Menus
   isMobileMenuOpen = false;
@@ -779,6 +786,8 @@ redefinirAcessibilidade() {
 
   toggleMobileMenu() { this.isMobileMenuOpen = !this.isMobileMenuOpen; }
   toggleMenuAdm() { this.menuAdm.emit(); }
+  /** Gaveta do adm no celular: troca a aba do painel e fecha a gaveta. */
+  irAbaAdm(aba: string) { this.isMobileMenuOpen = false; this.abaAdm.emit(aba); }
 
   toggleLoginDropdown(event: Event) {
     event.stopPropagation();
@@ -811,6 +820,12 @@ redefinirAcessibilidade() {
   toggleTheme() {
     this.isDarkMode = !this.isDarkMode;
     this.applyTheme();
+  }
+
+  /** O painel do adm troca o tema pela gaveta do celular: mantém o ícone daqui em sincronia. */
+  @HostListener('window:elo-tema', ['$event'])
+  aoTrocarTemaFora(evento: Event) {
+    this.isDarkMode = !!(evento as CustomEvent<boolean>).detail;
   }
 
   private applyTheme() {

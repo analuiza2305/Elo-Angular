@@ -351,6 +351,26 @@
   .adm-header-titulo { display: none; }
 }
 
+/* Até 900px o adm usa a mesma gaveta da mãe: o cabeçalho fica só com o menu e o logo,
+   e tema, acessibilidade, notificações, sair e foto ficam dentro da gaveta. */
+.adm-mobile { display: none; }
+@media (max-width: 900px) {
+  .adm-header-right { display: none !important; }
+  .adm-mobile.mobile-drawer { display: flex !important; }
+  .adm-mobile.mobile-backdrop { display: block; }
+  .adm-sidebar-toggle { position: relative; }
+  .adm-sidebar-toggle .notif-badge { position: absolute; top: -4px; right: -6px; }
+  .adm-mobile .mobile-link { width: 100%; border: none; background: transparent; font-family: inherit; text-align: left; cursor: pointer; }
+  .adm-mobile .mobile-link .notif-badge-inline { margin-left: auto; }
+  .adm-mobile .mobile-profile-card { width: 100%; border: none; font-family: inherit; text-align: left; cursor: pointer; }
+  .adm-mobile .mobile-links-grid .mobile-section-label { margin: 12px 0 2px; }
+  .adm-mobile .mobile-links-grid .mobile-section-label:first-child { margin-top: 0; }
+}
+@media (min-width: 901px) and (max-width: 1024px) {
+  /* entre 901 e 1024px o menu lateral do painel continua aberto, então o botão some */
+  .adm-sidebar-toggle { display: none !important; }
+}
+
 /* Celular: os 5 botões da direita + logo não cabiam em 375px */
 @media (max-width: 600px) {
   .adm-header-container { gap: 8px; }

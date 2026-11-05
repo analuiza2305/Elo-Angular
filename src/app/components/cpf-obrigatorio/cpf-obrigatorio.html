@@ -1,0 +1,69 @@
+@if (aberto()) {
+<div class="cpf-fundo" role="presentation">
+  <div class="cpf-bolha b1"></div>
+  <div class="cpf-bolha b2"></div>
+
+  <section class="cpf-modal" role="dialog" aria-modal="true" aria-labelledby="cpf-titulo" aria-describedby="cpf-desc">
+    @if (!concluido()) {
+      <div class="cpf-selo" aria-hidden="true">
+        <img src="/img/logo_icon.png" alt="">
+      </div>
+
+      <span class="cpf-etapa">Último passo</span>
+      <h2 id="cpf-titulo">{{ nome ? nome + ', falta' : 'Falta' }} só confirmar seu CPF</h2>
+      <p id="cpf-desc" class="cpf-sub">
+        Para manter a Elo Materno segura e acolhedora, cada mãe pode ter apenas uma conta.
+        Pedimos o CPF uma única vez, só para essa confirmação.
+      </p>
+
+      <ul class="cpf-motivos">
+        <li>
+          <span class="cpf-ic ic-lilas"><i class="fa-solid fa-user-check"></i></span>
+          <div><strong>Uma conta por mãe</strong><small>Evita perfis falsos e repetidos na comunidade.</small></div>
+        </li>
+        <li>
+          <span class="cpf-ic ic-rosa"><i class="fa-solid fa-eye-slash"></i></span>
+          <div><strong>Ninguém vê seu CPF</strong><small>Ele não aparece no seu perfil nem para outras pessoas.</small></div>
+        </li>
+        <li>
+          <span class="cpf-ic ic-verde"><i class="fa-solid fa-lock"></i></span>
+          <div><strong>Guardado com proteção</strong><small>Salvamos só um código gerado a partir dele, nunca o número.</small></div>
+        </li>
+      </ul>
+
+      <form class="cpf-form" (ngSubmit)="salvar()" novalidate>
+        <label for="cpf-input">CPF</label>
+        <div class="cpf-campo" [class.com-erro]="erro()">
+          <i class="fa-regular fa-id-card" aria-hidden="true"></i>
+          <input id="cpf-input" name="cpf" type="text" inputmode="numeric" autocomplete="off"
+                 placeholder="000.000.000-00" maxlength="14"
+                 [ngModel]="cpf" (ngModelChange)="formatar($event)"
+                 [attr.aria-invalid]="!!erro()" aria-describedby="cpf-erro">
+          @if (digitos.length === 11 && !erro()) {
+            <i class="fa-solid fa-circle-check cpf-ok" aria-hidden="true"></i>
+          }
+        </div>
+        <p id="cpf-erro" class="cpf-erro" role="alert">
+          @if (erro()) { <i class="fa-solid fa-circle-exclamation"></i> {{ erro() }} }
+        </p>
+
+        <button type="submit" class="cpf-btn" [disabled]="salvando() || digitos.length < 11">
+          @if (salvando()) { <span class="cpf-spin"></span> Confirmando... }
+          @else { Confirmar e entrar <i class="fa-solid fa-arrow-right"></i> }
+        </button>
+      </form>
+
+      <p class="cpf-lgpd">Usamos seu CPF apenas para essa verificação, conforme a LGPD.</p>
+      <button type="button" class="cpf-sair" (click)="sair()">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair da conta
+      </button>
+    } @else {
+      <div class="cpf-sucesso">
+        <div class="cpf-selo ok" aria-hidden="true"><i class="fa-solid fa-check"></i></div>
+        <h2 id="cpf-titulo">Tudo certo!</h2>
+        <p id="cpf-desc" class="cpf-sub">CPF confirmado. Boas-vindas à sua rede de acolhimento.</p>
+      </div>
+    }
+  </section>
+</div>
+}

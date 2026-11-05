@@ -2544,6 +2544,20 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  /** Tema escuro ligado? (lido do <body>, que é onde o site guarda o tema) */
+  get temaEscuroAdm(): boolean {
+    return typeof document !== 'undefined' && document.body?.getAttribute('data-theme') === 'dark';
+  }
+
+  /** Botão "Modo escuro" da gaveta do celular (o do cabeçalho fica escondido lá). */
+  alternarTemaAdm(): void {
+    if (typeof document === 'undefined') return;
+    const escuro = !this.temaEscuroAdm;
+    document.body.setAttribute('data-theme', escuro ? 'dark' : 'light');
+    try { localStorage.setItem('theme', escuro ? 'dark' : 'light'); } catch { /* navegador sem armazenamento */ }
+    window.dispatchEvent(new CustomEvent('elo-tema', { detail: escuro }));
+  }
+
   abrirOuFecharSidebar(): void {
   this.sidebarAberta = !this.sidebarAberta;
 }

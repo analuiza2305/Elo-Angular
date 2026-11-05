@@ -584,3 +584,206 @@ body[data-theme="dark"] .banner-image img {
 
 /* Selo "Aguardando" continua claro no escuro: texto escuro */
 :host-context(body[data-theme="dark"]) .badge-aguardando { color: #5B4A93 !important; }
+
+/* =========================================================
+   MODAL "COMPLETE SEU PERFIL" (05/11) — mesmo visual do modal do CPF
+   ========================================================= */
+.bv-fundo {
+  --bv-roxo: #583E8E; --bv-texto: #2E2350; --bv-suave: #6B6290;
+  --bv-card: #FDFBFF; --bv-borda: #E6DDF8; --bv-campo: #F8F5FF;
+  position: fixed; inset: 0; z-index: 9000;
+  display: grid; place-items: center;
+  padding: 20px 16px; overflow-y: auto;
+  background: rgba(46, 35, 80, 0.42);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  animation: bvFade .3s ease both;
+}
+:host-context(body[data-theme="dark"]) .bv-fundo {
+  --bv-roxo: #B9A8F5; --bv-texto: #F4F1FF; --bv-suave: #B8B0D6;
+  --bv-card: #171B2D; --bv-borda: rgba(255, 255, 255, 0.12); --bv-campo: #1F2438;
+  background: rgba(5, 7, 14, 0.7);
+}
+
+.bv-modal {
+  position: relative; width: 100%; max-width: 560px;
+  padding: 36px 34px 28px; border-radius: 30px;
+  background: radial-gradient(circle at 50% -10%, rgba(201, 182, 247, .45), transparent 55%), var(--bv-card);
+  box-shadow: 0 30px 80px rgba(46, 35, 80, .28), 0 0 0 1px var(--bv-borda);
+  color: var(--bv-texto);
+  animation: bvSobe .5s cubic-bezier(.2, .9, .3, 1.15) both;
+}
+:host-context(body[data-theme="dark"]) .bv-modal {
+  background: radial-gradient(circle at 50% -10%, rgba(157, 143, 231, .22), transparent 55%), var(--bv-card);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .5), 0 0 0 1px var(--bv-borda);
+}
+
+.bv-fechar {
+  position: absolute; top: 16px; right: 16px;
+  width: 40px; height: 40px; display: grid; place-items: center;
+  border: none; border-radius: 14px; cursor: pointer;
+  background: rgba(124, 105, 169, .1); color: var(--bv-roxo);
+  font-size: 17px; transition: background .2s, transform .2s;
+}
+.bv-fechar i { color: inherit !important; }
+.bv-fechar:hover { background: rgba(124, 105, 169, .2); transform: rotate(90deg); }
+
+.bv-topo { text-align: center; }
+.bv-selo {
+  width: 74px; height: 74px; margin: 0 auto 14px;
+  display: grid; place-items: center; border-radius: 24px;
+  background: linear-gradient(145deg, #8B72D6, #583E8E);
+  box-shadow: 0 14px 30px rgba(88, 62, 142, .35);
+  transform: rotate(-6deg);
+  animation: bvFlutua 4s ease-in-out infinite;
+}
+.bv-selo img { width: 70% !important; height: 70% !important; max-width: none !important; object-fit: contain; transform: rotate(6deg); filter: brightness(0) invert(1); }
+.bv-etapa {
+  display: inline-block; padding: 5px 14px; margin-bottom: 10px; border-radius: 999px;
+  background: rgba(124, 105, 169, .12); color: var(--bv-roxo);
+  font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+}
+.bv-modal h2 { margin: 0 0 10px; font-size: clamp(22px, 4.6vw, 26px); line-height: 1.25; color: var(--bv-texto) !important; }
+.bv-sub { margin: 0 auto 24px; max-width: 420px; font-size: 15px; line-height: 1.6; color: var(--bv-suave) !important; }
+
+.bv-modal, .bv-modal * { box-sizing: border-box; }
+.bv-grade { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 14px; }
+.bv-item { min-width: 0; }
+.bv-campo { width: 100%; }
+.bv-item label { display: block; margin: 0 0 7px 4px; font-size: 13.5px; font-weight: 700; color: var(--bv-texto); text-align: left; }
+.bv-campo {
+  display: flex; align-items: center; gap: 11px;
+  height: 52px; padding: 0 16px; border-radius: 16px;
+  background: var(--bv-campo); border: 1.5px solid var(--bv-borda);
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.bv-campo:focus-within { border-color: #8B72D6; box-shadow: 0 0 0 4px rgba(139, 114, 214, .18); background: var(--bv-card); }
+.bv-campo > i { width: 18px; text-align: center; color: var(--bv-roxo) !important; font-size: 15px; }
+.bv-campo input {
+  flex: 1; min-width: 0; height: 100%; margin: 0 !important;
+  border: none !important; outline: none; background: transparent !important; box-shadow: none !important;
+  padding: 0 !important; font-size: 15px; font-family: inherit; color: var(--bv-texto);
+}
+.bv-campo input::placeholder { color: var(--bv-suave); opacity: .6; }
+
+.bv-aviso {
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+  margin: 18px 0 20px; font-size: 12.5px; color: var(--bv-suave) !important; text-align: center;
+}
+.bv-aviso i { color: inherit !important; }
+
+.bv-acoes { display: flex; gap: 12px; }
+.bv-depois, .bv-salvar {
+  height: 52px; border: none; border-radius: 16px; cursor: pointer;
+  font-family: inherit; font-size: 15px; font-weight: 700;
+  transition: transform .2s, box-shadow .2s, background .2s;
+}
+.bv-depois { flex: 0 0 auto; padding: 0 20px; background: rgba(124, 105, 169, .1); color: var(--bv-roxo); }
+.bv-depois:hover { background: rgba(124, 105, 169, .18); }
+.bv-salvar {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: linear-gradient(135deg, #7C5FCB, #583E8E); color: #fff;
+  box-shadow: 0 12px 26px rgba(88, 62, 142, .32);
+}
+.bv-salvar i { color: #fff !important; transition: transform .2s; }
+.bv-salvar:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(88, 62, 142, .4); }
+.bv-salvar:hover i { transform: translateX(4px); }
+.bv-fechar:focus-visible, .bv-depois:focus-visible, .bv-salvar:focus-visible { outline: 3px solid #B9A8F5; outline-offset: 3px; }
+
+@keyframes bvFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes bvSobe { from { opacity: 0; transform: translateY(28px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes bvFlutua { 0%, 100% { transform: rotate(-6deg) translateY(0); } 50% { transform: rotate(-6deg) translateY(-5px); } }
+
+@media (max-width: 560px) {
+  .bv-fundo { align-items: end; padding: 0; }
+  .bv-modal { max-width: none; border-radius: 28px 28px 0 0; padding: 30px 20px 22px; }
+  .bv-grade { grid-template-columns: 1fr; gap: 12px; }
+  .bv-selo { width: 62px; height: 62px; border-radius: 20px; }
+  .bv-sub { font-size: 14px; margin-bottom: 18px; }
+  .bv-acoes { flex-direction: column-reverse; }
+  .bv-depois, .bv-salvar { flex: none; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .bv-fundo, .bv-modal, .bv-selo { animation: none !important; } }
+/* =========================================================
+   MODAIS DE AVISO (Sucesso / Erro / Confirmar) — 05/11
+   mesmo visual dos modais do CPF e do perfil
+   ========================================================= */
+.modal:not([style]) {
+  position: fixed !important; inset: 0 !important; z-index: 9500 !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  padding: 20px 16px !important;
+  background: rgba(46, 35, 80, 0.42) !important;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  animation: avFade .25s ease both;
+}
+.modal:not([style]) .modal-content {
+  position: relative;
+  width: 100% !important; max-width: 400px !important;
+  margin: 0 !important;
+  padding: 104px 30px 26px !important;
+  border: none !important; border-radius: 28px !important;
+  background: radial-gradient(circle at 50% -10%, rgba(201, 182, 247, .45), transparent 55%), #FDFBFF !important;
+  box-shadow: 0 30px 80px rgba(46, 35, 80, .28), 0 0 0 1px #E6DDF8 !important;
+  text-align: center !important;
+  animation: avSobe .45s cubic-bezier(.2, .9, .3, 1.15) both;
+}
+/* selo com a logo do Elo */
+.modal:not([style]) .modal-content::before {
+  content: "";
+  position: absolute; top: 28px; left: 50%;
+  width: 60px; height: 60px; margin-left: -30px;
+  border-radius: 20px;
+  background: url('/img/logo_icon.png') center / 66% no-repeat, linear-gradient(145deg, #F3EEFF, #E6DCFF);
+  box-shadow: 0 10px 24px rgba(88, 62, 142, .18);
+  transform: rotate(-6deg);
+}
+.modal:not([style]) .modal-content h2 {
+  margin: 0 0 8px !important;
+  font-size: 22px !important; line-height: 1.3;
+  color: #2E2350 !important;
+}
+.modal:not([style]) .modal-content p {
+  margin: 0 0 22px !important;
+  font-size: 15px; line-height: 1.6;
+  color: #6B6290 !important;
+}
+.modal:not([style]) .modal-content button {
+  height: 50px !important; margin: 0 !important; padding: 0 20px !important;
+  border: none !important; border-radius: 16px !important; cursor: pointer;
+  background: linear-gradient(135deg, #7C5FCB, #583E8E) !important;
+  color: #fff !important;
+  font-family: inherit !important; font-size: 15px !important; font-weight: 700 !important;
+  white-space: nowrap;
+  box-shadow: 0 12px 26px rgba(88, 62, 142, .3);
+  transition: transform .2s, box-shadow .2s;
+}
+.modal:not([style]) .modal-content button:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(88, 62, 142, .38); }
+.modal:not([style]) .modal-content button:focus-visible { outline: 3px solid #B9A8F5; outline-offset: 3px; }
+.modal:not([style]) .modal-content > div { margin-top: 0 !important; gap: 12px !important; }
+.modal:not([style]) .modal-content > div button { flex: 1 1 0 !important; min-width: 0; }
+/* confirmação: "Não, voltar" suave e "Sim" rosado */
+.modal:not([style]) .modal-content > div button:first-child {
+  background: rgba(124, 105, 169, .1) !important; color: #583E8E !important; box-shadow: none;
+}
+.modal:not([style]) .modal-content > div button:last-child {
+  background: linear-gradient(135deg, #E0709A, #C2406A) !important;
+  box-shadow: 0 12px 26px rgba(194, 64, 106, .28);
+}
+
+:host-context(body[data-theme="dark"]) .modal:not([style]) { background: rgba(5, 7, 14, .7) !important; }
+:host-context(body[data-theme="dark"]) .modal:not([style]) .modal-content {
+  background: radial-gradient(circle at 50% -10%, rgba(157, 143, 231, .22), transparent 55%), #171B2D !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .5), 0 0 0 1px rgba(255, 255, 255, .12) !important;
+}
+:host-context(body[data-theme="dark"]) .modal:not([style]) .modal-content::before {
+  background: url('/img/logo_icon.png') center / 66% no-repeat, linear-gradient(145deg, #F3EEFF, #DCD0FB);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
+}
+:host-context(body[data-theme="dark"]) .modal:not([style]) .modal-content h2 { color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) .modal:not([style]) .modal-content p { color: #B8B0D6 !important; }
+:host-context(body[data-theme="dark"]) .modal:not([style]) .modal-content > div button:first-child {
+  background: rgba(185, 168, 245, .12) !important; color: #C9BCFF !important;
+}
+
+@keyframes avFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes avSobe { from { opacity: 0; transform: translateY(22px) scale(.96); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .modal:not([style]), .modal:not([style]) .modal-content { animation: none !important; } }

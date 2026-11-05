@@ -4,6 +4,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { AlertaComponent } from './components/alerta/alerta';
 import { FooterSimplesComponent } from './components/footer-simples/footer-simples';
+import { CpfObrigatorioComponent } from './components/cpf-obrigatorio/cpf-obrigatorio';
 import { AnimacoesService } from './core/services/animacoes.service';
 
 // Telas sem o footer simples: landing page (tem o footer completo), autenticação e videochamada (tela cheia)
@@ -20,7 +21,7 @@ const ROTAS_SEM_FOOTER = new Set([
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, AlertaComponent, FooterSimplesComponent],
+  imports: [RouterOutlet, AlertaComponent, FooterSimplesComponent, CpfObrigatorioComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
