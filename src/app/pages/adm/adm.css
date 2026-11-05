@@ -6367,3 +6367,152 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
 #moderacao .mod-col-principal > .mod-tabela-card { order: 3; margin-top: 0 !important; }
 #moderacao .mod-col-lateral .dash-panel { margin: 0; height: 100%; }
 @media (max-width: 900px) { #moderacao .mod-col-lateral { grid-template-columns: 1fr !important; } }
+/* =========================================================
+   RESPONSIVIDADE DO PAINEL ADM (05/11)
+   - até 1280px: menu e espaços um pouco menores
+   - até 1024px: o menu vira gaveta (abre pelo botão do cabeçalho)
+   - até 900px: tabelas viram cartões (nada corta, nada rola de lado)
+   - até 600px: celular, tudo em uma coluna, filtros e botões ocupando a largura
+   ========================================================= */
+
+/* nada pode empurrar a página para o lado */
+.main-container, .content { min-width: 0; max-width: 100%; }
+.content { overflow-x: clip; }
+.content img, .content canvas, .content svg { max-width: 100%; }
+.forum-post-avatar { width: 40px !important; height: 40px !important; min-width: 40px; border-radius: 50%; object-fit: cover; }
+.forum-post-cabecalho { flex-wrap: wrap; }
+.forum-post-autor { min-width: 0; flex: 1 1 140px; }
+.forum-post-autor strong, .forum-post-autor small { overflow-wrap: anywhere; }
+
+/* ---------- notebook pequeno ---------- */
+@media (max-width: 1280px) and (min-width: 1025px) {
+  .main-container { gap: 20px !important; padding: 22px 22px 40px 16px !important; }
+  .sidebar { width: 220px !important; }
+  .menu-btn { padding: 9px 12px; font-size: 13.5px; gap: 10px; }
+  .home-stats, #moderacao .stats-grid, .forum-filtro-cards, .usr-resumo, .rel-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+
+/* ---------- tablet (menu vira gaveta) ---------- */
+@media (max-width: 1024px) {
+  .main-container { display: block !important; padding: 16px 18px 40px !important; }
+  .content { width: 100%; }
+  .cab-pagina, .rel-header { padding: 18px 20px !important; border-radius: 22px !important; }
+  .home-hero { padding: 30px 28px !important; }
+  .home-hero h2 { font-size: 1.8rem !important; }
+  .dashboard-columns, .home-grid, .rel-columns, .creditos-layout { grid-template-columns: 1fr !important; }
+  .rel-header { flex-wrap: wrap; gap: 14px; }
+  .rel-header-acoes { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+  .mae-drawer, .mae-drawer.ap-perfil { width: calc(100vw - 32px) !important; max-width: 720px; }
+  #moderacao .stats-grid { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px !important; }
+}
+
+/* ---------- tabelas viram cartões ---------- */
+@media (max-width: 900px) {
+  .usr-tabela-scroll, .prof-table-scroll, .mod-tabela-scroll { overflow: visible !important; }
+  .dash-panel.user-table, .maes-table-panel, .usr-tabela-painel, .mod-tabela-card { overflow: visible !important; padding: 12px !important; }
+  .user-table table, table.user-table, .mod-tabela { display: block; width: 100% !important; min-width: 0 !important; }
+  .user-table thead, .mod-tabela thead { display: none; }
+  .user-table tbody, .mod-tabela tbody { display: flex; flex-direction: column; gap: 10px; }
+  .user-table tbody tr, .mod-tabela tbody tr {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    background: var(--lilas-card-2, #F5F1FE) !important;
+    border-radius: 18px; padding: 14px 16px;
+  }
+  .user-table td, .mod-tabela td {
+    display: block; padding: 0 !important; border: none !important;
+    white-space: normal !important; min-width: 0 !important; width: auto !important;
+    text-align: left !important; font-size: 0.85rem;
+  }
+  .user-table td:first-child, .mod-tabela td:first-child { flex: 1 1 100%; }
+  .user-table td:last-child, .mod-tabela td:last-child {
+    flex: 1 1 100%; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px;
+    padding-top: 10px !important; border-top: 1px solid var(--lilas-linha, #F1ECFC) !important;
+  }
+  .user-table td:empty { display: none; }
+  .user-table tbody tr:hover td:first-child, .user-table tbody tr:hover td:last-child { border-radius: 0; }
+  .user-table tbody tr:hover, .mod-tabela tbody tr:hover { background: var(--lilas-hover, #F1EAFE) !important; }
+  .maes-paginacao { flex-wrap: wrap; }
+}
+
+/* ---------- celular ---------- */
+@media (max-width: 600px) {
+  .main-container { padding: 12px 12px 32px !important; }
+
+  /* cabeçalho das telas */
+  .cab-pagina, .rel-header { padding: 16px !important; gap: 12px !important; margin-bottom: 16px !important; }
+  .cab-icone, .rel-header-icone { width: 42px !important; height: 42px !important; min-width: 42px !important; border-radius: 14px !important; font-size: 1rem !important; }
+  .page-title, .rel-header-titulo { font-size: 1.2rem !important; }
+  .page-subtitle, .rel-header-subtitulo { font-size: 0.84rem !important; }
+  .rel-header-acoes > * { flex: 1 1 100%; justify-content: center; }
+
+  /* banner da home */
+  .home-hero { padding: 24px 20px !important; border-radius: 22px !important; }
+  .home-hero h2 { font-size: 1.5rem !important; }
+  .home-hero p { font-size: 0.9rem !important; }
+
+  /* indicadores: 2 por linha, compactos */
+  .home-stats, #moderacao .stats-grid, .forum-filtro-cards, .usr-resumo, .rel-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important;
+  }
+  .home-stat, .stat-card, .usr-resumo-card, .rel-stat-card, .forum-filtro-card {
+    padding: 14px !important; gap: 10px !important; flex-direction: column; align-items: flex-start !important;
+  }
+  .home-stat-icone, .usr-resumo-icone, .stat-icon, .rel-stat-icone, .forum-filtro-icone {
+    width: 38px !important; height: 38px !important; min-width: 38px !important; font-size: 0.9rem !important;
+  }
+  .home-stat-info strong, .usr-resumo-info strong, .stat-number, .rel-stat-valor { font-size: 1.3rem !important; }
+  .home-stat-info small, .stat-trend { display: none; }
+
+  /* busca e filtros ocupando a largura */
+  .maes-toolbar { flex-direction: column; align-items: stretch !important; gap: 10px; }
+  .mae-search-box { max-width: none !important; width: 100%; }
+  .mae-filtro-status { width: 100%; overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; }
+  .mae-filtro-status::-webkit-scrollbar { display: none; }
+  .mae-filtro-status button { flex: 0 0 auto; white-space: nowrap; padding: 8px 14px !important; }
+  .usr-abas { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+  .usr-abas::-webkit-scrollbar { display: none; }
+  .usr-abas button { flex: 0 0 auto; white-space: nowrap; }
+  .filtros-extra { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; }
+  .filtro-campo { min-width: 0; width: 100%; }
+  .filtro-campo input, .filtro-campo select { width: 100% !important; min-width: 0 !important; max-width: 100%; }
+  .prof-filtros-btn { width: 100%; justify-content: center; }
+
+  /* moderação de conteúdo */
+  #moderacao .mod-col-lateral { grid-template-columns: 1fr !important; }
+  .mod-tabs { flex-wrap: wrap; width: 100%; }
+  .mod-tabs .mod-tab { flex: 1 1 45%; justify-content: center; }
+  .mod-toolbar, .mod-filtros { flex-direction: column; align-items: stretch !important; gap: 10px; }
+
+  /* fórum */
+  .forum-post-card { padding: 16px !important; }
+  .forum-post-rodape { flex-direction: column; align-items: stretch !important; gap: 10px; }
+  .forum-post-rodape .actions { width: 100%; }
+  .forum-post-rodape .actions > * { flex: 1 1 100%; justify-content: center; }
+
+  /* relatórios e configurações */
+  .rel-custos-form { flex-direction: column; align-items: stretch !important; gap: 12px; }
+  .rel-custos-form input { width: 100%; }
+  .rel-donuts-grid { grid-template-columns: 1fr !important; }
+  .config-perfil-card { flex-direction: column; align-items: flex-start !important; text-align: left; padding: 20px !important; }
+  .config-contas-grid, .config-conta-grid, .config-grid { grid-template-columns: 1fr !important; }
+
+  /* modais e popups quase em tela cheia */
+  .suspender-overlay, .config-modal-overlay, .forum-modal-fundo { padding: 10px !important; align-items: flex-end !important; }
+  .suspender-modal, .config-modal, .forum-modal {
+    width: 100% !important; max-width: none !important; max-height: 92vh !important;
+    padding: 22px 18px !important; border-radius: 24px !important;
+  }
+  .mae-drawer, .mae-drawer.ap-perfil, .mae-drawer-legado {
+    width: calc(100vw - 16px) !important; max-height: calc(100vh - 16px) !important; border-radius: 22px !important;
+  }
+  .suspender-acoes, .mod-vis-acoes { flex-direction: column-reverse; }
+  .suspender-acoes > button { width: 100%; }
+  .suspender-mae-detalhes { margin-left: 0 !important; text-align: left !important; }
+  .mae-perfil-grid, .mae-perfil-cards { grid-template-columns: 1fr !important; }
+}
+
+/* ---------- celular bem pequeno ---------- */
+@media (max-width: 380px) {
+  .home-stats, #moderacao .stats-grid, .forum-filtro-cards, .usr-resumo, .rel-stats-grid { grid-template-columns: 1fr !important; }
+  .filtros-extra { grid-template-columns: 1fr; }
+}
