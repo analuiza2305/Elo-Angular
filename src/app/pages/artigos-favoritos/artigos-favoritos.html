@@ -41,9 +41,9 @@
                         </span>
 
                         <!-- Data no Topo Direito -->
-                        <span class="data-badge">
-                            {{ artigo.dataString || '26 de set.' }}
-                        </span>
+                        @if (artigo.dataString) {
+                            <span class="data-badge">{{ artigo.dataString }}</span>
+                        }
 
                         <!-- Botão de Favorito Ativo (Preenchido) no Canto Inferior Direito da Imagem -->
                         <button class="btn-favorito-ativo" title="Remover dos favoritos" (click)="$event.stopPropagation(); removerFavorito(artigo.id)">
@@ -81,4 +81,3 @@
     }
 
 </main>
-

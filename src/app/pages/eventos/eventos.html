@@ -68,7 +68,7 @@
     } @else {
         <div class="eventos-grid">
             @for (evento of eventosFiltrados(); track evento.id) {
-                <div class="evento-card" [class.is-destaque]="evento.visibilidade && evento.visibilidade !== 'basico'" [class.is-premium]="evento.visibilidade === 'premium'">
+                <div class="evento-card" [class.is-encerrado]="evento.encerrado" [class.is-destaque]="evento.visibilidade && evento.visibilidade !== 'basico'" [class.is-premium]="evento.visibilidade === 'premium'">
                     @if (evento.capa) {
                         <div class="evento-cover-container">
                             <img [src]="evento.capa" [alt]="evento.titulo" class="evento-cover">
@@ -113,7 +113,11 @@
                         <p class="evento-descricao">{{ evento.descricao }}</p>
                         
                         <div class="evento-acoes">
-                            @if (isInscrito(evento.id)) {
+                            @if (evento.encerrado) {
+                                <button class="btn-inscrever encerrado" (click)="abrirDetalhes(evento)">
+                                    <i class="fa-regular fa-calendar-xmark"></i> Evento encerrado
+                                </button>
+                            } @else if (isInscrito(evento.id)) {
                                 <button class="btn-inscrever inscrito" (click)="abrirDetalhes(evento)">
                                     <i class="fa-solid fa-check"></i> Você está inscrita!
                                 </button>
@@ -208,7 +212,11 @@
                 <button type="button" class="evm-btn-icone" (click)="compartilharEvento(eventoSelecionado())" title="Compartilhar evento" aria-label="Compartilhar evento">
                     <i class="fa-solid fa-share-nodes"></i>
                 </button>
-                @if (isInscrito(eventoSelecionado()?.id)) {
+                @if (eventoSelecionado()?.encerrado) {
+                    <button type="button" class="evm-btn evm-btn-inscrever" disabled>
+                        Inscrições encerradas
+                    </button>
+                } @else if (isInscrito(eventoSelecionado()?.id)) {
                     <button type="button" class="evm-btn evm-btn-cancelar" (click)="cancelarInscricao()">
                         <i class="fa-solid fa-xmark"></i> Cancelar inscrição
                     </button>
@@ -240,4 +248,3 @@
         </div>
     </div>
 }
-

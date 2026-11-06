@@ -328,6 +328,27 @@ body {
     background: #EADFFB;
 }
 
+.btn-inscrever.encerrado {
+    background: #F2F2F5;
+    color: #8A8A99;
+    border-color: transparent;
+}
+
+.evento-card.is-encerrado .evento-cover,
+.evento-card.is-encerrado .calendar-date-box {
+    filter: grayscale(0.85);
+    opacity: 0.75;
+}
+
+.evento-card.is-encerrado .evento-titulo {
+    color: #8A8A99;
+}
+
+.evm-btn-inscrever:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
 .btn-inscrever.inscrito {
     background: #EAF9F1;
     color: #10B981;

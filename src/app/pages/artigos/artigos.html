@@ -90,13 +90,15 @@
                     </div>
 
                     <div class="ac-body">
-                        <span class="ac-time"><i class="fa-regular fa-calendar"></i> {{ artigo.dataString || '26 de set.' }}</span>
+                        @if (artigo.dataString) {
+                            <span class="ac-time"><i class="fa-regular fa-calendar"></i> {{ artigo.dataString }}</span>
+                        }
                         <h4 class="ac-title">{{ artigo.titulo }}</h4>
                         <p class="ac-excerpt">{{ artigo.resumo || artigo.conteudo | slice:0:90 }}...</p>
                         <div class="ac-footer">
                             <span class="ac-author">
                                 <span class="ac-author-ic"><i class="fa-solid fa-book-open"></i></span>
-                                <span class="ac-author-nome">{{ artigo.postadoPor || artigo.fonte || 'ELOMATERNO' }}</span>
+                                <span class="ac-author-nome">{{ artigo.autorExibido }}</span>
                                 <app-selos-autor [uid]="artigo.autorId || artigo.parceiroId"></app-selos-autor>
                             </span>
                             <span class="ac-ler">Ler <i class="fa-solid fa-arrow-right"></i></span>
@@ -119,4 +121,3 @@
     }
 
 </main>
-

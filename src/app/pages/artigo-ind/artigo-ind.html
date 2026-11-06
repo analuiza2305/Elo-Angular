@@ -37,7 +37,9 @@
             
             <div class="artigo-header-meta">
                 <span class="categoria-badge">{{ artigo()?.categoria || 'Legislativo' }}</span>
-                <span class="data-badge"><i class="fa-regular fa-calendar"></i> {{ artigo()?.dataString }}</span>
+                @if (artigo()?.dataString) {
+                    <span class="data-badge"><i class="fa-regular fa-calendar"></i> {{ artigo()?.dataString }}</span>
+                }
             </div>
 
             <h1 id="artigo-titulo">{{ artigo()?.titulo }}</h1>
@@ -66,7 +68,7 @@
                     <span class="afi-ic"><i class="fa-solid fa-book-open"></i></span>
                     <div class="afi-txt">
                         <small>Fonte</small>
-                        <strong>{{ artigo()?.fonte || 'ELOMATERNO' }}</strong>
+                        <strong>{{ artigo()?.fonteExibida }}</strong>
                     </div>
                 </div>
                 @if (artigo()?.autorId || artigo()?.parceiroId) {
@@ -74,7 +76,7 @@
                         <span class="afi-ic afi-ic-autor"><i class="fa-solid fa-pen-nib"></i></span>
                         <div class="afi-txt">
                             <small>Publicado por</small>
-                            <span class="afi-nome"><strong>{{ artigo()?.postadoPor || 'Equipe EloMaterno' }}</strong><app-selos-autor [uid]="artigo()?.autorId || artigo()?.parceiroId"></app-selos-autor></span>
+                            <span class="afi-nome"><strong>{{ artigo()?.autorExibido }}</strong><app-selos-autor [uid]="artigo()?.autorId || artigo()?.parceiroId"></app-selos-autor></span>
                         </div>
                     </div>
                 }
@@ -86,4 +88,3 @@
         <app-anuncio-espaco posicao="artigos"></app-anuncio-espaco>
     }
 </main>
-

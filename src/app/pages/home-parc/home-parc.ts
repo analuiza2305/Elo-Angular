@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, PLATFORM_ID, inject, signal, computed, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import {
@@ -154,9 +154,78 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   private filtroNotifAtual = 'todos';
 
   private eventosParceiro: any[] = [];
-  private currentMonth = new Date().getMonth();
-  private currentYear = new Date().getFullYear();
-  private diaSelecionado: Date | null = null;
+
+  // ===== Calendário + "Meus eventos" (renderizados pelo template, com signals) =====
+  readonly MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  readonly ANOS = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - 2 + i);
+  readonly DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+  eventos = signal<any[]>([]);
+  calMes = signal(new Date().getMonth());
+  calAno = signal(new Date().getFullYear());
+  diaSel = signal<Date | null>(null);
+  abaEventos = signal<'calendario' | 'meus'>('calendario');
+  filtroMeus = signal<'proximos' | 'encerrados' | 'todos'>('proximos');
+  eventoDetalhe = signal<any | null>(null);
+  private eventoEditandoId: string | null = null;
+
+  /** Casinhas vazias antes do dia 1 */
+  calVazios = computed(() => Array(new Date(this.calAno(), this.calMes(), 1).getDay()).fill(0));
+
+  /** Dias do mês com seus eventos */
+  calDias = computed(() => {
+    const ano = this.calAno(), mes = this.calMes();
+    const total = new Date(ano, mes + 1, 0).getDate();
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    const sel = this.diaSel();
+    return Array.from({ length: total }, (_, i) => {
+      const data = new Date(ano, mes, i + 1);
+      const evs = this.eventos().filter((ev) => this.mesmoDia(ev.data, data));
+      return {
+        numero: i + 1,
+        data,
+        eventos: evs,
+        hoje: data.getTime() === hoje.getTime(),
+        passado: data < hoje,
+        selecionado: !!sel && this.mesmoDia(sel, data),
+        tooltip: evs.map((e) => e.titulo).join(', '),
+      };
+    });
+  });
+
+  /** Painel ao lado do calendário: eventos do dia clicado, ou os próximos */
+  painelEventos = computed(() => {
+    const sel = this.diaSel();
+    if (sel) return this.eventos().filter((ev) => this.mesmoDia(ev.data, sel));
+    return this.eventos().filter((ev) => !ev.encerrado).slice(0, 6);
+  });
+
+  painelTitulo = computed(() => {
+    const sel = this.diaSel();
+    return sel ? sel.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }) : 'Próximos eventos';
+  });
+
+  podeCriarNoDiaSel = computed(() => {
+    const sel = this.diaSel();
+    if (!sel) return false;
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    return sel >= hoje;
+  });
+
+  contagem = computed(() => {
+    const evs = this.eventos();
+    const encerrados = evs.filter((e) => e.encerrado).length;
+    return { todos: evs.length, encerrados, proximos: evs.length - encerrados };
+  });
+
+  meusEventos = computed(() => {
+    const f = this.filtroMeus();
+    const evs = this.eventos();
+    if (f === 'proximos') return evs.filter((e) => !e.encerrado);
+    // encerrados: do mais recente para o mais antigo
+    if (f === 'encerrados') return evs.filter((e) => e.encerrado).reverse();
+    return [...evs.filter((e) => !e.encerrado), ...evs.filter((e) => e.encerrado).reverse()];
+  });
 
   private chartsInstanciados: Record<string, Chart | undefined> = {};
 
@@ -261,10 +330,6 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     this.initExclusaoConta();
     this.initForumParceiro();
 
-    (window as any).prevMonth = () => this.prevMonth();
-    (window as any).nextMonth = () => this.nextMonth();
-    (window as any).onMonthChange = () => this.onMonthChange();
-    (window as any).onYearChange = () => this.onYearChange();
   }
 
   /** Sidebar como lista de abas: TAB entra na lista, ↑/↓/Home/End trocam de item. */
@@ -902,7 +967,20 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     };
     const statusRascunho = (msg: string) => { const el = document.getElementById('draftStatusArtigo'); if (el) el.textContent = msg; };
 
+    // Zera o formulário E a prévia (a <img> da prévia guardava a foto do artigo anterior)
+    const limparFormularioArtigo = () => {
+      postForm?.reset();
+      campos.forEach((id) => { const el = document.getElementById(id) as HTMLInputElement | null; if (el && id !== 'categoria') el.value = ''; });
+      const imgEl = document.getElementById('prevArtImg') as HTMLImageElement | null;
+      if (imgEl) { imgEl.onerror = null; imgEl.removeAttribute('src'); imgEl.hidden = true; }
+      const thumb = document.getElementById('prevArtThumb');
+      if (thumb) thumb.style.display = '';
+      if (postMsg) postMsg.textContent = '';
+    };
+
+    // Abre sempre limpo; só preenche se existir rascunho salvo
     const carregarRascunho = () => {
+      limparFormularioArtigo();
       try {
         const raw = localStorage.getItem(this.DRAFT_ARTIGO);
         if (!raw) { statusRascunho(''); return; }
@@ -945,10 +1023,11 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
 
       try {
         await addDoc(collection(db, 'artigos'), artigo);
-        if (postMsg) { postMsg.style.color = 'green'; postMsg.textContent = 'Artigo publicado com sucesso!'; }
-        postForm.reset();
         try { localStorage.removeItem(this.DRAFT_ARTIGO); } catch { /* ok */ }
+        limparFormularioArtigo();
+        atualizarPrevia();
         statusRascunho('');
+        this.alerta.sucesso('Artigo publicado com sucesso!');
         this.fecharModal(modal);
         this.carregarArtigosNaAbaArtigos(this.nomeEmpresaAtual);
         this.carregarDashboardStats();
@@ -1127,37 +1206,58 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     });
 
     document.querySelectorAll('.add-event-btn').forEach((btn) =>
-      btn.addEventListener('click', () => { carregarRascunho(); atualizarPrevia(); this.abrirModal(eventModal); }),
+      btn.addEventListener('click', () => {
+        this.eventoEditandoId = null;
+        eventForm?.reset();
+        this.prepararModalEvento(false);
+        carregarRascunho();
+        atualizarPrevia();
+        this.abrirModal(eventModal);
+      }),
     );
-    closeEventModal?.addEventListener('click', () => this.fecharModal(eventModal));
+    closeEventModal?.addEventListener('click', () => { this.eventoEditandoId = null; this.fecharModal(eventModal); });
 
     eventForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const evento = {
+      const dataEv = new Date(val('dataEvento'));
+      if (isNaN(dataEv.getTime())) {
+        if (eventMsg) { eventMsg.style.color = 'red'; eventMsg.textContent = 'Escolha uma data e hora válidas.'; }
+        return;
+      }
+      const dados = {
         titulo: val('tituloEvento').trim(),
         descricao: val('descricaoEvento').trim(),
-        data: Timestamp.fromDate(new Date(val('dataEvento'))),
+        data: Timestamp.fromDate(dataEv),
         local: val('localEvento').trim(),
         capa: val('capaEvento').trim(),
         tipo: val('tipoEvento'),
-        enviadoPor: this.nomeEmpresaAtual,
-        parceiroId: this.uidAtual,
-        ...(await this.visibilidadeDaPublicacao()),
       };
+      const editandoId = this.eventoEditandoId;
 
       try {
-        await addDoc(collection(db, 'eventos'), evento);
-        if (eventMsg) { eventMsg.style.color = 'green'; eventMsg.textContent = 'Evento criado com sucesso!'; }
+        if (editandoId) {
+          // edição: mantém autor e nível de visibilidade que o evento já tinha
+          await updateDoc(doc(db, 'eventos', editandoId), { ...dados, editadoEm: serverTimestamp() });
+        } else {
+          await addDoc(collection(db, 'eventos'), {
+            ...dados,
+            enviadoPor: this.nomeEmpresaAtual,
+            parceiroId: this.uidAtual,
+            ...(await this.visibilidadeDaPublicacao()),
+          });
+          try { localStorage.removeItem(this.DRAFT_EVENTO); } catch { /* ok */ }
+        }
         eventForm.reset();
-        try { localStorage.removeItem(this.DRAFT_EVENTO); } catch { /* ok */ }
         status('');
+        this.eventoEditandoId = null;
         this.fecharModal(eventModal);
         await this.carregarEventosParceiro(this.nomeEmpresaAtual);
         this.carregarDashboardStats();
+        this.alerta.sucesso(editandoId ? 'Evento atualizado!' : 'Evento publicado! Ele já aparece em "Meus eventos".');
       } catch (err) {
-        console.error('Erro ao criar evento:', err);
-        if (eventMsg) { eventMsg.style.color = 'red'; eventMsg.textContent = 'Erro ao criar evento.'; }
+        console.error('Erro ao salvar evento:', err);
+        if (eventMsg) { eventMsg.style.color = 'red'; eventMsg.textContent = 'Erro ao salvar o evento.'; }
       }
     });
   }
@@ -1166,8 +1266,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     if (!nomeEmpresa && !this.uidAtual) return;
 
     // Busca por parceiroId (estável) e por enviadoPor (nome exibido, usado nos eventos
-    // antigos criados antes de existir o parceiroId). Combina os dois resultados para
-    // não perder eventos publicados antes de uma eventual troca de nome do parceiro.
+    // antigos criados antes de existir o parceiroId). Combina os dois resultados.
     const consultas: Promise<QuerySnapshot<DocumentData>>[] = [];
     if (this.uidAtual) {
       consultas.push(getDocs(query(collection(db, 'eventos'), where('parceiroId', '==', this.uidAtual))));
@@ -1176,164 +1275,157 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       consultas.push(getDocs(query(collection(db, 'eventos'), where('enviadoPor', '==', nomeEmpresa))));
     }
 
-    const snaps = await Promise.all(consultas);
+    // allSettled: se uma das consultas falhar, a outra ainda aparece
+    const resultados = await Promise.allSettled(consultas);
     const eventosPorId = new Map<string, any>();
-    snaps.forEach((snap) => {
-      snap.forEach((docSnap) => {
+    const agora = Date.now();
+    resultados.forEach((r) => {
+      if (r.status === 'rejected') { console.error('Erro ao buscar eventos do parceiro:', r.reason); return; }
+      r.value.forEach((docSnap) => {
         const data = docSnap.data() as any;
+        const quando: Date = data['data']?.toDate ? data['data'].toDate() : new Date(data['data']);
+        if (isNaN(quando.getTime())) return; // data inválida quebraria o calendário
         eventosPorId.set(docSnap.id, {
           id: docSnap.id,
           ...data,
-          data: data['data']?.toDate ? data['data'].toDate() : new Date(data['data']),
+          data: quando,
+          encerrado: quando.getTime() < agora,
+          removido: !!data?.['moderacao']?.removido,
+          tipoLabel: this.TIPO_LABEL[data['tipo']] || 'Evento',
+          cor: this.corDoTipo(data['tipo']),
+          dataCurta: quando.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', ''),
+          dataLonga: quando.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }),
+          hora: quando.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          dia: String(quando.getDate()).padStart(2, '0'),
+          mes: quando.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase(),
         });
       });
     });
 
-    this.eventosParceiro = Array.from(eventosPorId.values());
-    this.inicializarSelects();
-    this.renderCalendar();
+    this.eventosParceiro = Array.from(eventosPorId.values()).sort((a, b) => a.data - b.data);
+    this.eventos.set(this.eventosParceiro);
+
+    // se o evento aberto no detalhe foi alterado/excluído, atualiza o modal
+    const aberto = this.eventoDetalhe();
+    if (aberto) this.eventoDetalhe.set(eventosPorId.get(aberto.id) || null);
+
     this.renderProximosEventosDashboard();
   }
 
-  private inicializarSelects(): void {
-    const monthSelect = document.getElementById('month-select') as HTMLSelectElement | null;
-    const yearSelect = document.getElementById('year-select') as HTMLSelectElement | null;
-    if (!monthSelect || !yearSelect) return;
+  // ---------- navegação do calendário ----------
+  private mesmoDia(a: Date, b: Date): boolean {
+    return a.getDate() === b.getDate() && a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
+  }
 
-    const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  mesAnterior(): void {
+    if (this.calMes() === 0) { this.calMes.set(11); this.calAno.update((a) => a - 1); }
+    else this.calMes.update((m) => m - 1);
+    this.diaSel.set(null);
+  }
 
-    if (monthSelect.options.length === 0) {
-      months.forEach((m, i) => {
-        const opt = document.createElement('option');
-        opt.value = String(i);
-        opt.textContent = m;
-        monthSelect.appendChild(opt);
-      });
-      const year = new Date().getFullYear();
-      for (let y = year - 2; y <= year + 3; y++) {
-        const opt = document.createElement('option');
-        opt.value = String(y);
-        opt.textContent = String(y);
-        yearSelect.appendChild(opt);
-      }
+  proximoMes(): void {
+    if (this.calMes() === 11) { this.calMes.set(0); this.calAno.update((a) => a + 1); }
+    else this.calMes.update((m) => m + 1);
+    this.diaSel.set(null);
+  }
+
+  irParaHoje(): void {
+    const h = new Date();
+    this.calMes.set(h.getMonth());
+    this.calAno.set(h.getFullYear());
+    this.diaSel.set(null);
+  }
+
+  mudarMes(valor: string): void { this.calMes.set(+valor); this.diaSel.set(null); }
+  mudarAno(valor: string): void { this.calAno.set(+valor); this.diaSel.set(null); }
+
+  selecionarDia(data: Date): void {
+    const sel = this.diaSel();
+    this.diaSel.set(sel && this.mesmoDia(sel, data) ? null : data);
+  }
+
+  // ---------- detalhe do evento ----------
+  abrirDetalheEvento(ev: any): void {
+    this.eventoDetalhe.set(ev);
+  }
+
+  fecharDetalheEvento(): void {
+    this.eventoDetalhe.set(null);
+  }
+
+  @HostListener('document:keydown.escape')
+  aoApertarEsc(): void {
+    if (this.eventoDetalhe()) this.fecharDetalheEvento();
+  }
+
+  /** "Ver no calendário": fecha o detalhe e pula para o mês/dia do evento */
+  verNoCalendario(ev: any): void {
+    this.calMes.set(ev.data.getMonth());
+    this.calAno.set(ev.data.getFullYear());
+    this.diaSel.set(ev.data);
+    this.abaEventos.set('calendario');
+    this.fecharDetalheEvento();
+    this.goToSection('calendario'); // caso tenha aberto pelo dashboard
+  }
+
+  excluirEventoDetalhe(ev: any): void {
+    this.itemParaExcluir = ev.id;
+    this.tipoParaExcluir = 'evento';
+    this.fecharDetalheEvento();
+    this.confirmModal?.classList.remove('hidden');
+  }
+
+  /** Abre o modal de evento já preenchido para editar */
+  editarEvento(ev: any): void {
+    this.fecharDetalheEvento();
+    this.eventoEditandoId = ev.id;
+    const set = (id: string, v: string) => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = v; };
+    set('tituloEvento', ev.titulo || '');
+    set('descricaoEvento', ev.descricao || '');
+    set('dataEvento', this.paraDatetimeLocal(ev.data));
+    set('localEvento', ev.local || '');
+    set('capaEvento', ev.capa || '');
+    set('tipoEvento', ev.tipo || 'psicologo');
+    this.prepararModalEvento(true);
+  }
+
+  /** Abre o modal de novo evento com a data do dia escolhido no calendário */
+  criarEventoNoDia(): void {
+    const sel = this.diaSel();
+    this.eventoEditandoId = null;
+    (document.querySelector('.add-event-btn') as HTMLElement | null)?.click();
+    if (sel) {
+      const d = new Date(sel); d.setHours(19, 0, 0, 0);
+      const el = document.getElementById('dataEvento') as HTMLInputElement | null;
+      if (el) { el.value = this.paraDatetimeLocal(d); el.dispatchEvent(new Event('input')); }
     }
-    this.atualizarSelects();
   }
 
-  private atualizarSelects(): void {
-    const monthSelect = document.getElementById('month-select') as HTMLSelectElement | null;
-    const yearSelect = document.getElementById('year-select') as HTMLSelectElement | null;
-    if (!monthSelect || !yearSelect) return;
-    monthSelect.value = String(this.currentMonth);
-    yearSelect.value = String(this.currentYear);
-    this.renderCalendar();
+  private paraDatetimeLocal(d: Date): string {
+    const p = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
   }
 
-  private prevMonth(): void {
-    this.currentMonth--;
-    if (this.currentMonth < 0) { this.currentMonth = 11; this.currentYear--; }
-    this.atualizarSelects();
-  }
-
-  private nextMonth(): void {
-    this.currentMonth++;
-    if (this.currentMonth > 11) { this.currentMonth = 0; this.currentYear++; }
-    this.atualizarSelects();
-  }
-
-  private onMonthChange(): void {
-    this.currentMonth = parseInt((document.getElementById('month-select') as HTMLSelectElement).value, 10);
-    this.renderCalendar();
-  }
-
-  private onYearChange(): void {
-    this.currentYear = parseInt((document.getElementById('year-select') as HTMLSelectElement).value, 10);
-    this.renderCalendar();
+  /** Ajusta título/botão do modal entre "novo" e "editar" e abre */
+  private prepararModalEvento(editando: boolean): void {
+    const titulo = document.getElementById('eventModalTitulo');
+    if (titulo) titulo.textContent = editando ? 'Editar evento' : 'Novo evento';
+    const btn = document.querySelector('#eventForm button[type="submit"]');
+    if (btn) btn.textContent = editando ? 'Salvar alterações' : 'Publicar evento';
+    const rascunho = document.getElementById('salvarRascunhoEvento');
+    if (rascunho) rascunho.hidden = editando;
+    const msg = document.getElementById('eventMsg');
+    if (msg) msg.textContent = '';
+    if (editando) {
+      ['tituloEvento', 'descricaoEvento', 'dataEvento', 'localEvento', 'tipoEvento'].forEach((id) =>
+        document.getElementById(id)?.dispatchEvent(new Event('input')),
+      );
+      this.abrirModal(document.getElementById('eventModal'));
+    }
   }
 
   private corDoTipo(tipo: string): string {
     return ({ psicologo: '#2d2d7a', apoio: '#e0524f', oficinas: '#4caf6b', juridico: '#37c1d1' } as Record<string, string>)[tipo] || '#7a5fe8';
-  }
-
-  private renderCalendar(): void {
-    const calendarDates = document.getElementById('calendarDates');
-    if (!calendarDates) return;
-
-    const today = new Date();
-    const firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
-    const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
-
-    calendarDates.innerHTML = '';
-
-    for (let i = 0; i < firstDay; i++) {
-      const empty = document.createElement('div');
-      empty.classList.add('empty');
-      calendarDates.appendChild(empty);
-    }
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dateDiv = document.createElement('div');
-      dateDiv.classList.add('date');
-
-      const current = new Date(this.currentYear, this.currentMonth, d);
-      if (current.toDateString() === today.toDateString()) dateDiv.classList.add('today');
-      if (current < today && current.toDateString() !== today.toDateString()) dateDiv.classList.add('past');
-
-      const eventosDia = this.eventosParceiro.filter(
-        (ev) => ev.data.getDate() === d && ev.data.getMonth() === this.currentMonth && ev.data.getFullYear() === this.currentYear,
-      );
-
-      dateDiv.textContent = String(d);
-
-      if (eventosDia.length > 0) {
-        dateDiv.classList.add('has-event');
-        dateDiv.title = eventosDia.map((ev) => ev.titulo).join(', ');
-        const dot = document.createElement('span');
-        dot.className = `event-dot tipo-${eventosDia[0].tipo || 'apoio'}`;
-        dateDiv.appendChild(dot);
-
-        dateDiv.addEventListener('click', () => {
-          this.diaSelecionado = current;
-          this.renderEventosDoDia(eventosDia, current);
-        });
-      }
-
-      calendarDates.appendChild(dateDiv);
-    }
-  }
-
-  private renderEventosDoDia(eventos: any[], dataRef: Date): void {
-    const titulo = document.getElementById('eventosDoDiaTitulo');
-    const lista = document.getElementById('eventosDoDiaList');
-    if (!lista) return;
-
-    if (titulo) {
-      titulo.textContent = `Eventos do dia — ${dataRef.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}`;
-    }
-
-    const ordenados = [...eventos].sort((a, b) => a.data - b.data);
-
-    lista.innerHTML = ordenados.map((ev) => `
-      <div class="event evento-card" style="border-left-color:${this.corDoTipo(ev.tipo)}">
-        <div class="evento-card-header">
-          <strong>${ev.data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</strong>
-          <div class="evento-card-actions">
-            <span class="evento-tipo-tag tipo-${ev.tipo || 'apoio'}">${this.TIPO_LABEL[ev.tipo] || 'Evento'}</span>
-            <div class="delete-btn"><i class="fa-solid fa-trash"></i></div>
-          </div>
-        </div>
-        <p style="margin:4px 0 2px;font-weight:600;">${this.sanitize(ev.titulo)}</p>
-        <p style="margin:0;color:#777;">${this.sanitize(ev.local)}</p>
-      </div>
-    `).join('');
-
-    lista.querySelectorAll('.delete-btn').forEach((btn, i) => {
-      btn.addEventListener('click', () => {
-        this.itemParaExcluir = ordenados[i].id;
-        this.tipoParaExcluir = 'evento';
-        this.confirmModal?.classList.remove('hidden');
-      });
-    });
   }
 
   private renderProximosEventosDashboard(): void {
@@ -1346,7 +1438,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     lista.innerHTML = proximos.length === 0
       ? `<p class="empty-hint">Nenhum evento futuro cadastrado.</p>`
       : proximos.map((ev) => `
-          <div class="dash-item">
+          <div class="dash-item dash-item-clicavel" role="button" tabindex="0" title="Ver detalhes do evento">
             <div class="dash-item-icon"><i class="fa-regular fa-calendar"></i></div>
             <div class="dash-item-body">
               <div class="dash-item-title">${this.sanitize(ev.titulo)}</div>
@@ -1354,6 +1446,13 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
             </div>
           </div>
         `).join('');
+
+    // clicar num próximo evento do dashboard abre o detalhe
+    lista.querySelectorAll<HTMLElement>('.dash-item-clicavel').forEach((el, i) => {
+      const abrir = () => this.abrirDetalheEvento(proximos[i]);
+      el.addEventListener('click', abrir);
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } });
+    });
   }
 
   // =============================================================
@@ -1371,8 +1470,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         await deleteDoc(doc(db, 'eventos', this.itemParaExcluir));
         await this.carregarEventosParceiro(this.nomeEmpresaAtual);
         this.carregarDashboardStats();
-        const listaDia = document.getElementById('eventosDoDiaList');
-        if (listaDia) listaDia.innerHTML = `<p class="empty-hint">Selecione um dia com evento para ver os detalhes.</p>`;
+        this.alerta.sucesso('Evento excluído.');
       }
     } catch (err) {
       console.error('Erro ao excluir:', err);

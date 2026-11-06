@@ -4,7 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, updateDoc, arrayRemove, collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
+import { formatarDataArtigo, autorDoArtigo, fonteDoArtigo, carregarIdsFavoritos, definirFavorito } from '../../services/artigo-utils';
 
 import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 @Component({
@@ -37,51 +38,30 @@ export class ArtigosFavoritos implements OnInit {
   async carregarFavoritos(uid: string) {
     try {
       this.isLoading.set(true);
-      const userRef = doc(db, 'usuarios', uid);
-      const userSnap = await getDoc(userRef);
+      const [idsFavoritos, artigosSnap] = await Promise.all([
+        carregarIdsFavoritos(uid),
+        getDocs(collection(db, 'artigos')),
+      ]);
 
-      if (userSnap.exists()) {
-        const idsFavoritos: string[] = userSnap.data()['favoritos'] || [];
-        
-        if (idsFavoritos.length === 0) {
-          this.artigosFavoritos.set([]);
-          this.isLoading.set(false);
-          return;
-        }
+      const lista: any[] = [];
+      artigosSnap.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data?.['moderacao']?.removido) return;
+        // também aceita favoritos antigos, salvos só em artigos/{id}.salvosPor
+        const favoritado = idsFavoritos.includes(docSnap.id) || data['salvosPor']?.includes(uid);
+        if (!favoritado) return;
 
-        // Busca todos os artigos do Firestore para filtrar apenas os favoritados
-        const artigosSnap = await getDocs(collection(db, "artigos"));
-        const lista: any[] = [];
-
-        artigosSnap.forEach(docSnap => {
-          if (idsFavoritos.includes(docSnap.id) && !docSnap.data()?.['moderacao']?.removido) {
-            const data = docSnap.data();
-            let dataString = '26 de set.';
-            let dataObj = null;
-
-            const rawDate = data['data'] ?? data['date'] ?? data['datahorapost'] ?? null;
-            if (rawDate && rawDate.toDate) {
-              dataObj = rawDate.toDate();
-            } else if (typeof rawDate === 'string') {
-              dataObj = new Date(rawDate);
-            }
-
-            if (dataObj && !isNaN(dataObj.getTime())) {
-              dataString = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '');
-            }
-
-            lista.push({
-              id: docSnap.id,
-              ...data,
-              categoria: data['categoria'] || 'Legislativo',
-              fonte: data['fonte'] || 'ELOMATERNO',
-              dataString
-            });
-          }
+        lista.push({
+          id: docSnap.id,
+          ...data,
+          categoria: data['categoria'] || 'Legislativo',
+          dataString: formatarDataArtigo(data),
+          autorExibido: autorDoArtigo(data),
+          fonteExibida: fonteDoArtigo(data),
         });
+      });
 
-        this.artigosFavoritos.set(lista);
-      }
+      this.artigosFavoritos.set(lista);
     } catch (err) {
       console.error("Erro ao carregar favoritos:", err);
     } finally {
@@ -104,11 +84,7 @@ export class ArtigosFavoritos implements OnInit {
     if (!user) return;
 
     try {
-      const userRef = doc(db, 'usuarios', user.uid);
-      await updateDoc(userRef, {
-        favoritos: arrayRemove(artigoId)
-      });
-
+      await definirFavorito(user.uid, artigoId, false);
       // Atualiza a lista localmente removendo o card da tela
       this.artigosFavoritos.update(lista => lista.filter(a => a.id !== artigoId));
     } catch (error) {

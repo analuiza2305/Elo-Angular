@@ -105,11 +105,15 @@ export class Eventos implements OnInit {
           mes = dataObj.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase();
         }
 
+        const encerrado = !!dataObj && dataObj.getTime() < Date.now();
+
         lista.push({
           id: docSnap.id,
           ...data,
           categoria: data['categoria'] || 'Evento',
-          visibilidade: visibilidadeEfetiva(data),
+          // evento que já passou perde o destaque pago e vai para o fim da lista
+          visibilidade: encerrado ? 'basico' : visibilidadeEfetiva(data),
+          encerrado,
           dataObj,
           dataFormatada,
           dia,
@@ -117,13 +121,22 @@ export class Eventos implements OnInit {
         });
       });
 
-      lista.sort((a, b) => prioridadeVisibilidade(b.visibilidade) - prioridadeVisibilidade(a.visibilidade) || (a.dataObj?.getTime() || 0) - (b.dataObj?.getTime() || 0));
+      lista.sort((a, b) => this.ordemPadrao(a, b));
       this.eventos.set(lista);
     } catch (err) {
       console.error('Erro ao carregar eventos:', err);
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  /** Próximos primeiro (destaque pago na frente, depois o mais próximo); encerrados no fim, do mais recente ao mais antigo. */
+  private ordemPadrao(a: any, b: any): number {
+    if (a.encerrado !== b.encerrado) return a.encerrado ? 1 : -1;
+    const ta = a.dataObj?.getTime() || 0;
+    const tb = b.dataObj?.getTime() || 0;
+    if (a.encerrado) return tb - ta;
+    return prioridadeVisibilidade(b.visibilidade) - prioridadeVisibilidade(a.visibilidade) || ta - tb;
   }
 
   filtrarCategoria(categoria: string) {
@@ -153,7 +166,7 @@ export class Eventos implements OnInit {
 
     const lista = [...this.eventos()];
     if (tipo === 'recentes') {
-      lista.sort((a, b) => prioridadeVisibilidade(b.visibilidade) - prioridadeVisibilidade(a.visibilidade) || (a.dataObj?.getTime() || 0) - (b.dataObj?.getTime() || 0));
+      lista.sort((a, b) => this.ordemPadrao(a, b));
     } else if (tipo === 'antigos') {
       lista.sort((a, b) => (b.dataObj?.getTime() || 0) - (a.dataObj?.getTime() || 0));
     } else if (tipo === 'alfabetica') {
@@ -207,6 +220,10 @@ export class Eventos implements OnInit {
     }
 
     const evento = this.eventoSelecionado();
+    if (evento?.encerrado) {
+      this.abrirAviso('Evento encerrado', 'Esse evento já aconteceu, então as inscrições foram encerradas.');
+      return;
+    }
     if (this.isInscrito(evento.id)) {
       this.abrirAviso('Atenção', 'Você já está inscrita nesse evento.');
       return;

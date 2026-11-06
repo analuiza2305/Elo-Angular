@@ -8,8 +8,9 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 import { 
-  collection, query, orderBy, limit, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove 
+  collection, query, orderBy, limit, where, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove, Timestamp 
 } from 'firebase/firestore';
+import { formatarDataArtigo, autorDoArtigo, carregarIdsFavoritos, definirFavorito } from '../../services/artigo-utils';
 
 @Component({
   selector: 'app-home-mae',
@@ -144,15 +145,20 @@ export class HomeMaeComponent implements OnInit {
   async carregarUltimosArtigos() {
     try {
       const q = query(collection(db, 'artigos'), orderBy('datahorapost', 'desc'), limit(12));
-      const snap = await getDocs(q);
       const user = this.currentUser();
-      
+      const [snap, favoritos] = await Promise.all([
+        getDocs(q),
+        user ? carregarIdsFavoritos(user.uid) : Promise.resolve([] as string[]),
+      ]);
+
       const artigos = snap.docs.filter(d => !d.data()?.['moderacao']?.removido).map(d => {
         const data = d.data();
         return {
           id: d.id,
           ...data,
-          salvo: user ? (data['artigosSalvos']?.includes(user.uid) || false) : false
+          dataString: formatarDataArtigo(data),
+          autorExibido: autorDoArtigo(data),
+          salvo: user ? (favoritos.includes(d.id) || data['salvosPor']?.includes(user.uid) || false) : false
         };
       });
       this.ultimosArtigos.set(artigos.slice(0, 6));
@@ -161,7 +167,8 @@ export class HomeMaeComponent implements OnInit {
 
   async carregarUltimosEventos() {
     try {
-      const q = query(collection(db, 'eventos'), orderBy('data', 'desc'), limit(6));
+      // só eventos que ainda não aconteceram, do mais próximo para o mais distante
+      const q = query(collection(db, 'eventos'), where('data', '>=', Timestamp.now()), orderBy('data', 'asc'), limit(6));
       const snap = await getDocs(q);
       const eventos = snap.docs.filter(d => !d.data()?.['moderacao']?.removido).map(docSnap => {
         const data = docSnap.data();
@@ -206,16 +213,11 @@ export class HomeMaeComponent implements OnInit {
       this.infoModal.set({title: 'Login necessário', message: 'Você precisa estar logada para salvar artigos!'});
       return;
     }
-    const artigoRef = doc(db, 'artigos', artigo.id);
     const isSaved = artigo.salvo;
-    
+
     try {
       artigo.salvo = !isSaved;
-      if (isSaved) {
-        await updateDoc(artigoRef, { salvosPor: arrayRemove(user.uid) });
-      } else {
-        await updateDoc(artigoRef, { salvosPor: arrayUnion(user.uid) });
-      }
+      await definirFavorito(user.uid, artigo.id, !isSaved);
     } catch (err) {
       artigo.salvo = isSaved;
       console.error("Erro ao salvar artigo", err);

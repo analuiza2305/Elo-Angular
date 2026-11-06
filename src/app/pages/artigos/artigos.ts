@@ -4,7 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
+import { formatarDataArtigo, dataDoArtigo, autorDoArtigo, fonteDoArtigo, carregarIdsFavoritos, definirFavorito } from '../../services/artigo-utils';
 import { AlertaService } from '../../core/services/alerta.service';
 
 import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
@@ -32,7 +33,7 @@ export class Artigos implements OnInit {
 
   // Computa os artigos filtrados e ordenados em tempo real
   artigosFiltrados = computed(() => {
-    let filtrados = this.todosArtigos();
+    let filtrados = [...this.todosArtigos()];
 
     // Filtro por Categoria
     if (this.categoriaSelecionada() !== 'Todos') {
@@ -45,8 +46,8 @@ export class Artigos implements OnInit {
         return (a.titulo || '').localeCompare(b.titulo || '');
       }
       
-      const dataA = a.datahorapost?.toDate ? a.datahorapost.toDate().getTime() : 0;
-      const dataB = b.datahorapost?.toDate ? b.datahorapost.toDate().getTime() : 0;
+      const dataA = dataDoArtigo(a)?.getTime() || 0;
+      const dataB = dataDoArtigo(b)?.getTime() || 0;
 
       if (this.ordemSelecionada() === 'antigos') {
         return dataA - dataB;
@@ -86,9 +87,12 @@ export class Artigos implements OnInit {
   async carregarArtigos() {
     try {
       this.isLoading.set(true);
-      const snap = await getDocs(collection(db, 'artigos'));
       const user = this.currentUser();
-      
+      const [snap, favoritos] = await Promise.all([
+        getDocs(collection(db, 'artigos')),
+        user ? carregarIdsFavoritos(user.uid) : Promise.resolve([] as string[]),
+      ]);
+
       const artigos = snap.docs.filter(d => !d.data()?.['moderacao']?.removido).map(d => {
         const data = d.data();
         return {
@@ -96,8 +100,11 @@ export class Artigos implements OnInit {
           ...data,
           // nível de visibilidade (pacote de divulgação do parceiro); volta ao básico quando o pacote acaba
           visibilidade: visibilidadeEfetiva(data),
-          // Verifica se o ID do usuário está no array de salvos deste artigo
-          salvo: user ? (data['salvosPor']?.includes(user.uid) || false) : false
+          dataString: formatarDataArtigo(data),
+          autorExibido: autorDoArtigo(data),
+          fonteExibida: fonteDoArtigo(data),
+          // favoritos ficam no perfil da usuária (usuarios/{uid}.favoritos)
+          salvo: user ? (favoritos.includes(d.id) || data['salvosPor']?.includes(user.uid) || false) : false
         };
       });
 
@@ -145,18 +152,13 @@ export class Artigos implements OnInit {
       return;
     }
 
-    const artigoRef = doc(db, 'artigos', artigo.id);
     const isSaved = artigo.salvo;
-    
+
     // Atualização Otimista: Muda na tela antes do banco terminar
     artigo.salvo = !isSaved;
 
     try {
-      if (isSaved) {
-        await updateDoc(artigoRef, { salvosPor: arrayRemove(user.uid) });
-      } else {
-        await updateDoc(artigoRef, { salvosPor: arrayUnion(user.uid) });
-      }
+      await definirFavorito(user.uid, artigo.id, !isSaved);
     } catch (err) {
       // Reverte se der erro no Firestore
       artigo.salvo = isSaved;

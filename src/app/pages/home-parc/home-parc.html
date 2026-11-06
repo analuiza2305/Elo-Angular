@@ -393,48 +393,175 @@
         </section>
 
         <section class="content hidden" id="calendario">
-            <div class="calendario-topbar">
-                <button type="button" class="btn-criar-evento add-event-btn" id="calCriarEventoBtn">
-                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Criar evento
-                </button>
-            </div>
-            <div class="container">
-                <div class="calendar-container">
-                    <div class="calendar-header">
-                        <button onclick="prevMonth()">&lt;</button>
-                        <div class="month-year-select">
-                            <select id="month-select" onchange="onMonthChange()"></select>
-                            <select id="year-select" onchange="onYearChange()"></select>
+            <div class="pcal">
+                <!-- Topo: sub-abas + criar evento -->
+                <div class="pcal-topo">
+                    <div class="pcal-abas" role="tablist" aria-label="Eventos">
+                        <button type="button" role="tab" class="pcal-aba" [class.ativa]="abaEventos() === 'calendario'"
+                                [attr.aria-selected]="abaEventos() === 'calendario'" (click)="abaEventos.set('calendario')">
+                            <i class="fa-regular fa-calendar"></i> Calendário
+                        </button>
+                        <button type="button" role="tab" class="pcal-aba" [class.ativa]="abaEventos() === 'meus'"
+                                [attr.aria-selected]="abaEventos() === 'meus'" (click)="abaEventos.set('meus')">
+                            <i class="fa-solid fa-list-ul"></i> Meus eventos
+                            <span class="pcal-badge">{{ contagem().todos }}</span>
+                        </button>
+                    </div>
+                    <button type="button" class="pcal-btn-criar add-event-btn" id="calCriarEventoBtn">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i> Criar evento
+                    </button>
+                </div>
+
+                <!-- ===== ABA CALENDÁRIO ===== -->
+                @if (abaEventos() === 'calendario') {
+                    <div class="pcal-grade">
+                        <div class="pcal-card pcal-calendario">
+                            <div class="pcal-cal-header">
+                                <button type="button" class="pcal-nav" (click)="mesAnterior()" aria-label="Mês anterior">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                                <div class="pcal-selects">
+                                    <select aria-label="Mês" [value]="calMes()" (change)="mudarMes($any($event.target).value)">
+                                        @for (m of MESES; track $index) {
+                                            <option [value]="$index" [selected]="$index === calMes()">{{ m }}</option>
+                                        }
+                                    </select>
+                                    <select aria-label="Ano" [value]="calAno()" (change)="mudarAno($any($event.target).value)">
+                                        @for (a of ANOS; track a) {
+                                            <option [value]="a" [selected]="a === calAno()">{{ a }}</option>
+                                        }
+                                    </select>
+                                </div>
+                                <button type="button" class="pcal-nav" (click)="proximoMes()" aria-label="Próximo mês">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+
+                            <div class="pcal-semana">
+                                @for (d of DIAS_SEMANA; track d) { <span>{{ d }}</span> }
+                            </div>
+
+                            <div class="pcal-dias">
+                                @for (v of calVazios(); track $index) { <div class="pcal-vazio"></div> }
+                                @for (dia of calDias(); track dia.numero) {
+                                    <button type="button" class="pcal-dia"
+                                            [class.hoje]="dia.hoje" [class.passado]="dia.passado"
+                                            [class.tem-evento]="dia.eventos.length" [class.selecionado]="dia.selecionado"
+                                            [attr.title]="dia.tooltip || null"
+                                            [attr.aria-label]="dia.numero + (dia.eventos.length ? ', ' + dia.eventos.length + ' evento(s)' : '')"
+                                            (click)="selecionarDia(dia.data)">
+                                        <span class="pcal-num">{{ dia.numero }}</span>
+                                        @if (dia.eventos.length) {
+                                            <span class="pcal-pontos" aria-hidden="true">
+                                                @for (ev of dia.eventos.slice(0, 3); track ev.id) {
+                                                    <span class="pcal-ponto" [style.background]="dia.passado ? '#c9c4d6' : ev.cor"></span>
+                                                }
+                                            </span>
+                                        }
+                                    </button>
+                                }
+                            </div>
+
+                            <div class="pcal-rodape">
+                                <div class="pcal-legenda">
+                                    <span><i style="background:#2d2d7a"></i> Psicólogo</span>
+                                    <span><i style="background:#e0524f"></i> Apoio</span>
+                                    <span><i style="background:#4caf6b"></i> Oficinas</span>
+                                    <span><i style="background:#37c1d1"></i> Jurídico</span>
+                                </div>
+                                <button type="button" class="pcal-link" (click)="irParaHoje()">Hoje</button>
+                            </div>
                         </div>
-                        <button onclick="nextMonth()">&gt;</button>
-                    </div>
 
-                    <div class="calendar-days">
-                        <div>D</div>
-                        <div>S</div>
-                        <div>T</div>
-                        <div>Q</div>
-                        <div>Q</div>
-                        <div>S</div>
-                        <div>S</div>
-                    </div>
-                    <div class="calendar-dates" id="calendarDates"></div>
+                        <div class="pcal-card pcal-painel">
+                            <div class="pcal-painel-topo">
+                                <h3>{{ painelTitulo() }}</h3>
+                                @if (diaSel()) {
+                                    <button type="button" class="pcal-link" (click)="diaSel.set(null)">Ver próximos</button>
+                                }
+                            </div>
 
-                    <div class="calendar-legend">
-                        <span class="legend-item"><span class="legend-dot dot-psicologo"></span> Psicólogo</span>
-                        <span class="legend-item"><span class="legend-dot dot-apoio"></span> Apoio</span>
-                        <span class="legend-item"><span class="legend-dot dot-oficinas"></span> Oficinas</span>
-                        <span class="legend-item"><span class="legend-dot dot-juridico"></span> Jurídico</span>
+                            <div class="pcal-lista">
+                                @for (ev of painelEventos(); track ev.id) {
+                                    <button type="button" class="pcal-item" [class.encerrado]="ev.encerrado" (click)="abrirDetalheEvento(ev)">
+                                        <span class="pcal-item-data" [style.background]="ev.encerrado ? '#ece9f3' : ev.cor + '1f'" [style.color]="ev.encerrado ? '#8a8599' : ev.cor">
+                                            <strong>{{ ev.dia }}</strong><small>{{ ev.mes }}</small>
+                                        </span>
+                                        <span class="pcal-item-info">
+                                            <strong>{{ ev.titulo || 'Evento' }}</strong>
+                                            <small><i class="fa-regular fa-clock"></i> {{ ev.hora }} · {{ ev.local || 'Online' }}</small>
+                                            <span class="pcal-tag" [style.color]="ev.cor" [style.borderColor]="ev.cor + '55'">{{ ev.tipoLabel }}</span>
+                                        </span>
+                                        <i class="fa-solid fa-chevron-right pcal-seta" aria-hidden="true"></i>
+                                    </button>
+                                } @empty {
+                                    <div class="pcal-vazio-estado">
+                                        <i class="fa-regular fa-calendar-plus"></i>
+                                        @if (diaSel()) {
+                                            <strong>Nenhum evento neste dia</strong>
+                                            @if (podeCriarNoDiaSel()) {
+                                                <button type="button" class="pcal-btn-sec" (click)="criarEventoNoDia()">Criar evento neste dia</button>
+                                            }
+                                        } @else {
+                                            <strong>Nenhum evento futuro</strong>
+                                            <p>Crie um evento e ele aparece aqui e no calendário das mães.</p>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
                     </div>
-                </div>
+                }
 
-                <div class="events-container">
-                    <h3 id="eventosDoDiaTitulo">Eventos do dia</h3>
-                    <div class="event-list" id="eventosDoDiaList">
-                        <p class="empty-hint">Selecione um dia com evento para ver os detalhes.</p>
+                <!-- ===== ABA MEUS EVENTOS ===== -->
+                @if (abaEventos() === 'meus') {
+                    <div class="pcal-card">
+                        <div class="pcal-filtros" role="group" aria-label="Filtrar eventos">
+                            <button type="button" [class.ativo]="filtroMeus() === 'proximos'" (click)="filtroMeus.set('proximos')">Próximos ({{ contagem().proximos }})</button>
+                            <button type="button" [class.ativo]="filtroMeus() === 'encerrados'" (click)="filtroMeus.set('encerrados')">Encerrados ({{ contagem().encerrados }})</button>
+                            <button type="button" [class.ativo]="filtroMeus() === 'todos'" (click)="filtroMeus.set('todos')">Todos ({{ contagem().todos }})</button>
+                        </div>
+
+                        <div class="pcal-meus">
+                            @for (ev of meusEventos(); track ev.id) {
+                                <button type="button" class="pcal-meu" [class.encerrado]="ev.encerrado" (click)="abrirDetalheEvento(ev)">
+                                    <span class="pcal-meu-capa" [style.background]="ev.cor + '22'">
+                                        @if (ev.capa) {
+                                            <img [src]="ev.capa" [alt]="ev.titulo" (error)="$any($event.target).style.display = 'none'">
+                                        }
+                                        <i class="fa-regular fa-calendar" [style.color]="ev.cor"></i>
+                                        <span class="pcal-meu-data"><strong>{{ ev.dia }}</strong><small>{{ ev.mes }}</small></span>
+                                        @if (ev.encerrado) { <span class="pcal-status encerrado">Encerrado</span> }
+                                        @else { <span class="pcal-status proximo">Próximo</span> }
+                                    </span>
+                                    <span class="pcal-meu-corpo">
+                                        <span class="pcal-tag" [style.color]="ev.cor" [style.borderColor]="ev.cor + '55'">{{ ev.tipoLabel }}</span>
+                                        <strong>{{ ev.titulo || 'Evento' }}</strong>
+                                        <small><i class="fa-regular fa-clock"></i> {{ ev.dataCurta }} às {{ ev.hora }}</small>
+                                        <small><i class="fa-solid fa-location-dot"></i> {{ ev.local || 'Online' }}</small>
+                                        @if (ev.removido) {
+                                            <span class="pcal-aviso"><i class="fa-solid fa-triangle-exclamation"></i> Removido pela moderação</span>
+                                        }
+                                    </span>
+                                </button>
+                            } @empty {
+                                <div class="pcal-vazio-estado pcal-vazio-largo">
+                                    <i class="fa-regular fa-calendar-xmark"></i>
+                                    <strong>
+                                        @switch (filtroMeus()) {
+                                            @case ('proximos') { Você não tem eventos futuros }
+                                            @case ('encerrados') { Nenhum evento encerrado ainda }
+                                            @default { Você ainda não publicou eventos }
+                                        }
+                                    </strong>
+                                    <p>Use o botão “Criar evento” para publicar o primeiro.</p>
+                                </div>
+                            }
+                        </div>
                     </div>
-                </div>
+                }
             </div>
+
         </section>
 
         <section class="content hidden" id="forum">
@@ -758,5 +885,61 @@
                 </div>
             </div>
         </section>
+
+        <!-- ===== DETALHE DO EVENTO ===== -->
+        @if (eventoDetalhe(); as ev) {
+            <div class="pcal-overlay" (click)="fecharDetalheEvento()">
+                <div class="pcal-modal" role="dialog" aria-modal="true" aria-labelledby="pcalDetTitulo" (click)="$event.stopPropagation()">
+                    <div class="pcal-modal-capa" [style.background]="ev.cor + '26'">
+                        @if (ev.capa) {
+                            <img [src]="ev.capa" [alt]="ev.titulo" (error)="$any($event.target).style.display = 'none'">
+                        }
+                        <button type="button" class="pcal-fechar" (click)="fecharDetalheEvento()" aria-label="Fechar">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                        <span class="pcal-modal-data"><strong>{{ ev.dia }}</strong><small>{{ ev.mes }}</small></span>
+                    </div>
+
+                    <div class="pcal-modal-corpo">
+                        <div class="pcal-modal-chips">
+                            <span class="pcal-tag" [style.color]="ev.cor" [style.borderColor]="ev.cor + '55'">{{ ev.tipoLabel }}</span>
+                            @if (ev.encerrado) { <span class="pcal-status encerrado">Encerrado</span> }
+                            @else { <span class="pcal-status proximo">Próximo</span> }
+                            @if (ev.visibilidade === 'premium') { <span class="pcal-status premium"><i class="fa-solid fa-crown"></i> Premium</span> }
+                            @else if (ev.visibilidade && ev.visibilidade !== 'basico') { <span class="pcal-status destaque"><i class="fa-solid fa-star"></i> Destaque</span> }
+                        </div>
+
+                        <h2 id="pcalDetTitulo">{{ ev.titulo || 'Evento' }}</h2>
+
+                        <div class="pcal-modal-infos">
+                            <div><i class="fa-regular fa-calendar"></i><span><small>Quando</small><strong>{{ ev.dataLonga }} às {{ ev.hora }}</strong></span></div>
+                            <div><i class="fa-solid fa-location-dot"></i><span><small>Onde</small><strong>{{ ev.local || 'Online' }}</strong></span></div>
+                        </div>
+
+                        @if (ev.removido) {
+                            <p class="pcal-aviso"><i class="fa-solid fa-triangle-exclamation"></i> Este evento foi removido pela moderação e não aparece para as mães.</p>
+                        }
+
+                        <h3>Sobre o evento</h3>
+                        <p class="pcal-modal-desc">{{ ev.descricao || 'Sem descrição.' }}</p>
+                    </div>
+
+                    <div class="pcal-modal-acoes">
+                        <button type="button" class="pcal-btn-perigo" (click)="excluirEventoDetalhe(ev)">
+                            <i class="fa-regular fa-trash-can"></i> Excluir
+                        </button>
+                        <span class="pcal-espaco"></span>
+                        <button type="button" class="pcal-btn-sec" (click)="verNoCalendario(ev)">
+                            <i class="fa-regular fa-calendar"></i> Ver no calendário
+                        </button>
+                        @if (!ev.encerrado && !ev.removido) {
+                            <button type="button" class="pcal-btn-pri" (click)="editarEvento(ev)">
+                                <i class="fa-regular fa-pen-to-square"></i> Editar
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
 
     </main>

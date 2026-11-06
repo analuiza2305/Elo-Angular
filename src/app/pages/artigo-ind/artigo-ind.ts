@@ -4,7 +4,8 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { DenunciarComponent } from '../../components/denunciar/denunciar';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
+import { formatarDataArtigo, autorDoArtigo, fonteDoArtigo, carregarIdsFavoritos, definirFavorito } from '../../services/artigo-utils';
 import { onAuthStateChanged } from 'firebase/auth';
 import { AlertaService } from '../../core/services/alerta.service';
 
@@ -116,26 +117,13 @@ export class ArtigoInd implements OnInit, AfterViewInit {
 
       if (artigoSnap.exists() && !artigoSnap.data()?.['moderacao']?.removido) {
         const data = artigoSnap.data();
-        let dataString = '26 de set.';
-        const rawDate = data['data'] ?? data['date'] ?? null;
-        let dataObj = null;
-
-        if (rawDate && rawDate.toDate) {
-          dataObj = rawDate.toDate();
-        } else if (typeof rawDate === 'string') {
-          dataObj = new Date(rawDate);
-        }
-
-        if (dataObj && !isNaN(dataObj.getTime())) {
-          dataString = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '');
-        }
-
         this.artigo.set({
           id: artigoSnap.id,
           ...data,
           categoria: data['categoria'] || 'Legislativo',
-          fonte: data['fonte'] || 'ELOMATERNO',
-          dataString
+          dataString: formatarDataArtigo(data),
+          autorExibido: autorDoArtigo(data),
+          fonteExibida: fonteDoArtigo(data),
         });
 
         document.title = `Artigo • ${data['titulo'] || 'EloMaterno'}`;
@@ -151,17 +139,8 @@ export class ArtigoInd implements OnInit, AfterViewInit {
   }
 
   async verificarSeFavorito(uid: string, artigoId: string) {
-    try {
-      const userRef = doc(db, 'usuarios', uid);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const favoritos: string[] = userSnap.data()['favoritos'] || [];
-        this.isFavorito.set(favoritos.includes(artigoId));
-      }
-    } catch (error) {
-      console.error("Erro ao verificar favorito:", error);
-    }
+    const favoritos = await carregarIdsFavoritos(uid);
+    this.isFavorito.set(favoritos.includes(artigoId));
   }
 
   async toggleFavorito() {
@@ -174,18 +153,14 @@ export class ArtigoInd implements OnInit, AfterViewInit {
 
     if (!this.artigoIdAtual) return;
 
-    const userRef = doc(db, 'usuarios', user.uid);
-
+    const salvar = !this.isFavorito();
+    this.isFavorito.set(salvar);
     try {
-      if (this.isFavorito()) {
-        await updateDoc(userRef, { favoritos: arrayRemove(this.artigoIdAtual) });
-        this.isFavorito.set(false);
-      } else {
-        await updateDoc(userRef, { favoritos: arrayUnion(this.artigoIdAtual) });
-        this.isFavorito.set(true);
-      }
+      await definirFavorito(user.uid, this.artigoIdAtual, salvar);
     } catch (error) {
+      this.isFavorito.set(!salvar);
       console.error("Erro ao atualizar favoritos:", error);
+      this.alerta.erro('Não foi possível atualizar seus favoritos. Tente novamente.');
     }
   }
 
@@ -199,4 +174,4 @@ export class ArtigoInd implements OnInit, AfterViewInit {
       this.location.back();
     }
   }
-}
+} 
