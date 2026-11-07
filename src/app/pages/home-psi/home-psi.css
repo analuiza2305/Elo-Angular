@@ -6660,3 +6660,223 @@ header h1 { font-size: 24px; color: var(--primary-color-dark); font-weight: 800;
 :host-context(body[data-theme="dark"]) .info-btn i,
 :host-context(body[data-theme="dark"]) .logout-btn i { color: #583E8E !important; }
 :host-context(body[data-theme="dark"]) .drawer-tag { color: #1A1530 !important; }
+
+
+
+/* =====================================================================
+   AJUSTES DE DESIGN RESPONSIVO — PAINEL DO PSICÓLOGO (07/11)
+   Só visual: nenhuma lógica/HTML alterado. Fica por último de propósito,
+   porque o arquivo tem camadas repetidas com !important.
+   Tudo escopado em .home-psi-page / #seção e em media queries.
+   ===================================================================== */
+
+/* ---------- 1) MENU HAMBÚRGUER (gaveta) — mesmo padrão do menu da mãe ---------- */
+/* Causa: o CSS antigo pedia letras quase brancas (#ece4ff) sobre um fundo que na prática
+   era branco, por isso os itens pareciam "apagados/borrados". Aqui: fundo claro, letras
+   escuras, ícone em quadradinho lilás e item ativo em roxo degradê com letra branca. */
+@media (max-width: 1024px) {
+  .home-psi-page .sidebar {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F6F1FF 100%) !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    z-index: 10000;
+  }
+  .home-psi-page .sidebar.active { box-shadow: 10px 0 36px rgba(60, 35, 110, 0.22) !important; }
+
+  /* topo: fechar + cartão do perfil */
+  .home-psi-page .sidebar .drawer-top { border-bottom: 1px solid rgba(124, 105, 169, 0.16); }
+  .home-psi-page .sidebar .drawer-close {
+    background: #F1EAFF !important; color: #52427D !important; border: none;
+  }
+  .home-psi-page .sidebar .drawer-profile {
+    background: linear-gradient(135deg, #F4EEFF 0%, #E9DFFF 100%);
+    border: 1px solid rgba(124, 105, 169, 0.22);
+    border-radius: 20px; padding: 12px 14px;
+  }
+  .home-psi-page .sidebar .drawer-avatar { border: 3px solid #FFFFFF; box-shadow: 0 4px 12px rgba(82, 66, 125, 0.18); }
+  .home-psi-page .sidebar .drawer-profile-info strong { color: #3E2A72 !important; }
+
+  /* itens */
+  .home-psi-page .sidebar .menu-btn {
+    color: #4B3A7A !important;
+    background: transparent !important;
+    opacity: 1 !important;
+    filter: none !important;
+    font-weight: 700 !important;
+    gap: 14px; padding: 10px 12px !important; border-radius: 16px !important;
+  }
+  .home-psi-page .sidebar .menu-btn span { opacity: 1 !important; }
+  .home-psi-page .sidebar .menu-btn i {
+    opacity: 1 !important;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px !important; height: 36px; min-width: 36px; border-radius: 12px;
+    background: #F0EAFB; color: #6C4BBF !important; font-size: 16px !important;
+  }
+  .home-psi-page .sidebar .menu-btn:hover:not(.active) {
+    background: #F4F0FC !important; color: #3E2A72 !important; transform: none; box-shadow: none !important;
+  }
+  /* item ativo: roxo degradê, letra branca */
+  .home-psi-page .sidebar .menu-btn.active {
+    background: linear-gradient(135deg, #6B4FA6 0%, #4B3680 100%) !important;
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    box-shadow: 0 8px 20px rgba(82, 66, 125, 0.32) !important;
+    transform: none;
+  }
+  .home-psi-page .sidebar .menu-btn.active i {
+    background: rgba(255, 255, 255, 0.2); color: #FFFFFF !important;
+  }
+}
+/* modo escuro: mesma estrutura, cores escuras */
+@media (max-width: 1024px) {
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar {
+    background: linear-gradient(180deg, #1B2336 0%, #141A26 100%) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .drawer-top { border-bottom-color: rgba(255, 255, 255, 0.12); }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .drawer-close { background: rgba(255, 255, 255, 0.1) !important; color: #E2DAFC !important; }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .drawer-profile {
+    background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.14);
+  }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .drawer-profile-info strong { color: #F5F0FF !important; }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .menu-btn { color: #E9E2FF !important; }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .menu-btn i { background: rgba(255, 255, 255, 0.08); color: #BDAFFC !important; }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .menu-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.1) !important; color: #FFFFFF !important; }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .menu-btn.active {
+    background: linear-gradient(135deg, #7D70B6 0%, #5B3D99 100%) !important; color: #FFFFFF !important;
+  }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .menu-btn.active i { background: rgba(255, 255, 255, 0.2); color: #FFFFFF !important; }
+}
+
+/* ---------- 2) AGENDA — calendário cabendo em telas pequenas ---------- */
+@media (max-width: 1024px) {
+  .home-psi-page .content { min-width: 0; }
+  .home-psi-page .agenda-container { min-width: 0; max-width: 100%; }
+  .home-psi-page .calendar-container,
+  .home-psi-page .events-container { box-sizing: border-box; min-width: 0; max-width: 100%; }
+}
+@media (max-width: 600px) {
+  .home-psi-page .agenda-container { gap: 20px; width: 100%; }
+  .home-psi-page .calendar-container,
+  .home-psi-page .events-container {
+    width: 100%; flex: 0 0 auto;
+    padding: 18px 14px !important; border-radius: 26px !important;
+  }
+  .home-psi-page .calendar-header { gap: 8px; margin-bottom: 18px; }
+  .home-psi-page .calendar-nav-btn { width: 36px; height: 36px; min-width: 36px; font-size: .95rem; flex-shrink: 0; }
+  .home-psi-page .month-year-select { gap: 6px; flex: 1 1 auto; min-width: 0; justify-content: center; }
+  .home-psi-page .month-year-select select {
+    width: auto; min-width: 0; max-width: 100%; padding: 8px 6px 8px 10px; font-size: .8rem; border-radius: 50px; text-overflow: clip;
+  }
+  .home-psi-page .month-year-select select:first-child { flex: 1 1 auto; }
+  .home-psi-page .calendar-days,
+  .home-psi-page .calendar-dates { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .home-psi-page .calendar-days { font-size: .68rem; letter-spacing: 0; margin-bottom: 10px; }
+  .home-psi-page .calendar-dates { gap: 5px; }
+  .home-psi-page .calendar-dates .date { font-size: .85rem; border-radius: 14px; min-width: 0; }
+}
+@media (max-width: 400px) {
+  .home-psi-page .calendar-container,
+  .home-psi-page .events-container { padding: 14px 10px !important; border-radius: 22px !important; }
+  .home-psi-page .calendar-days { font-size: .6rem; }
+  .home-psi-page .calendar-dates { gap: 3px; }
+  .home-psi-page .calendar-dates .date { font-size: .78rem; border-radius: 12px; border-width: 1px; }
+  .home-psi-page .calendar-header { gap: 5px; }
+  .home-psi-page .calendar-nav-btn { width: 30px; height: 30px; min-width: 30px; }
+  .home-psi-page .month-year-select { gap: 4px; }
+  .home-psi-page .month-year-select select { padding: 7px 4px 7px 8px; font-size: .72rem; }
+}
+
+@media (max-width: 340px) {
+  .home-psi-page .calendar-header { flex-wrap: wrap; justify-content: space-between; row-gap: 8px; }
+  .home-psi-page .month-year-select { order: 1; flex: 1 1 100%; }
+  .home-psi-page .month-year-select select { font-size: .72rem; padding: 7px 2px 7px 8px; }
+  .home-psi-page .month-year-select select:first-child { flex: 1 1 60%; }
+  .home-psi-page .month-year-select select:last-child { flex: 1 1 40%; }
+  .home-psi-page .calendar-nav-btn:first-child { order: 2; }
+  .home-psi-page .calendar-nav-btn:last-child { order: 3; }
+}
+
+/* ---------- 3) CONSULTAS — foto circular e nome sem quebrar letra a letra ---------- */
+#consultas .cs-foto {
+  width: 60px; height: 60px; min-width: 60px; max-width: 60px;
+  flex: 0 0 60px; aspect-ratio: 1 / 1; border-radius: 50%; object-fit: cover;
+}
+#consultas .cs-pessoa-info { flex: 1 1 0; }
+#consultas .cs-pessoa-info h3 { overflow-wrap: break-word; word-break: normal; hyphens: none; }
+@media (max-width: 600px) {
+  #consultas .cs-foto { width: 52px; height: 52px; min-width: 52px; max-width: 52px; flex-basis: 52px; }
+  /* cabeçalho pode quebrar linha: o selo de status desce em vez de espremer o nome */
+  #consultas .cs-card-header { flex-wrap: wrap; row-gap: 10px; }
+  #consultas .cs-pessoa { flex: 1 1 100%; gap: 12px; }
+  #consultas .cs-pessoa-info { min-width: 0; flex: 1 1 0; }
+  #consultas .cs-tipo { white-space: normal; }
+  #consultas .cs-badge { margin-left: 64px; } /* alinha o selo com o texto, abaixo da foto */
+}
+@media (max-width: 380px) {
+  #consultas .cs-card { padding: 18px 16px; }
+  #consultas .cs-badge { margin-left: 0; }
+}
+
+/* ---------- 4) CHAT — layout mobile e fotos redondas ---------- */
+.chat-user-item img, .chat-header-bar img { flex-shrink: 0; aspect-ratio: 1 / 1; }
+@media (max-width: 768px) {
+  .home-psi-page .chats-container { height: calc(100vh - 110px); height: calc(100dvh - 110px); min-height: 360px; }
+  .home-psi-page .chat-wrapper-box { width: 100%; min-width: 0; }
+  .home-psi-page .chat-users-list,
+  .home-psi-page .chat-messages-area {
+    box-sizing: border-box; top: 0; bottom: 0; height: auto; max-height: none; min-width: 0; max-width: 100%;
+  }
+  .home-psi-page .chat-users-list { left: 0; right: 0; width: auto; padding: 14px; }
+  .home-psi-page .chat-users-scroll { min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  .home-psi-page .chat-messages-area { width: auto; right: auto; }
+  .home-psi-page .chat-messages-area { left: 100%; width: 100%; }
+  .home-psi-page .chat-messages-area.active { left: 0; }
+
+  /* fotos redondas e proporcionais */
+  .home-psi-page .chat-user-item img,
+  .home-psi-page .chat-header-bar img {
+    width: 46px; height: 46px; min-width: 46px; max-width: 46px; flex: 0 0 46px;
+    border-radius: 50%; object-fit: cover;
+  }
+  .home-psi-page .chat-user-item { box-sizing: border-box; width: 100%; max-width: 100%; padding: 12px 14px !important; gap: 12px; }
+  .home-psi-page .chat-user-info { min-width: 0; flex: 1 1 0; width: auto; }
+
+  /* cabeçalho do chat */
+  .home-psi-page .chat-header-bar { padding: 10px 12px; min-height: 64px; gap: 10px; flex-shrink: 0; }
+  .home-psi-page .chat-header-bar > div { min-width: 0; flex: 1 1 auto; }
+  .home-psi-page .chat-header-bar h4 {
+    font-size: 1.02rem; margin: 0 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .home-psi-page .back-btn { flex: 0 0 auto; width: 38px; height: 38px; padding: 0; }
+
+  /* mensagens: rolagem só dentro do histórico */
+  .home-psi-page .chat-history {
+    min-height: 0; overflow-y: auto; overflow-x: hidden;
+    overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    padding: 14px 12px; gap: 10px;
+  }
+  .home-psi-page .chat-bubble { max-width: 85%; padding: 10px 14px; overflow-wrap: anywhere; word-break: normal; }
+  .home-psi-page .chat-bubble audio { max-width: 100% !important; }
+  .home-psi-page .msg-lembrete { width: min(340px, 100%); box-sizing: border-box; }
+
+  /* barra de digitar sempre visível, sem estourar a largura */
+  .home-psi-page .chat-input-bar { flex-shrink: 0; box-sizing: border-box; width: 100%; padding: 10px 12px; gap: 8px; }
+  .home-psi-page .chat-input-bar input { flex: 1 1 auto; min-width: 0; width: 100%; box-sizing: border-box; padding: 12px 16px; }
+  .home-psi-page .btn-send-msg { flex: 0 0 auto; width: 44px; height: 44px; }
+}
+
+/* ---------- 5) DOCUMENTOS — abas uma embaixo da outra no celular ---------- */
+@media (max-width: 700px) {
+  #documentos .doc-tabs { flex-direction: column; flex-wrap: nowrap; gap: 8px; padding: 8px; }
+  #documentos .doc-tab {
+    flex: 0 0 auto; width: 100%; height: auto; min-height: 54px; padding: 10px 16px;
+    justify-content: flex-start; text-align: left; font-size: .95rem; gap: 12px;
+  }
+  #documentos .doc-tab i { width: 22px; text-align: center; flex-shrink: 0; }
+  #documentos .doc-tab .doc-chip { display: inline-flex; margin-left: auto; }
+}

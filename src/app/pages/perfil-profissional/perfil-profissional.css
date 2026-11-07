@@ -963,3 +963,5 @@ header.header-prof .logout-btn:hover {
 .rep-barra-label i.fa-star { color: #B7791F !important; }
 :host-context(body[data-theme="dark"]) .btn-edit-profile i { color: inherit !important; }
 :host-context(body[data-theme="dark"]) .rep-rodape i { color: #6E5FA0 !important; }
+
+
