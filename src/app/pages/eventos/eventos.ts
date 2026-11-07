@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, Input, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DenunciarComponent } from '../../components/denunciar/denunciar';
@@ -19,6 +19,9 @@ import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-
 })
 export class Eventos implements OnInit {
   private router = inject(Router);
+
+  /** Dentro do painel do parceiro: sem header e sem inscrição (é a vitrine que as mães veem). */
+  @Input() embutido = false;
 
   currentUser = signal<any>(null);
   eventos = signal<any[]>([]);
@@ -49,7 +52,7 @@ export class Eventos implements OnInit {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         this.currentUser.set(user);
-        await this.carregarInscricoesUsuario(user.uid);
+        if (!this.embutido) await this.carregarInscricoesUsuario(user.uid);
       } else {
         this.userInscritos.set([]);
       }

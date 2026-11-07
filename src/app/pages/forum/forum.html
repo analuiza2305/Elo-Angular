@@ -1,5 +1,5 @@
-<app-header tipo="mae"></app-header>
-<main class="forum-container fr-page">
+@if (!embutido) { <app-header tipo="mae"></app-header> }
+<main class="forum-container fr-page" [class.fr-embutido]="embutido">
 
     <!-- HERO
          Desktop: arte recomposta em banner (sem o texto) com o texto em HTML por cima.
@@ -8,9 +8,15 @@
         <img src="/img/forum-hero-banner.webp" alt="" class="fr-hero-banner" width="2520" height="720">
 
         <div class="fr-hero-texto">
+            @if (embutido) {
+            <h1>Participe do <br class="fr-hero-quebra">fórum <span>EloMaterno</span> </h1>
+            <p>Veja o que as mães estão conversando <br class="fr-hero-quebra">e compartilhe novidades da sua empresa.</p>
+            <p class="fr-hero-destaque">É assim que as mães veem o fórum.</p>
+            } @else {
             <h1>Bem-vinda ao <br class="fr-hero-quebra">fórum <span>EloMaterno</span> </h1>
             <p>Um espaço seguro para compartilhar, <br class="fr-hero-quebra">aprender e crescer juntas.</p>
             <p class="fr-hero-destaque">Aqui, toda mãe tem voz e encontra apoio.</p>
+            }
         </div>
 
         <img src="/img/forum-hero-maes.webp" alt="Ilustração de quatro mães conversando e sorrindo" class="fr-hero-arte" width="880" height="740">
@@ -89,10 +95,10 @@
                                     @if (post.categoria) {
                                         <span class="fr-tag">{{ post.categoria }}</span>
                                     }
-                                    @if (currentUser() && currentUser().uid !== post.autorId) {
+                                    @if (currentUser() && meuAutorId() !== post.autorId) {
                                         <app-denunciar tipo="post" [alvoId]="post.id" [alvoTitulo]="post.titulo" [alvoDono]="post.autorNomeFinal"></app-denunciar>
                                     }
-                                    @if (currentUser() && currentUser().uid === post.autorId) {
+                                    @if (currentUser() && meuAutorId() === post.autorId) {
                                         <button type="button" class="fr-excluir" (click)="confirmarExclusao(post.id, $event)">
                                             <i class="fa-regular fa-trash-can"></i> Excluir
                                         </button>
@@ -141,6 +147,16 @@
 
         <!-- COLUNA LATERAL -->
         <aside class="fr-aside">
+            @if (embutido) {
+            <div class="fr-card fr-ajuda">
+                <span class="fr-ajuda-icone" aria-hidden="true"><i class="fa-solid fa-building"></i></span>
+                <div>
+                    <h3>Sua empresa no fórum</h3>
+                    <p>Seus tópicos aparecem com o nome e a foto da empresa. Respostas aos tópicos são feitas pelas especialistas da rede.</p>
+                    <button type="button" class="fr-btn-primario" (click)="abrirModalNovoPost()">Nova publicação</button>
+                </div>
+            </div>
+            } @else {
             <div class="fr-card fr-ajuda">
                 <span class="fr-ajuda-icone" aria-hidden="true"><i class="fa-solid fa-hand-holding-heart"></i></span>
                 <div>
@@ -149,6 +165,7 @@
                     <a routerLink="/consultoria" class="fr-btn-primario">Ver consultorias</a>
                 </div>
             </div>
+            }
 
             <div class="fr-card">
                 <h3 class="fr-card-titulo">Explorar por tema</h3>
@@ -245,11 +262,13 @@
             </div>
 
             <div class="fr-composer-rodape">
+                @if (!embutido) {
                 <label class="fr-switch">
                     <input type="checkbox" [(ngModel)]="novoPostForm.anonimo" name="anonimo">
                     <span class="fr-switch-trilho" aria-hidden="true"></span>
                     Postar como anônima
                 </label>
+                } @else { <span></span> }
 
                 <div class="fr-composer-acoes">
                     <button type="button" class="fr-btn-secundario" (click)="fecharModalNovoPost()">Cancelar</button>

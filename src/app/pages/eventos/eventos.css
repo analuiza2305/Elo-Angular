@@ -1151,3 +1151,7 @@ body.dark-theme .estado-vazio p,
   .evm-acoes { padding: 12px 20px 18px; }
 }
 @media (prefers-reduced-motion: reduce) { .evm-fundo, .evm { animation: none !important; } }
+/* painel do parceiro: no lugar do botão de inscrição */
+.evm-btn-previa { background: #F3EEFF; color: #6B5A9A; font-size: .9rem; cursor: default; }
+.evm-btn-previa i { color: inherit !important; }
+:host-context(body[data-theme="dark"]) .evm-btn-previa { background: rgba(157, 143, 231, .14); color: #C9BCFF; }

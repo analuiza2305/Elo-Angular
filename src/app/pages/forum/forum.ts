@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +9,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 import {
-  collection, query, orderBy, limit, getDocs, doc, getDoc, addDoc, serverTimestamp, updateDoc, deleteDoc, setDoc, increment, getCountFromServer, writeBatch
+  collection, query, orderBy, limit, getDocs, doc, getDoc, addDoc, serverTimestamp, updateDoc, deleteDoc, setDoc, increment, getCountFromServer, writeBatch, where
 } from 'firebase/firestore';
 
 const POSTS_POR_PAGINA = 8;
@@ -23,6 +23,17 @@ const POSTS_POR_PAGINA = 8;
 })
 export class ForumComponent implements OnInit {
   private router = inject(Router);
+
+  /**
+   * Modo "dentro do painel do parceiro": sem o header da mãe, a empresa posta
+   * com o nome e a foto dela (autorId 'parc_<uid>') e abrir um post avisa o painel
+   * em vez de trocar de página.
+   */
+  @Input() embutido = false;
+  @Output() abrirPost = new EventEmitter<string>();
+
+  /** autorId de quem está logado (mãe: uid; parceiro: 'parc_' + uid). */
+  meuAutorId = signal<string>('');
 
   currentUser = signal<any>(null);
   posts = signal<any[]>([]);
@@ -55,9 +66,10 @@ export class ForumComponent implements OnInit {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         this.currentUser.set(user);
+        this.meuAutorId.set(this.embutido ? 'parc_' + user.uid : user.uid);
         this.carregarMeuPerfil(user);
         await this.carregarPosts();
-      } else {
+      } else if (!this.embutido) {
         this.router.navigate(['/login']);
       }
     });
@@ -65,6 +77,20 @@ export class ForumComponent implements OnInit {
 
   private async carregarMeuPerfil(user: any) {
     this.meuNome.set(user.displayName || 'Usuária');
+    if (this.embutido) {
+      // empresa parceira: nome e foto vêm da coleção 'parceiros'
+      try {
+        let s = await getDoc(doc(db, 'parceiros', user.uid));
+        let d: any = s.exists() ? s.data() : null;
+        if (!d) {
+          const q = await getDocs(query(collection(db, 'parceiros'), where('uid', '==', user.uid), limit(1)));
+          d = q.empty ? null : q.docs[0].data();
+        }
+        this.meuNome.set(d?.nomeEmpresa || d?.nome || 'Parceiro');
+        this.minhaFoto.set(d?.fotoURL || d?.avatar || './img/logo_icon.png');
+      } catch (e) { console.error(e); }
+      return;
+    }
     try {
       const uSnap = await getDoc(doc(db, 'usuarios', user.uid));
       if (uSnap.exists()) {
@@ -134,7 +160,9 @@ export class ForumComponent implements OnInit {
         let autorNome = p['autorNome'] || 'Usuária';
         let autorFoto = p['autorFoto'] || './img/account_icon.png';
 
-        if (p['autorId'] && p['autorId'] !== 'anonimo') {
+        if (p['autorId'] && String(p['autorId']).startsWith('parc_')) {
+          // empresa parceira: o nome e a foto ficam gravados no próprio post
+        } else if (p['autorId'] && p['autorId'] !== 'anonimo') {
           try {
             const userSnap = await getDoc(doc(db, 'usuarios', p['autorId']));
             if (userSnap.exists()) {
@@ -214,7 +242,7 @@ export class ForumComponent implements OnInit {
     const user = this.currentUser();
     if (!user || !this.podePublicar() || this.publicando()) return;
 
-    let autorId = user.uid;
+    let autorId = this.meuAutorId() || user.uid;
     let autorNome = this.meuNome();
     let autorFoto = this.minhaFoto();
 
@@ -298,6 +326,7 @@ export class ForumComponent implements OnInit {
   }
 
   irParaDetalhes(postId: string) {
+    if (this.embutido) { this.abrirPost.emit(postId); return; }
     this.router.navigate(['/comentResp'], { queryParams: { postId } });
   }
 }

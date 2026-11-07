@@ -1,4 +1,4 @@
-<app-header tipo="mae"></app-header>
+@if (!embutido) { <app-header tipo="mae"></app-header> }
 
 <main class="artigo-wrapper">
     
@@ -9,14 +9,16 @@
         
         @if (!isLoading() && artigo()) {
             <div class="breadcrumb-direita">
+                @if (!embutido) {
                 <app-denunciar tipo="artigo" [alvoId]="artigoId" [alvoTitulo]="artigo().titulo || ''" [alvoDono]="artigo().postadoPor || ''"></app-denunciar>
-                <button class="btn-favoritar" [class.salvo]="isFavorito()" (click)="toggleFavorito()">
-                    @if (isFavorito()) {
-                        <i class="fa-solid fa-bookmark"></i> Salvo<span class="so-desktop"> nos favoritos</span>
-                    } @else {
-                        <i class="fa-regular fa-bookmark"></i> Salvar<span class="so-desktop"> artigo</span>
-                    }
-                </button>
+                    <button class="btn-favoritar" [class.salvo]="isFavorito()" (click)="toggleFavorito()">
+                        @if (isFavorito()) {
+                            <i class="fa-solid fa-bookmark"></i> Salvo<span class="so-desktop"> nos favoritos</span>
+                        } @else {
+                            <i class="fa-regular fa-bookmark"></i> Salvar<span class="so-desktop"> artigo</span>
+                        }
+                    </button>
+                }
             </div>
         }
     </div>

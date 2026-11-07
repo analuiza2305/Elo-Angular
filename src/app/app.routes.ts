@@ -48,6 +48,7 @@ export const routes: Routes = [
   { path: 'artigo-ind', component: ArtigoInd },
   { path: 'artigo_ind', component: ArtigoInd },
   { path: 'eventos', component: Eventos },
+  { path: 'carreiras', loadComponent: () => import('./pages/carreiras/carreiras').then(m => m.Carreiras) },
   { path: 'consultoria', component: Consultoria },
   { path: 'consultas', component: ConsultasComponent },
   { path: 'consultas-lista-psi', component: ConsultaListaPsiComponent },

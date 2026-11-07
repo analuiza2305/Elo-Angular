@@ -1202,3 +1202,12 @@ button.fr-acao:hover,
 @media (min-width: 1024px) {
   :host-context(body[data-theme="dark"]) .fr-hero-texto .fr-hero-destaque { color: #5B4A93 !important; }
 }
+
+/* Dentro do painel do parceiro a coluna é mais estreita que a tela:
+   o texto do banner acompanha a largura do próprio banner (não da janela). */
+@media (min-width: 1024px) {
+  .fr-embutido .fr-hero { container-type: inline-size; }
+  .fr-embutido .fr-hero-texto { width: 56%; }
+  .fr-embutido .fr-hero-texto h1 { font-size: clamp(1.5rem, 4.4cqw, 3.2rem); margin-bottom: .35em; }
+  .fr-embutido .fr-hero-texto p { font-size: clamp(.85rem, 1.65cqw, 1.25rem); line-height: 1.5; }
+}

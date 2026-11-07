@@ -1,0 +1,311 @@
+<app-header tipo="mae"></app-header>
+
+<main class="car-container">
+
+  <!-- HERO -->
+  <section class="car-hero">
+    <div class="car-hero-texto">
+      <h1>Seu próximo passo começa aqui</h1>
+      <p>Vagas e cursos divulgados por empresas e ONGs parceiras. Encontre uma oportunidade e siga direto para a página de quem divulgou.</p>
+    </div>
+    <img class="car-hero-img" src="/img/carreiras-hero.webp" alt="" width="1350" height="900" aria-hidden="true">
+  </section>
+
+  <!-- ABAS -->
+  <nav class="car-abas" role="tablist" aria-label="Seções de carreiras">
+    <button type="button" role="tab" class="car-aba" [class.ativa]="aba() === 'vagas'" [attr.aria-selected]="aba() === 'vagas'" (click)="aba.set('vagas')">
+      <span class="car-aba-ic ic-vaga"><i class="fa-solid fa-briefcase"></i></span>
+      <span class="car-aba-txt"><strong>Vagas</strong><small>{{ totalVagas() }} {{ totalVagas() === 1 ? 'aberta' : 'abertas' }}</small></span>
+    </button>
+    <button type="button" role="tab" class="car-aba" [class.ativa]="aba() === 'cursos'" [attr.aria-selected]="aba() === 'cursos'" (click)="aba.set('cursos')">
+      <span class="car-aba-ic ic-curso"><i class="fa-solid fa-graduation-cap"></i></span>
+      <span class="car-aba-txt"><strong>Cursos</strong><small>{{ totalCursos() }} {{ totalCursos() === 1 ? 'disponível' : 'disponíveis' }}</small></span>
+    </button>
+  </nav>
+
+  <!-- ===================== VAGAS ===================== -->
+  @if (aba() === 'vagas') {
+    <div class="car-barra">
+      <label class="car-barra-busca">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" placeholder="Cargo, empresa ou cidade" [ngModel]="buscaVaga()" (ngModelChange)="buscaVaga.set($event)" aria-label="Buscar vagas">
+      </label>
+      <span class="car-barra-div" aria-hidden="true"></span>
+      <select class="car-barra-select" [ngModel]="areaVaga()" (ngModelChange)="areaVaga.set($event)" aria-label="Área">
+        <option value="">Todas as áreas</option>
+        @for (a of areas; track a.nome) { <option [value]="a.nome">{{ a.nome }}</option> }
+      </select>
+      <span class="car-barra-div" aria-hidden="true"></span>
+      <select class="car-barra-select" [ngModel]="modalidadeVaga()" (ngModelChange)="modalidadeVaga.set($event)" aria-label="Modalidade">
+        <option value="">Qualquer modalidade</option>
+        @for (m of modalidades; track m) { <option [value]="m">{{ m }}</option> }
+      </select>
+      <button type="button" class="car-barra-btn" [class.ativo]="painelBeneficios() || beneficiosFiltro().length" (click)="painelBeneficios.set(!painelBeneficios())" [attr.aria-expanded]="painelBeneficios()">
+        <i class="fa-solid fa-sliders"></i> Filtros
+        @if (beneficiosFiltro().length) { <span class="car-barra-badge">{{ beneficiosFiltro().length }}</span> }
+      </button>
+    </div>
+
+    @if (painelBeneficios()) {
+      <div class="car-ben-painel">
+        <p>Mostrar só vagas que oferecem:</p>
+        <div class="car-ben-lista">
+          @for (b of beneficiosMae; track b) {
+            <button type="button" class="car-ben" [class.sel]="beneficiosFiltro().includes(b)" (click)="alternarBeneficio(b)" [attr.aria-pressed]="beneficiosFiltro().includes(b)">
+              <span class="car-ben-check"><i class="fa-solid fa-check"></i></span> {{ b }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="car-resumo">
+      <span>{{ vagasFiltradas().length }} {{ vagasFiltradas().length === 1 ? 'vaga encontrada' : 'vagas encontradas' }}</span>
+      @if (filtrosVagaAtivos()) {
+        <button type="button" class="car-limpar" (click)="limparFiltrosVaga()"><i class="fa-solid fa-xmark"></i> Limpar filtros</button>
+      }
+    </div>
+
+    @if (carregando()) {
+      <div class="car-vazio"><span class="car-spin"></span> Carregando vagas...</div>
+    } @else if (vagasFiltradas().length === 0) {
+      <div class="car-vazio">
+        <span class="car-vazio-ic"><i class="fa-solid fa-briefcase"></i></span>
+        <strong>{{ totalVagas() ? 'Nenhuma vaga com esses filtros' : 'Ainda não há vagas abertas' }}</strong>
+        <p>{{ totalVagas() ? 'Tente tirar algum filtro.' : 'Assim que um parceiro publicar uma vaga, ela aparece aqui.' }}</p>
+        @if (totalVagas()) { <button type="button" class="car-btn-sec" (click)="limparFiltrosVaga()">Limpar filtros</button> }
+      </div>
+    } @else {
+      <div class="car-grid">
+        @for (v of vagasFiltradas(); track v.id) {
+          <article class="car-vaga" (click)="vagaAberta.set(v)" tabindex="0" (keydown.enter)="vagaAberta.set(v)">
+            <div class="car-vaga-topo">
+              @if (fotoDe(v); as foto) {
+                <img class="car-logo car-logo-foto" [src]="foto" [alt]="'Logo de ' + v.empresa" (error)="fotoFalhou(foto)">
+              } @else {
+                <span class="car-logo" [class]="'car-logo cor-' + infoArea(v.area).cor">{{ iniciais(v.empresa) }}</span>
+              }
+              <div class="car-vaga-empresa">
+                <span class="car-empresa-nome">{{ v.empresa }}<app-selos-autor [uid]="v.parceiroId"></app-selos-autor></span>
+                <small>{{ tempoDesde(v.criadoEm) }}</small>
+              </div>
+            </div>
+            <h3>{{ v.titulo }}</h3>
+            <ul class="car-vaga-meta">
+              <li><i class="fa-solid fa-location-dot"></i> {{ v.local || 'Local a combinar' }}</li>
+              <li><i class="fa-solid fa-laptop-house"></i> {{ v.modalidade }}</li>
+              @if (v.regime) { <li><i class="fa-solid fa-file-signature"></i> {{ v.regime }}</li> }
+              @if (v.salario) { <li><i class="fa-solid fa-wallet"></i> {{ v.salario }}</li> }
+            </ul>
+            @if (v.beneficios.length) {
+              <div class="car-beneficios">
+                @for (b of v.beneficios.slice(0, 3); track b) { <span>{{ b }}</span> }
+                @if (v.beneficios.length > 3) { <span class="mais">+{{ v.beneficios.length - 3 }}</span> }
+              </div>
+            }
+            <div class="car-vaga-rodape">
+              <span class="car-area"><i class="fa-solid" [class]="'fa-solid ' + infoArea(v.area).icone"></i> {{ v.area }}</span>
+              <span class="car-ver">Ver vaga <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  }
+
+  <!-- ===================== CURSOS ===================== -->
+  @if (aba() === 'cursos') {
+    <div class="car-barra">
+      <label class="car-barra-busca">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" placeholder="Curso ou instituição" [ngModel]="buscaCurso()" (ngModelChange)="buscaCurso.set($event)" aria-label="Buscar cursos">
+      </label>
+      <span class="car-barra-div" aria-hidden="true"></span>
+      <select class="car-barra-select" [ngModel]="areaCurso()" (ngModelChange)="areaCurso.set($event)" aria-label="Área">
+        <option value="">Todas as áreas</option>
+        @for (a of areas; track a.nome) { <option [value]="a.nome">{{ a.nome }}</option> }
+      </select>
+      <button type="button" class="car-barra-btn" [class.ativo]="soGratuitos()" (click)="soGratuitos.set(!soGratuitos())" [attr.aria-pressed]="soGratuitos()">
+        <span class="car-mini-switch" [class.on]="soGratuitos()"></span> Só gratuitos
+      </button>
+    </div>
+
+    <div class="car-resumo">
+      <span>{{ cursosFiltrados().length }} {{ cursosFiltrados().length === 1 ? 'curso encontrado' : 'cursos encontrados' }}</span>
+      @if (buscaCurso() || areaCurso() || soGratuitos()) {
+        <button type="button" class="car-limpar" (click)="limparFiltrosCurso()"><i class="fa-solid fa-xmark"></i> Limpar filtros</button>
+      }
+    </div>
+
+    @if (cursosFiltrados().length === 0) {
+      <div class="car-vazio">
+        <span class="car-vazio-ic"><i class="fa-solid fa-graduation-cap"></i></span>
+        <strong>{{ totalCursos() ? 'Nenhum curso com esses filtros' : 'Ainda não há cursos' }}</strong>
+        <p>{{ totalCursos() ? 'Tente outra área ou outra busca.' : 'Assim que um parceiro divulgar um curso, ele aparece aqui.' }}</p>
+        @if (totalCursos()) { <button type="button" class="car-btn-sec" (click)="limparFiltrosCurso()">Limpar filtros</button> }
+      </div>
+    } @else {
+      <div class="car-grid">
+        @for (c of cursosFiltrados(); track c.id) {
+          <article class="car-curso" (click)="cursoAberto.set(c)" tabindex="0" (keydown.enter)="cursoAberto.set(c)">
+            <div class="car-curso-capa" [class]="'car-curso-capa cor-' + infoArea(c.area).cor">
+              <i class="fa-solid" [class]="'fa-solid ' + infoArea(c.area).icone"></i>
+              <div class="car-curso-tags">
+                @if (c.gratuito) { <span>Gratuito</span> }
+                @if (c.certificado) { <span><i class="fa-solid fa-award"></i> Certificado</span> }
+              </div>
+            </div>
+            <div class="car-curso-corpo">
+              <div class="car-curso-inst">
+                @if (fotoDe(c); as foto) {
+                  <img class="car-logo car-logo-mini car-logo-foto" [src]="foto" alt="" (error)="fotoFalhou(foto)">
+                } @else {
+                  <span class="car-logo car-logo-mini" [class]="'car-logo car-logo-mini cor-' + infoArea(c.area).cor">{{ iniciais(c.instituicao) }}</span>
+                }
+                <span>{{ c.instituicao }}</span>
+              </div>
+              <h3>{{ c.titulo }}</h3>
+              <ul class="car-vaga-meta">
+                <li><i class="fa-solid fa-laptop-house"></i> {{ c.formato }}</li>
+                @if (c.cargaHoraria) { <li><i class="fa-regular fa-clock"></i> {{ c.cargaHoraria }}</li> }
+                <li><i class="fa-solid fa-signal"></i> {{ c.nivel }}</li>
+              </ul>
+              <span class="car-ver">Ver curso <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  }
+</main>
+
+<!-- ===================== MODAL DA VAGA ===================== -->
+@if (vagaAberta(); as v) {
+  <div class="car-fundo" (click)="vagaAberta.set(null)">
+    <section class="car-modal" role="dialog" aria-modal="true" aria-labelledby="car-vaga-titulo" (click)="$event.stopPropagation()">
+      <button type="button" class="car-fechar" (click)="vagaAberta.set(null)" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+
+      <div class="car-modal-rolagem">
+        <header class="car-mtopo">
+          @if (fotoDe(v); as foto) {
+            <img class="car-mavatar car-logo-foto" [src]="foto" [alt]="'Logo de ' + v.empresa" (error)="fotoFalhou(foto)">
+          } @else {
+            <span class="car-mavatar" [class]="'car-mavatar cor-' + infoArea(v.area).cor">{{ iniciais(v.empresa) }}</span>
+          }
+          <span class="car-mempresa">{{ v.empresa }}<app-selos-autor [uid]="v.parceiroId"></app-selos-autor></span>
+          <h2 id="car-vaga-titulo">{{ v.titulo }}</h2>
+          <div class="car-mpills">
+            <span><i class="fa-solid fa-location-dot"></i> {{ v.local || 'Local a combinar' }}</span>
+            <span><i class="fa-solid fa-laptop-house"></i> {{ v.modalidade }}</span>
+            @if (v.regime) { <span><i class="fa-solid fa-file-signature"></i> {{ v.regime }}</span> }
+            <span><i class="fa-solid" [class]="'fa-solid ' + infoArea(v.area).icone"></i> {{ v.area }}</span>
+          </div>
+        </header>
+
+        <div class="car-mcorpo">
+          @if (v.salario) {
+            <div class="car-msalario">
+              <span class="car-msalario-ic"><i class="fa-solid fa-wallet"></i></span>
+              <div><small>Salário</small><strong>{{ v.salario }}</strong></div>
+            </div>
+          }
+
+          @if (v.beneficios.length) {
+            <section class="car-msecao">
+              <h3>Benefícios</h3>
+              <div class="car-mbens">
+                @for (b of v.beneficios; track b) { <span><i class="fa-solid fa-check"></i> {{ b }}</span> }
+              </div>
+            </section>
+          }
+          @if (v.descricao) {
+            <section class="car-msecao">
+              <h3>Sobre a vaga</h3>
+              <p class="car-texto">{{ v.descricao }}</p>
+            </section>
+          }
+          @if (v.requisitos) {
+            <section class="car-msecao">
+              <h3>Requisitos</h3>
+              <p class="car-texto">{{ v.requisitos }}</p>
+            </section>
+          }
+        </div>
+      </div>
+
+      <footer class="car-mrodape">
+        @if (v.link) {
+          <a class="car-btn" [href]="linkSeguro(v.link)" target="_blank" rel="noopener">
+            {{ ehEmail(v.link) ? 'Enviar currículo por e-mail' : 'Quero me candidatar' }} <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        } @else {
+          <span class="car-encerrada">A empresa ainda não informou como se candidatar.</span>
+        }
+        <small><i class="fa-solid fa-circle-info"></i> A candidatura é feita direto com {{ v.empresa }}. O Elo Materno só divulga.</small>
+      </footer>
+    </section>
+  </div>
+}
+
+<!-- ===================== MODAL DO CURSO ===================== -->
+@if (cursoAberto(); as c) {
+  <div class="car-fundo" (click)="cursoAberto.set(null)">
+    <section class="car-modal" role="dialog" aria-modal="true" aria-labelledby="car-curso-titulo" (click)="$event.stopPropagation()">
+      <button type="button" class="car-fechar" (click)="cursoAberto.set(null)" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+
+      <div class="car-modal-rolagem">
+        <header class="car-mtopo" [class]="'car-mtopo topo-' + infoArea(c.area).cor">
+          @if (fotoDe(c); as foto) {
+            <img class="car-mavatar car-logo-foto" [src]="foto" [alt]="'Logo de ' + c.instituicao" (error)="fotoFalhou(foto)">
+          } @else {
+            <span class="car-mavatar" [class]="'car-mavatar cor-' + infoArea(c.area).cor"><i class="fa-solid" [class]="'fa-solid ' + infoArea(c.area).icone"></i></span>
+          }
+          <span class="car-mempresa">{{ c.instituicao }}<app-selos-autor [uid]="c.parceiroId"></app-selos-autor></span>
+          <h2 id="car-curso-titulo">{{ c.titulo }}</h2>
+          <div class="car-mpills">
+            <span><i class="fa-solid fa-laptop-house"></i> {{ c.formato }}</span>
+            <span><i class="fa-solid fa-signal"></i> {{ c.nivel }}</span>
+            @if (c.cargaHoraria) { <span><i class="fa-regular fa-clock"></i> {{ c.cargaHoraria }}</span> }
+            <span><i class="fa-regular fa-calendar"></i> {{ c.inicio || 'Comece quando quiser' }}</span>
+          </div>
+        </header>
+
+        <div class="car-mcorpo">
+          @if (c.gratuito || c.certificado) {
+            <div class="car-mdestaques">
+              @if (c.gratuito) {
+                <div class="car-msalario">
+                  <span class="car-msalario-ic"><i class="fa-solid fa-gift"></i></span>
+                  <div><small>Valor</small><strong>Gratuito</strong></div>
+                </div>
+              }
+              @if (c.certificado) {
+                <div class="car-msalario lilas">
+                  <span class="car-msalario-ic"><i class="fa-solid fa-award"></i></span>
+                  <div><small>Ao concluir</small><strong>Dá certificado</strong></div>
+                </div>
+              }
+            </div>
+          }
+          @if (c.descricao) {
+            <section class="car-msecao">
+              <h3>Sobre o curso</h3>
+              <p class="car-texto">{{ c.descricao }}</p>
+            </section>
+          }
+        </div>
+      </div>
+
+      <footer class="car-mrodape">
+        @if (c.link) {
+          <a class="car-btn" [href]="linkSeguro(c.link)" target="_blank" rel="noopener">
+            Quero me inscrever <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        } @else {
+          <span class="car-encerrada">A instituição ainda não informou como se inscrever.</span>
+        }
+        <small><i class="fa-solid fa-circle-info"></i> A inscrição e as aulas são com {{ c.instituicao }}. O Elo Materno só divulga.</small>
+      </footer>
+    </section>
+  </div>
+}

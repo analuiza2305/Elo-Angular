@@ -1,4 +1,4 @@
-<app-header tipo="mae"></app-header>
+@if (!embutido) { <app-header tipo="mae"></app-header> }
 
 <main class="artigos-container">
     
@@ -6,9 +6,23 @@
     <section class="artigos-hero-banner">
         <div class="hero-content">
             <h1>Artigos EloMaterno</h1>
+            @if (embutido) {
+            <p>É assim que as mães veem os artigos. Publique conteúdos da sua empresa e acompanhe os seus.</p>
+            } @else {
             <p>Informações jurídicas, dicas e muito conhecimento para facilitar o seu dia a dia.</p>
+            }
         </div>
     </section>
+
+    @if (embutido) {
+        <div class="art-parc-barra">
+            <div class="art-parc-abas" role="tablist">
+                <button type="button" role="tab" class="art-parc-aba" [class.ativa]="!soMeus()" [attr.aria-selected]="!soMeus()" (click)="soMeus.set(false)"><i class="fa-solid fa-globe"></i> Todos os artigos</button>
+                <button type="button" role="tab" class="art-parc-aba" [class.ativa]="soMeus()" [attr.aria-selected]="soMeus()" (click)="soMeus.set(true)"><i class="fa-regular fa-building"></i> Meus artigos</button>
+            </div>
+            <button type="button" class="art-parc-novo" (click)="novoArtigo.emit()"><i class="fa-solid fa-plus"></i> Novo artigo</button>
+        </div>
+    }
 
     <!-- 2. BARRA DE FILTROS E ORDENAÇÃO -->
     <div class="artigos-filtros-bar">
@@ -84,9 +98,15 @@
                                 {{ artigo.visibilidade === 'premium' ? 'Premium' : 'Destaque' }}
                             </span>
                         }
+                        @if (!embutido) {
                         <div class="ac-bookmark" [class.saved]="artigo.salvo" (click)="$event.stopPropagation(); toggleFavoritoRapido(artigo)">
                             <i [ngClass]="artigo.salvo ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'"></i>
                         </div>
+                        } @else if (ehMeu(artigo)) {
+                        <button type="button" class="ac-bookmark ac-excluir" title="Excluir artigo" aria-label="Excluir artigo" (click)="$event.stopPropagation(); excluirArtigo.emit(artigo.id)">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                        }
                     </div>
 
                     <div class="ac-body">
@@ -113,8 +133,13 @@
                     <div class="vazio-icon-wrapper">
                         <i class="fa-regular fa-newspaper"></i>
                     </div>
+                    @if (embutido && soMeus()) {
+                    <h3>Você ainda não publicou artigos</h3>
+                    <p>Use o botão "Novo artigo" para publicar o primeiro.</p>
+                    } @else {
                     <h3>Nenhum artigo encontrado nesta categoria</h3>
                     <p>Tente selecionar outro filtro para ver as leituras disponíveis.</p>
+                    }
                 </div>
             }
         </div>

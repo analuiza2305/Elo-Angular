@@ -37,6 +37,7 @@
                 <img src="./img/logo_icon.png" alt="Ícone Elo Materno" class="header-logo-icon">
                 <span class="header-logo-text">elomaterno</span>
             </a>
+            <span class="parc-header-titulo">Painel do parceiro</span>
         </div>
 
         <div class="header-icons">
@@ -94,6 +95,13 @@
             <button class="icon-btn" id="logoutBtn" title="Sair" aria-label="Sair da conta">
                 <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
             </button>
+            <button type="button" class="parc-header-avatar" data-target="perfil" title="Minha empresa" aria-label="Ver Minha Empresa">
+                <img [src]="fotoEmpresaMenu()" alt="">
+            </button>
+            <button type="button" class="parc-hamburguer" aria-label="Abrir menu" [attr.aria-expanded]="menuCelularAberto()" (click)="abrirMenuCelular()">
+                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                @if (temNotificacaoNova) { <span class="parc-hamburguer-dot" aria-hidden="true"></span> }
+            </button>
             <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false"
             aria-controls="parceiroSidebar">
             <i class="fa-solid fa-bars" aria-hidden="true"></i>
@@ -102,6 +110,64 @@
     </header>
 
     <div id="sidebar-overlay" class="hidden" aria-hidden="true"></div>
+
+    <!-- MENU DO CELULAR: mesma gaveta (e mesmas classes) do menu da mãe -->
+    <div class="mobile-backdrop parc-mobile" [class.active]="menuCelularAberto()" (click)="fecharMenuCelular()"></div>
+    <nav class="mobile-drawer parc-mobile" [class.active]="menuCelularAberto()" aria-label="Menu do parceiro">
+        <div class="mobile-nav-header">
+            <span class="mobile-nav-title"><img src="./img/logo_icon.png" alt="" class="mobile-nav-logo"> elomaterno</span>
+            <button type="button" class="btn-close-mobile" aria-label="Fechar menu" (click)="fecharMenuCelular()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <button type="button" class="mobile-profile-card" (click)="irSecaoCelular('perfil')" aria-label="Ver Minha Empresa">
+            <img [src]="fotoEmpresaMenu()" alt="Foto da empresa">
+            <div class="mobile-profile-info">
+                <strong>{{ nomeEmpresaMenu() }}</strong>
+                <span>Empresa parceira</span>
+            </div>
+            <i class="fa-solid fa-chevron-right mobile-profile-arrow" aria-hidden="true"></i>
+        </button>
+
+        <div class="mobile-links-grid">
+            @for (grupo of secoesCelular; track grupo.grupo) {
+                <span class="mobile-section-label">{{ grupo.grupo }}</span>
+                @for (item of grupo.itens; track item.alvo) {
+                    <button type="button" class="mobile-link" [class.ativo]="secaoAtiva() === item.alvo" (click)="irSecaoCelular(item.alvo)">
+                        <i [class]="item.icone"></i> {{ item.rotulo }}
+                    </button>
+                }
+            }
+            <button type="button" class="mobile-link" [class.ativo]="secaoAtiva() === 'notificacoes'" (click)="irSecaoCelular('notificacoes')">
+                <i class="fa-solid fa-bell"></i> Notificações
+                @if (temNotificacaoNova) { <span class="notif-badge-inline">novo</span> }
+            </button>
+        </div>
+
+        <div class="mobile-accessibility-section">
+            <span class="mobile-section-label">Acessibilidade e Tema</span>
+            <button type="button" class="mobile-acc-btn" (click)="acionarBotaoHeader('theme-toggle')">
+                <i class="fa-solid" [class.fa-moon]="!temaEscuroAtivo" [class.fa-sun]="temaEscuroAtivo"></i>
+                <span>{{ temaEscuroAtivo ? 'Modo Claro' : 'Modo Escuro' }}</span>
+            </button>
+            <button type="button" class="mobile-acc-btn" (click)="acessCelularAberto.set(!acessCelularAberto())" [attr.aria-expanded]="acessCelularAberto()">
+                <i class="fa-solid fa-universal-access"></i>
+                <span>Opções de Acessibilidade</span>
+            </button>
+            @if (acessCelularAberto()) {
+                <ul class="mobile-acc-sublist">
+                    @for (op of opcoesAcessibilidade; track op.id) {
+                        <li (click)="acionarBotaoHeader(op.id)"><i [class]="op.icone"></i> {{ op.rotulo }}</li>
+                    }
+                </ul>
+            }
+        </div>
+
+        <div class="mobile-logout-box">
+            <button type="button" class="btn-mobile-logout" (click)="sairPeloMenuCelular()">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair da conta
+            </button>
+        </div>
+    </nav>
 
     <div id="postModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="postModalTitulo">
         <div class="modal-content modal-wide">
@@ -272,6 +338,10 @@
                 <i class="fa-solid fa-book-open"></i>
                 <span>Artigos</span>
             </button>
+            <button type="button" class="menu-btn" role="tab" data-target="carreiras" aria-selected="false">
+                <i class="fa-solid fa-seedling"></i>
+                <span>Carreiras</span>
+            </button>
             <button type="button" class="menu-btn" role="tab" data-target="divulgacao" aria-selected="false">
                 <i class="fa-solid fa-bullhorn"></i>
                 <span>Divulgação</span>
@@ -307,10 +377,13 @@
 
         <section class="content" id="dashboard">
 
-            <div class="parc-hero">
+            <div class="parc-hero" [style.--mouse-x]="heroMouseX()" [style.--mouse-y]="heroMouseY()" (mousemove)="onHeroMouseMove($event)" (mouseleave)="onHeroMouseLeave()">
                 <h1 id="heroBoasVindas">Olá, Parceiro!</h1>
                 <p>Seu espaço de impacto está pronto. Acompanhe seus posts, eventos e o alcance da sua empresa
                     junto às mães da nossa comunidade.</p>
+                <div class="hero-glow shape-1"></div>
+                <div class="hero-glow shape-2"></div>
+                <div class="hero-glow shape-3"></div>
             </div>
 
             <div class="stats-grid" id="dashboardStats">
@@ -348,51 +421,83 @@
                 </div>
             </div>
 
-            <div class="dashboard-columns">
+            <div class="dash-grid dash-grid-3">
                 <div class="dash-panel">
-                    <h3>Atividade Recente</h3>
-                    <div id="atividadeRecenteList" class="dash-list">
-                        <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        <div class="dash-panel-header">
+                            <div class="dash-panel-tit">
+                                <span class="dash-panel-ic"><i class="fa-regular fa-comments"></i></span>
+                                <div><h3>Atividade recente</h3><p>Comentários nos seus tópicos</p></div>
+                            </div>
+                        </div>
+                        <div id="atividadeRecenteList" class="dash-list">
+                            <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        </div>
                     </div>
-                </div>
+
+                <div class="dash-panel dash-panel-eventos">
+                        <div class="dash-panel-header">
+                            <div class="dash-panel-tit">
+                                <span class="dash-panel-ic"><i class="fa-regular fa-calendar"></i></span>
+                                <div><h3>Próximos eventos</h3><p>Os encontros que você marcou com as mães</p></div>
+                            </div>
+                            <button class="dash-see-more" data-target="calendario">Ver calendário</button>
+                        </div>
+                        <div id="proximosEventosList" class="dash-list">
+                            <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        </div>
+                    </div>
 
                 <div class="dash-panel">
-                    <div class="dash-panel-header">
-                        <h3>Próximos eventos</h3>
-                        <button class="add-event-btn" title="Adicionar evento">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
+                        <div class="dash-panel-header">
+                            <div class="dash-panel-tit">
+                                <span class="dash-panel-ic"><i class="fa-solid fa-book-open"></i></span>
+                                <div><h3>Artigos recentes</h3><p>O que a sua empresa publicou por último</p></div>
+                            </div>
+                            <button class="dash-see-more" data-target="artigos">Ver artigos</button>
+                        </div>
+                        <div id="artigosRecentesList" class="dash-list">
+                            <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        </div>
                     </div>
-                    <div id="proximosEventosList" class="dash-list">
-                        <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-                    </div>
-                </div>
-
-                <div class="dash-panel">
-                    <div class="dash-panel-header">
-                        <h3>Artigos Recentes</h3>
-                        <button class="dash-see-more" data-target="artigos">Ver mais</button>
-                    </div>
-                    <div id="artigosRecentesList" class="dash-list">
-                        <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-                    </div>
-                </div>
             </div>
 
-            <div class="quick-actions-panel">
-                <h3>Ações rápidas</h3>
-                <div class="quick-actions-grid">
-                    <button class="quick-action-btn qa-purple add-post-btn-artigos">+ Novo Artigo</button>
-                    <button class="quick-action-btn qa-yellow add-event-btn">+ Criar Evento</button>
-                    <button class="quick-action-btn qa-coral" id="qaComunicadoBtn">+ Publicar Comunicado</button>
-                    <button class="quick-action-btn qa-blue" data-target="relatorios">+ Ver Relatórios</button>
-                </div>
-            </div>
+            <div class="quick-actions-panel dash-acoes">
+                        <h3>Ações rápidas</h3>
+                        <div class="quick-actions-grid">
+                            <button class="quick-action-btn qa-tile add-post-btn-artigos">
+                                <span class="qa-ic"><i class="fa-solid fa-pen-nib"></i></span>
+                                <span class="qa-txt"><strong>Novo artigo</strong><small>Compartilhe um conteúdo</small></span>
+                                <i class="fa-solid fa-chevron-right qa-seta"></i>
+                            </button>
+                            <button class="quick-action-btn qa-tile add-event-btn">
+                                <span class="qa-ic"><i class="fa-regular fa-calendar-plus"></i></span>
+                                <span class="qa-txt"><strong>Criar evento</strong><small>Palestra, oficina ou encontro</small></span>
+                                <i class="fa-solid fa-chevron-right qa-seta"></i>
+                            </button>
+                            <button class="quick-action-btn qa-tile" id="qaComunicadoBtn">
+                                <span class="qa-ic"><i class="fa-solid fa-bullhorn"></i></span>
+                                <span class="qa-txt"><strong>Publicar comunicado</strong><small>Um aviso no fórum das mães</small></span>
+                                <i class="fa-solid fa-chevron-right qa-seta"></i>
+                            </button>
+                            <button class="quick-action-btn qa-tile" data-target="relatorios">
+                                <span class="qa-ic"><i class="fa-regular fa-file-lines"></i></span>
+                                <span class="qa-txt"><strong>Ver relatórios</strong><small>Alcance e engajamento</small></span>
+                                <i class="fa-solid fa-chevron-right qa-seta"></i>
+                            </button>
+                        </div>
+                    </div>
 
             <app-anuncio-espaco posicao="painel-parceiro"></app-anuncio-espaco>
         </section>
 
         <section class="content hidden" id="calendario">
+            <div class="cab-pagina">
+                <span class="cab-icone"><i class="fa-regular fa-calendar"></i></span>
+                <div class="cab-texto">
+                    <h2 class="page-title">Calendário de eventos</h2>
+                    <p class="page-subtitle">Crie eventos para as mães e acompanhe tudo o que você já publicou.</p>
+                </div>
+            </div>
             <div class="pcal">
                 <!-- Topo: sub-abas + criar evento -->
                 <div class="pcal-topo">
@@ -406,11 +511,20 @@
                             <i class="fa-solid fa-list-ul"></i> Meus eventos
                             <span class="pcal-badge">{{ contagem().todos }}</span>
                         </button>
+                        <button type="button" role="tab" class="pcal-aba" [class.ativa]="abaEventos() === 'vitrine'"
+                                [attr.aria-selected]="abaEventos() === 'vitrine'" (click)="abaEventos.set('vitrine')">
+                            <i class="fa-regular fa-eye"></i> Como as mães veem
+                        </button>
                     </div>
                     <button type="button" class="pcal-btn-criar add-event-btn" id="calCriarEventoBtn">
                         <i class="fa-solid fa-plus" aria-hidden="true"></i> Criar evento
                     </button>
                 </div>
+
+                <!-- ===== ABA VITRINE: a página Eventos das mães ===== -->
+                @if (abaEventos() === 'vitrine' && secaoAtiva() === 'calendario') {
+                    <app-eventos class="parc-embutido" [embutido]="true"></app-eventos>
+                }
 
                 <!-- ===== ABA CALENDÁRIO ===== -->
                 @if (abaEventos() === 'calendario') {
@@ -565,21 +679,14 @@
         </section>
 
         <section class="content hidden" id="forum">
-            <div class="forum-container">
-                <div class="forum-search">
-                    <input type="text" id="forum-search-input" placeholder="Pesquisar no fórum">
-                    <button class="add-for-btn" id="nova-post-btn">+</button>
-                </div>
-
-                <div id="posts-list">
-                    <div class="loader">
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                    </div>
-                </div>
-            </div>
-
+            <!-- O mesmo fórum das mães, na visão da empresa (sem o header da mãe) -->
+            @if (secaoAtiva() === 'forum') {
+                @if (forumPostAberto()) {
+                    <app-coment-resp class="parc-embutido" [embutido]="true" [postIdEmbutido]="forumPostAberto()!" (voltar)="forumPostAberto.set(null)"></app-coment-resp>
+                } @else {
+                    <app-forum class="parc-embutido" [embutido]="true" (abrirPost)="abrirPostForum($event)"></app-forum>
+                }
+            }
         </section>
 
         <div class="modal hidden" id="modal-post">
@@ -621,50 +728,50 @@
         </div>
 
         <section class="content hidden" id="artigos">
+            <!-- A mesma página de artigos das mães, com Novo artigo, Meus artigos e lixeira nos da empresa -->
+            @if (secaoAtiva() === 'artigos') {
+                @if (artigoAberto()) {
+                    <app-artigo-ind class="parc-embutido" [embutido]="true" [artigoIdEmbutido]="artigoAberto()!" (voltarPainel)="artigoAberto.set(null)"></app-artigo-ind>
+                } @else {
+                    <app-artigos class="parc-embutido" [embutido]="true" (abrirArtigo)="abrirArtigoPainel($event)" (novoArtigo)="abrirNovoArtigo()" (excluirArtigo)="pedirExclusaoArtigo($event)"></app-artigos>
+                }
+            }
+        </section>
 
-            <div class="artigos-topbar">
-                <div class="artigos-search">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="artigos-search-input" placeholder="Pesquisar artigo...">
-                </div>
-                <button class="quick-action-btn qa-purple add-post-btn-artigos">+ Novo Artigo</button>
-            </div>
-
-            <div class="artigos-abas" role="tablist" aria-label="Origem dos artigos">
-                <button type="button" class="aba-btn active" role="tab" aria-selected="true" data-escopo="meus">Meus artigos</button>
-                <button type="button" class="aba-btn" role="tab" aria-selected="false" data-escopo="comunidade">Outros parceiros</button>
-            </div>
-
-            <div class="filtros-categorias">
-                <button class="filtro-btn active" data-cat="todas">Todos</button>
-                <button class="filtro-btn" data-cat="legislativos">Legislativos</button>
-                <button class="filtro-btn" data-cat="educacionais">Educacionais</button>
-                <button class="filtro-btn" data-cat="dicas">Dicas</button>
-                <button class="filtro-btn" data-cat="posts">Posts</button>
-            </div>
-
-            <div class="articles-grid-cards" id="articlesGridArtigos">
-                <div class="loader">
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                </div>
-            </div>
-
-
-            <app-anuncio-espaco posicao="painel-parceiro"></app-anuncio-espaco>
+        <section class="content hidden" id="carreiras">
+            <app-parc-carreiras></app-parc-carreiras>
         </section>
 
         <section class="content hidden" id="divulgacao">
+            <div class="cab-pagina">
+                <span class="cab-icone"><i class="fa-solid fa-bullhorn"></i></span>
+                <div class="cab-texto">
+                    <h2 class="page-title">Divulgação</h2>
+                    <p class="page-subtitle">Dê mais visibilidade aos seus artigos e eventos e anuncie em espaços da plataforma.</p>
+                </div>
+            </div>
             <app-parc-divulgacao></app-parc-divulgacao>
         </section>
 
         <section class="content hidden" id="planos">
+            <div class="cab-pagina">
+                <span class="cab-icone"><i class="fa-solid fa-crown"></i></span>
+                <div class="cab-texto">
+                    <h2 class="page-title">Planos</h2>
+                    <p class="page-subtitle">Compare o que cada plano oferece e veja o plano atual da sua empresa.</p>
+                </div>
+            </div>
             <app-parc-planos></app-parc-planos>
         </section>
 
         <section class="content hidden" id="notificacoes">
-            <h2 class="page-title">Notificações</h2>
+            <div class="cab-pagina">
+                <span class="cab-icone"><i class="fa-solid fa-bell"></i></span>
+                <div class="cab-texto">
+                    <h2 class="page-title">Notificações</h2>
+                    <p class="page-subtitle">Novidades sobre seus artigos, eventos e a sua conta.</p>
+                </div>
+            </div>
             <div class="filtros-categorias" id="notifFiltros">
                 <button class="filtro-btn active" data-notif-filter="todos">Todos</button>
                 <button class="filtro-btn" data-notif-filter="nao-lidos">Não lidos</button>
@@ -675,9 +782,13 @@
         </section>
 
         <section class="content hidden" id="relatorios">
-            <div class="relatorios-topbar">
-                <h2 class="page-title">Relatórios</h2>
-                <button class="quick-action-btn qa-purple" id="exportarRelatorioBtn"><i class="fa-solid fa-download"></i> Exportar</button>
+            <div class="cab-pagina">
+                <span class="cab-icone"><i class="fa-solid fa-chart-pie"></i></span>
+                <div class="cab-texto">
+                    <h2 class="page-title">Relatórios</h2>
+                    <p class="page-subtitle">Acompanhe o alcance dos seus artigos, eventos e da sua participação no fórum.</p>
+                </div>
+                <button class="quick-action-btn qa-purple cab-acao" id="exportarRelatorioBtn"><i class="fa-solid fa-download"></i> Exportar</button>
             </div>
 
             <div class="stats-grid" id="reportStats">
@@ -728,8 +839,13 @@
         </section>
 
         <section class="content hidden" id="configuracoes">
-            <h2 class="page-title">Configurações</h2>
-            <p class="page-subtitle">Gerencie suas preferências e configurações da conta.</p>
+            <div class="cab-pagina">
+                <span class="cab-icone"><i class="fa-solid fa-gear"></i></span>
+                <div class="cab-texto">
+                    <h2 class="page-title">Configurações</h2>
+                    <p class="page-subtitle">Dados da empresa, privacidade, segurança e foto do perfil.</p>
+                </div>
+            </div>
 
             <div class="config-grid">
                 <div class="config-square" id="configPanel-conta">
@@ -765,11 +881,15 @@
                     </div>
                     <p class="empty-hint">Consulte nossos termos e política antes de continuar usando a plataforma.</p>
                     <div class="config-legal-links">
-                        <a class="quick-action-btn qa-purple" href="termos_de_uso.html" target="_blank" rel="noopener">
-                            <i class="fa-solid fa-file-contract"></i> Termos de Uso
+                        <a class="legal-link" href="termos_de_uso.html" target="_blank" rel="noopener">
+                            <span class="legal-ic"><i class="fa-solid fa-file-contract"></i></span>
+                            <span class="legal-txt"><strong>Termos de Uso</strong><small>Regras de uso da plataforma</small></span>
+                            <i class="fa-solid fa-arrow-up-right-from-square legal-seta"></i>
                         </a>
-                        <a class="quick-action-btn qa-purple" href="politica_privacidade.html" target="_blank" rel="noopener">
-                            <i class="fa-solid fa-user-shield"></i> Política de Privacidade
+                        <a class="legal-link" href="politica_privacidade.html" target="_blank" rel="noopener">
+                            <span class="legal-ic"><i class="fa-solid fa-user-shield"></i></span>
+                            <span class="legal-txt"><strong>Política de Privacidade</strong><small>Como cuidamos dos seus dados</small></span>
+                            <i class="fa-solid fa-arrow-up-right-from-square legal-seta"></i>
                         </a>
                     </div>
                 </div>
@@ -813,8 +933,13 @@
         </section>
 
         <section class="content hidden" id="perfil">
-            <h2 class="page-title">Minha empresa</h2>
-            <p class="page-subtitle">Veja como sua empresa aparece para as mães e acompanhe sua atividade.</p>
+            <div class="cab-pagina">
+                <span class="cab-icone"><i class="fa-regular fa-building"></i></span>
+                <div class="cab-texto">
+                    <h2 class="page-title">Minha empresa</h2>
+                    <p class="page-subtitle">Veja como sua empresa aparece para as mães e acompanhe sua atividade.</p>
+                </div>
+            </div>
 
             <div class="perfil-layout">
                 <div class="perfil-card">

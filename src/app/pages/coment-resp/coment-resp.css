@@ -1,0 +1,138 @@
+/* =========================================================
+   DETALHE DO TÓPICO — soft UI (vale para as mães e para o
+   painel do parceiro). O resto do estilo vem do styles.css.
+   ========================================================= */
+:host { display: block; }
+
+:host .forum-container {
+  max-width: 860px;
+  margin: 32px auto 48px;
+  padding: 0 20px;
+}
+
+:host .btn-voltar-coment {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  width: auto !important;
+  height: 40px;
+  padding: 0 18px 0 14px;
+  margin-bottom: 18px;
+  border: 1px solid #E7DEFA;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #4B2C82;
+  font: inherit;
+  font-weight: 700;
+  font-size: .9rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(108, 75, 191, .07);
+  transition: transform .2s ease, background .2s ease;
+}
+:host .btn-voltar-coment::after { content: 'Voltar ao fórum'; }
+:host .btn-voltar-coment:hover { transform: translateX(-2px); background: #F6F1FF; }
+
+:host .coment-card-principal {
+  background: #ffffff;
+  border: 1px solid #EEE7FB;
+  border-radius: 24px;
+  padding: 28px 30px 22px;
+  margin-bottom: 26px;
+  box-shadow: 0 12px 34px rgba(108, 75, 191, .08);
+}
+
+:host .coment-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #F3EEFF;
+  border: 2px solid #ECE4FF;
+  flex-shrink: 0;
+}
+
+:host .coment-autor-nome { font-size: .98rem; font-weight: 800; color: #3E2A72; }
+:host .coment-data { display: block; font-size: .8rem; color: #8B7DB5; margin-top: 2px; }
+
+:host .coment-titulo-post {
+  font-size: clamp(1.3rem, 2vw, 1.65rem);
+  font-weight: 800;
+  line-height: 1.25;
+  color: #2E1C5C;
+  margin: 4px 0 12px;
+}
+
+:host .coment-conteudo-texto {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #4A4266;
+  white-space: pre-line;
+  max-width: 68ch;
+}
+
+:host .coment-card-principal > div:last-child {
+  margin-top: 20px !important;
+  padding-top: 16px;
+  border-top: 1px solid #F1ECFB;
+}
+
+:host h3 { color: #3E2A72 !important; font-size: 1.15rem !important; font-weight: 800 !important; }
+
+:host .coment-resposta-card {
+  position: relative;
+  background: #FBF9FF;
+  border: 1px solid #EEE7FB;
+  border-left: 4px solid #B9A3EE;
+  border-radius: 20px;
+  padding: 18px 22px;
+  margin-bottom: 14px;
+}
+:host .coment-resposta-card .coment-conteudo-texto { padding-left: 56px !important; }
+
+:host .forum-container > p {
+  width: auto !important; max-width: none !important;
+  background: #FBF9FF;
+  border: 1px dashed #DCD0F7;
+  border-radius: 18px;
+  padding: 18px 20px;
+  color: #6F62A0 !important;
+}
+
+:host .coment-aviso-nao-prof {
+  margin-top: 18px;
+  background: #F6F1FF;
+  border: none;
+  border-radius: 16px;
+  padding: 14px 18px;
+}
+:host .coment-aviso-nao-prof p { margin: 0; font-size: .88rem; color: #5B4A8F; }
+
+:host .coment-box-especialista {
+  background: #ffffff;
+  border: 1px solid #EEE7FB;
+  border-radius: 22px;
+  padding: 20px 22px;
+  box-shadow: 0 10px 28px rgba(108, 75, 191, .07);
+}
+:host .coment-textarea { border-radius: 16px; }
+:host .coment-btn-enviar { border-radius: 999px; }
+
+/* Modo escuro */
+:host-context(body[data-theme="dark"]) .btn-voltar-coment { background: #1a2133; border-color: rgba(255,255,255,.1); color: #E6DEFF; }
+:host-context(body[data-theme="dark"]) .coment-card-principal,
+:host-context(body[data-theme="dark"]) .coment-box-especialista { background: #161c2c; border-color: rgba(255,255,255,.08); box-shadow: none; }
+:host-context(body[data-theme="dark"]) .coment-resposta-card,
+:host-context(body[data-theme="dark"]) .forum-container > p { background: #1a2133; border-color: rgba(255,255,255,.1); }
+:host-context(body[data-theme="dark"]) .coment-card-principal > div:last-child { border-top-color: rgba(255,255,255,.08); }
+:host-context(body[data-theme="dark"]) .coment-titulo-post,
+:host-context(body[data-theme="dark"]) .coment-autor-nome,
+:host-context(body[data-theme="dark"]) h3 { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) .coment-conteudo-texto { color: #CFC8E6; }
+:host-context(body[data-theme="dark"]) .coment-aviso-nao-prof { background: rgba(185, 163, 238, .1); }
+:host-context(body[data-theme="dark"]) .coment-aviso-nao-prof p { color: #CDBFF5; }
+
+@media (max-width: 600px) {
+  :host .forum-container { margin-top: 18px; padding: 0 14px; }
+  :host .coment-card-principal { padding: 20px 18px 16px; border-radius: 20px; }
+  :host .coment-resposta-card .coment-conteudo-texto { padding-left: 0 !important; }
+}

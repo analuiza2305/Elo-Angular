@@ -1,4 +1,4 @@
-<app-header tipo="mae"></app-header>
+@if (!embutido) { <app-header tipo="mae"></app-header> }
 
 <main class="eventos-container">
     
@@ -6,7 +6,11 @@
     <section class="eventos-hero-banner">
         <div class="hero-content">
             <h1>Eventos para você</h1>
+            @if (embutido) {
+            <p>É assim que as mães veem os eventos da comunidade, inclusive os da sua empresa.</p>
+            } @else {
             <p>Participe de palestras, encontros e atividades da comunidade. Inscreva-se e veja no calendário.</p>
+            }
         </div>
     </section>
 
@@ -212,7 +216,9 @@
                 <button type="button" class="evm-btn-icone" (click)="compartilharEvento(eventoSelecionado())" title="Compartilhar evento" aria-label="Compartilhar evento">
                     <i class="fa-solid fa-share-nodes"></i>
                 </button>
-                @if (eventoSelecionado()?.encerrado) {
+                @if (embutido) {
+                    <span class="evm-btn evm-btn-previa"><i class="fa-regular fa-eye"></i> Prévia: as mães se inscrevem por aqui</span>
+                } @else if (eventoSelecionado()?.encerrado) {
                     <button type="button" class="evm-btn evm-btn-inscrever" disabled>
                         Inscrições encerradas
                     </button>

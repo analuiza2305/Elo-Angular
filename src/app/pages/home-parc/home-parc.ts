@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, PLATFORM_ID, inject, signal, computed, HostListener } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, PLATFORM_ID, inject, signal, computed, HostListener, ViewChild } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import {
@@ -38,6 +38,12 @@ import { SeloService } from '../../services/selo';
 
 import { ParcPlanosComponent, EVENTO_PLANO_ALTERADO } from './parc-planos/parc-planos';
 import { ParcDivulgacaoComponent } from './parc-divulgacao/parc-divulgacao';
+import { ParcCarreirasComponent } from './parc-carreiras/parc-carreiras';
+import { ForumComponent } from '../forum/forum';
+import { ComentResp } from '../coment-resp/coment-resp';
+import { Artigos } from '../artigos/artigos';
+import { ArtigoInd } from '../artigo-ind/artigo-ind';
+import { Eventos } from '../eventos/eventos';
 import { DivulgacaoService } from '../../services/divulgacao';
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 /**
@@ -55,7 +61,7 @@ import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-
 @Component({
   selector: 'app-home-parc',
   standalone: true,
-  imports: [CommonModule, RouterLink, ParcPlanosComponent, ParcDivulgacaoComponent, AnuncioEspacoComponent],
+  imports: [CommonModule, RouterLink, ParcPlanosComponent, ParcDivulgacaoComponent, ParcCarreirasComponent, AnuncioEspacoComponent, ForumComponent, ComentResp, Artigos, ArtigoInd, Eventos],
   templateUrl: './home-parc.html',
   styleUrl: './home-parc.css',
 })
@@ -161,10 +167,109 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   readonly DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
   eventos = signal<any[]>([]);
+
+  // ---------- menu do celular (mesma gaveta da mãe) ----------
+  menuCelularAberto = signal(false);
+
+  /** Brilho do banner que segue o mouse (igual ao do painel do administrador). */
+  heroMouseX = signal('50%');
+  heroMouseY = signal('50%');
+  onHeroMouseMove(event: MouseEvent): void {
+    const alvo = event.currentTarget as HTMLElement | null;
+    if (!alvo) return;
+    const r = alvo.getBoundingClientRect();
+    this.heroMouseX.set(`${((event.clientX - r.left) / r.width) * 100}%`);
+    this.heroMouseY.set(`${((event.clientY - r.top) / r.height) * 100}%`);
+  }
+  onHeroMouseLeave(): void { this.heroMouseX.set('50%'); this.heroMouseY.set('50%'); }
+  acessCelularAberto = signal(false);
+  secaoAtiva = signal('dashboard');
+  nomeEmpresaMenu = signal('Minha Empresa');
+  fotoEmpresaMenu = signal('./img/logo_icon.png');
+  readonly secoesCelular: { grupo: string; itens: { alvo: string; rotulo: string; icone: string }[] }[] = [
+    { grupo: 'Gerenciar', itens: [
+      { alvo: 'dashboard', rotulo: 'Dashboard', icone: 'fa-solid fa-chart-line' },
+      { alvo: 'calendario', rotulo: 'Calendário', icone: 'fa-regular fa-calendar' },
+      { alvo: 'forum', rotulo: 'Fórum', icone: 'fa-solid fa-people-group' },
+      { alvo: 'artigos', rotulo: 'Artigos', icone: 'fa-solid fa-book-open' },
+      { alvo: 'carreiras', rotulo: 'Carreiras', icone: 'fa-solid fa-seedling' },
+      { alvo: 'divulgacao', rotulo: 'Divulgação', icone: 'fa-solid fa-bullhorn' },
+      { alvo: 'planos', rotulo: 'Planos', icone: 'fa-solid fa-crown' },
+    ] },
+    { grupo: 'Analíticos', itens: [
+      { alvo: 'relatorios', rotulo: 'Relatórios', icone: 'fa-regular fa-file-lines' },
+    ] },
+    { grupo: 'Conta', itens: [
+      { alvo: 'perfil', rotulo: 'Minha Empresa', icone: 'fa-regular fa-building' },
+      { alvo: 'configuracoes', rotulo: 'Configurações', icone: 'fa-solid fa-gear' },
+    ] },
+  ];
+  readonly opcoesAcessibilidade = [
+    { id: 'increase-font', rotulo: 'Aumentar Fonte', icone: 'fa-solid fa-circle-plus' },
+    { id: 'decrease-font', rotulo: 'Diminuir Fonte', icone: 'fa-solid fa-circle-minus' },
+    { id: 'colorblind-filter', rotulo: 'Filtros Daltonismo', icone: 'fa-solid fa-eye-slash' },
+    { id: 'screen-reader', rotulo: 'Leitura em Voz', icone: 'fa-solid fa-ear-listen' },
+    { id: 'reading-mask', rotulo: 'Máscara de leitura', icone: 'fa-solid fa-highlighter' },
+    { id: 'bold-text', rotulo: 'Letras destacadas', icone: 'fa-solid fa-bold' },
+    { id: 'high-contrast', rotulo: 'Alto contraste', icone: 'fa-solid fa-circle-half-stroke' },
+    { id: 'increase-line', rotulo: 'Aumentar Espaçamento', icone: 'fa-solid fa-arrows-up-down' },
+    { id: 'decrease-line', rotulo: 'Diminuir Espaçamento', icone: 'fa-solid fa-compress' },
+    { id: 'reset-accessibility', rotulo: 'Redefinir', icone: 'fa-solid fa-rotate-left' },
+  ];
+
+  get temaEscuroAtivo(): boolean {
+    return typeof document !== 'undefined' && document.body.getAttribute('data-theme') === 'dark';
+  }
+
+  get temNotificacaoNova(): boolean {
+    const dot = typeof document !== 'undefined' ? document.getElementById('notifDot') : null;
+    return !!dot && !dot.classList.contains('hidden');
+  }
+
+  abrirMenuCelular(): void { this.menuCelularAberto.set(true); }
+  fecharMenuCelular(): void { this.menuCelularAberto.set(false); this.acessCelularAberto.set(false); }
+
+  irSecaoCelular(alvo: string): void {
+    this.fecharMenuCelular();
+    this.goToSection(alvo);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  sairPeloMenuCelular(): void {
+    this.fecharMenuCelular();
+    this.acionarBotaoHeader('logoutBtn');
+  }
   calMes = signal(new Date().getMonth());
   calAno = signal(new Date().getFullYear());
   diaSel = signal<Date | null>(null);
-  abaEventos = signal<'calendario' | 'meus'>('calendario');
+  abaEventos = signal<'calendario' | 'meus' | 'vitrine'>('calendario');
+
+  // ---------- fórum e artigos: as mesmas telas das mães, embutidas ----------
+  forumPostAberto = signal<string | null>(null);
+  artigoAberto = signal<string | null>(null);
+  @ViewChild(Artigos) private artigosEmbutidos?: Artigos;
+
+  abrirPostForum(id: string): void {
+    this.forumPostAberto.set(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  abrirArtigoPainel(id: string): void {
+    this.artigoAberto.set(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /** "Novo artigo" da página embutida abre o mesmo formulário do painel. */
+  abrirNovoArtigo(): void {
+    (document.querySelector('.add-post-btn-artigos') as HTMLElement | null)?.click();
+  }
+
+  /** Lixeira de um artigo da empresa: usa a mesma confirmação do painel. */
+  pedirExclusaoArtigo(id: string): void {
+    this.itemParaExcluir = id;
+    this.tipoParaExcluir = 'artigo';
+    this.confirmModal?.classList.remove('hidden');
+  }
   filtroMeus = signal<'proximos' | 'encerrados' | 'todos'>('proximos');
   eventoDetalhe = signal<any | null>(null);
   private eventoEditandoId: string | null = null;
@@ -420,6 +525,9 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     });
     document.querySelectorAll('.content').forEach((c) => c.classList.add('hidden'));
     target.classList.remove('hidden');
+    this.secaoAtiva.set(targetId);
+    this.forumPostAberto.set(null);
+    this.artigoAberto.set(null);
     document.getElementById('headerUserMenu')?.classList.add('hidden');
 
     if (targetId === 'artigos') this.carregarArtigosNaAbaArtigos(this.nomeEmpresaAtual);
@@ -466,6 +574,11 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     if (!v) return new Date(0);
     if (v.toDate) return v.toDate();
     return new Date(v);
+  }
+
+  /** Botões da gaveta do celular repetem os do header (tema e sair), que ficam escondidos no celular. */
+  acionarBotaoHeader(id: string): void {
+    (document.getElementById(id) as HTMLElement | null)?.click();
   }
 
   // =============================================================
@@ -558,6 +671,8 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
           if (this.dadosParceiroAtual['fotoURL'] && headerAvatar) headerAvatar.src = this.dadosParceiroAtual['fotoURL'];
           if (this.dadosParceiroAtual['fotoURL'] && sidebarAvatar) sidebarAvatar.src = this.dadosParceiroAtual['fotoURL'];
           if (sidebarNomeEmpresa) sidebarNomeEmpresa.textContent = this.sanitize(this.nomeExibicao(this.dadosParceiroAtual));
+          this.nomeEmpresaMenu.set(this.nomeExibicao(this.dadosParceiroAtual) || 'Minha Empresa');
+          if (this.dadosParceiroAtual['fotoURL']) this.fotoEmpresaMenu.set(this.dadosParceiroAtual['fotoURL']);
           void this.mostrarSeloApoiador(user.uid);
 
           this.carregarArtigosNaAbaArtigos(this.nomeEmpresaAtual);
@@ -1067,6 +1182,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async carregarArtigosNaAbaArtigos(nomeEmpresa: string): Promise<void> {
+    this.artigosEmbutidos?.carregarArtigos();
     const articlesGridArtigos = document.getElementById('articlesGridArtigos');
     if (!articlesGridArtigos || !nomeEmpresa) return;
 
@@ -1671,6 +1787,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         const sidebarAvatar = document.getElementById('sidebarAvatar') as HTMLImageElement | null;
         if (headerAvatar) headerAvatar.src = url;
         if (sidebarAvatar) sidebarAvatar.src = url;
+        this.fotoEmpresaMenu.set(url);
       } catch (err) {
         console.error('Erro ao atualizar foto:', err);
       }

@@ -1,0 +1,282 @@
+<div class="pc-root">
+  <header class="pc-cab">
+    <span class="pc-cab-ic"><i class="fa-solid fa-seedling"></i></span>
+    <div>
+      <h2>Carreiras</h2>
+      <p>Divulgue vagas de emprego e cursos para as mães. A candidatura e a inscrição acontecem no seu link.</p>
+    </div>
+  </header>
+
+  <div class="pc-kpis">
+    <div class="pc-kpi"><span class="pc-kpi-ic cor-lilas"><i class="fa-solid fa-briefcase"></i></span><div><strong>{{ vagasAbertas() }}</strong><small>vagas abertas</small></div></div>
+    <div class="pc-kpi"><span class="pc-kpi-ic cor-rosa"><i class="fa-solid fa-box-archive"></i></span><div><strong>{{ vagasEncerradas() }}</strong><small>vagas encerradas</small></div></div>
+    <div class="pc-kpi"><span class="pc-kpi-ic cor-azul"><i class="fa-solid fa-graduation-cap"></i></span><div><strong>{{ cursosAtivos() }}</strong><small>cursos ativos</small></div></div>
+    <div class="pc-kpi"><span class="pc-kpi-ic cor-verde"><i class="fa-solid fa-box-archive"></i></span><div><strong>{{ cursosEncerrados() }}</strong><small>cursos encerrados</small></div></div>
+  </div>
+
+  <div class="pc-barra">
+    <div class="pc-abas" role="tablist">
+      <button type="button" role="tab" class="pc-aba" [class.ativa]="subAba() === 'vagas'" [attr.aria-selected]="subAba() === 'vagas'" (click)="subAba.set('vagas')">
+        <span class="pc-aba-ic ic-vaga"><i class="fa-solid fa-briefcase"></i></span>
+        <span class="pc-aba-txt"><strong>Vagas</strong><small>{{ vagasAbertas() }} {{ vagasAbertas() === 1 ? 'aberta' : 'abertas' }}</small></span>
+      </button>
+      <button type="button" role="tab" class="pc-aba" [class.ativa]="subAba() === 'cursos'" [attr.aria-selected]="subAba() === 'cursos'" (click)="subAba.set('cursos')">
+        <span class="pc-aba-ic ic-curso"><i class="fa-solid fa-graduation-cap"></i></span>
+        <span class="pc-aba-txt"><strong>Cursos</strong><small>{{ cursosAtivos() }} {{ cursosAtivos() === 1 ? 'ativo' : 'ativos' }}</small></span>
+      </button>
+    </div>
+    @if (subAba() === 'vagas' && !mostrarFormVaga()) {
+      <button type="button" class="pc-btn" (click)="novaVaga()"><i class="fa-solid fa-plus"></i> Nova vaga</button>
+    }
+    @if (subAba() === 'cursos' && !mostrarFormCurso()) {
+      <button type="button" class="pc-btn" (click)="novoCurso()"><i class="fa-solid fa-plus"></i> Novo curso</button>
+    }
+  </div>
+
+  <!-- ===================== VAGAS ===================== -->
+  @if (subAba() === 'vagas') {
+
+    @if (mostrarFormVaga()) {
+      <div class="pc-fundo pc-fundo-form" (click)="cancelarVaga()">
+      <form class="pc-modal" role="dialog" aria-modal="true" aria-labelledby="pcTituloVaga" (ngSubmit)="salvarVaga()" (click)="$event.stopPropagation()">
+        <header class="pc-modal-topo">
+          <span class="pc-modal-ic ic-vaga"><i class="fa-solid fa-briefcase"></i></span>
+          <div>
+            <h3 id="pcTituloVaga">{{ editandoVagaId() ? 'Editar vaga' : 'Nova vaga' }}</h3>
+            <p>Ela aparece na aba Carreiras das mães. A candidatura acontece no seu link.</p>
+          </div>
+          <button type="button" class="pc-modal-fechar" (click)="cancelarVaga()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+        </header>
+
+        <div class="pc-modal-corpo">
+          <section class="pc-secao">
+            <h4><span>1</span> Sobre a vaga</h4>
+            <label class="pc-campo"><span>Cargo *</span>
+              <input type="text" name="vTitulo" [(ngModel)]="formVaga.titulo" maxlength="90" placeholder="Ex: Auxiliar administrativa" required>
+            </label>
+            <div class="pc-grade">
+              <label class="pc-campo"><span>Área</span>
+                <select name="vArea" [(ngModel)]="formVaga.area">@for (a of areas; track a.nome) { <option [value]="a.nome">{{ a.nome }}</option> }</select>
+              </label>
+              <label class="pc-campo"><span>Modalidade</span>
+                <select name="vMod" [(ngModel)]="formVaga.modalidade">@for (m of modalidades; track m) { <option [value]="m">{{ m }}</option> }</select>
+              </label>
+              <label class="pc-campo"><span>Contrato</span>
+                <select name="vReg" [(ngModel)]="formVaga.regime">@for (r of regimes; track r) { <option [value]="r">{{ r }}</option> }</select>
+              </label>
+            </div>
+            <div class="pc-grade pc-grade-2">
+              <label class="pc-campo"><span>Cidade / bairro</span>
+                <input type="text" name="vLocal" [(ngModel)]="formVaga.local" maxlength="80" placeholder="Ex: São Paulo - Ipiranga">
+              </label>
+              <label class="pc-campo"><span>Salário <em>(opcional)</em></span>
+                <input type="text" name="vSal" [(ngModel)]="formVaga.salario" maxlength="40" placeholder="Ex: R$ 2.200 + benefícios">
+              </label>
+            </div>
+          </section>
+
+          <section class="pc-secao">
+            <h4><span>2</span> Benefícios para mães</h4>
+            <div class="pc-chips">
+              @for (b of beneficiosMae; track b) {
+                <button type="button" class="pc-chip" [class.sel]="formVaga.beneficios.includes(b)" (click)="alternarBeneficio(b)">
+                  @if (formVaga.beneficios.includes(b)) { <i class="fa-solid fa-check"></i> } {{ b }}
+                </button>
+              }
+            </div>
+          </section>
+
+          <section class="pc-secao">
+            <h4><span>3</span> Detalhes</h4>
+            <label class="pc-campo"><span>Descrição *</span>
+              <textarea name="vDesc" [(ngModel)]="formVaga.descricao" rows="4" maxlength="2000" placeholder="O que a pessoa vai fazer, horário, como é o dia a dia..."></textarea>
+            </label>
+            <label class="pc-campo"><span>Requisitos</span>
+              <textarea name="vReq" [(ngModel)]="formVaga.requisitos" rows="3" maxlength="1500" placeholder="Ex: ensino médio completo; não precisa de experiência"></textarea>
+            </label>
+          </section>
+
+          <section class="pc-secao">
+            <h4><span>4</span> Candidatura</h4>
+            <label class="pc-campo"><span>Onde a mãe se candidata *</span>
+              <div class="pc-campo-ic"><i class="fa-solid fa-link"></i>
+                <input type="text" name="vLink" [(ngModel)]="formVaga.link" maxlength="300" placeholder="Link da vaga (https://...) ou e-mail do RH">
+              </div>
+            </label>
+            <p class="pc-nota"><i class="fa-solid fa-circle-info"></i> O Elo Materno só divulga: o botão "Quero me candidatar" leva a mãe para o link ou e-mail que você informar.</p>
+          </section>
+        </div>
+
+        <footer class="pc-modal-rodape">
+          <button type="button" class="pc-btn-sec" (click)="cancelarVaga()">Cancelar</button>
+          <button type="submit" class="pc-btn" [disabled]="salvando()">{{ salvando() ? 'Salvando...' : (editandoVagaId() ? 'Salvar alterações' : 'Divulgar vaga') }}</button>
+        </footer>
+      </form>
+      </div>
+    }
+
+    @if (carregando()) {
+      <p class="pc-vazio">Carregando...</p>
+    } @else if (vagas().length === 0) {
+      <div class="pc-vazio-card">
+        <span class="pc-kpi-ic cor-lilas"><i class="fa-solid fa-briefcase"></i></span>
+        <strong>Nenhuma vaga divulgada</strong>
+        <p>Divulgue a primeira vaga e ela aparece na aba Carreiras das mães.</p>
+        <button type="button" class="pc-btn" (click)="novaVaga()"><i class="fa-solid fa-plus"></i> Nova vaga</button>
+      </div>
+    }
+
+    <div class="pc-lista">
+      @for (v of vagas(); track v.id) {
+        <article class="pc-item" [class.inativo]="v.status !== 'aberta'">
+          <div class="pc-item-linha">
+            <span class="pc-item-ic" [class]="'pc-item-ic cor-' + infoArea(v.area).cor"><i class="fa-solid" [class]="'fa-solid ' + infoArea(v.area).icone"></i></span>
+            <div class="pc-item-txt">
+              <strong>{{ v.titulo }}</strong>
+              <small>{{ v.modalidade }} · {{ v.regime }}@if (v.local) { · {{ v.local }} } · publicada {{ tempoDesde(v.criadoEm) }}</small>
+            </div>
+            <span class="pc-status" [class.on]="v.status === 'aberta'">{{ v.status === 'aberta' ? 'Aberta' : 'Encerrada' }}</span>
+          </div>
+          <div class="pc-item-acoes">
+            <a class="pc-numero pc-link" [href]="linkSeguro(v.link)" target="_blank" rel="noopener" title="Abrir o link da vaga"><i class="fa-solid fa-arrow-up-right-from-square"></i> Link da vaga</a>
+            <span class="pc-espaco"></span>
+            <button type="button" class="pc-icone" (click)="editarVaga(v)" title="Editar" aria-label="Editar vaga"><i class="fa-solid fa-pen"></i></button>
+            <button type="button" class="pc-icone" (click)="alternarStatusVaga(v)" [title]="v.status === 'aberta' ? 'Encerrar vaga' : 'Reabrir vaga'" [attr.aria-label]="v.status === 'aberta' ? 'Encerrar vaga' : 'Reabrir vaga'">
+              <i class="fa-solid" [class.fa-lock]="v.status === 'aberta'" [class.fa-lock-open]="v.status !== 'aberta'"></i>
+            </button>
+            <button type="button" class="pc-icone perigo" (click)="pedirExclusao('vaga', v.id, v.titulo)" title="Excluir" aria-label="Excluir vaga"><i class="fa-solid fa-trash"></i></button>
+          </div>
+
+        </article>
+      }
+    </div>
+  }
+
+  <!-- ===================== CURSOS ===================== -->
+  @if (subAba() === 'cursos') {
+
+    @if (mostrarFormCurso()) {
+      <div class="pc-fundo pc-fundo-form" (click)="cancelarCurso()">
+      <form class="pc-modal" role="dialog" aria-modal="true" aria-labelledby="pcTituloCurso" (ngSubmit)="salvarCurso()" (click)="$event.stopPropagation()">
+        <header class="pc-modal-topo">
+          <span class="pc-modal-ic ic-curso"><i class="fa-solid fa-graduation-cap"></i></span>
+          <div>
+            <h3 id="pcTituloCurso">{{ editandoCursoId() ? 'Editar curso' : 'Novo curso' }}</h3>
+            <p>Ele aparece na aba Carreiras das mães. A inscrição acontece no seu link.</p>
+          </div>
+          <button type="button" class="pc-modal-fechar" (click)="cancelarCurso()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+        </header>
+
+        <div class="pc-modal-corpo">
+          <section class="pc-secao">
+            <h4><span>1</span> Sobre o curso</h4>
+            <label class="pc-campo"><span>Nome do curso *</span>
+              <input type="text" name="cTitulo" [(ngModel)]="formCurso.titulo" maxlength="90" placeholder="Ex: Primeiros passos para empreender em casa" required>
+            </label>
+            <div class="pc-grade">
+              <label class="pc-campo"><span>Área</span>
+                <select name="cArea" [(ngModel)]="formCurso.area">@for (a of areas; track a.nome) { <option [value]="a.nome">{{ a.nome }}</option> }</select>
+              </label>
+              <label class="pc-campo"><span>Nível</span>
+                <select name="cNivel" [(ngModel)]="formCurso.nivel">@for (n of niveis; track n) { <option [value]="n">{{ n }}</option> }</select>
+              </label>
+              <label class="pc-campo"><span>Formato</span>
+                <select name="cFormato" [(ngModel)]="formCurso.formato">@for (f of formatos; track f) { <option [value]="f">{{ f }}</option> }</select>
+              </label>
+            </div>
+            <div class="pc-grade pc-grade-2">
+              <label class="pc-campo"><span>Carga horária</span>
+                <input type="text" name="cCarga" [(ngModel)]="formCurso.cargaHoraria" maxlength="40" placeholder="Ex: 20 horas">
+              </label>
+              <label class="pc-campo"><span>Início</span>
+                <input type="text" name="cInicio" [(ngModel)]="formCurso.inicio" maxlength="60" placeholder="Ex: 15/12 ou quando quiser">
+              </label>
+            </div>
+            <div class="pc-toggles">
+              <label class="pc-toggle"><input type="checkbox" name="cGratis" [(ngModel)]="formCurso.gratuito"><span class="pc-toggle-trilho"></span> <span>Gratuito</span></label>
+              <label class="pc-toggle"><input type="checkbox" name="cCert" [(ngModel)]="formCurso.certificado"><span class="pc-toggle-trilho"></span> <span>Dá certificado</span></label>
+            </div>
+          </section>
+
+          <section class="pc-secao">
+            <h4><span>2</span> Detalhes</h4>
+            <label class="pc-campo"><span>Descrição</span>
+              <textarea name="cDesc" [(ngModel)]="formCurso.descricao" rows="4" maxlength="1500" placeholder="Para quem é, o que a mãe vai aprender, pré-requisitos..."></textarea>
+            </label>
+          </section>
+
+          <section class="pc-secao">
+            <h4><span>3</span> Inscrição</h4>
+            <label class="pc-campo"><span>Link de inscrição *</span>
+              <div class="pc-campo-ic"><i class="fa-solid fa-link"></i>
+                <input type="text" name="cLink" [(ngModel)]="formCurso.link" maxlength="300" placeholder="https://...">
+              </div>
+            </label>
+            <p class="pc-nota"><i class="fa-solid fa-circle-info"></i> O Elo Materno só divulga: o botão "Quero me inscrever" leva a mãe para esse link.</p>
+          </section>
+        </div>
+
+        <footer class="pc-modal-rodape">
+          <button type="button" class="pc-btn-sec" (click)="cancelarCurso()">Cancelar</button>
+          <button type="submit" class="pc-btn" [disabled]="salvando()">{{ salvando() ? 'Salvando...' : (editandoCursoId() ? 'Salvar alterações' : 'Divulgar curso') }}</button>
+        </footer>
+      </form>
+      </div>
+    }
+
+    @if (cursos().length === 0) {
+      <div class="pc-vazio-card">
+        <span class="pc-kpi-ic cor-azul"><i class="fa-solid fa-graduation-cap"></i></span>
+        <strong>Nenhum curso divulgado</strong>
+        <p>Divulgue um curso e ele aparece na aba Carreiras das mães, com o link de inscrição.</p>
+        <button type="button" class="pc-btn" (click)="novoCurso()"><i class="fa-solid fa-plus"></i> Novo curso</button>
+      </div>
+    }
+
+    <div class="pc-lista">
+      @for (c of cursos(); track c.id) {
+        <article class="pc-item" [class.inativo]="c.status !== 'ativo'">
+          <div class="pc-item-linha">
+            <span class="pc-item-ic" [class]="'pc-item-ic cor-' + infoArea(c.area).cor"><i class="fa-solid" [class]="'fa-solid ' + infoArea(c.area).icone"></i></span>
+            <div class="pc-item-txt">
+              <strong>{{ c.titulo }}</strong>
+              <small>{{ c.formato }} · {{ c.nivel }}@if (c.cargaHoraria) { · {{ c.cargaHoraria }} }@if (c.gratuito) { · gratuito } · divulgado {{ tempoDesde(c.criadoEm) }}</small>
+            </div>
+            <span class="pc-status" [class.on]="c.status === 'ativo'">{{ c.status === 'ativo' ? 'Divulgando' : 'Encerrado' }}</span>
+          </div>
+          <div class="pc-item-acoes">
+            <a class="pc-numero pc-link" [href]="linkSeguro(c.link)" target="_blank" rel="noopener" title="Abrir o link de inscrição"><i class="fa-solid fa-arrow-up-right-from-square"></i> Link de inscrição</a>
+            <span class="pc-espaco"></span>
+            <button type="button" class="pc-icone" (click)="editarCurso(c)" title="Editar" aria-label="Editar curso"><i class="fa-solid fa-pen"></i></button>
+            <button type="button" class="pc-icone" (click)="alternarStatusCurso(c)" [title]="c.status === 'ativo' ? 'Encerrar divulgação' : 'Divulgar de novo'" [attr.aria-label]="c.status === 'ativo' ? 'Encerrar divulgação' : 'Divulgar de novo'">
+              <i class="fa-solid" [class.fa-lock]="c.status === 'ativo'" [class.fa-lock-open]="c.status !== 'ativo'"></i>
+            </button>
+            <button type="button" class="pc-icone perigo" (click)="pedirExclusao('curso', c.id, c.titulo)" title="Excluir" aria-label="Excluir curso"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @if (confirmarExclusao(); as alvo) {
+    <div class="pc-fundo" (click)="confirmarExclusao.set(null)">
+      <div class="pc-confirma" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+        <span class="pc-kpi-ic cor-rosa"><i class="fa-solid fa-trash"></i></span>
+        <h3>Excluir {{ alvo.tipo === 'vaga' ? 'a vaga' : 'o curso' }}?</h3>
+        <p>"{{ alvo.titulo }}" sai da aba Carreiras das mães. Isso não pode ser desfeito.</p>
+        <div class="pc-form-acoes">
+          <button type="button" class="pc-btn-sec" (click)="confirmarExclusao.set(null)">Voltar</button>
+          <button type="button" class="pc-btn perigo" (click)="excluir()">Excluir</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (aviso(); as a) {
+    <div class="pc-aviso" [class.erro]="a.tipo === 'erro'" role="status" aria-live="polite">
+      <i class="fa-solid" [class.fa-circle-check]="a.tipo !== 'erro'" [class.fa-circle-xmark]="a.tipo === 'erro'"></i>
+      <span>{{ a.texto }}</span>
+      <button type="button" (click)="aviso.set(null)" aria-label="Fechar aviso"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  }
+</div>

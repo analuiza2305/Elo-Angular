@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -23,6 +23,11 @@ export class ComentResp implements OnInit {
   private router = inject(Router);
   private readonly alerta = inject(AlertaService);
 
+  /** Dentro do painel do parceiro: sem header, o post vem por input e "voltar" avisa o painel. */
+  @Input() embutido = false;
+  @Input() postIdEmbutido = '';
+  @Output() voltar = new EventEmitter<void>();
+
   currentUser = signal<any>(null);
   isProfissional = signal<boolean>(false); // NOVO: Identifica se é profissional
   post = signal<any>(null);
@@ -36,6 +41,13 @@ export class ComentResp implements OnInit {
         this.currentUser.set(user);
         await this.verificarSeEhProfissional(user.uid);
 
+        if (this.embutido) {
+          if (this.postIdEmbutido) {
+            this.carregarDetalhesPost(this.postIdEmbutido);
+            this.carregarComentarios(this.postIdEmbutido);
+          }
+          return;
+        }
         this.route.queryParams.subscribe(params => {
           const postId = params['postId'];
           if (postId) {
@@ -43,7 +55,7 @@ export class ComentResp implements OnInit {
             this.carregarComentarios(postId);
           }
         });
-      } else {
+      } else if (!this.embutido) {
         this.router.navigate(['/login']);
       }
     });
@@ -88,7 +100,7 @@ export class ComentResp implements OnInit {
         let autorNome = p['autorNome'] || 'Usuária';
         let autorFoto = p['autorFoto'] || './img/account_icon.png';
 
-        if (p['autorId'] && p['autorId'] !== 'anonimo') {
+        if (p['autorId'] && p['autorId'] !== 'anonimo' && !String(p['autorId']).startsWith('parc_')) {
           // Tenta buscar em usuários ou profissionais
           let userSnap = await getDoc(doc(db, 'usuarios', p['autorId']));
           if (!userSnap.exists()) userSnap = await getDoc(doc(db, 'psicologos', p['autorId']));
@@ -205,6 +217,7 @@ export class ComentResp implements OnInit {
   }
 
   voltarAoForum() {
+    if (this.embutido) { this.voltar.emit(); return; }
     this.router.navigate(['/forum']);
   }
 }

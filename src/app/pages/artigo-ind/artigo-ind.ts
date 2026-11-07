@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, signal, inject, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, AfterViewInit, Output, signal, inject, ViewChild } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { DenunciarComponent } from '../../components/denunciar/denunciar';
@@ -20,6 +20,11 @@ import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-
 })
 export class ArtigoInd implements OnInit, AfterViewInit {
   @ViewChild(HeaderComponent) headerComponent!: HeaderComponent;
+
+  /** Dentro do painel do parceiro: sem header, o artigo vem por input e "voltar" avisa o painel. */
+  @Input() embutido = false;
+  @Input() artigoIdEmbutido = '';
+  @Output() voltarPainel = new EventEmitter<void>();
 
   private router = inject(Router);
   private readonly alerta = inject(AlertaService);
@@ -44,6 +49,13 @@ export class ArtigoInd implements OnInit, AfterViewInit {
     const origem = urlParams.get('origem');
     if (origem) {
       this.origemTipo.set(origem);
+    }
+
+    if (this.embutido) {
+      this.artigoIdAtual = this.artigoIdEmbutido;
+      if (this.artigoIdEmbutido) this.carregarArtigo(this.artigoIdEmbutido);
+      else { this.errorMessage.set('Nenhum artigo selecionado.'); this.isLoading.set(false); }
+      return;
     }
 
     this.route.queryParams.subscribe(params => {
@@ -126,7 +138,7 @@ export class ArtigoInd implements OnInit, AfterViewInit {
           fonteExibida: fonteDoArtigo(data),
         });
 
-        document.title = `Artigo • ${data['titulo'] || 'EloMaterno'}`;
+        if (!this.embutido) document.title = `Artigo • ${data['titulo'] || 'EloMaterno'}`;
       } else {
         this.errorMessage.set('Artigo não encontrado.');
       }
@@ -165,6 +177,7 @@ export class ArtigoInd implements OnInit, AfterViewInit {
   }
 
   voltar() {
+    if (this.embutido) { this.voltarPainel.emit(); return; }
     const origem = this.origemTipo();
     if (origem === 'psi') {
       this.router.navigate(['/home-psi']);

@@ -65,7 +65,8 @@ export class SelosAutorComponent {
 
   constructor() {
     effect((onCleanup) => {
-      const uid = (this.uid() || '').trim();
+      // posts e respostas de empresas parceiras usam o prefixo 'parc_' no autorId
+      const uid = (this.uid() || '').trim().replace(/^parc_/, '');
       if (!this.isBrowser || !uid || uid === 'anonimo') {
         this.selos.set(null);
         return;

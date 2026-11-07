@@ -1,10 +1,10 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, query, where, limit } from 'firebase/firestore';
 import { formatarDataArtigo, dataDoArtigo, autorDoArtigo, fonteDoArtigo, carregarIdsFavoritos, definirFavorito } from '../../services/artigo-utils';
 import { AlertaService } from '../../core/services/alerta.service';
 
@@ -22,6 +22,17 @@ export class Artigos implements OnInit {
   private router = inject(Router);
   private readonly alerta = inject(AlertaService);
 
+  /**
+   * Modo "dentro do painel do parceiro": sem header, com o botão Novo artigo,
+   * o filtro Meus artigos e a lixeira nos artigos da própria empresa.
+   */
+  @Input() embutido = false;
+  @Output() abrirArtigo = new EventEmitter<string>();
+  @Output() novoArtigo = new EventEmitter<void>();
+  @Output() excluirArtigo = new EventEmitter<string>();
+  soMeus = signal(false);
+  private nomeEmpresa = '';
+
   currentUser = signal<any>(null);
   isLoading = signal<boolean>(true);
   
@@ -34,6 +45,8 @@ export class Artigos implements OnInit {
   // Computa os artigos filtrados e ordenados em tempo real
   artigosFiltrados = computed(() => {
     let filtrados = [...this.todosArtigos()];
+
+    if (this.embutido && this.soMeus()) filtrados = filtrados.filter(a => this.ehMeu(a));
 
     // Filtro por Categoria
     if (this.categoriaSelecionada() !== 'Todos') {
@@ -72,8 +85,9 @@ export class Artigos implements OnInit {
   });
 
   ngOnInit() {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       this.currentUser.set(user);
+      if (this.embutido && user) await this.carregarNomeEmpresa(user.uid);
       this.carregarArtigos();
     });
 
@@ -141,7 +155,26 @@ export class Artigos implements OnInit {
     this.isDropdownOpen.set(false);
   }
 
+  private async carregarNomeEmpresa(uid: string) {
+    try {
+      let s = await getDoc(doc(db, 'parceiros', uid));
+      let d: any = s.exists() ? s.data() : null;
+      if (!d) {
+        const q = await getDocs(query(collection(db, 'parceiros'), where('uid', '==', uid), limit(1)));
+        d = q.empty ? null : q.docs[0].data();
+      }
+      this.nomeEmpresa = d?.nomeEmpresa || d?.nome || '';
+    } catch { this.nomeEmpresa = ''; }
+  }
+
+  /** O artigo é da empresa logada? (usado só no painel do parceiro) */
+  ehMeu(a: any): boolean {
+    const uid = this.currentUser()?.uid;
+    return !!uid && (a.parceiroId === uid || a.autorId === uid || (!!this.nomeEmpresa && a.postadoPor === this.nomeEmpresa));
+  }
+
   lerArtigo(id: string) {
+    if (this.embutido) { this.abrirArtigo.emit(id); return; }
     this.router.navigate(['/artigo_ind'], { queryParams: { id } });
   }
 
