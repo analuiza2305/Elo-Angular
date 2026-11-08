@@ -216,6 +216,9 @@ export class PerfilProfissionalComponent implements OnInit {
           disponibilidadeRaw: data['disponibilidade'] || [],
           email: data['email'] || '',
           statusCadastro: String(data['status'] || 'pendente').toLowerCase(),
+          telefone: data['telefone'] || '',
+          cidade: data['cidade'] || '',
+          areaBruta: isPsi ? (data['area'] || '') : (data['atuacao'] || ''),
         });
         this.avatarUrl.set(this.profissional().foto);
         this.buscarReputacao(this.profissional().uid);
@@ -442,6 +445,91 @@ export class PerfilProfissionalComponent implements OnInit {
   voltar() { this.location.back(); }
   irParaHome() { this.router.navigate(['/']); }
   logout() { auth.signOut().then(() => this.router.navigate(['/login-profissional'])); }
+
+  // ---------------- Editar dados (nome, foto, telefone, cidade, área) ----------------
+  readonly modalEditarDados = signal(false);
+  readonly salvandoDados = signal(false);
+  readonly erroDados = signal('');
+  readonly formDados = signal({ nome: '', telefone: '', cidade: '', area: '', avatar: '' });
+
+  /** Avatares da pasta do tipo de profissional (1 a 19). */
+  avataresDisponiveis(): string[] {
+    const pasta = this.isPsicologo() ? 'psicologosavatar' : 'advogadossavatar';
+    return Array.from({ length: 19 }, (_, i) => `./img/${pasta}/${i + 1}.png`);
+  }
+
+  abrirEditarDados() {
+    const p = this.profissional();
+    if (!p) return;
+    this.formDados.set({
+      nome: p.nome || '',
+      telefone: this.formatarTelefone(p.telefone || ''),
+      cidade: p.cidade || '',
+      area: p.areaBruta || '',
+      avatar: p.foto || '',
+    });
+    this.erroDados.set('');
+    this.modalEditarDados.set(true);
+  }
+
+  fecharEditarDados() { if (!this.salvandoDados()) this.modalEditarDados.set(false); }
+
+  setCampoDados(campo: 'nome' | 'telefone' | 'cidade' | 'area' | 'avatar', valor: string) {
+    if (campo === 'telefone') valor = this.formatarTelefone(valor);
+    this.formDados.update((f) => ({ ...f, [campo]: valor }));
+  }
+
+  /** (11) 91234-5678 ou (11) 1234-5678 enquanto digita. */
+  formatarTelefone(v: string): string {
+    const d = String(v || '').replace(/\D/g, '').slice(0, 11);
+    if (d.length <= 2) return d ? `(${d}` : '';
+    if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+    if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+    return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  }
+
+  async salvarDados() {
+    const p = this.profissional();
+    const user = auth.currentUser;
+    if (!p || !user || !this.isProprioPerfil()) return;
+    const f = this.formDados();
+    const nome = f.nome.trim().replace(/\s+/g, ' ');
+    const digitos = f.telefone.replace(/\D/g, '');
+    if (nome.length < 3) { this.erroDados.set('Digite seu nome completo.'); return; }
+    if (digitos && (digitos.length < 10 || digitos.length > 11)) { this.erroDados.set('Telefone incompleto. Use DDD + número.'); return; }
+
+    this.salvandoDados.set(true);
+    this.erroDados.set('');
+    try {
+      const colecao = p.tipo === 'psicologo' ? 'psicologos' : 'advogados';
+      const dados: any = {
+        nome,
+        telefone: f.telefone,
+        cidade: f.cidade.trim(),
+        avatar: f.avatar || p.foto,
+        [p.tipo === 'psicologo' ? 'area' : 'atuacao']: f.area.trim(),
+      };
+      await updateDoc(doc(db, colecao, p.id), dados);
+      // mantém usuarios/{uid} igual (o topo e outras telas leem de lá)
+      try {
+        await updateDoc(doc(db, 'usuarios', user.uid), { nome, avatar: dados.avatar, telefone: f.telefone });
+      } catch (e) { console.warn('usuarios/{uid} não atualizado:', e); }
+
+      this.profissional.update((atual) => ({
+        ...atual,
+        nome, telefone: f.telefone, cidade: dados.cidade, foto: dados.avatar,
+        areaBruta: f.area.trim(), area: f.area.trim() || atual.area,
+      }));
+      this.avatarUrl.set(dados.avatar);
+      this.modalEditarDados.set(false);
+      this.alerta.sucesso('Seus dados foram atualizados.');
+    } catch (e) {
+      console.error('Erro ao salvar dados:', e);
+      this.erroDados.set('Não foi possível salvar agora. Tente de novo.');
+    } finally {
+      this.salvandoDados.set(false);
+    }
+  }
 
   // ---------------- Minha conta: situação do cadastro e exclusão ----------------
   readonly modalExcluirConta = signal(false);

@@ -16,6 +16,7 @@ import {
   serverTimestamp, Timestamp, arrayUnion, arrayRemove, getCountFromServer, writeBatch, setDoc,
 } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
+import { avisarMensagemChat } from '../../services/avisos-profissional';
 import { carregarIdsFavoritosPsi, definirFavoritoPsi } from '../../services/artigo-utils';
 import { PERGUNTAS_BEM_ESTAR, PerguntaBemEstar, rotuloDaResposta, respostaDeRisco } from '../../services/questionario-bem-estar';
 
@@ -393,7 +394,7 @@ export class HomePsi implements OnInit, OnDestroy {
   // AVISOS (sino): novo pedido, mãe cancelou, cadastro aprovado...
   // Só filtra por destinatário e ordena aqui, sem precisar de índice no Firestore.
   // ==========================================================
-  readonly notificacoes = signal<{ id: string; titulo: string; mensagem: string; tipo: string; consultaId: string | null; lida: boolean; criadoEm: Date | null }[]>([]);
+  readonly notificacoes = signal<{ id: string; titulo: string; mensagem: string; tipo: string; consultaId: string | null; remetenteId: string | null; lida: boolean; criadoEm: Date | null }[]>([]);
   readonly naoLidas = computed(() => this.notificacoes().filter((n) => !n.lida).length);
   readonly notifAberto = signal(false);
   /** pedidos esperando resposta: aparece como número no item "Consultas" do menu */
@@ -413,6 +414,7 @@ export class HomePsi implements OnInit, OnDestroy {
             mensagem: n['mensagem'] || '',
             tipo: n['tipo'] || '',
             consultaId: n['consultaId'] || null,
+            remetenteId: n['remetenteId'] || null,
             lida: !!n['lida'],
             criadoEm: n['criadoEm']?.toDate ? n['criadoEm'].toDate() : null,
           };
@@ -424,13 +426,9 @@ export class HomePsi implements OnInit, OnDestroy {
     );
   }
 
-  toggleNotificacoes() {
-    const abrir = !this.notifAberto();
-    this.notifAberto.set(abrir);
-    if (abrir) this.marcarAvisosComoLidos();
-  }
+  toggleNotificacoes() { this.notifAberto.update((v) => !v); }
 
-  private async marcarAvisosComoLidos() {
+  async marcarAvisosComoLidos() {
     const naoLidas = this.notificacoes().filter((n) => !n.lida);
     if (!naoLidas.length) return;
     try {
@@ -442,8 +440,28 @@ export class HomePsi implements OnInit, OnDestroy {
     }
   }
 
-  abrirAviso(n: { tipo: string; consultaId: string | null }) {
+  iconeAviso(tipo: string): string {
+    switch (tipo) {
+      case 'consulta_nova': return 'fa-solid fa-calendar-plus';
+      case 'consulta_cancelada_mae': return 'fa-solid fa-calendar-xmark';
+      case 'chat_mensagem': return 'fa-solid fa-comment-dots';
+      case 'aprovacao_profissional': return 'fa-solid fa-circle-check';
+      default: return 'fa-solid fa-bell';
+    }
+  }
+
+  async abrirAviso(n: { id: string; lida: boolean; tipo: string; consultaId: string | null; remetenteId: string | null }) {
     this.notifAberto.set(false);
+    if (!n.lida) {
+      try { await updateDoc(doc(db, 'notificacoes', n.id), { lida: true }); }
+      catch (e) { console.warn('Não foi possível marcar como lida:', e); }
+    }
+    if (n.tipo === 'chat_mensagem') {
+      this.selecionarSecao('chats');
+      const conversa = this.chatUsers().find((u) => u.id === n.remetenteId);
+      if (conversa) this.selecionarChat(conversa);
+      return;
+    }
     if (n.tipo === 'consulta_nova') { this.selecionarSecao('consultas'); this.setAbaConsultas('Pendentes'); }
     else if (n.tipo.startsWith('consulta_cancelada')) { this.selecionarSecao('consultas'); this.setAbaConsultas('Negadas'); }
     else if (n.consultaId) { this.selecionarSecao('consultas'); }
@@ -454,8 +472,10 @@ export class HomePsi implements OnInit, OnDestroy {
     const min = Math.round((Date.now() - d.getTime()) / 60000);
     if (min < 1) return 'agora';
     if (min < 60) return `há ${min} min`;
-    const h = Math.round(min / 60);
+    const h = Math.floor(min / 60);
     if (h < 24) return `há ${h} h`;
+    const dias = Math.floor(h / 24);
+    if (dias < 7) return dias === 1 ? 'ontem' : `há ${dias} dias`;
     return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
   }
 
@@ -1296,6 +1316,16 @@ export class HomePsi implements OnInit, OnDestroy {
     if (!texto || !this.chatId || !this.uidAtual) return;
     this.novaMensagem.set('');
     try {
+      // resumo do chat antes desta mensagem (para o aviso não repetir a cada mensagem)
+      const antes: any = (await getDoc(doc(db, 'chats', this.chatId))).data() || {};
+      const outro = (antes['participantes'] || []).find((p: string) => p !== this.uidAtual)
+        || this.chatSelecionado()?.id;
+      avisarMensagemChat({
+        chatId: this.chatId, remetenteId: this.uidAtual, remetenteNome: this.nomeCompleto(),
+        destinatarioId: outro, texto, link: `/chat?uid=${this.uidAtual}`,
+        ultimoEnviadoPor: antes['ultimoEnviadoPor'],
+        ultimaAtualizacao: antes['ultimaAtualizacao']?.toDate ? antes['ultimaAtualizacao'].toDate() : null,
+      });
       await addDoc(collection(db, 'chats', this.chatId, 'mensagens'), {
         texto,
         enviadoPor: this.uidAtual,

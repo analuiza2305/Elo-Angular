@@ -17,23 +17,45 @@
       <div class="theme-toggle" id="theme-toggle" (click)="toggleTheme()">
         <i class="fas" [class.fa-moon]="!isDarkMode()" [class.fa-sun]="isDarkMode()" aria-label="Alternar tema"></i>
       </div>
+      <!-- SINO DE NOTIFICAÇÕES (mesmo padrão do sino da mãe) -->
       <div id="notif-psi" class="notif-wrap">
-        <button type="button" class="notif-btn" (click)="toggleNotificacoes()" [attr.aria-label]="naoLidas() ? naoLidas() + ' avisos novos' : 'Avisos'">
+        <button type="button" class="notif-btn" (click)="toggleNotificacoes()" title="Notificações"
+          [attr.aria-label]="naoLidas() ? 'Notificações, ' + naoLidas() + ' não lidas' : 'Notificações'" [attr.aria-expanded]="notifAberto()">
           <i class="fa-regular fa-bell"></i>
-          @if (naoLidas()) { <span class="notif-contador">{{ naoLidas() > 9 ? '9+' : naoLidas() }}</span> }
+          @if (naoLidas() > 0) { <span class="notif-badge">{{ naoLidas() > 9 ? '9+' : naoLidas() }}</span> }
         </button>
         @if (notifAberto()) {
           <div class="notif-fundo" (click)="notifAberto.set(false)"></div>
-          <div class="notif-painel" role="dialog" aria-label="Avisos">
-            <div class="notif-topo"><strong>Avisos</strong></div>
-            @for (n of notificacoes(); track n.id) {
-              <button type="button" class="notif-item" [class.nova]="!n.lida" (click)="abrirAviso(n)">
-                <span class="notif-titulo">{{ n.titulo }}</span>
-                <span class="notif-msg">{{ n.mensagem }}</span>
-                <span class="notif-quando">{{ quandoAviso(n.criadoEm) }}</span>
-              </button>
-            } @empty {
-              <p class="notif-vazio">Nenhum aviso por enquanto.</p>
+          <div class="notif-panel" role="dialog" aria-label="Notificações">
+            <div class="notif-panel-header">
+              <strong>Notificações</strong>
+              @if (naoLidas() > 0) {
+                <button type="button" class="notif-marcar" (click)="marcarAvisosComoLidos()">Marcar todas como lidas</button>
+              }
+            </div>
+            @if (notificacoes().length === 0) {
+              <div class="notif-vazio">
+                <i class="fa-regular fa-bell-slash"></i>
+                <p>Nenhuma notificação por enquanto.</p>
+              </div>
+            } @else {
+              <ul class="notif-lista">
+                @for (n of notificacoes(); track n.id) {
+                  <li>
+                    <button type="button" class="notif-item" [class.nao-lida]="!n.lida" (click)="abrirAviso(n)">
+                      <span class="notif-icone" [class.recusada]="n.tipo.startsWith('consulta_cancelada')" [class.roxa]="n.tipo === 'consulta_nova' || n.tipo === 'chat_mensagem'">
+                        <i [class]="iconeAviso(n.tipo)"></i>
+                      </span>
+                      <span class="notif-texto">
+                        <strong>{{ n.titulo }}</strong>
+                        <span class="notif-msg">{{ n.mensagem }}</span>
+                        <span class="notif-tempo">{{ quandoAviso(n.criadoEm) }}</span>
+                      </span>
+                      @if (!n.lida) { <span class="notif-ponto" aria-hidden="true"></span> }
+                    </button>
+                  </li>
+                }
+              </ul>
             }
           </div>
         }
@@ -183,8 +205,15 @@
           </div>
         </div>
       }
-      <h2>Minha agenda</h2>
-      <p class="secao-sub">Clique em um dia para marcar os horários em que você atende. As mães veem essas vagas na hora de agendar.</p>
+      <div class="agenda-topo">
+        <div>
+          <h2>Minha agenda</h2>
+          <p class="secao-sub">Clique em um dia para marcar os horários em que você atende. As mães veem essas vagas na hora de agendar.</p>
+        </div>
+        <button type="button" class="btn-horarios-hoje" (click)="adicionarConsulta()">
+          <i class="fa-regular fa-clock"></i> Definir horários de hoje
+        </button>
+      </div>
 
       <div class="agenda-container">
         <div class="calendar-container">
@@ -219,7 +248,6 @@
             </div>
             <p class="em-construcao" *ngIf="eventosDoMesOrdenados().length === 0">Nenhuma consulta marcada neste mês.</p>
           </div>
-          <button type="button" class="add-consult-btn" (click)="adicionarConsulta()">Definir horários de hoje</button>
         </div>
       </div>
 

@@ -88,7 +88,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   get naPaginaProfissional(): boolean {
     return this.pagina === 'profissionais' || this.currentLanding === 'profissional';
   }
-  
+
   @Output() menuAdm = new EventEmitter<void>();
   /** Admin: quantas notificações ainda não foram lidas (bolinha no sino). */
   @Input() notificacoesNaoLidas = 0;
@@ -268,6 +268,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       case 'advertencia_conta': return 'fa-solid fa-triangle-exclamation';
       case 'post_removido': return 'fa-solid fa-ban';
       case 'horario_disponivel': return 'fa-solid fa-calendar-plus';
+      case 'chat_mensagem': return 'fa-solid fa-comment-dots';
       default: return 'fa-solid fa-bell';
     }
   }

@@ -1034,3 +1034,63 @@ header.header-prof .logout-btn:hover {
 :host-context(body[data-theme="dark"]) .conta-anotacoes { background: rgba(189, 175, 252, .08); border-color: rgba(189, 175, 252, .25); }
 :host-context(body[data-theme="dark"]) .conta-anotacoes strong { color: #E9DFFF; }
 :host-context(body[data-theme="dark"]) .conta-anotacoes p { color: #B9AEE0; }
+
+/* =========================================================
+   EDITAR MEUS DADOS
+========================================================= */
+.btn-trocar-foto {
+  position: absolute; right: 2px; bottom: 2px; width: 38px; height: 38px; border-radius: 50%;
+  border: 3px solid #FFFFFF; background: #7C69A9; color: #FFFFFF; cursor: pointer;
+  display: grid; place-items: center; font-size: .9rem; box-shadow: 0 6px 14px rgba(75, 44, 130, .25);
+}
+.btn-editar-dados {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap;
+  padding: 9px 18px; border-radius: 50px; border: 1px solid #CDBDF2; background: #FFFFFF;
+  color: #583E8E; font-weight: 700; font-size: .9rem;
+}
+.btn-editar-dados:hover { background: #F6F1FF; }
+
+.modal-dados { max-width: 560px; max-height: calc(100dvh - 40px); overflow-y: auto; box-sizing: border-box; }
+.dados-label { display: block; margin: 14px 0 6px; font-size: .86rem; font-weight: 700; color: #583E8E; }
+.dados-input {
+  width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 14px;
+  border: 1px solid #DCD2F2; font: inherit; color: #2D1E4E; background: #FCFBFF;
+}
+.dados-input:focus { outline: 2px solid #B7A4DD; border-color: transparent; }
+.dados-linha { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dados-avatares {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 10px;
+  max-height: 190px; overflow-y: auto; padding: 4px;
+}
+.dados-avatar {
+  aspect-ratio: 1; border-radius: 50%; padding: 0; cursor: pointer; overflow: hidden;
+  border: 3px solid transparent; background: #F3ECFF; transition: transform .15s, border-color .15s;
+}
+.dados-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dados-avatar:hover { transform: scale(1.05); }
+.dados-avatar.ativo { border-color: #7C69A9; box-shadow: 0 0 0 3px rgba(124, 105, 169, .25); }
+.modal-dados .modal-actions { margin-top: 20px; }
+
+@media (max-width: 600px) {
+  .dados-linha { grid-template-columns: 1fr; gap: 0; }
+  .premium-modal.modal-dados { padding: 24px 20px; }
+}
+
+:host-context(body[data-theme="dark"]) .btn-editar-dados { background: transparent; color: #E2D8FF; border-color: rgba(189, 175, 252, .35); }
+:host-context(body[data-theme="dark"]) .btn-trocar-foto { border-color: #141a26; }
+:host-context(body[data-theme="dark"]) .dados-label { color: #D8CCFF; }
+:host-context(body[data-theme="dark"]) .dados-input { background: #161C2B; border-color: rgba(189, 175, 252, .25); color: #F5F0FF; }
+:host-context(body[data-theme="dark"]) .dados-avatar { background: #262046; }
+/* garante a cor dos botões nos modais de editar dados e excluir conta (uma regra antiga deixava branco) */
+.modal-dados .btn-confirm { background: #7C69A9 !important; color: #FFFFFF !important; }
+.modal-dados .btn-cancel,
+.modal-excluir .btn-cancel { background: #F3ECFF !important; color: #583E8E !important; }
+:host-context(body[data-theme="dark"]) .modal-dados .btn-cancel,
+:host-context(body[data-theme="dark"]) .modal-excluir .btn-cancel { background: rgba(189, 175, 252, .14) !important; color: #E2D8FF !important; }
+
+/* botão "Editar meus dados" no canto do card do perfil */
+.profile-hero-card { position: relative; }
+.profile-hero-card > .btn-editar-dados { position: absolute; top: 32px; right: 32px; margin: 0; }
+@media (max-width: 992px) {
+  .profile-hero-card > .btn-editar-dados { position: static; align-self: center; margin-top: 4px; }
+}
