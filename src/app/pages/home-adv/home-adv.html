@@ -1,7 +1,7 @@
 <div class="home-adv-page">
   <header class="header">
     <h1 id="boasVindas">Bem-vindo(a), Dr(a). {{ nomeCompleto() }}</h1>
-    <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" (click)="toggleSidebar()"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+    <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" (click)="toggleSidebar()"><i class="fa-solid fa-bars" aria-hidden="true"></i>@if (pendentesCount()) {<span class="menu-toggle-ponto" aria-hidden="true"></span>}</button>
     <div id="sidebar-overlay" class="sidebar-overlay" [class.active]="sidebarOpen()" (click)="closeSidebar()" aria-hidden="true"></div>
     <div class="right-section">
       <div class="accessibility-selector">
@@ -17,9 +17,49 @@
       <div class="theme-toggle" id="theme-toggle" (click)="toggleTheme()">
         <i class="fas" [class.fa-moon]="!isDarkMode()" [class.fa-sun]="isDarkMode()" aria-label="Alternar tema"></i>
       </div>
-      <button id="infoBtn" class="info-btn" (click)="abrirInformacoes()">
-        <i class="fa-solid fa-circle-info"></i>
-      </button>
+      <!-- SINO DE NOTIFICAÇÕES (mesmo padrão do sino da mãe) -->
+      <div id="notif-psi" class="notif-wrap">
+        <button type="button" class="notif-btn" (click)="toggleNotificacoes()" title="Notificações"
+          [attr.aria-label]="naoLidas() ? 'Notificações, ' + naoLidas() + ' não lidas' : 'Notificações'" [attr.aria-expanded]="notifAberto()">
+          <i class="fa-regular fa-bell"></i>
+          @if (naoLidas() > 0) { <span class="notif-badge">{{ naoLidas() > 9 ? '9+' : naoLidas() }}</span> }
+        </button>
+        @if (notifAberto()) {
+          <div class="notif-fundo" (click)="notifAberto.set(false)"></div>
+          <div class="notif-panel" role="dialog" aria-label="Notificações">
+            <div class="notif-panel-header">
+              <strong>Notificações</strong>
+              @if (naoLidas() > 0) {
+                <button type="button" class="notif-marcar" (click)="marcarAvisosComoLidos()">Marcar todas como lidas</button>
+              }
+            </div>
+            @if (notificacoes().length === 0) {
+              <div class="notif-vazio">
+                <i class="fa-regular fa-bell-slash"></i>
+                <p>Nenhuma notificação por enquanto.</p>
+              </div>
+            } @else {
+              <ul class="notif-lista">
+                @for (n of notificacoes(); track n.id) {
+                  <li>
+                    <button type="button" class="notif-item" [class.nao-lida]="!n.lida" (click)="abrirAviso(n)">
+                      <span class="notif-icone" [class.recusada]="n.tipo.startsWith('consulta_cancelada')" [class.roxa]="n.tipo === 'consulta_nova' || n.tipo === 'chat_mensagem'">
+                        <i [class]="iconeAviso(n.tipo)"></i>
+                      </span>
+                      <span class="notif-texto">
+                        <strong>{{ n.titulo }}</strong>
+                        <span class="notif-msg">{{ n.mensagem }}</span>
+                        <span class="notif-tempo">{{ quandoAviso(n.criadoEm) }}</span>
+                      </span>
+                      @if (!n.lida) { <span class="notif-ponto" aria-hidden="true"></span> }
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      </div>
       <button id="logoutBtn" class="logout-btn" (click)="logout()">
         <i class="fa-solid fa-right-from-bracket"></i>
       </button>
@@ -50,9 +90,6 @@
             <i class="fas" [class.fa-moon]="!isDarkMode()" [class.fa-sun]="isDarkMode()" aria-hidden="true"></i>
             <span>{{ isDarkMode() ? 'Modo claro' : 'Modo escuro' }}</span>
           </button>
-          <button type="button" (click)="abrirInformacoes()">
-            <i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>Informações</span>
-          </button>
           <button type="button" class="drawer-sair" (click)="logout()">
             <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Sair</span>
           </button>
@@ -66,6 +103,9 @@
       >
         <i [class]="item.icon"></i>
         <span>{{ item.label }}</span>
+        @if (item.target === 'consultas' && pendentesCount()) {
+          <span class="menu-contador" [attr.aria-label]="pendentesCount() + ' pedidos esperando resposta'">{{ pendentesCount() }}</span>
+        }
       </button>
       <div class="last-activities">
         <h3>Próximas Consultas</h3>
@@ -78,6 +118,17 @@
 
     <!-- DASHBOARD -->
     <section class="content" id="dashboard" *ngIf="activeSection() === 'dashboard'">
+      @if (statusCadastro() && !cadastroAprovado()) {
+        <div class="aviso-cadastro" role="status">
+          <i class="fa-solid fa-hourglass-half"></i>
+          <div>
+            <strong>{{ statusCadastro() === 'recusado' ? 'Seu cadastro precisa de ajustes' : 'Seu cadastro está em análise' }}</strong>
+            <p>{{ statusCadastro() === 'recusado'
+              ? 'A equipe do EloMaterno pediu ajustes nos seus dados. Revise seu perfil para ser aprovado(a).'
+              : 'Enquanto a equipe confere sua OAB, você ainda não aparece para as mães. Já pode montar sua agenda e completar o perfil.' }}</p>
+          </div>
+        </div>
+      }
       <div class="welcome-hero" [style.--mouse-x]="heroMouseX()" [style.--mouse-y]="heroMouseY()" (mousemove)="onHeroMouseMove($event)">
         <div class="hero-content">
           <h2 id="hero-nome">Olá, Dr(a). {{ primeiroNome() }}!</h2>
@@ -155,8 +206,26 @@
 
     <!-- AGENDA -->
     <section class="content" id="agenda" *ngIf="activeSection() === 'agenda'">
-      <h2>Minha agenda</h2>
-      <p class="secao-sub">Clique em um dia para marcar os horários em que você atende. As mães veem essas vagas na hora de agendar.</p>
+      @if (statusCadastro() && !cadastroAprovado()) {
+        <div class="aviso-cadastro" role="status">
+          <i class="fa-solid fa-hourglass-half"></i>
+          <div>
+            <strong>{{ statusCadastro() === 'recusado' ? 'Seu cadastro precisa de ajustes' : 'Seu cadastro está em análise' }}</strong>
+            <p>{{ statusCadastro() === 'recusado'
+              ? 'A equipe do EloMaterno pediu ajustes nos seus dados. Revise seu perfil para ser aprovado(a).'
+              : 'Enquanto a equipe confere sua OAB, você ainda não aparece para as mães. Já pode montar sua agenda e completar o perfil.' }}</p>
+          </div>
+        </div>
+      }
+      <div class="agenda-topo">
+        <div>
+          <h2>Minha agenda</h2>
+          <p class="secao-sub">Clique em um dia para marcar os horários em que você atende. As mães veem essas vagas na hora de agendar.</p>
+        </div>
+        <button type="button" class="btn-horarios-hoje" (click)="adicionarConsulta()">
+          <i class="fa-regular fa-clock"></i> Definir horários de hoje
+        </button>
+      </div>
 
       <div class="agenda-container">
         <div class="calendar-container">
@@ -191,7 +260,6 @@
             </div>
             <p class="em-construcao" *ngIf="eventosDoMesOrdenados().length === 0">Nenhuma consulta marcada neste mês.</p>
           </div>
-          <button type="button" class="add-consult-btn" (click)="adicionarConsulta()">Definir horários de hoje</button>
         </div>
       </div>
 
@@ -290,12 +358,13 @@
 
       <div class="artigos-filter-bar">
         <div class="artigos-categorias">
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'todos'" (click)="filtroArtigo.set('todos')"><i class="fa-solid fa-border-all"></i> Todos</button>
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'legislativos'" (click)="filtroArtigo.set('legislativos')"><i class="fa-solid fa-scale-balanced"></i> Legislativos</button>
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'educacionais'" (click)="filtroArtigo.set('educacionais')"><i class="fa-solid fa-graduation-cap"></i> Educacionais</button>
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'dicas'" (click)="filtroArtigo.set('dicas')"><i class="fa-solid fa-lightbulb"></i> Dicas</button>
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'posts'" (click)="filtroArtigo.set('posts')"><i class="fa-regular fa-newspaper"></i> Posts</button>
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'meus'" (click)="filtroArtigo.set('meus')"><i class="fa-solid fa-user-pen"></i> Meus artigos</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'todos'" (click)="filtrarArtigos('todos')"><i class="fa-solid fa-border-all"></i> Todos</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'favoritos'" (click)="filtrarArtigos('favoritos')"><i class="fa-solid fa-bookmark"></i> Favoritos</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'legislativos'" (click)="filtrarArtigos('legislativos')"><i class="fa-solid fa-scale-balanced"></i> Legislativos</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'educacionais'" (click)="filtrarArtigos('educacionais')"><i class="fa-solid fa-graduation-cap"></i> Educacionais</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'dicas'" (click)="filtrarArtigos('dicas')"><i class="fa-solid fa-lightbulb"></i> Dicas</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'posts'" (click)="filtrarArtigos('posts')"><i class="fa-regular fa-newspaper"></i> Posts</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'meus'" (click)="filtrarArtigos('meus')"><i class="fa-solid fa-user-pen"></i> Meus artigos</button>
         </div>
         <button class="btn-sort" type="button" (click)="alternarOrdemArtigos()">
           <i class="fa-solid fa-sliders"></i> {{ ordemArtigos() === 'recentes' ? 'Mais recentes' : 'Mais antigos' }}
@@ -305,11 +374,16 @@
       <div class="loader" *ngIf="carregandoArtigos()" style="margin: 40px auto;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
 
       <div class="artigos-grid-psi" *ngIf="!carregandoArtigos()">
-        <a [routerLink]="['/artigo_ind']" [queryParams]="{ id: artigo.id }" class="artigo-card-novo" *ngFor="let artigo of artigosFiltrados()">
+        <a [routerLink]="['/artigo-ind-profissional']" [queryParams]="{ id: artigo.id, origem: 'adv' }" class="artigo-card-novo" *ngFor="let artigo of artigosFiltrados()">
           <div class="ac-img-wrapper">
             <img *ngIf="imagemDoArtigo(artigo)" [src]="imagemDoArtigo(artigo)" [alt]="artigo.titulo" class="ac-cover" (error)="artigo.img = ''; artigo.capa = ''; artigo.imagem = ''">
             <div class="ac-sem-imagem" *ngIf="!imagemDoArtigo(artigo)"><i class="fa-regular fa-image"></i></div>
             <span class="ac-tag" [style.color]="corCategoria(artigo.categoria)">{{ artigo.categoria || 'conteúdo' }}</span>
+            <button type="button" class="ac-fav-btn" [class.salvo]="ehFavorito(artigo.id)" (click)="alternarFavorito(artigo, $event)"
+              [attr.aria-label]="ehFavorito(artigo.id) ? 'Remover dos favoritos' : 'Salvar nos favoritos'"
+              [title]="ehFavorito(artigo.id) ? 'Remover dos favoritos' : 'Salvar nos favoritos'">
+              <i [class]="ehFavorito(artigo.id) ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'"></i>
+            </button>
           </div>
           <div class="ac-body">
             <h4 class="ac-title">{{ artigo.titulo }}</h4>
@@ -322,7 +396,11 @@
         </a>
       </div>
       <p class="vazio-msg" *ngIf="!carregandoArtigos() && artigosFiltrados().length === 0">
-        {{ filtroArtigo() === 'meus' ? 'Você ainda não publicou nenhum artigo.' : 'Nenhum artigo publicado ainda.' }}
+        @if (filtroArtigo() === 'favoritos') {
+          Você ainda não salvou nenhum artigo. Toque no <i class="fa-regular fa-bookmark"></i> de um artigo para guardar aqui.
+        } @else {
+          {{ filtroArtigo() === 'meus' ? 'Você ainda não publicou nenhum artigo.' : 'Nenhum artigo publicado ainda.' }}
+        }
       </p>
 
       <!-- MODAL: NOVO ARTIGO COM PRÉVIA -->
@@ -428,7 +506,7 @@
                   <p class="cs-tipo">Mãe · Cliente</p>
                 </div>
               </div>
-              <span [class]="'cs-badge cs-badge-' + consulta.status.toLowerCase()">{{ consulta.status }}</span>
+              <span [class]="'cs-badge cs-badge-' + classeStatus(consulta)">{{ rotuloStatus(consulta) }}</span>
             </div>
 
             <div class="cs-divider"></div>
@@ -458,18 +536,26 @@
               </div>
             }
 
-            @if (consulta.status === 'Agendada') {
+            @if (consultaPassou(consulta)) {
+              <p class="cs-aviso-passou"><i class="fa-regular fa-calendar-check"></i> O dia desta consulta já passou. Ela aconteceu?</p>
+              <div class="cs-acoes">
+                <button type="button" class="cs-btn cs-btn-primario" (click)="marcarRealizada(consulta)"><i class="fa-regular fa-circle-check"></i> Marcar como realizada</button>
+                <button type="button" class="cs-btn cs-btn-outline" (click)="abrirChatComMae(consulta.maeId)"><i class="fa-regular fa-comment"></i> Chat</button>
+              </div>
+            } @else if (consulta.status === 'Agendada') {
               <div class="cs-acoes">
                 <button type="button" class="cs-btn cs-btn-video" [routerLink]="['/videochamada']" [queryParams]="{ id: consulta.id }"><i class="fa-solid fa-video"></i> Chamada</button>
                 <button type="button" class="cs-btn cs-btn-outline" (click)="abrirChatComMae(consulta.maeId)"><i class="fa-regular fa-comment"></i> Chat</button>
               </div>
               <div class="cs-area-secundaria">
                 <button type="button" class="cs-btn-concluir" (click)="marcarRealizada(consulta)"><i class="fa-regular fa-circle-check"></i> Marcar como realizada</button>
+                <button type="button" class="cs-btn-recusar" (click)="desmarcarConsulta(consulta)"><i class="fa-regular fa-calendar-xmark"></i> Desmarcar consulta</button>
               </div>
             }
 
             @if (consulta.status === 'Realizada') {
               <div class="cs-acoes">
+                <button type="button" class="cs-btn cs-btn-primario" (click)="abrirAnotacao(consulta)"><i class="fa-regular fa-pen-to-square"></i> Anotações</button>
                 <button type="button" class="cs-btn cs-btn-outline" (click)="abrirChatComMae(consulta.maeId)"><i class="fa-regular fa-comment"></i> Abrir chat</button>
               </div>
             }
@@ -482,6 +568,75 @@
         }
       </div>
     </section>
+
+    <!-- MODAL: HISTÓRICO DA CLIENTE (todas as consultas e anotações) -->
+    @if (prontuarioAberto(); as pac) {
+      <div class="an-fundo" (click)="fecharProntuario()"></div>
+      <div class="an-modal pr-modal" role="dialog" aria-modal="true" aria-labelledby="pr-titulo">
+        <button type="button" class="an-fechar" (click)="fecharProntuario()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+        <h3 id="pr-titulo"><i class="fa-regular fa-folder-open"></i> Histórico de atendimentos</h3>
+        <p class="an-sub">{{ pac.nome }} · {{ sessoesProntuario().length }} {{ sessoesProntuario().length === 1 ? 'consulta' : 'consultas' }}</p>
+        <p class="an-privado"><i class="fa-solid fa-lock"></i> Só você vê estas anotações. A mãe não tem acesso.</p>
+
+        @if (carregandoProntuario()) {
+          <p class="an-carregando">Carregando...</p>
+        } @else {
+          <div class="pr-lista">
+            @for (s of sessoesProntuario(); track s.consulta.id) {
+              <div class="pr-sessao">
+                <div class="pr-sessao-topo">
+                  <strong>{{ s.consulta.data }} às {{ s.consulta.horario }}</strong>
+                  @if (consultaPassou(s.consulta)) { <span class="pr-chip">A confirmar</span> }
+                  <button type="button" class="pr-editar" (click)="editarDoProntuario(s.consulta)">
+                    <i class="fa-regular fa-pen-to-square"></i> {{ s.texto ? 'Editar' : 'Escrever' }}
+                  </button>
+                </div>
+                <p class="pr-texto" [class.vazio]="!s.texto">{{ s.texto || 'Sem anotações nesta consulta.' }}</p>
+              </div>
+            } @empty {
+              <p class="an-carregando">Ainda não há consultas realizadas com esta cliente.</p>
+            }
+          </div>
+        }
+
+        <div class="an-acoes">
+          <button type="button" class="an-btn an-btn-outline" (click)="fecharProntuario()">Fechar</button>
+          <button type="button" class="an-btn an-btn-primario" (click)="baixarProntuarioPdf()"
+            [disabled]="gerandoProntuarioPdf() || carregandoProntuario() || !sessoesProntuario().length">
+            <i class="fa-solid fa-download"></i> {{ gerandoProntuarioPdf() ? 'Gerando...' : 'Baixar PDF' }}
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- MODAL: ANOTAÇÕES DO ATENDIMENTO (privadas do advogado) -->
+    @if (anotacaoAberta(); as an) {
+      <div class="an-fundo" (click)="fecharAnotacao()"></div>
+      <div class="an-modal" role="dialog" aria-modal="true" aria-labelledby="an-titulo">
+        <button type="button" class="an-fechar" (click)="fecharAnotacao()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+        <h3 id="an-titulo"><i class="fa-regular fa-pen-to-square"></i> Anotações do atendimento</h3>
+        <p class="an-sub">{{ an.nome }} · {{ an.data }} às {{ an.horario }}</p>
+        <p class="an-privado"><i class="fa-solid fa-lock"></i> Só você vê estas anotações. A mãe não tem acesso.</p>
+        @if (carregandoAnotacao()) {
+          <p class="an-carregando">Carregando...</p>
+        } @else {
+          <textarea class="an-texto" rows="10" placeholder="Situação relatada, orientações dadas, documentos pedidos, próximos passos..."
+            [ngModel]="textoAnotacao()" (ngModelChange)="textoAnotacao.set($event)"></textarea>
+        }
+        @if (anotacaoAtualizadaEm(); as quando) {
+          <small class="an-quando">Última atualização: {{ quando | date:'dd/MM/yyyy HH:mm' }}</small>
+        }
+        @if (msgAnotacao(); as m) {
+          <p class="an-msg" [class.erro]="m.tipo === 'erro'">{{ m.texto }}</p>
+        }
+        <div class="an-acoes">
+          <button type="button" class="an-btn an-btn-outline" (click)="fecharAnotacao()" [disabled]="salvandoAnotacao()">Fechar</button>
+          <button type="button" class="an-btn an-btn-primario" (click)="salvarAnotacao()" [disabled]="salvandoAnotacao() || carregandoAnotacao()">
+            {{ salvandoAnotacao() ? 'Salvando...' : 'Salvar anotações' }}
+          </button>
+        </div>
+      </div>
+    }
 
     <!-- FÓRUM (Padronizado com estilo da Mãe) -->
     <section class="content" id="forum" *ngIf="activeSection() === 'forum'">
@@ -572,6 +727,7 @@
           <h3>{{ paciente.nome }}</h3>
           <span class="p-tag">Cliente</span>
           <div class="p-details-box"><p>Última consulta: <strong>{{ paciente.ultimaConsulta }}</strong></p></div>
+          <button class="p-btn-prontuario" (click)="abrirProntuario(paciente)"><i class="fa-regular fa-folder-open"></i> Histórico</button>
           <button class="p-btn-chat" (click)="abrirChatComPaciente(paciente)">Abrir Chat</button>
         </div>
       </div>
@@ -958,12 +1114,6 @@
         <p class="pl-msg" [class.erro]="m.tipo === 'erro'" role="status">{{ m.texto }}</p>
       }
       <p class="pl-nota"><i class="fa-solid fa-award"></i> O selo "Bem avaliado" não faz parte de nenhum plano: ele depende só das avaliações das mães.</p>
-    </section>
-
-    <!-- INFORMAÇÕES -->
-    <section class="content" id="informacoes" *ngIf="activeSection() === 'informacoes'">
-      <h2>Configurações e Ajuda</h2>
-      <p class="em-construcao">Central de suporte e dados cadastrais.</p>
     </section>
   </main>
 </div>

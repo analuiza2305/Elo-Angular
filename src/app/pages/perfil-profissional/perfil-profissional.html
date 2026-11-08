@@ -40,6 +40,11 @@
     <div class="profile-hero-card">
       <div class="profile-avatar-container">
         <img [src]="profissional().foto" [alt]="profissional().nome" class="profile-avatar" onerror="this.src='img/account_icon.png'">
+        @if (isProprioPerfil()) {
+          <button type="button" class="btn-trocar-foto" (click)="abrirEditarDados()" aria-label="Trocar foto">
+            <i class="fa-solid fa-camera"></i>
+          </button>
+        }
       </div>
 
       <div class="profile-header-info">
@@ -87,6 +92,13 @@
           </div>
         }
       </div>
+
+      <!-- Editar dados: canto superior direito do card (no celular, embaixo de tudo) -->
+      @if (isProprioPerfil()) {
+        <button type="button" class="btn-editar-dados" (click)="abrirEditarDados()">
+          <i class="fa-solid fa-user-pen"></i> Editar meus dados
+        </button>
+      }
     </div>
 
     <!-- Grid de Conteúdo -->
@@ -103,28 +115,33 @@
           <section class="content-box conta-box">
             <h2>Minha conta</h2>
             <div class="conta-linha"><span>E-mail</span><strong>{{ profissional().email || '—' }}</strong></div>
+            <div class="conta-linha"><span>Telefone</span><strong>{{ profissional().telefone || 'Não informado' }}</strong></div>
+            <div class="conta-linha"><span>Cidade</span><strong>{{ profissional().cidade || 'Não informada' }}</strong></div>
             <div class="conta-linha"><span>{{ isPsicologo() ? 'CRP' : 'OAB' }}</span><strong>{{ profissional().identificacao }}</strong></div>
             <div class="conta-linha">
               <span>Situação do cadastro</span>
               <strong class="conta-status" [class.ok]="profissional().statusCadastro === 'aprovado'">{{ rotuloStatusCadastro() }}</strong>
             </div>
 
-            @if (isPsicologo()) {
-              <div class="conta-anotacoes">
-                <div>
+            <div class="conta-anotacoes">
+              <div>
+                @if (isPsicologo()) {
                   <strong>Suas anotações de sessão</strong>
                   <p>Baixe todos os prontuários em PDF. O CFP pede que esses registros sejam guardados por pelo menos 5 anos, então baixe antes de excluir a conta.</p>
-                </div>
-                <button type="button" class="btn-baixar-anotacoes" (click)="baixarMinhasAnotacoes()" [disabled]="baixandoAnotacoes()">
-                  <i class="fa-solid fa-download"></i> {{ baixandoAnotacoes() ? 'Gerando...' : 'Baixar PDF' }}
-                </button>
+                } @else {
+                  <strong>Suas anotações de atendimento</strong>
+                  <p>Baixe o histórico de todas as clientes em PDF. Vale guardar uma cópia antes de excluir a conta.</p>
+                }
               </div>
-            }
+              <button type="button" class="btn-baixar-anotacoes" (click)="baixarMinhasAnotacoes()" [disabled]="baixandoAnotacoes()">
+                <i class="fa-solid fa-download"></i> {{ baixandoAnotacoes() ? 'Gerando...' : 'Baixar PDF' }}
+              </button>
+            </div>
 
             <div class="conta-perigo">
               <div>
                 <strong>Excluir conta</strong>
-                <p>Apaga seu cadastro{{ isPsicologo() ? ', suas anotações de sessão' : '' }} e seu login. As consultas que ainda iam acontecer são canceladas e as mães recebem um aviso. Não dá para desfazer.</p>
+                <p>Apaga seu cadastro, suas anotações e seu login. As consultas que ainda iam acontecer são canceladas e as mães recebem um aviso. Não dá para desfazer.</p>
               </div>
               <button type="button" class="btn-excluir-conta" (click)="abrirExcluirConta()">Excluir minha conta</button>
             </div>
@@ -226,6 +243,62 @@
     </div>
   }
 </main>
+
+  <!-- MODAL EDITAR DADOS -->
+  @if (modalEditarDados()) {
+    <div class="modal-wrapper">
+      <div class="modal-overlay" (click)="fecharEditarDados()"></div>
+      <div class="premium-modal modal-dados" role="dialog" aria-modal="true" aria-labelledby="titulo-dados">
+        <div class="modal-header-fancy">
+          <h2 id="titulo-dados">Editar meus dados</h2>
+          <button type="button" class="close-btn" (click)="fecharEditarDados()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p class="modal-subtitle">Essas informações aparecem no seu perfil para as mães.</p>
+
+        <span class="dados-label">Foto</span>
+        <div class="dados-avatares">
+          @for (a of avataresDisponiveis(); track a) {
+            <button type="button" class="dados-avatar" [class.ativo]="formDados().avatar === a" (click)="setCampoDados('avatar', a)" [attr.aria-label]="'Escolher avatar ' + ($index + 1)">
+              <img [src]="a" alt="">
+            </button>
+          }
+        </div>
+
+        <label class="dados-label" for="dadosNome">Nome completo</label>
+        <input id="dadosNome" class="dados-input" type="text" maxlength="80"
+          [ngModel]="formDados().nome" (ngModelChange)="setCampoDados('nome', $event)">
+
+        <div class="dados-linha">
+          <div>
+            <label class="dados-label" for="dadosTel">Telefone</label>
+            <input id="dadosTel" class="dados-input" type="tel" inputmode="numeric" placeholder="(11) 91234-5678"
+              [ngModel]="formDados().telefone" (ngModelChange)="setCampoDados('telefone', $event)">
+          </div>
+          <div>
+            <label class="dados-label" for="dadosCidade">Cidade</label>
+            <input id="dadosCidade" class="dados-input" type="text" maxlength="60" placeholder="Ex.: São Paulo - SP"
+              [ngModel]="formDados().cidade" (ngModelChange)="setCampoDados('cidade', $event)">
+          </div>
+        </div>
+
+        <label class="dados-label" for="dadosArea">{{ isPsicologo() ? 'Área / abordagem' : 'Área de atuação' }}</label>
+        <input id="dadosArea" class="dados-input" type="text" maxlength="80"
+          [placeholder]="isPsicologo() ? 'Ex.: Psicologia perinatal, TCC' : 'Ex.: Direito de Família'"
+          [ngModel]="formDados().area" (ngModelChange)="setCampoDados('area', $event)">
+
+        @if (erroDados()) {
+          <p class="excluir-erro"><i class="fa-solid fa-circle-exclamation"></i> {{ erroDados() }}</p>
+        }
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="fecharEditarDados()" [disabled]="salvandoDados()">Cancelar</button>
+          <button type="button" class="btn-confirm" (click)="salvarDados()" [disabled]="salvandoDados()">
+            {{ salvandoDados() ? 'Salvando...' : 'Salvar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- MODAL EXCLUIR CONTA -->
   @if (modalExcluirConta()) {

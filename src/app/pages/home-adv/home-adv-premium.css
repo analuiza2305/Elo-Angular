@@ -809,3 +809,100 @@
 :host-context(body[data-theme="dark"]) #documentos .rel-periodo.ativo { background: linear-gradient(135deg, #7C5CD6 0%, #5B3D99 100%); color: #FFFFFF; }
 #planos .pl-descricao-plano { margin: 0 0 6px; color: #6b6480; font-size: .88rem; }
 :host-context(body[data-theme="dark"]) #planos .pl-descricao-plano { color: #b8b0d6; }
+
+/* =====================================================================
+   PREMIUM ROXO — troca o dourado por um roxo "real" (mais escuro e
+   intenso que o roxo do plano gratuito). Fica no FIM para ganhar das
+   regras antigas.
+===================================================================== */
+.home-adv-page {
+  --pr-escuro: #3B1E7A;
+  --pr-forte: #5B2EBF;
+  --pr-medio: #7C4DFF;
+  --pr-claro: #B794F6;
+  --pr-suave: #F3EDFF;
+  --pr-borda: #DCCEFF;
+  --pr-texto: #4A2A9E;
+  --pr-btn: linear-gradient(135deg, #7C4DFF 0%, #5B2EBF 60%, #3B1E7A 100%);
+  --pr-sombra: rgba(91, 46, 191, .30);
+}
+
+/* Faixa "Seu plano atual" quando é premium */
+.home-adv-page #planos .pl-atual.premium {
+  background: linear-gradient(120deg, #2A1260 0%, #4B23A8 50%, #8B5CF6 100%) !important;
+  box-shadow: 0 18px 40px rgba(59, 30, 122, .38) !important;
+}
+
+/* Card premium: borda em degradê roxo e fundo lilás bem leve */
+.home-adv-page #planos .pl-card-premium {
+  background:
+    linear-gradient(170deg, #FFFFFF 0%, #F8F4FF 100%) padding-box,
+    linear-gradient(135deg, var(--pr-claro), var(--pr-medio) 50%, var(--pr-escuro)) border-box !important;
+  box-shadow: 0 20px 44px rgba(91, 46, 191, .16) !important;
+}
+.home-adv-page #planos .pl-card-premium:hover { box-shadow: 0 26px 52px rgba(91, 46, 191, .24) !important; }
+.home-adv-page #planos .pl-card-premium h3 i { background: var(--pr-suave) !important; color: var(--pr-medio) !important; }
+.home-adv-page #planos .pl-card-premium .pl-preco { border-bottom-color: var(--pr-borda) !important; }
+.home-adv-page #planos .pl-card-premium .pl-preco strong {
+  background: linear-gradient(135deg, var(--pr-forte), var(--pr-medio)) !important;
+  -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important;
+}
+.home-adv-page #planos .pl-card-premium .pl-check { background: var(--pr-suave) !important; color: var(--pr-forte) !important; }
+
+/* Selo "Recomendado" / "Seu plano" e botões */
+.home-adv-page #planos .pl-chip-premium,
+.home-adv-page #planos .pl-chip.pl-chip-premium,
+.home-adv-page #planos .pl-card-premium .pl-chip-premium {
+  background: var(--pr-btn) !important; color: #FFFFFF !important; border: none !important;
+  box-shadow: 0 8px 18px var(--pr-sombra) !important;
+}
+.home-adv-page #planos .pl-btn-premium {
+  background: var(--pr-btn) !important; color: #FFFFFF !important;
+  box-shadow: 0 14px 28px var(--pr-sombra), inset 0 1px 0 rgba(255, 255, 255, .25) !important;
+}
+.home-adv-page #planos .pl-btn-premium:hover:not(:disabled) { box-shadow: 0 18px 34px rgba(91, 46, 191, .4) !important; filter: none !important; }
+
+/* Confirmação do pagamento simulado */
+.home-adv-page #planos .pl-confirmar { background: var(--pr-suave) !important; border: 1px solid var(--pr-borda) !important; }
+.home-adv-page #planos .pl-confirmar p { color: var(--pr-texto) !important; }
+
+/* Documentos: selos, banner e botão premium no mesmo roxo */
+.home-adv-page #documentos .doc-chip-premium {
+  background: var(--pr-suave) !important; color: var(--pr-forte) !important; border: 1px solid var(--pr-borda) !important;
+}
+.home-adv-page #documentos .doc-btn-premium {
+  background: var(--pr-btn) !important; color: #FFFFFF !important; box-shadow: 0 12px 26px var(--pr-sombra) !important;
+}
+.home-adv-page #documentos .doc-premium-banner {
+  background: linear-gradient(135deg, #FBF8FF 0%, #F1E9FF 100%) !important; border-color: var(--pr-borda) !important;
+  box-shadow: 0 12px 30px rgba(91, 46, 191, .08) !important;
+}
+.home-adv-page #documentos .doc-premium-icone { color: var(--pr-medio) !important; box-shadow: 0 8px 20px rgba(91, 46, 191, .16) !important; }
+.home-adv-page #documentos .doc-premium-texto strong { color: var(--pr-escuro) !important; }
+.home-adv-page #documentos .doc-premium-texto p { color: var(--pr-texto) !important; }
+.home-adv-page #documentos .doc-modelo.bloqueado .doc-modelo-acao { color: var(--pr-forte) !important; box-shadow: 0 6px 16px rgba(91, 46, 191, .12) !important; }
+
+/* Modo escuro */
+:host-context(body[data-theme="dark"]) .home-adv-page #planos .pl-atual.premium {
+  background: linear-gradient(120deg, #1E0E47 0%, #3A1C85 55%, #6D45D9 100%) !important;
+}
+:host-context(body[data-theme="dark"]) .home-adv-page #planos .pl-card-premium {
+  background:
+    linear-gradient(170deg, #1B2336 0%, #241B45 100%) padding-box,
+    linear-gradient(135deg, var(--pr-claro), var(--pr-medio) 50%, var(--pr-forte)) border-box !important;
+}
+:host-context(body[data-theme="dark"]) .home-adv-page #planos .pl-card-premium h3 i,
+:host-context(body[data-theme="dark"]) .home-adv-page #planos .pl-card-premium .pl-check { background: rgba(183, 148, 246, .16) !important; color: #D6C4FF !important; }
+:host-context(body[data-theme="dark"]) .home-adv-page #planos .pl-card-premium .pl-preco strong {
+  background: linear-gradient(135deg, #C4B5FD, #E9D5FF) !important; -webkit-background-clip: text !important; background-clip: text !important;
+}
+:host-context(body[data-theme="dark"]) .home-adv-page #planos .pl-card-premium .pl-preco { border-bottom-color: rgba(183, 148, 246, .2) !important; }
+:host-context(body[data-theme="dark"]) .home-adv-page #planos .pl-confirmar,
+:host-context(body[data-theme="dark"]) .home-adv-page #documentos .doc-premium-banner {
+  background: linear-gradient(135deg, #1F1840, #2A1F57) !important; border-color: rgba(183, 148, 246, .3) !important;
+}
+:host-context(body[data-theme="dark"]) .home-adv-page #planos .pl-confirmar p,
+:host-context(body[data-theme="dark"]) .home-adv-page #documentos .doc-premium-texto p { color: #D6C4FF !important; }
+:host-context(body[data-theme="dark"]) .home-adv-page #documentos .doc-premium-texto strong { color: #F3EDFF !important; }
+:host-context(body[data-theme="dark"]) .home-adv-page #documentos .doc-chip-premium { background: rgba(183, 148, 246, .14) !important; color: #D6C4FF !important; border-color: rgba(183, 148, 246, .3) !important; }
+:host-context(body[data-theme="dark"]) .home-adv-page #documentos .doc-premium-icone { background: #1B2336 !important; color: #C4B5FD !important; }

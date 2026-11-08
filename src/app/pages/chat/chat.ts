@@ -21,6 +21,7 @@ import {
 } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
 import { cartaoDoLembrete } from '../../services/lembrete-chat';
+import { avisarMensagemChat } from '../../services/avisos-profissional';
 
 @Component({
   selector: 'app-chat',
@@ -40,13 +41,13 @@ export class Chat implements OnInit, OnDestroy {
   currentUser = signal<any>(null);
   usuariosLista = signal<any[]>([]);
   mensagens = signal<any[]>([]);
-  
+
   // Estados do Chat Ativo
   currentChatId = signal<string | null>(null);
   chatAtivoInfo = signal<{ nome: string; avatar: string } | null>(null);
   textoMensagem = signal<string>('');
   isMobileChatActive = signal<boolean>(false);
-  
+
   // Gravação de Áudio
   isRecording = signal<boolean>(false);
   private mediaRecorder: MediaRecorder | null = null;
@@ -253,6 +254,22 @@ export class Chat implements OnInit, OnDestroy {
     }
   }
 
+  /** Avisa o profissional no sino dele (só na 1ª mensagem de uma sequência). */
+  private async avisarOutraPessoa(chatId: string, meuUid: string, texto: string) {
+    try {
+      const antes: any = (await getDoc(doc(db, "chats", chatId))).data() || {};
+      const outro = (antes['participantes'] || []).find((p: string) => p !== meuUid);
+      if (!outro) return;
+      await avisarMensagemChat({
+        chatId, remetenteId: meuUid, destinatarioId: outro, texto, link: null,
+        ultimoEnviadoPor: antes['ultimoEnviadoPor'],
+        ultimaAtualizacao: antes['ultimaAtualizacao']?.toDate ? antes['ultimaAtualizacao'].toDate() : null,
+      });
+    } catch (e) {
+      console.warn('Aviso de mensagem não enviado:', e);
+    }
+  }
+
   async enviarMensagem(event: Event) {
     event.preventDefault();
     const chatId = this.currentChatId();
@@ -264,6 +281,7 @@ export class Chat implements OnInit, OnDestroy {
     this.textoMensagem.set('');
 
     try {
+      await this.avisarOutraPessoa(chatId, user.uid, texto);
       const msgRef = collection(db, "chats", chatId, "mensagens");
       await addDoc(msgRef, {
         texto,
@@ -300,6 +318,7 @@ export class Chat implements OnInit, OnDestroy {
           const reader = new FileReader();
           reader.onload = async () => {
             const base64Audio = reader.result as string;
+            await this.avisarOutraPessoa(chatId, user.uid, '');
             const msgRef = collection(db, "chats", chatId, "mensagens");
             await addDoc(msgRef, {
               audio: base64Audio,

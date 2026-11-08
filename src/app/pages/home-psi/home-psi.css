@@ -7068,37 +7068,71 @@ header h1 { font-size: 24px; color: var(--primary-color-dark); font-weight: 800;
 .home-psi-page .notif-wrap { position: relative; display: flex; align-items: center; }
 /* no celular o topo esconde os botões; o sino continua aparecendo */
 header.header .right-section > #notif-psi.notif-wrap.notif-wrap { display: flex !important; }
+/* mesmo botão redondo branco dos outros ícones do topo */
 .home-psi-page .notif-btn {
-  position: relative; width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
-  display: grid; place-items: center; background: #F3EDFF; color: #5B3D99; font-size: 1.05rem;
+  position: relative; width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  background-color: #FFFFFF; color: var(--btn-roxo, #583E8E); box-shadow: 0 4px 12px rgba(88, 62, 142, 0.12);
+  transition: transform 0.3s ease;
 }
-.home-psi-page .notif-contador {
-  position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box;
-  border-radius: 9px; background: #D92D20; color: #FFFFFF; font-size: .68rem; font-weight: 800;
-  display: grid; place-items: center; border: 2px solid #FFFFFF;
+.home-psi-page .notif-btn:hover { transform: scale(1.08); }
+.home-psi-page .notif-badge {
+  position: absolute; top: -4px; right: -4px;
+  min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #E0446F; color: #FFFFFF; font-size: 11px; font-weight: 800; line-height: 1;
+  border-radius: 999px; border: 2px solid #FFFFFF; pointer-events: none;
 }
-.home-psi-page .notif-fundo { position: fixed; inset: 0; z-index: 400; }
-.home-psi-page .notif-painel {
-  position: absolute; top: calc(100% + 10px); right: 0; z-index: 401;
-  width: min(360px, calc(100vw - 24px)); max-height: 70vh; overflow-y: auto; box-sizing: border-box;
-  background: #FFFFFF; border-radius: 20px; border: 1px solid #ECE6F8; box-shadow: 0 20px 44px rgba(40, 20, 90, .22);
-  padding: 8px;
+.home-psi-page .notif-fundo { position: fixed; inset: 0; z-index: 3099; }
+.home-psi-page .notif-panel {
+  position: absolute; top: calc(100% + 12px); right: 0; z-index: 3100;
+  width: 360px; max-width: calc(100vw - 32px); overflow: hidden;
+  background: #FCFCFF; border: 1px solid rgba(132, 113, 177, 0.15); border-radius: 16px;
+  box-shadow: 0 12px 35px rgba(75, 44, 130, 0.14);
+  animation: notifEntrar .22s cubic-bezier(.2, .8, .2, 1); transform-origin: top right;
 }
-.home-psi-page .notif-topo { padding: 10px 12px 8px; color: #2D1E4E; font-size: 1rem; }
+@keyframes notifEntrar {
+  from { opacity: 0; transform: translateY(-8px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+.home-psi-page .notif-panel-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 18px; border-bottom: 1px solid rgba(132, 113, 177, 0.12);
+}
+.home-psi-page .notif-panel-header strong { color: #2D1E4E; font-size: 1rem; }
+.home-psi-page .notif-marcar {
+  border: none; background: none; padding: 4px 0; cursor: pointer;
+  color: #6C4BBF; font: inherit; font-size: .82rem; font-weight: 700;
+}
+.home-psi-page .notif-marcar:hover { text-decoration: underline; }
+.home-psi-page .notif-lista { list-style: none; margin: 0; padding: 6px; max-height: 420px; overflow-y: auto; }
 .home-psi-page .notif-item {
-  display: flex; flex-direction: column; gap: 3px; width: 100%; text-align: left; cursor: pointer;
-  padding: 12px; border: none; border-radius: 14px; background: transparent; font: inherit;
+  width: 100%; display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px; border: none; border-radius: 12px; background: transparent;
+  text-align: left; font: inherit; cursor: pointer; transition: background .2s ease;
 }
-.home-psi-page .notif-item:hover { background: #F7F3FF; }
-.home-psi-page .notif-item.nova { background: #F3EDFF; }
-.home-psi-page .notif-titulo { font-weight: 800; color: #2D1E4E; font-size: .92rem; }
-.home-psi-page .notif-msg { color: #5E5280; font-size: .86rem; line-height: 1.45; }
-.home-psi-page .notif-quando { color: #9C90C2; font-size: .75rem; }
-.home-psi-page .notif-vazio { margin: 0; padding: 16px 12px 18px; color: #8B7DB8; font-size: .9rem; }
+.home-psi-page .notif-item:hover { background: #F4ECFF; }
+.home-psi-page .notif-item.nao-lida { background: rgba(108, 75, 191, 0.06); }
+.home-psi-page .notif-item.nao-lida:hover { background: #F4ECFF; }
+.home-psi-page .notif-icone {
+  flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #E8F7EF; color: #1F8A57; font-size: 1rem;
+}
+.home-psi-page .notif-icone.recusada { background: #FDECEF; color: #C2335A; }
+.home-psi-page .notif-icone.roxa { background: #F1EBFF; color: #6C4BBF; }
+.home-psi-page .notif-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.home-psi-page .notif-texto strong { color: #2D1E4E; font-size: .92rem; line-height: 1.3; }
+.home-psi-page .notif-msg { color: #5C5478; font-size: .85rem; line-height: 1.4; }
+.home-psi-page .notif-tempo { color: #8A82A6; font-size: .75rem; font-weight: 600; }
+.home-psi-page .notif-ponto { flex-shrink: 0; width: 9px; height: 9px; margin-top: 6px; border-radius: 50%; background: #6C4BBF; }
+.home-psi-page .notif-vazio { padding: 36px 20px; text-align: center; color: #8A82A6; }
+.home-psi-page .notif-vazio i { font-size: 1.8rem; margin-bottom: 10px; opacity: .7; }
+.home-psi-page .notif-vazio p { margin: 0; font-size: .9rem; }
 @media (max-width: 768px) {
   /* sino no canto direito: [menu] elomaterno ............ [sino] */
   .home-psi-page header.header .right-section { order: 2; margin-left: auto; margin-right: 58px; }
-  .home-psi-page .notif-painel { position: fixed; top: 64px; right: 12px; }
+  .home-psi-page .notif-panel { position: fixed; top: 64px; right: 12px; left: 12px; width: auto; max-width: none; }
 }
 
 /* número de pedidos pendentes no item "Consultas" */
@@ -7134,19 +7168,39 @@ header.header .right-section > #notif-psi.notif-wrap.notif-wrap { display: flex 
 .home-psi-page .pr-texto.vazio { color: #9C90C2; font-style: italic; }
 
 /* modo escuro */
-:host-context(body[data-theme="dark"]) .home-psi-page .notif-btn,
 :host-context(body[data-theme="dark"]) .home-psi-page .pr-chip { background: #262046; color: #D8CCFF; }
-:host-context(body[data-theme="dark"]) .home-psi-page .notif-contador,
 :host-context(body[data-theme="dark"]) .home-psi-page .menu-toggle-ponto { border-color: #1B2336; }
-:host-context(body[data-theme="dark"]) .home-psi-page .notif-painel { background: #1B2336; border-color: rgba(255, 255, 255, .08); }
-:host-context(body[data-theme="dark"]) .home-psi-page .notif-topo,
-:host-context(body[data-theme="dark"]) .home-psi-page .notif-titulo,
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-panel { background: #1B2336; border-color: rgba(255, 255, 255, .08); box-shadow: 0 12px 35px rgba(0, 0, 0, .45); }
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-panel-header { border-color: rgba(255, 255, 255, .08); }
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-panel-header strong,
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-texto strong,
 :host-context(body[data-theme="dark"]) .home-psi-page .pr-sessao-topo strong { color: #F5F0FF; }
 :host-context(body[data-theme="dark"]) .home-psi-page .notif-msg,
 :host-context(body[data-theme="dark"]) .home-psi-page .pr-texto { color: #D8CCFF; }
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-tempo,
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-vazio { color: #9C93BD; }
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-marcar { color: #C4B5FD; }
 :host-context(body[data-theme="dark"]) .home-psi-page .notif-item:hover,
-:host-context(body[data-theme="dark"]) .home-psi-page .notif-item.nova { background: #262046; }
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-item.nao-lida:hover { background: rgba(196, 181, 253, .12); }
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-item.nao-lida { background: rgba(196, 181, 253, .07); }
 :host-context(body[data-theme="dark"]) .home-psi-page .pr-sessao { background: #161C2B; border-color: rgba(189, 175, 252, .18); }
 :host-context(body[data-theme="dark"]) .home-psi-page .p-btn-prontuario { background: transparent; color: #D8CCFF; border-color: rgba(189, 175, 252, .3); }
 :host-context(body[data-theme="dark"]) .home-psi-page .pr-editar { color: #D8CCFF; }
 :host-context(body[data-theme="dark"]) .home-psi-page .pr-editar:hover { background: #262046; }
+
+/* =====================================================================
+   AGENDA — botão "Definir horários de hoje" no topo, bem visível
+===================================================================== */
+#agenda .agenda-topo { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+#agenda .agenda-topo > div { flex: 1 1 420px; min-width: 0; }
+#agenda .btn-horarios-hoje {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; flex: 0 0 auto;
+  margin-bottom: 24px; padding: 14px 24px; border: none; border-radius: 16px; cursor: pointer;
+  background: linear-gradient(135deg, #7C5CD6 0%, #5B3D99 100%); color: #FFFFFF;
+  font: inherit; font-weight: 800; font-size: 1rem; box-shadow: 0 12px 26px rgba(91, 61, 153, .28);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+#agenda .btn-horarios-hoje:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(91, 61, 153, .34); }
+@media (max-width: 768px) {
+  #agenda .btn-horarios-hoje { width: 100%; margin-bottom: 20px; }
+}
