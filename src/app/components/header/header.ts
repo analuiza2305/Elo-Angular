@@ -6,6 +6,9 @@ import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, collection, query, where, onSnapshot, updateDoc, writeBatch, serverTimestamp, Unsubscribe } from 'firebase/firestore';
 import { LembreteService } from '../../services/lembrete';
+import { I18nService } from '../../core/i18n/i18n.service';
+import { Idioma } from '../../core/i18n/translations';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 /** Aviso gravado em `notificacoes` (ex.: o profissional confirmou ou recusou a consulta). */
 export interface Notificacao {
@@ -27,7 +30,7 @@ export interface Notificacao {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TranslatePipe],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
@@ -79,6 +82,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
 // AQUI: Adicionamos psicologo e advogado como tipos aceitos!
   @Input() tipo: 'landing' | 'mae' | 'psicologo' | 'advogado' | 'profissional' | 'parceiro' | 'adm' | 'auth' = 'landing';
   @Input() currentLanding: 'mae' | 'profissional' = 'mae';
+  /** Só para o header público (tipo "landing"): em qual página ele está. Muda os links do menu. */
+  @Input() pagina: 'maes' | 'profissionais' = 'maes';
+  /** true na página "Sou Profissional", seja pelo input pagina ou pelo currentLanding. */
+  get naPaginaProfissional(): boolean {
+    return this.pagina === 'profissionais' || this.currentLanding === 'profissional';
+  }
   
   @Output() menuAdm = new EventEmitter<void>();
   /** Admin: quantas notificações ainda não foram lidas (bolinha no sino). */
@@ -114,7 +123,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentUser = signal<any>(null);
   userName = signal<string>('Usuária');
   userAvatar = signal<string>('./img/avatar_usuario.png');
-  currentFlagUrl = signal<string>('https://flagcdn.com/w20/br.png');
 
   // Variáveis de Acessibilidade Avançada
   tamanhoFonte = 16;
@@ -134,8 +142,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.isDarkMode = savedTheme === 'dark';
       this.applyTheme();
 
+      // Textos antigos marcados com data-i18n (o idioma vem do I18nService)
       afterNextRender(() => {
-        this.aplicarIdioma(localStorage.getItem('preferredLanguage') || 'pt');
+        this.aplicarIdioma(this.i18n.idioma());
       }, { injector: this.injector });
     }
 
@@ -645,20 +654,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   };
 
-  selecionarIdioma(lang: string) {
+  // O idioma é guardado no I18nService (vale para o site todo e fica salvo
+  // ao trocar de página). Os textos novos usam o pipe 't' direto no HTML;
+  // os antigos, marcados com data-i18n, continuam usando o dicionário acima.
+  private readonly i18n = inject(I18nService);
+  readonly currentFlagUrl = this.i18n.bandeiraUrl;
+
+  /** Chamado pelo (click) de cada item do menu de idiomas no template. */
+  selecionarIdioma(lang: Idioma) {
+    this.i18n.setIdioma(lang);
     this.aplicarIdioma(lang);
     this.isLangMenuOpen = false;
   }
 
+  /** Traduz os textos antigos marcados com data-i18n usando o dicionário acima. */
   private aplicarIdioma(lang: string) {
     if (!isPlatformBrowser(this.platformId)) return;
 
     const selectedLang = this.translations[lang] ? lang : 'pt';
     const dictionary = this.translations[selectedLang];
-    document.documentElement.lang = selectedLang === 'pt' ? 'pt-BR' : selectedLang;
-
-    const flagCode = selectedLang === 'pt' ? 'br' : selectedLang === 'en' ? 'us' : 'es';
-    this.currentFlagUrl.set(`https://flagcdn.com/w20/${flagCode}.png`);
 
     document.querySelectorAll('[data-i18n]').forEach((element) => {
       const key = element.getAttribute('data-i18n');
@@ -670,8 +684,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
         }
       }
     });
-    localStorage.setItem('preferredLanguage', selectedLang);
   }
+
+  /** Fecha o menu de celular ao clicar num link (no desktop não faz nada). */
+  fecharMenuMobile() { this.isMobileMenuOpen = false; }
 
   // --- ACESSIBILIDADE AVANÇADA EM ANGULAR ---
   toggleMenu() {
@@ -776,7 +792,28 @@ redefinirAcessibilidade() {
     document.body.classList.remove('acessibilidade-negrito', 'acessibilidade-alto-contraste');
   }
 
-@HostListener('document:mousemove', ['$event'])
+  // --- HEADER AO ROLAR A PÁGINA ---
+  /** true depois que a página rola um pouco: o header fica translúcido (efeito vidro). */
+  readonly isScrolled = signal(false);
+  /** Seção da landing visível no momento, para sublinhar o link certo no menu. */
+  readonly activeSection = signal<string>('');
+
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    this.isScrolled.set(window.scrollY > 10);
+
+    if (this.tipo === 'landing') {
+      let atual = '';
+      const secoes = this.naPaginaProfissional ? ['como-funciona', 'a-plataforma'] : ['consultorias', 'como-funciona'];
+      for (const id of secoes) {
+        const secao = document.getElementById(id);
+        if (secao && secao.getBoundingClientRect().top <= 120) atual = id;
+      }
+      this.activeSection.set(atual);
+    }
+  }
+
+  @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     if (this.mascaraAtiva()) {
       const windows = document.querySelectorAll('.highlight-window');

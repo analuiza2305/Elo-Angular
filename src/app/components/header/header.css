@@ -874,3 +874,147 @@
 :host-context(body[data-theme="dark"]) .notif-tempo { color: #B3A9D6 !important; }
 :host-context(body[data-theme="dark"]) .notif-marcar { color: #D9D0FF !important; }
 :host-context(body[data-theme="dark"]) .notif-item.nao-lida { background: rgba(196, 181, 253, .1); }
+
+/* =========================================================
+   HEADER LANDING / PROFISSIONAL - visual final
+   - começa branco sólido
+   - ao rolar a página (.scrolled) fica translúcido com desfoque
+========================================================= */
+.header {
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: 1px solid rgba(89, 74, 125, 0.06);
+    transition: background 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+}
+.header.scrolled {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    box-shadow: 0 6px 24px rgba(89, 74, 125, 0.08);
+}
+:host-context(body[data-theme="dark"]) .header { background: var(--bg-color); }
+:host-context(body[data-theme="dark"]) .header.scrolled { background: rgba(8, 11, 20, 0.72); }
+
+/* Botão "Acessar plataforma": pílula roxa sem sombra */
+.header-actions .btn-primary {
+    height: 46px;
+    padding: 0 26px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: none;
+}
+.header-actions .btn-primary:hover { box-shadow: none; background-color: #6f5c9e; }
+
+/* Links do menu (só no desktop; no celular continua o menu lateral) */
+@media (min-width: 769px) {
+    /* !important: o styles.css trava esses valores com !important no desktop */
+    .header .header-content .nav-links { gap: 36px !important; }
+    .header .header-content .nav-links a {
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem !important;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--primary-color);
+        margin: 0 !important;
+        padding: 6px 0 !important;
+    }
+    /* Sem fundo/"bolinha" roxa ao passar o mouse ou clicar: só a listra animada embaixo */
+    .header .header-content .nav-links a,
+    .header .header-content .nav-links a:hover,
+    .header .header-content .nav-links a:focus,
+    .header .header-content .nav-links a:active,
+    .header .header-content .nav-links a.active {
+        background: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+        color: var(--primary-color);
+    }
+    /* Navegação por teclado continua visível (acessibilidade) */
+    .header .header-content .nav-links a:focus-visible::after { width: 100%; }
+    .header .header-content .nav-links a.active::after { width: 100%; }
+}
+
+/* Largura do header: mesma do conteúdo das páginas (1200px)
+   (o styles.css força 1180px com !important no desktop) */
+@media (min-width: 993px) {
+    .header .header-content { max-width: 1200px !important; }
+}
+
+/* =========================================================
+   CELULAR / TABLET (landing e "Sou Profissional")
+========================================================= */
+@media (max-width: 900px) {
+    /* Botão hambúrguer alinhado com o logo, dentro do header.
+       (o styles.css tem um .menu-toggle global "flutuante" fixo no canto
+        inferior da tela, usado em outra página; aqui ele volta para o header) */
+    .header .header-content {
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+    }
+    .header .logo { flex-shrink: 0; }
+    .header .menu-toggle {
+        position: static !important;
+        inset: auto !important;
+        margin: 0 0 0 auto !important;
+        align-self: center;
+        transform: none;
+    }
+
+    /* No menu lateral, os links não usam a listra animada do desktop */
+    .header .nav-links a::after { display: none !important; }
+}
+
+/* ---------- Menu lateral no MODO ESCURO ---------- */
+@media (max-width: 900px) {
+    :host-context(body[data-theme="dark"]) .header .nav-links {
+        background: #141a26 !important;
+        border-color: rgba(157, 143, 231, 0.22) !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) !important;
+    }
+    :host-context(body[data-theme="dark"]) .header .mobile-nav-header,
+    :host-context(body[data-theme="dark"]) .header .mobile-accessibility-section,
+    :host-context(body[data-theme="dark"]) .header .mobile-menu-actions {
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    :host-context(body[data-theme="dark"]) .header .mobile-nav-title { color: #f5f0ff !important; }
+    :host-context(body[data-theme="dark"]) .header .mobile-section-label { color: #9d8fe7 !important; }
+
+    /* :not(...) preserva os botões especiais da gaveta (link-destaque, acesso mães/parceiros) */
+    :host-context(body[data-theme="dark"]) .header .nav-links > a:not(.link-destaque),
+    :host-context(body[data-theme="dark"]) .header .mobile-menu-item:not(.mobile-access-mae):not(.mobile-access-parceiro),
+    :host-context(body[data-theme="dark"]) .header .mobile-acc-btn {
+        background: #1b2336 !important;
+        color: #ece6ff !important;
+        border-color: rgba(157, 143, 231, 0.18) !important;
+    }
+    :host-context(body[data-theme="dark"]) .header .nav-links > a:not(.link-destaque):hover,
+    :host-context(body[data-theme="dark"]) .header .nav-links > a.active:not(.link-destaque),
+    :host-context(body[data-theme="dark"]) .header .mobile-menu-item:not(.mobile-access-mae):not(.mobile-access-parceiro):hover,
+    :host-context(body[data-theme="dark"]) .header .mobile-acc-btn:hover {
+        background: #262d45 !important;
+        color: #ffffff !important;
+    }
+    :host-context(body[data-theme="dark"]) .header .mobile-menu-item:not(.mobile-access-mae):not(.mobile-access-parceiro) i,
+    :host-context(body[data-theme="dark"]) .header .mobile-acc-btn i { color: #b2a6ef !important; }
+
+    :host-context(body[data-theme="dark"]) .header .mobile-acc-sublist,
+    :host-context(body[data-theme="dark"]) .header .mobile-acc-sublist li {
+        background: #1b2336 !important;
+        color: #ece6ff !important;
+        border-color: rgba(157, 143, 231, 0.18) !important;
+    }
+    :host-context(body[data-theme="dark"]) .header .mobile-acc-sublist li i { color: #b2a6ef !important; }
+}
+
+/* Desktop: "Sou Profissional"/"Sou Mãe" (.link-destaque) com o mesmo visual dos outros links.
+   O destaque desse link vale só na gaveta do celular (regras acima, até 900px). */
+@media (min-width: 901px) {
+    .header .header-content .nav-links a.link-destaque {
+        color: var(--primary-color) !important;
+        font-weight: 600 !important;
+        background: transparent !important;
+    }
+}

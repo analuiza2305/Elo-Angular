@@ -1,0 +1,539 @@
+/* =========================================================
+   LANDING PAGE - SEÇÕES (impacto até o aviso do CVV)
+   Arquivo separado do landing-page.css por causa do limite
+   de 100kB por arquivo de estilo de componente (angular.json).
+
+   PADRÃO VISUAL: todas as cores, fontes e tamanhos abaixo saem
+   dos tokens --lp-*. Para mudar algo na página inteira, altere
+   só o token, nunca um valor solto dentro de uma regra.
+========================================================= */
+/* Declarado no body (e não só no :root) porque o modo escuro troca as variáveis
+   do site no body: assim var(--bg-color), var(--primary-dark) etc. seguem o tema. */
+:root, body {
+    /* ---------- Cores (mesma paleta do header e do hero) ---------- */
+    --lp-ink: var(--primary-dark);        /* títulos e textos fortes  (#594a7d) */
+    --lp-accent: var(--primary-color);    /* destaques, botões, ícones (#8471b1) */
+    --lp-accent-hover: #6f5c9e;
+    --lp-text: #6e6590;                   /* texto corrido (mais contraste que o accent) */
+    --lp-deep: #594a7d;                   /* fundos roxos escuros (cards de chamada) */
+    --lp-on-deep: #ffffff;
+    --lp-on-deep-muted: rgba(255, 255, 255, 0.82);
+
+    --lp-bg: var(--bg-color);             /* faixas claras (igual ao fundo do hero) */
+    --lp-soft: #f4f0fb;                   /* faixas lilás */
+    --lp-panel: #ebe4f7;                  /* painéis atrás dos mockups */
+    --lp-card: #ffffff;
+    --lp-card-soft: #f7f3fc;
+    --lp-chip: #efe9f9;
+    --lp-border: #e6def4;
+
+    --lp-star: #e2a72e;
+    --lp-star-off: #d9d3e6;
+    --lp-success: #2f8a4f;
+    --lp-shadow: 0 10px 30px rgba(89, 74, 125, 0.08);
+
+    /* ---------- Tipografia (mesmas fontes do hero) ---------- */
+    --lp-font-head: 'Poppins', sans-serif;
+    --lp-font-body: 'Nunito', sans-serif;
+
+    --lp-fs-xs: 0.75rem;    /* 12px - etiquetas, chips, legendas */
+    --lp-fs-sm: 0.875rem;   /* 14px - texto de cards, botões */
+    --lp-fs-md: 1rem;       /* 16px - parágrafos, nomes */
+    --lp-fs-lg: 1.125rem;   /* 18px - títulos de cards */
+    --lp-fs-xl: 1.375rem;   /* 22px - títulos de banners */
+    --lp-fs-h2: clamp(1.75rem, 3.2vw, 2.5rem);   /* todos os títulos de seção */
+    --lp-fs-stat: clamp(2rem, 4vw, 2.75rem);     /* números de impacto */
+
+    --lp-fw-regular: 400;
+    --lp-fw-semibold: 600;
+    --lp-fw-bold: 700;
+    --lp-lh-text: 1.65;
+
+    /* ---------- Formas e espaçamento ---------- */
+    --lp-radius-sm: 10px;
+    --lp-radius-md: 16px;
+    --lp-radius-lg: 24px;
+    --lp-radius-pill: 999px;
+    --lp-section-y: 96px;
+    --lp-gap: 20px;
+}
+
+body[data-theme="dark"] {
+    --lp-accent-hover: #b2a6ef;
+    --lp-text: #b8b0d6;
+    --lp-deep: #2c2450;
+    --lp-soft: #121726;
+    --lp-panel: #1b2236;
+    --lp-card: #161c2c;
+    --lp-card-soft: #1a2133;
+    --lp-chip: #262d45;
+    --lp-border: rgba(255, 255, 255, 0.1);
+    --lp-star-off: #3a405a;
+    --lp-success: #5cc283;
+    --lp-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Estrutura das faixas ---------- */
+.lp-band { background: var(--lp-bg); padding: var(--lp-section-y) 0; font-family: var(--lp-font-body); }
+.lp-band--soft { background: var(--lp-soft); }
+.lp-band--top { padding: 24px 0 48px; }
+.lp-band--compact { padding: 32px 0 48px; }
+
+/* ---------- Títulos de seção (um único tamanho para todos) ---------- */
+.lp-heading,
+.lp-title {
+    font-family: var(--lp-font-head);
+    font-size: var(--lp-fs-h2);
+    font-weight: var(--lp-fw-bold);
+    line-height: 1.15;
+    color: var(--lp-ink);
+    margin: 0 0 12px;
+}
+.lp-title span { display: block; }
+.lp-title-light { color: var(--lp-accent); font-weight: 500; }
+.lp-title-bold { color: var(--lp-ink); }
+.lp-heading--left { text-align: left; }
+
+.lp-subheading,
+.lp-text {
+    display: block;
+    font-size: var(--lp-fs-md);
+    line-height: var(--lp-lh-text);
+    color: var(--lp-text);
+}
+.lp-subheading { max-width: 580px; }
+.lp-text { max-width: 480px; margin: 0 0 20px 0; }
+.lp-section-head { margin-bottom: 36px; }
+.lp-section-head--center { text-align: center; }
+.lp-section-head--center .lp-subheading { margin: 0 auto; }
+.lp-title-line { width: 48px; height: 3px; border-radius: 3px; background: var(--lp-accent); margin: 8px 0 20px; }
+
+/* Títulos de cards (todos iguais) */
+.lp-feature h3,
+.lp-partner-card h3 {
+    font-family: var(--lp-font-head);
+    font-size: var(--lp-fs-lg);
+    font-weight: var(--lp-fw-semibold);
+    color: var(--lp-ink);
+    line-height: 1.3;
+}
+
+/* Texto de cards (todos iguais) */
+.lp-feature span,
+.lp-partner-card > span,
+.lp-step span,
+.lp-chat-body,
+.lp-share-banner span {
+    display: block;
+    font-size: var(--lp-fs-sm);
+    line-height: var(--lp-lh-text);
+    color: var(--lp-text);
+}
+
+/* Legendas pequenas (todas iguais) */
+.lp-booking-head span,
+.lp-chat-meta,
+.lp-author-text span {
+    display: block;
+    font-size: var(--lp-fs-xs);
+    color: var(--lp-text);
+}
+
+/* ---------- Botões ---------- */
+.lp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--lp-accent);
+    color: #ffffff;
+    font-family: var(--lp-font-body);
+    font-size: var(--lp-fs-sm);
+    font-weight: var(--lp-fw-bold);
+    padding: 12px 28px;
+    border-radius: var(--lp-radius-pill);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+.lp-btn:hover { background: var(--lp-accent-hover); color: #ffffff; transform: translateY(-1px); }
+.lp-btn--sm { font-size: var(--lp-fs-xs); padding: 8px 18px; }
+.lp-btn--light { background: #ffffff; color: var(--lp-deep); }
+.lp-btn--light:hover { background: var(--lp-chip); color: var(--lp-deep); }
+body[data-theme="dark"] .lp-btn--light,
+body[data-theme="dark"] .lp-btn--light:hover { color: #2c2450; }
+
+.lp-link {
+    font-size: var(--lp-fs-sm);
+    font-weight: var(--lp-fw-bold);
+    color: var(--lp-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* Pílulas (etiquetas, filtros, categorias) */
+.lp-tags span {
+    font-family: var(--lp-font-body);
+    font-size: var(--lp-fs-xs);
+    font-weight: var(--lp-fw-semibold);
+    color: var(--lp-ink);
+    border-radius: var(--lp-radius-pill);
+}
+
+/* ---------- Avatares e ícones ---------- */
+.lp-avatar {
+    width: 40px; height: 40px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: var(--lp-chip);
+    color: var(--lp-ink);
+    font-weight: var(--lp-fw-bold);
+    font-size: var(--lp-fs-md);
+}
+.lp-avatar--sm { width: 32px; height: 32px; font-size: var(--lp-fs-sm); }
+
+.lp-icon-box {
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--lp-radius-sm);
+    background: var(--lp-chip);
+    font-size: 1.3rem;
+}
+.lp-icon-box i { color: var(--lp-accent); }
+.lp-icon-box--dark { background: rgba(255, 255, 255, 0.14); }
+.lp-icon-box.lp-icon-box--dark i { color: var(--lp-on-deep); }
+
+/* =========================================
+   IMPACTO (CONTADORES)
+   Card único com 3 números, ícone e divisórias
+========================================= */
+.lp-stats {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: var(--lp-card);
+    border: 1px solid var(--lp-border);
+    border-radius: var(--lp-radius-lg);
+    box-shadow: var(--lp-shadow);
+    overflow: hidden;
+}
+/* Faixa em degradê no topo do card */
+.lp-stats::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--lp-accent), #c4b5fd, var(--lp-accent));
+}
+.lp-stat {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 32px 24px;
+}
+.lp-stat + .lp-stat { border-left: 1px solid var(--lp-border); }
+.lp-stat-icon {
+    width: 56px; height: 56px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 16px;
+    background: var(--lp-chip);
+    font-size: 1.6rem;
+}
+.lp-stat-icon i { color: var(--lp-accent); }
+.lp-stat-text strong {
+    display: block;
+    font-family: var(--lp-font-head);
+    font-size: var(--lp-fs-stat);
+    font-weight: var(--lp-fw-bold);
+    line-height: 1.05;
+    color: var(--lp-ink);
+}
+.lp-stat-text strong span { display: inline; font-size: inherit; color: inherit; }
+.lp-stat-text > span {
+    display: block;
+    margin-top: 4px;
+    font-size: var(--lp-fs-sm);
+    font-weight: var(--lp-fw-semibold);
+    color: var(--lp-text);
+}
+
+/* =========================================
+   SEÇÕES DIVIDIDAS (Consultorias / Jurídico)
+========================================= */
+.lp-split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+
+.lp-checklist { list-style: none; padding: 0; margin: 0 0 28px; display: grid; gap: 10px; }
+.lp-checklist li { display: flex; align-items: center; gap: 10px; font-size: var(--lp-fs-sm); font-weight: var(--lp-fw-semibold); color: var(--lp-ink); }
+.lp-checklist i { color: var(--lp-accent); font-size: var(--lp-fs-md); }
+
+.lp-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+.lp-tags span { background: var(--lp-card); border: 1px solid var(--lp-border); padding: 6px 14px; }
+
+.lp-visual-panel { background: var(--lp-panel); border-radius: var(--lp-radius-lg); padding: 28px; }
+
+/* Mockup de agendamento */
+.lp-booking-card { background: var(--lp-card); border-radius: var(--lp-radius-md); padding: 24px; box-shadow: var(--lp-shadow); }
+.lp-booking-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.lp-booking-head strong { display: block; font-size: var(--lp-fs-md); color: var(--lp-ink); }
+.lp-booking-label { display: block; font-size: var(--lp-fs-xs); font-weight: var(--lp-fw-bold); color: var(--lp-ink); margin-bottom: 10px; }
+
+.lp-date-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 14px; }
+.lp-date, .lp-time {
+    font-family: var(--lp-font-body);
+    font-size: var(--lp-fs-xs);
+    background: var(--lp-card);
+    border: 1px solid var(--lp-border);
+    border-radius: var(--lp-radius-sm);
+    color: var(--lp-ink);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.lp-date { padding: 8px 4px; font-weight: var(--lp-fw-semibold); line-height: 1.3; }
+.lp-date.active { background: var(--lp-accent); border-color: var(--lp-accent); color: #ffffff; }
+.lp-time-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.lp-time { padding: 6px 12px; }
+.lp-time.active { background: var(--lp-chip); border-color: var(--lp-accent); font-weight: var(--lp-fw-bold); }
+.lp-date:hover:not(.active), .lp-time:hover:not(.active) { border-color: var(--lp-accent); }
+.lp-booking-foot { display: flex; justify-content: flex-end; margin-top: 20px; }
+
+/* Mockup de conversa */
+.lp-chat { display: grid; gap: 12px; }
+.lp-chat-question, .lp-chat-answer { background: var(--lp-card); border-radius: var(--lp-radius-md); padding: 16px 18px; box-shadow: var(--lp-shadow); }
+.lp-chat-answer { margin-left: 28px; }
+.lp-chat-meta { margin-bottom: 4px; }
+.lp-chat-question strong { font-size: var(--lp-fs-md); color: var(--lp-ink); }
+.lp-chat-author { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.lp-chat-author strong { font-size: var(--lp-fs-sm); color: var(--lp-ink); }
+
+/* =========================================
+   FUNCIONALIDADES
+========================================= */
+/* 5 cards em pirâmide: 3 em cima e 2 centralizados embaixo
+   (grade de 6 colunas, cada card ocupa 2) */
+.lp-features { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--lp-gap); }
+.lp-feature { grid-column: span 2; }
+.lp-feature:nth-child(4) { grid-column: 2 / span 2; }
+.lp-feature:nth-child(5) { grid-column: 4 / span 2; }
+.lp-feature {
+    background: var(--lp-card-soft);
+    border: 1px solid var(--lp-border);
+    border-radius: var(--lp-radius-md);
+    padding: 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.lp-feature:hover { transform: translateY(-3px); box-shadow: var(--lp-shadow); }
+.lp-feature h3 { margin: 16px 0 6px; }
+
+/* =========================================
+   EM 3 PASSOS
+========================================= */
+.lp-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--lp-gap); margin-top: 32px; }
+.lp-step { display: flex; gap: 14px; align-items: flex-start; background: var(--lp-card); border-radius: var(--lp-radius-md); padding: 22px; box-shadow: var(--lp-shadow); }
+.lp-step-number {
+    width: 36px; height: 36px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: var(--lp-accent);
+    color: #ffffff;
+    font-family: var(--lp-font-head);
+    font-weight: var(--lp-fw-bold);
+    font-size: var(--lp-fs-sm);
+}
+.lp-step strong { display: block; font-family: var(--lp-font-head); font-size: var(--lp-fs-md); font-weight: var(--lp-fw-semibold); color: var(--lp-ink); margin-bottom: 4px; }
+
+/* =========================================
+   QUEM CAMINHA COM A GENTE
+========================================= */
+.lp-partner-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--lp-gap); }
+.lp-partner-card {
+    display: flex; flex-direction: column; gap: 10px;
+    background: var(--lp-card-soft);
+    border: 1px solid var(--lp-border);
+    border-radius: var(--lp-radius-md);
+    padding: 24px;
+}
+.lp-partner-card h3 { margin-top: 8px; }
+.lp-partner-card > span { flex: 1; }
+.lp-partner-logo {
+    height: 80px;
+    display: flex; align-items: center; justify-content: center;
+    background: #ffffff;
+    border: 1px solid var(--lp-border);
+    border-radius: var(--lp-radius-sm);
+    padding: 12px;
+}
+.lp-partner-logo img { max-height: 48px; width: auto !important; max-width: 70% !important; object-fit: contain; }
+
+.lp-partner-card--cta { background: var(--lp-deep); border-color: var(--lp-deep); }
+.lp-partner-card--cta h3 { color: var(--lp-on-deep); }
+.lp-partner-card.lp-partner-card--cta > span { color: var(--lp-on-deep-muted); }
+.lp-partner-card--cta .lp-btn { align-self: flex-start; margin-top: 6px; }
+
+/* =========================================
+   DEPOIMENTOS
+========================================= */
+.lp-testimonials-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.lp-testimonials-head { margin-bottom: 36px; }
+.lp-testimonials-head .lp-section-head { margin-bottom: 0; }
+.lp-stars { color: var(--lp-star); font-size: var(--lp-fs-sm); letter-spacing: 2px; }
+.lp-stars-off { color: var(--lp-star-off); }
+
+.lp-testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--lp-gap); }
+.lp-testimonial {
+    display: flex; flex-direction: column; gap: 16px;
+    background: var(--lp-card);
+    border-radius: var(--lp-radius-md);
+    padding: 24px;
+    box-shadow: var(--lp-shadow);
+}
+.lp-testimonial-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.lp-quote { flex: 1; font-size: var(--lp-fs-md); line-height: var(--lp-lh-text); color: var(--lp-ink); }
+.lp-testimonial-author { display: flex; align-items: center; gap: 10px; }
+.lp-author-text strong { display: block; font-size: var(--lp-fs-sm); color: var(--lp-ink); }
+
+.lp-share-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    margin-top: 32px;
+    background: var(--lp-deep);
+    border-radius: var(--lp-radius-lg);
+    padding: 32px 36px;
+}
+.lp-share-banner h3 { font-family: var(--lp-font-head); font-size: var(--lp-fs-xl); font-weight: var(--lp-fw-bold); color: var(--lp-on-deep); margin-bottom: 6px; }
+.lp-share-banner.lp-share-banner span { color: var(--lp-on-deep-muted); max-width: 620px; }
+.lp-share-banner .lp-btn { flex-shrink: 0; }
+
+/* =========================================
+   AVISO CVV
+========================================= */
+.lp-cvv {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--lp-card);
+    border: 1px solid var(--lp-border);
+    border-radius: var(--lp-radius-md);
+    padding: 18px 22px;
+    font-size: var(--lp-fs-sm);
+    color: var(--lp-text);
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.lp-cvv:hover { border-color: var(--lp-accent); box-shadow: var(--lp-shadow); color: var(--lp-text); }
+.lp-cvv > i { font-size: 1.25rem; color: var(--lp-ink); flex-shrink: 0; }
+.lp-cvv strong { color: var(--lp-ink); }
+.lp-cvv-call {
+    margin-left: auto;
+    flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--lp-accent);
+    color: #ffffff;
+    font-size: var(--lp-fs-xs);
+    font-weight: var(--lp-fw-bold);
+    padding: 8px 16px;
+    border-radius: var(--lp-radius-pill);
+}
+
+/* =========================================
+   FAIXA DE PARCEIROS (layout original) - título + logos centralizados
+========================================= */
+.partners-wrapper { justify-content: center; }
+.partners-grid { justify-content: center; }
+/* uma regra global centraliza todo <p> com margin auto, o que desalinhava o título dos logos */
+.partners-title { margin-left: 0; margin-right: 0; }
+
+/* Âncoras do menu: compensa a altura do header fixo */
+#consultorias, #como-funciona { scroll-margin-top: 90px; }
+
+/* =========================================
+   RESPONSIVO
+   (o styles.css força h2/h3/p com !important no mobile;
+    por isso os títulos usam !important aqui para manter o padrão)
+========================================= */
+@media (max-width: 992px) {
+    :root, body { --lp-section-y: 72px; }
+    .lp-split { grid-template-columns: 1fr; gap: 40px; }
+    .lp-split .lp-visual-panel { order: 2; }
+    /* 2 por linha e o último centralizado */
+    .lp-features { grid-template-columns: repeat(4, 1fr); }
+    .lp-feature, .lp-feature:nth-child(4) { grid-column: span 2; }
+    .lp-feature:nth-child(5) { grid-column: 2 / span 2; }
+    .lp-steps, .lp-testimonials { grid-template-columns: 1fr; }
+    .lp-partner-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    :root, body {
+        --lp-section-y: 56px;
+        --lp-fs-h2: 1.75rem;
+        --lp-fs-stat: 2rem;
+    }
+    .lp-heading, .lp-title { font-size: var(--lp-fs-h2) !important; }
+    .lp-feature h3, .lp-partner-card h3 { font-size: var(--lp-fs-lg) !important; }
+    .lp-share-banner h3 { font-size: var(--lp-fs-xl) !important; }
+    .lp-text { font-size: var(--lp-fs-md) !important; }
+    .lp-band--top { padding: 16px 0 40px; }
+    .lp-visual-panel { padding: 16px; }
+    .lp-features, .lp-partner-cards { grid-template-columns: 1fr; }
+    .lp-feature, .lp-feature:nth-child(4), .lp-feature:nth-child(5) { grid-column: auto; }
+    .lp-cvv { flex-wrap: wrap; }
+    .lp-cvv > i { display: none; }
+    .lp-cvv-call { margin-left: 0; }
+    .lp-testimonials-head { flex-direction: column; align-items: flex-start; }
+    .lp-share-banner { flex-direction: column; align-items: flex-start; padding: 24px; }
+}
+
+@media (max-width: 480px) {
+    .lp-date-row { gap: 4px; }
+    .lp-date { font-size: 0.68rem; }
+    .lp-chat-answer { margin-left: 12px; }
+}
+
+/* =========================================
+   LOGOS DOS PARCEIROS - menores no celular
+   (o styles.css força toda imagem com width: 100% !important no mobile)
+========================================= */
+@media (max-width: 768px) {
+    .partners-grid { gap: 28px !important; flex-wrap: nowrap; }
+    .partner-logo img {
+        width: auto !important;
+        max-width: 120px !important;
+        max-height: 56px !important;
+        height: auto;
+    }
+}
+@media (max-width: 380px) {
+    .partner-logo img { max-width: 100px !important; max-height: 48px !important; }
+}
+
+/* =========================================
+   MODO ESCURO - ajustes de contraste
+========================================= */
+/* Botões roxos: tom mais fechado para o texto branco ficar legível */
+body[data-theme="dark"] .lp-btn:not(.lp-btn--light),
+body[data-theme="dark"] .lp-cvv-call {
+    background: #6f5cc4;
+    color: #ffffff;
+}
+body[data-theme="dark"] .lp-btn:not(.lp-btn--light):hover { background: #7d6bd0; }
+
+/* Logos dos parceiros (faixa "Apoiado por..."): no fundo escuro,
+   inverte para ficarem claros em vez de cinza apagado */
+body[data-theme="dark"] .partner-logo img {
+    filter: grayscale(100%) invert(1) brightness(1.15) opacity(0.8);
+}
+body[data-theme="dark"] .partner-logo img:hover {
+    filter: grayscale(100%) invert(1) brightness(1.15) opacity(1);
+}
+
+/* =========================================
+   NÚMEROS - tablet e celular
+========================================= */
+@media (max-width: 992px) {
+    .lp-stat { flex-direction: column; text-align: center; gap: 12px; padding: 28px 16px; }
+    .lp-stat-icon { width: 48px; height: 48px; font-size: 1.4rem; border-radius: 14px; }
+}
+@media (max-width: 600px) {
+    .lp-stats { grid-template-columns: 1fr; }
+    .lp-stat { flex-direction: row; justify-content: flex-start; text-align: left; gap: 16px; padding: 20px 24px; }
+    .lp-stat + .lp-stat { border-left: none; border-top: 1px solid var(--lp-border); }
+}

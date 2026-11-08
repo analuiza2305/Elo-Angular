@@ -1,48 +1,46 @@
-    <footer class="modern-footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <a href="#" class="logo footer-logo">
-                        <img src="/img/logo_icon.png" alt="Ícone EloMaterno" class="logo-icon">
-                        elomaterno
+<footer class="ft">
+    <div class="container">
+        <div class="ft-top">
+            <!-- Marca + redes -->
+            <div class="ft-brand">
+                <a routerLink="/" class="ft-logo">
+                    <img src="/img/logo_icon.png" alt="" class="ft-logo-icon">
+                    elomaterno
+                </a>
+                <span class="ft-desc">{{ 'footer_desc' | t }}</span>
+
+                <div class="ft-social">
+                    <a href="https://www.instagram.com/eloomaterno/" target="_blank" rel="noopener" aria-label="Instagram do EloMaterno">
+                        <i class="fa-brands fa-instagram"></i>
                     </a>
-                    <p class="footer-desc">A sua rede de apoio na maternidade. Um espaço seguro, 100% gratuito e confidencial para cuidar de você e dos seus direitos.</p>
-                <div class="social-links">
-        <a href="https://www.instagram.com/eloomaterno?stkn=MTkybWNnaHFyMmZxbA==" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-            <i class="fa-brands fa-instagram"></i>
-        </a>
-        <a href="#" aria-label="Facebook">
-            <i class="fa-brands fa-facebook-f"></i>
-        </a>
-        <a href="#" aria-label="TikTok">
-            <i class="fa-brands fa-tiktok"></i>
-        </a>
-    </div>
-                </div>
-                <div class="footer-links">
-                    <h4 data-i18n="footer_platform">Plataforma</h4>
-                    <ul>
-                        <li><a href="#consultorias" data-i18n="footer_consultorias">Consultorias</a></li>
-                        <li><a href="#como-funciona" data-i18n="footer_how">Como funciona</a></li>
-                        <li><a href="#depoimentos" data-i18n="footer_testimonials">Histórias Reais</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4 data-i18n="footer_support">Suporte</h4>
-                    <ul>
-                        <li><a href="#" data-i18n="footer_help">Central de Ajuda</a></li>
-                        <li><a href="#" data-i18n="footer_faq">Dúvidas Frequentes (FAQ)</a></li>
-                        <li><a href="#" data-i18n="footer_contact">Fale Conosco</a></li>
-                        <li><a href="#" data-i18n="footer_volunteer">Seja uma Voluntária</a></li>
-                    </ul>
+                    <a href="mailto:eloomaterno@gmail.com" aria-label="Enviar e-mail para eloomaterno@gmail.com">
+                        <i class="fa-regular fa-envelope"></i>
+                    </a>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 EloMaterno. Todos os direitos reservados.</p>
-                <div class="legal-links">
-                    <a href="#" data-i18n="footer_terms">Termos de Uso</a>
-                    <a href="#" data-i18n="footer_privacy">Política de Privacidade</a>
-                </div>
+
+            <!-- Links -->
+            <nav class="ft-links" aria-label="Plataforma">
+                <span class="ft-heading">{{ 'footer_plataforma' | t }}</span>
+                <a routerLink="/" fragment="consultorias">{{ 'footer_consultorias' | t }}</a>
+                <a routerLink="/" fragment="como-funciona">{{ 'footer_como_funciona' | t }}</a>
+                <a routerLink="/profissionais">{{ 'footer_profissionais' | t }}</a>
+            </nav>
+
+            <nav class="ft-links" aria-label="Contato">
+                <span class="ft-heading">{{ 'footer_contato' | t }}</span>
+                <a href="mailto:eloomaterno@gmail.com">eloomaterno&#64;gmail.com</a>
+                <a routerLink="/cadastro-profissional">{{ 'footer_voluntaria' | t }}</a>
+                <a href="tel:188">CVV · 188</a>
+            </nav>
+        </div>
+
+        <div class="ft-bottom">
+            <span>&copy; 2026 EloMaterno. {{ 'footer_direitos' | t }}</span>
+            <div class="ft-legal">
+                <a href="#">{{ 'footer_termos' | t }}</a>
+                <a href="#">{{ 'footer_privacidade' | t }}</a>
             </div>
         </div>
-    </footer>
+    </div>
+</footer>

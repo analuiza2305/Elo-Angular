@@ -3150,3 +3150,42 @@ app-landing-page .footer-bottom,
 app-landing-page .legal-links a { color: #6B7280; }
 body[data-theme="dark"] app-landing-page .footer-bottom,
 body[data-theme="dark"] app-landing-page .legal-links a { color: #B8B0D6; }
+
+/* =========================================
+   HERO MOBILE - CELULAR NÃO SOBREPÕE O TEXTO
+   (bloco final: sobrescreve as regras duplicadas acima e do styles.css)
+========================================= */
+@media (max-width: 768px) {
+    .hero {
+        gap: 40px !important;
+    }
+
+    .hero .waitlist-info {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .hero .hero-mockup {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero .mockup-wrapper.devices-composition {
+        max-width: 520px;
+        margin: 24px auto 60px auto;
+    }
+
+    .hero .mockup-wrapper.devices-composition .device-laptop {
+        top: 0;
+        width: 90% !important; /* !important: o styles.css força img { width: 100% !important } no mobile */
+        margin: 0 auto 0 0;
+    }
+
+    /* A imagem do celular é quadrada (500x500): a largura define a altura,
+       então ela precisa ser menor que a altura do notebook para não subir no texto */
+    .hero .mockup-wrapper.devices-composition .device-phone {
+        width: 52% !important;
+        right: -6%;
+        bottom: -12%;
+    }
+}

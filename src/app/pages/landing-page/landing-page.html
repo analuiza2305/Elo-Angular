@@ -8,9 +8,9 @@
     ========================================= -->
     <section class="hero container">
         <div class="hero-text fade-in">
-            <h1 data-i18n-html="true" data-i18n="hero_title">Maternidade com o <span>apoio que você merece.</span></h1>
-            <p data-i18n-html="true" data-i18n="hero_subtitle">Consultorias <strong>gratuitas</strong> com psicólogos e advogados, conteúdo especializado e uma comunidade que acolhe — tudo em um só sistema.</p>
-
+            <h1 [innerHTML]="'hero_title' | t"></h1>
+            <p [innerHTML]="'hero_subtitle' | t"></p>
+            
             <div class="waitlist-info">
                 <div class="avatars">
                     <div class="avatar" style="background: #e9d5ff; z-index: 4;">M</div>
@@ -18,7 +18,7 @@
                     <div class="avatar" style="background: #ccadec; z-index: 2; margin-left: -10px;">S</div>
                     <div class="avatar" style="background: #c084fc; z-index: 1; margin-left: -10px;">+</div>
                 </div>
-                <span><strong data-i18n="hero_waitlist">+1.000 mães</strong> já cadastradas</span>
+                <span [innerHTML]="'hero_waitlist' | t"></span>
             </div>
         </div>
 
@@ -36,7 +36,7 @@
     ========================================= -->
     <section class="partners-section container fade-in">
         <div class="partners-wrapper">
-            <p class="partners-title" data-i18n="partners_title">Apoiado por quem faz a diferença</p>
+            <p class="partners-title">{{ 'partners_title' | t }}</p>
 
             <div class="partners-grid">
                 <!-- Parceiro 1: Justiceiras -->
@@ -46,141 +46,37 @@
 
                 <!-- Parceiro 2: Amparo Maternal -->
                 <div class="partner-logo">
-                   <img src="/img/amparo-maternal.png" alt="Amparo Maternal">
+                   <img src="/img/logo-rme-transparente.png" alt="Amparo Maternal">
                 </div>
             </div>
         </div>
     </section>
 
     <!-- =========================================
-         2.2  ESTATÍSTICAS / IMPACTO (CONTADORES)
+         2.2 ESTATÍSTICAS / IMPACTO (CONTADORES)
     ========================================= -->
-    <section class="stats-section container fade-in">
-        <div class="stats-grid">
-            <!-- Mães Conectadas -->
-            <div class="stat-item">
-                <h3 class="stat-number">+<span class="counter" data-target="1000">0</span></h3>
-                <p class="stat-desc"><i class="ph ph-users"></i> <span data-i18n="stat_mothers">Mães conectadas</span></p>
-            </div>
-
-            <!-- Linha Divisória -->
-            <div class="stat-divider"></div>
-
-            <!-- Consultas Realizadas -->
-            <div class="stat-item">
-                <h3 class="stat-number">+<span class="counter" data-target="100">0</span></h3>
-                <p class="stat-desc"><i class="ph ph-arrow-u-up-left"></i> <span data-i18n="stat_consultas">Consultas Realizadas</span></p>
-            </div>
-
-            <!-- Linha Divisória -->
-            <div class="stat-divider"></div>
-
-            <!-- Cidades Alcançadas -->
-            <div class="stat-item">
-                <h3 class="stat-number">+<span class="counter" data-target="50">0</span></h3>
-                <p class="stat-desc" data-i18n="stat_cities">Cidades Alcançadas</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- =========================================
-        3. CONSULTORIAS COMO FUNCIONA (ESTILO ZIG-ZAG DARK)
-    ========================================= -->
-    <section id="consultorias" class="how-it-works-exact section-margin">
-        <div class="exact-bg-custom"></div>
-
-        <div class="container exact-content-relative">
-            <div class="exact-feature-row fade-in">
-                <div class="exact-mockup-wrapper">
-                    <img src="../img/imagem_consultoria_landing.png" alt="Apoio Psicológico" class="exact-main-mockup">
-                </div>
-
-                <div class="exact-feature-text">
-                    <h2 class="exact-title">
-                        <span class="title-light" data-i18n="consult_title_1">Saúde Mental:</span><br>
-                        <span class="title-bold" data-i18n="consult_title_1_bold">Consultorias</span>
-                    </h2>
-                    <div class="exact-title-line"></div>
-                    <p data-i18n="consult_desc_1">Agende sessões de escuta e acolhimento com psicólogos(as) e advogados(as) voluntárias. Um espaço seguro, 100% gratuito e confidencial para cuidar de você durante a maternidade.</p>
-                    <a href="#" class="exact-btn-purple" data-i18n="consult_btn_1">AGENDAR SESSÃO</a>
-                </div>
-            </div>
-
-            <div class="exact-feature-row reverse fade-in">
-                <div class="exact-mockup-wrapper">
-                    <img src="/img/imagem_artigo_landing.png" alt="Artigos jurídicos do EloMaterno no celular" class="exact-main-mockup" loading="lazy">
-                </div>
-
-                <div class="exact-feature-text text-right-desktop">
-                    <h2 class="exact-title">
-                        <span class="title-light" data-i18n="consult_title_2">Direitos da Mãe:</span><br>
-                        <span class="title-bold" data-i18n="consult_title_2_bold">Orientação Jurídica</span>
-                    </h2>
-                    <div class="exact-title-line align-right"></div>
-                    <p data-i18n="consult_desc_2">Tenha acesso a advogadas parceiras para tirar dúvidas sobre pensão alimentícia, licença-maternidade, guarda e otras questões legais, sem nenhum custo.</p>
-                    <a href="#" class="exact-btn-purple" data-i18n="consult_btn_2">FALAR COM ADVOGADA</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- =========================================
-         4. FUNCIONALIDADES (POR DENTRO DO APP - CLEAN)
-    ========================================= -->
-    <section id="como-funciona" class="propaganda-sistema container section-margin text-center">
-        <!-- Cabeçalho da Seção animado -->
-        <div class="fade-in">
-            <h2 class="section-title" data-i18n="feat_title">Tudo o que você precisa em um só lugar</h2>
-            <p class="section-subtitle" data-i18n="feat_subtitle">Conheça as ferramentas exclusivas criadas para facilitar a sua jornada na maternidade.</p>
-        </div>
-
-        <!-- Grid de Cartões -->
-        <div class="cards-grid-3">
-            <div class="feature-card clean-card fade-in" style="transition-delay: 0.1s;">
-                <div class="icon-box-clean"><i class="ph ph-video-camera"></i></div>
-                <h3 data-i18n="feat_1_title">Teleconsulta Integrada</h3>
-                <p data-i18n="feat_1_desc">Sessões de escuta e orientação jurídica por vídeo, dentro de um ambiente seguro e 100% confidencial.</p>
-            </div>
-
-            <div class="feature-card clean-card fade-in" style="transition-delay: 0.3s;">
-                <div class="icon-box-clean"><i class="ph ph-users-three"></i></div>
-                <h3 data-i18n="feat_2_title">Fórum de Acolhimento</h3>
-                <p data-i18n="feat_2_desc">Comunidade moderada por especialistas para você trocar experiências e tirar dúvidas com outras mães.</p>
-            </div>
-
-            <div class="feature-card clean-card fade-in" style="transition-delay: 0.5s;">
-                <div class="icon-box-clean"><i class="ph ph-calendar-check"></i></div>
-                <h3 data-i18n="feat_3_title">Agendamento Simplificado</h3>
-                <p data-i18n="feat_3_desc">Escolha o profissional e o melhor horário para você em apenas dois cliques. Sem burocracia.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- =========================================
-        5. PROVA SOCIAL (DEPOIMENTOS)
-    ========================================= -->
-    <section class="prova-social container fade-in section-margin text-center">
-        <h2 data-i18n="social_title" data-i18n-html="true">Apoiando mães <span>reais</span></h2>
-        <p data-i18n="social_subtitle">Veja o que as mães estão falando sobre a nossa rede de apoio.</p>
-
-        <div class="testimonials-grid">
-            <div class="testimonial-card">
-                <p data-i18n="testim_1">"O EloMaterno me salvou em um momento de muita angústia. Consegui uma orientação jurídica rápida e gratuita que me deu paz."</p>
-                <div class="author-info">
-                    <div class="avatar-author" style="background: #e9d5ff;">C</div>
-                    <div>
-                        <strong>Camila S.</strong>
-                        <span data-i18n="testim_1_role">Mãe solo (São Paulo)</span>
+    <section class="lp-band lp-band--top">
+        <div class="container">
+            <div class="lp-stats fade-in">
+                <div class="lp-stat">
+                    <div class="lp-stat-icon"><i class="ph ph-users-three"></i></div>
+                    <div class="lp-stat-text">
+                        <strong>+<span class="counter" data-target="1000">0</span></strong>
+                        <span>{{ 'stat_maes' | t }}</span>
                     </div>
                 </div>
-            </div>
-            <div class="testimonial-card">
-                <p data-i18n="testim_2">"Achei que o processo seria demorado, mas em dois toques agendei uma escuta com uma psicóloga maravilhosa. É um abraço em forma de app."</p>
-                <div class="author-info">
-                    <div class="avatar-author" style="background: #d8b4fe;">J</div>
-                    <div>
-                        <strong>Juliana M.</strong>
-                        <span data-i18n="testim_2_role">Mãe de gêmeos</span>
+                <div class="lp-stat">
+                    <div class="lp-stat-icon"><i class="ph ph-video-camera"></i></div>
+                    <div class="lp-stat-text">
+                        <strong>+<span class="counter" data-target="100">0</span></strong>
+                        <span>{{ 'stat_consultas' | t }}</span>
+                    </div>
+                </div>
+                <div class="lp-stat">
+                    <div class="lp-stat-icon"><i class="ph ph-map-pin"></i></div>
+                    <div class="lp-stat-text">
+                        <strong>+<span class="counter" data-target="50">0</span></strong>
+                        <span>{{ 'stat_cidades' | t }}</span>
                     </div>
                 </div>
             </div>
@@ -188,19 +84,227 @@
     </section>
 
     <!-- =========================================
-         6. CTA FINAL (REDIRECIONAMENTO)
+         3. SAÚDE MENTAL: CONSULTORIAS
     ========================================= -->
-    <section class="final-cta container fade-in section-margin text-center">
-        <div class="cta-box">
-            <h2 data-i18n="cta_title">Pronta para ter o apoio que você merece?</h2>
-            <p data-i18n="cta_subtitle">Junte-se a milhares de mães e acesse agora mesmo a sua rede de acolhimento e informação.</p>
+    <section id="consultorias" class="lp-band">
+        <div class="container lp-split fade-in">
+            <!-- Mockup do agendamento (feito em HTML) -->
+            <div class="lp-visual-panel">
+                <div class="lp-booking-card">
+                    <div class="lp-booking-head">
+                        <div class="lp-avatar">A</div>
+                        <div>
+                            <strong>Analu</strong>
+                            <span>{{ 'booking_role' | t }}</span>
+                        </div>
+                    </div>
 
-            <div style="margin-top: 30px;">
-                <!-- Link seguro do Angular -->
-                <a routerLink="/cadastro" class="btn btn-large btn-dark btn-login-trigger" data-i18n="cta_btn">Acessar a Plataforma</a>
+                    <span class="lp-booking-label">{{ 'booking_select_date' | t }}</span>
+                    <div class="lp-date-row">
+                        @for (dia of dias; track dia.data) {
+                            <button type="button" class="lp-date" [class.active]="diaSelecionado() === dia.data" (click)="diaSelecionado.set(dia.data)">
+                                {{ dia.semana | t }}<br>{{ dia.data }}
+                            </button>
+                        }
+                    </div>
+
+                    <div class="lp-time-row">
+                        @for (hora of horarios; track hora) {
+                            <button type="button" class="lp-time" [class.active]="horaSelecionada() === hora" (click)="horaSelecionada.set(hora)">{{ hora }}</button>
+                        }
+                    </div>
+
+                    <div class="lp-booking-foot">
+                        <a routerLink="/cadastro" class="lp-btn lp-btn--sm">{{ 'booking_btn' | t }}</a>
+                    </div>
+                </div>
             </div>
 
-            <p class="security-note"><i class="ph ph-lock"></i> <span data-i18n="cta_secure">Ambiente 100% seguro, gratuito e confidencial.</span></p>
+            <div class="lp-copy">
+                <h2 class="lp-title">
+                    <span class="lp-title-light">{{ 'consult_title_light' | t }}</span>
+                    <span class="lp-title-bold">{{ 'consult_title_bold' | t }}</span>
+                </h2>
+                <div class="lp-title-line"></div>
+                <p class="lp-text">{{ 'consult_desc' | t }}</p>
+                <ul class="lp-checklist">
+                    <li><i class="ph ph-check"></i> {{ 'consult_check_1' | t }}</li>
+                    <li><i class="ph ph-check"></i> {{ 'consult_check_2' | t }}</li>
+                </ul>
+                <a routerLink="/cadastro" class="lp-btn">{{ 'consult_btn' | t }}</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         3.1 DIREITOS DA MÃE: ORIENTAÇÃO JURÍDICA
+    ========================================= -->
+    <section class="lp-band lp-band--soft">
+        <div class="container lp-split lp-split--reverse fade-in">
+            <div class="lp-copy">
+                <h2 class="lp-title">
+                    <span class="lp-title-light">{{ 'legal_title_light' | t }}</span>
+                    <span class="lp-title-bold">{{ 'legal_title_bold' | t }}</span>
+                </h2>
+                <div class="lp-title-line"></div>
+                <p class="lp-text">{{ 'legal_desc' | t }}</p>
+                <div class="lp-tags">
+                    <span>{{ 'legal_tag_1' | t }}</span>
+                    <span>{{ 'legal_tag_2' | t }}</span>
+                    <span>{{ 'legal_tag_3' | t }}</span>
+                    <span>{{ 'legal_tag_4' | t }}</span>
+                </div>
+                <a routerLink="/cadastro" class="lp-btn">{{ 'legal_btn' | t }}</a>
+            </div>
+
+            <!-- Mockup da conversa (feito em HTML) -->
+            <div class="lp-visual-panel lp-visual-panel--deep">
+                <div class="lp-chat">
+                    <div class="lp-chat-question">
+                        <span class="lp-chat-meta">{{ 'chat_meta' | t }}</span>
+                        <strong>{{ 'chat_question' | t }}</strong>
+                    </div>
+                    <div class="lp-chat-answer">
+                        <div class="lp-chat-author">
+                            <div class="lp-avatar lp-avatar--sm">B</div>
+                            <strong>{{ 'chat_author' | t }}</strong>
+                        </div>
+                        <span class="lp-chat-body">{{ 'chat_answer' | t }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         4. FUNCIONALIDADES
+    ========================================= -->
+    <section id="como-funciona" class="lp-band">
+        <div class="container">
+            <div class="lp-section-head lp-section-head--center fade-in">
+                <h2 class="lp-heading">{{ 'feat_title' | t }}</h2>
+                <span class="lp-subheading">{{ 'feat_subtitle' | t }}</span>
+            </div>
+
+            <div class="lp-features fade-in">
+                @for (item of funcionalidades; track item.titulo) {
+                    <div class="lp-feature">
+                        <div class="lp-icon-box"><i [class]="'ph ' + item.icone"></i></div>
+                        <h3>{{ item.titulo | t }}</h3>
+                        <span>{{ item.descricao | t }}</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         4.1 EM 3 PASSOS
+    ========================================= -->
+    <section class="lp-band lp-band--soft">
+        <div class="container fade-in">
+            <h2 class="lp-heading lp-heading--left">{{ 'steps_title' | t }}</h2>
+            <div class="lp-steps">
+                @for (passo of passos; track passo.titulo; let i = $index) {
+                    <div class="lp-step">
+                        <div class="lp-step-number">{{ i + 1 }}</div>
+                        <div>
+                            <strong>{{ passo.titulo | t }}</strong>
+                            <span>{{ passo.descricao | t }}</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         4.2 QUEM CAMINHA COM A GENTE (PARCEIROS)
+    ========================================= -->
+    <section class="lp-band">
+        <div class="container fade-in">
+            <div class="lp-section-head">
+                <h2 class="lp-heading lp-heading--left">{{ 'allies_title' | t }}</h2>
+                <span class="lp-subheading">{{ 'allies_subtitle' | t }}</span>
+            </div>
+
+            <div class="lp-partner-cards">
+                <div class="lp-partner-card">
+                    <div class="lp-partner-logo"><img src="/img/justiceiras-logo.png" alt="Justiceiras"></div>
+                    <h3>Justiceiras</h3>
+                    <span>{{ 'ally_justiceiras_desc' | t }}</span>
+                    <a href="https://www.justiceiras.org.br/" target="_blank" rel="noopener" class="lp-link">{{ 'ally_link' | t }}</a>
+                </div>
+
+                <div class="lp-partner-card">
+                    <div class="lp-partner-logo"><img src="/img/logo-rme-transparente.png" alt="Rede Mulher Empreendedora"></div>
+                    <h3>Rede Mulher Empreendedora</h3>
+                    <span>{{ 'ally_rme_desc' | t }}</span>
+                    <a href="https://rme.net.br/" target="_blank" rel="noopener" class="lp-link">{{ 'ally_link' | t }}</a>
+                </div>
+
+                <div class="lp-partner-card lp-partner-card--cta">
+                    <div class="lp-icon-box lp-icon-box--dark"><i class="ph ph-buildings"></i></div>
+                    <h3>{{ 'ally_cta_title' | t }}</h3>
+                    <span>{{ 'ally_cta_desc' | t }}</span>
+                    <a routerLink="/login-profissional" class="lp-btn lp-btn--light lp-btn--sm">{{ 'ally_cta_btn' | t }}</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         5. DEPOIMENTOS
+    ========================================= -->
+    <section class="lp-band lp-band--soft">
+        <div class="container fade-in">
+            <div class="lp-testimonials-head">
+                <div class="lp-section-head">
+                    <h2 class="lp-heading lp-heading--left">{{ 'testim_title' | t }}</h2>
+                    <span class="lp-subheading">{{ 'testim_subtitle' | t }}</span>
+                </div>
+            </div>
+
+            <div class="lp-testimonials">
+                @for (d of depoimentos; track d.nome) {
+                    <article class="lp-testimonial">
+                        <div class="lp-testimonial-top">
+                            <span class="lp-stars">{{ estrelas(d.nota) }}<span class="lp-stars-off">{{ estrelasVazias(d.nota) }}</span></span>
+                        </div>
+                        <span class="lp-quote">“{{ d.texto | t }}”</span>
+                        <div class="lp-testimonial-author">
+                            <div class="lp-avatar lp-avatar--sm">
+                                @if (d.anonima) { <i class="ph ph-user"></i> } @else { {{ (d.nome | t).charAt(0) }} }
+                            </div>
+                            <div class="lp-author-text">
+                                <strong>{{ d.nome | t }}</strong>
+                                <span>{{ d.perfil | t }}</span>
+                            </div>                        </div>
+                    </article>
+                }
+            </div>
+
+            <div class="lp-share-banner">
+                <div>
+                    <h3>{{ 'share_title' | t }}</h3>
+                    <span>{{ 'share_desc' | t }}</span>
+                </div>
+                <a routerLink="/cadastro" class="lp-btn lp-btn--light">{{ 'share_btn' | t }}</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================
+         6. AVISO CVV
+    ========================================= -->
+    <section class="lp-band lp-band--compact">
+        <div class="container">
+            <!-- Clicar liga direto para o CVV (no celular abre o discador) -->
+            <a href="tel:188" class="lp-cvv" [attr.aria-label]="'cvv_aria' | t">
+                <i class="ph ph-info"></i>
+                <span><strong>{{ 'cvv_title' | t }}</strong> {{ 'cvv_desc' | t }}</span>
+                <span class="lp-cvv-call"><i class="ph ph-phone"></i> {{ 'cvv_btn' | t }}</span>
+            </a>
         </div>
     </section>
 </main>

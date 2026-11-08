@@ -1,18 +1,74 @@
-import { Component, AfterViewInit, Inject, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import { Component, AfterViewInit, Inject, PLATFORM_ID, ViewEncapsulation, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
 import { FooterComponent } from '../../components/footer/footer';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+
+interface Depoimento {
+  nome: string;
+  perfil: string;
+  texto: string;
+  nota: number;
+  anonima?: boolean;
+}
 
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [HeaderComponent, FooterComponent, RouterLink],
+  imports: [HeaderComponent, FooterComponent, RouterLink, TranslatePipe],
   templateUrl: './landing-page.html',
-  styleUrls: ['./landing-page.css'],
+  styleUrls: ['./landing-page.css', './landing-sections.css'],
   encapsulation: ViewEncapsulation.None 
 })
 export class LandingPageComponent implements AfterViewInit {
+
+  // Os textos abaixo são CHAVES do dicionário (src/app/core/i18n/translations.ts);
+  // o HTML traduz com o pipe 't'.
+
+  // ---------- Mockup de agendamento (seção Consultorias) ----------
+  readonly dias = [
+    { semana: 'dia_qui', data: '20' },
+    { semana: 'dia_sex', data: '21' },
+    { semana: 'dia_ter', data: '25' },
+    { semana: 'dia_qua', data: '26' },
+    { semana: 'dia_sex', data: '28' },
+  ];
+  readonly horarios = ['09:00', '14:00', '18:30'];
+  readonly diaSelecionado = signal('20');
+  readonly horaSelecionada = signal('14:00');
+
+  // ---------- Funcionalidades ----------
+  readonly funcionalidades = [
+    { icone: 'ph-video-camera', titulo: 'feat_1_title', descricao: 'feat_1_desc' },
+    { icone: 'ph-users-three', titulo: 'feat_2_title', descricao: 'feat_2_desc' },
+    { icone: 'ph-calendar-check', titulo: 'feat_3_title', descricao: 'feat_3_desc' },
+    { icone: 'ph-article', titulo: 'feat_4_title', descricao: 'feat_4_desc' },
+    { icone: 'ph-graduation-cap', titulo: 'feat_5_title', descricao: 'feat_5_desc' },
+  ];
+
+  // ---------- Em 3 passos ----------
+  readonly passos = [
+    { titulo: 'step_1_title', descricao: 'step_1_desc' },
+    { titulo: 'step_2_title', descricao: 'step_2_desc' },
+    { titulo: 'step_3_title', descricao: 'step_3_desc' },
+  ];
+
+  // ---------- Depoimentos ----------
+  // TODO: substituir pelos depoimentos reais enviados pelas mães (o 3º é um exemplo do layout).
+  readonly depoimentos: Depoimento[] = [
+    { nome: 'Camila S.', perfil: 'testim_1_perfil', texto: 'testim_1_texto', nota: 5 },
+    { nome: 'Juliana M.', perfil: 'testim_2_perfil', texto: 'testim_2_texto', nota: 5 },
+    { nome: 'testim_3_nome', perfil: 'testim_3_perfil', texto: 'testim_3_texto', nota: 4, anonima: true },
+  ];
+
+  estrelas(nota: number): string {
+    return '★'.repeat(nota);
+  }
+
+  estrelasVazias(nota: number): string {
+    return '★'.repeat(5 - nota);
+  }
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
