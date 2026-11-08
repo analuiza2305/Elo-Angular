@@ -1,4 +1,7 @@
-import { doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import {
+  doc, getDoc, getDocs, setDoc, updateDoc, arrayUnion, arrayRemove,
+  collection, query, where, DocumentReference
+} from 'firebase/firestore';
 import { db } from '../core/firebase';
 
 // =============================================================
@@ -74,6 +77,46 @@ export async function definirFavorito(uid: string, artigoId: string, salvar: boo
   await setDoc(doc(db, 'usuarios', uid), { favoritos: op(artigoId) }, { merge: true });
 
   // contador no artigo: não bloqueia se as regras não permitirem
+  try {
+    await updateDoc(doc(db, 'artigos', artigoId), { salvosPor: op(uid) });
+  } catch (e) {
+    console.warn('Não foi possível atualizar salvosPor do artigo:', e);
+  }
+}
+// =============================================================
+// FAVORITOS DA PSICÓLOGA
+// Fonte da verdade: `psicologos/{id}.favoritos`.
+// Algumas contas antigas não usam o uid como id do documento,
+// então procura pelo campo `uid` como no resto do projeto.
+// =============================================================
+async function refDaPsicologa(uid: string): Promise<DocumentReference | null> {
+  const direto = doc(db, 'psicologos', uid);
+  if ((await getDoc(direto)).exists()) return direto;
+
+  const res = await getDocs(query(collection(db, 'psicologos'), where('uid', '==', uid)));
+  return res.empty ? null : res.docs[0].ref;
+}
+
+export async function carregarIdsFavoritosPsi(uid: string): Promise<string[]> {
+  try {
+    const ref = await refDaPsicologa(uid);
+    if (!ref) return [];
+    const snap = await getDoc(ref);
+    return snap.exists() ? ((snap.data()['favoritos'] as string[]) || []) : [];
+  } catch (e) {
+    console.error('Erro ao carregar favoritos da psicóloga:', e);
+    return [];
+  }
+}
+
+/** Salva/remove o favorito da psicóloga. Lança erro se não achar o perfil dela. */
+export async function definirFavoritoPsi(uid: string, artigoId: string, salvar: boolean): Promise<void> {
+  const ref = await refDaPsicologa(uid);
+  if (!ref) throw new Error('Perfil da psicóloga não encontrado.');
+
+  const op = salvar ? arrayUnion : arrayRemove;
+  await updateDoc(ref, { favoritos: op(artigoId) });
+
   try {
     await updateDoc(doc(db, 'artigos', artigoId), { salvosPor: op(uid) });
   } catch (e) {

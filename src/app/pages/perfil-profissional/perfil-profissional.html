@@ -98,6 +98,39 @@
           <p class="bio-text" style="white-space: pre-line;">{{ profissional().biografia }}</p>
         </section>
 
+        <!-- Minha conta (só o próprio profissional vê) -->
+        @if (isProprioPerfil()) {
+          <section class="content-box conta-box">
+            <h2>Minha conta</h2>
+            <div class="conta-linha"><span>E-mail</span><strong>{{ profissional().email || '—' }}</strong></div>
+            <div class="conta-linha"><span>{{ isPsicologo() ? 'CRP' : 'OAB' }}</span><strong>{{ profissional().identificacao }}</strong></div>
+            <div class="conta-linha">
+              <span>Situação do cadastro</span>
+              <strong class="conta-status" [class.ok]="profissional().statusCadastro === 'aprovado'">{{ rotuloStatusCadastro() }}</strong>
+            </div>
+
+            @if (isPsicologo()) {
+              <div class="conta-anotacoes">
+                <div>
+                  <strong>Suas anotações de sessão</strong>
+                  <p>Baixe todos os prontuários em PDF. O CFP pede que esses registros sejam guardados por pelo menos 5 anos, então baixe antes de excluir a conta.</p>
+                </div>
+                <button type="button" class="btn-baixar-anotacoes" (click)="baixarMinhasAnotacoes()" [disabled]="baixandoAnotacoes()">
+                  <i class="fa-solid fa-download"></i> {{ baixandoAnotacoes() ? 'Gerando...' : 'Baixar PDF' }}
+                </button>
+              </div>
+            }
+
+            <div class="conta-perigo">
+              <div>
+                <strong>Excluir conta</strong>
+                <p>Apaga seu cadastro{{ isPsicologo() ? ', suas anotações de sessão' : '' }} e seu login. As consultas que ainda iam acontecer são canceladas e as mães recebem um aviso. Não dá para desfazer.</p>
+              </div>
+              <button type="button" class="btn-excluir-conta" (click)="abrirExcluirConta()">Excluir minha conta</button>
+            </div>
+          </section>
+        }
+
         <!-- Reputação detalhada -->
         @if (!carregandoReputacao() && reputacao().total > 0) {
           <section class="content-box reputacao-box">
@@ -193,6 +226,35 @@
     </div>
   }
 </main>
+
+  <!-- MODAL EXCLUIR CONTA -->
+  @if (modalExcluirConta()) {
+    <div class="modal-wrapper">
+      <div class="modal-overlay" (click)="fecharExcluirConta()"></div>
+      <div class="premium-modal modal-excluir" role="dialog" aria-modal="true" aria-labelledby="titulo-excluir">
+        <div class="excluir-icone"><i class="fa-regular fa-trash-can"></i></div>
+        <h2 id="titulo-excluir">Excluir sua conta?</h2>
+        <p class="modal-subtitle">Essa ação é permanente. Você não vai conseguir entrar de novo com essa conta.</p>
+
+        @if (!ehContaGoogle()) {
+          <label class="excluir-label" for="senhaExcluir">Digite sua senha para confirmar</label>
+          <input id="senhaExcluir" type="password" class="excluir-input" placeholder="Sua senha"
+            [ngModel]="senhaExcluir()" (ngModelChange)="senhaExcluir.set($event)" (keyup.enter)="confirmarExcluirConta()">
+        }
+
+        @if (erroExcluirConta()) {
+          <p class="excluir-erro"><i class="fa-solid fa-circle-exclamation"></i> {{ erroExcluirConta() }}</p>
+        }
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="fecharExcluirConta()" [disabled]="excluindoConta()">Cancelar</button>
+          <button type="button" class="btn-confirm btn-confirmar-excluir" (click)="confirmarExcluirConta()" [disabled]="excluindoConta()">
+            {{ excluindoConta() ? 'Excluindo...' : 'Sim, excluir' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- ONBOARDING MODAL -->
   <div class="modal" *ngIf="showOnboardingModal() && isProprioPerfil()">

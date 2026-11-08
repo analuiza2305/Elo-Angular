@@ -8,22 +8,25 @@ import { LembreteService } from '../../services/lembrete';
 import { carregarReputacao, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
 import { PlanoService, Assinatura, Plano, PLANOS_PADRAO, formatarBRL, sufixoPeriodicidade } from '../../services/plano';
 import { MODELOS_PSICOLOGIA, ModeloDocumento, IdModelo, modeloPorId } from '../../services/modelos-psicologia';
-import { gerarCertificadoHoras, gerarDocumentoPsicologico, gerarRelatorioAtendimentos, formatarHoras, SessaoCertificado, ConsultaRelatorio } from '../../services/documentos-pdf';
+import { gerarCertificadoHoras, gerarDocumentoPsicologico, gerarRelatorioAtendimentos, formatarHoras, SessaoCertificado, ConsultaRelatorio, gerarProntuario } from '../../services/documentos-pdf';
 import { cartaoDoLembrete } from '../../services/lembrete-chat';
 
 import {
   doc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, onSnapshot, orderBy, limit,
-  serverTimestamp, Timestamp, arrayUnion, arrayRemove, getCountFromServer, writeBatch,
+  serverTimestamp, Timestamp, arrayUnion, arrayRemove, getCountFromServer, writeBatch, setDoc,
 } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
+import { carregarIdsFavoritosPsi, definirFavoritoPsi } from '../../services/artigo-utils';
 import { PERGUNTAS_BEM_ESTAR, PerguntaBemEstar, rotuloDaResposta, respostaDeRisco } from '../../services/questionario-bem-estar';
 
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
-type SecaoHomePsi = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos' | 'informacoes';
+type SecaoHomePsi = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos';
 type AbaConsultas = 'Pendentes' | 'Agendadas' | 'Realizadas' | 'Negadas';
 type CategoriaArtigo = 'posts' | 'legislativos' | 'educacionais' | 'dicas';
+type FiltroArtigo = 'todos' | CategoriaArtigo | 'meus' | 'favoritos';
+const CHAVE_FILTRO_ARTIGO = 'psiFiltroArtigo';
 
-interface MenuItem { target: SecaoHomePsi; label: string; icon: string; }
+interface MenuItem { target: SecaoHomePsi; label: string; icon: string; rota?: string; }
 interface CelulaCalendario { dia: number | null; isHoje: boolean; temDisponibilidade: boolean; }
 interface EventoAgenda { titulo: string; descricao: string; local: string; data: Date; }
 type StatusHorario = 'livre' | 'ocupado' | 'passado';
@@ -40,6 +43,8 @@ interface ConsultaView {
   realizadoEm: Date | null;
   statusRaw: string;
   status: 'Pendente' | 'Agendada' | 'Realizada' | 'Negada';
+  /** true quando a consulta já estava aceita e foi desmarcada depois */
+  canceladaAposAceite?: boolean;
 }
 interface ArtigoForm {
   titulo: string; descricao: string; resumo: string; categoria: CategoriaArtigo; img: string; link: string;
@@ -124,6 +129,9 @@ export class HomePsi implements OnInit, OnDestroy {
   private uidAtual: string | null = null;
   private psiDocId: string | null = null;
   readonly crp = signal('');
+  /** status do cadastro em psicologos/{id}: só 'aprovado' aparece para as mães */
+  readonly statusCadastro = signal<string>('');
+  readonly cadastroAprovado = computed(() => this.statusCadastro() === 'aprovado');
   readonly cidadeProfissional = signal('');
   readonly isPremium = signal(false);
   readonly assinatura = signal<Assinatura | null>(null);
@@ -150,12 +158,40 @@ export class HomePsi implements OnInit, OnDestroy {
   private unsubQuestionarios: (() => void) | null = null;
   private cacheMaes = new Map<string, { nome: string; avatar: string }>();
 
+  /** Consulta aceita cujo dia já acabou: não está mais "agendada", falta confirmar se aconteceu. */
+  consultaPassou(c: ConsultaView): boolean {
+    if (c.status !== 'Agendada' || !c.dataObj) return false;
+    const inicioDeHoje = new Date();
+    inicioDeHoje.setHours(0, 0, 0, 0);
+    return c.dataObj.getTime() < inicioDeHoje.getTime();
+  }
+
+  rotuloStatus(c: ConsultaView): string {
+    if (this.consultaPassou(c)) return 'A confirmar';
+    if (c.status === 'Negada' && c.canceladaAposAceite) return 'Cancelada';
+    return c.status;
+  }
+  classeStatus(c: ConsultaView): string { return this.consultaPassou(c) ? 'confirmar' : c.status.toLowerCase(); }
+
   readonly consultasFiltradas = computed(() => {
     const aba = this.abaConsultas();
-    const alvo = aba === 'Pendentes' ? 'Pendente' : aba === 'Agendadas' ? 'Agendada' : aba === 'Realizadas' ? 'Realizada' : 'Negada';
-    return this.todasConsultas()
-      .filter((c) => c.status === alvo)
-      .sort((a, b) => (a.dataObj?.getTime() ?? 0) - (b.dataObj?.getTime() ?? 0));
+    const todas = this.todasConsultas();
+    let lista: ConsultaView[];
+    if (aba === 'Agendadas') {
+      // só de hoje em diante
+      lista = todas.filter((c) => c.status === 'Agendada' && !this.consultaPassou(c));
+    } else if (aba === 'Realizadas') {
+      // as realizadas + as aceitas cujo dia já passou (a psicóloga confirma por aqui)
+      lista = todas.filter((c) => c.status === 'Realizada' || this.consultaPassou(c));
+      const aConfirmar = lista.filter((c) => this.consultaPassou(c));
+      const realizadas = lista.filter((c) => !this.consultaPassou(c))
+        .sort((a, b) => (b.dataObj?.getTime() ?? 0) - (a.dataObj?.getTime() ?? 0));
+      return [...aConfirmar, ...realizadas];
+    } else {
+      const alvo = aba === 'Pendentes' ? 'Pendente' : 'Negada';
+      lista = todas.filter((c) => c.status === alvo);
+    }
+    return lista.sort((a, b) => (a.dataObj?.getTime() ?? 0) - (b.dataObj?.getTime() ?? 0));
   });
 
   readonly consultasDeHoje = computed(() => {
@@ -164,7 +200,7 @@ export class HomePsi implements OnInit, OnDestroy {
   });
 
   readonly consultasHoje = computed(() => this.consultasDeHoje().length);
-  readonly sessoesAgendadas = computed(() => this.todasConsultas().filter((c) => c.status === 'Agendada').length);
+  readonly sessoesAgendadas = computed(() => this.todasConsultas().filter((c) => c.status === 'Agendada' && !this.consultaPassou(c)).length);
 
   readonly ultimasAtividades = computed(() => {
     const agora = Date.now();
@@ -234,13 +270,16 @@ export class HomePsi implements OnInit, OnDestroy {
 
   readonly artigos = signal<any[]>([]);
   readonly carregandoArtigos = signal(true);
-  readonly filtroArtigo = signal<'todos' | CategoriaArtigo | 'meus'>('todos');
+  readonly filtroArtigo = signal<FiltroArtigo>('todos');
   readonly ordemArtigos = signal<'recentes' | 'antigos'>('recentes');
+  /** ids dos artigos que a psicóloga salvou (psicologos/{id}.favoritos) */
+  readonly favoritosIds = signal<string[]>([]);
 
   readonly artigosFiltrados = computed(() => {
     const f = this.filtroArtigo();
     let lista = this.artigos();
     if (f === 'meus') lista = lista.filter((a) => a.autorId && a.autorId === this.uidAtual);
+    else if (f === 'favoritos') lista = lista.filter((a) => this.favoritosIds().includes(a.id));
     else if (f !== 'todos') lista = lista.filter((a) => (a.categoria || '').toLowerCase() === f);
     const sinal = this.ordemArtigos() === 'recentes' ? -1 : 1;
     return [...lista].sort((a, b) => sinal * (a.tempo - b.tempo));
@@ -252,6 +291,9 @@ export class HomePsi implements OnInit, OnDestroy {
     { valor: 'educacionais', label: 'Educacionais' },
     { valor: 'dicas', label: 'Dicas' },
   ];
+
+  /** Legislativos é conteúdo jurídico: a psicóloga pode ler, mas não publicar. */
+  readonly categoriasPublicaveis = this.categoriasArtigo.filter((c) => c.valor !== 'legislativos');
 
   private readonly CATEGORIA_COR: Record<string, string> = {
     legislativos: '#e63946', educacionais: '#1d3557', dicas: '#2a9d8f', posts: '#6a4c93',
@@ -309,6 +351,10 @@ export class HomePsi implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.activeSection.set(this.lerUltimaSecaoSalva());
     if (this.isBrowser) {
+      const filtroSalvo = sessionStorage.getItem(CHAVE_FILTRO_ARTIGO) as FiltroArtigo | null;
+      if (filtroSalvo) this.filtroArtigo.set(filtroSalvo);
+    }
+    if (this.isBrowser) {
       const temaSalvo = localStorage.getItem('theme');
       this.isDarkMode.set(temaSalvo === 'dark');
       document.body.setAttribute('data-theme', this.isDarkMode() ? 'dark' : 'light');
@@ -331,6 +377,7 @@ export class HomePsi implements OnInit, OnDestroy {
       this.lembreteService.iniciarListenerDeConsultas(user.uid, 'psicologo');
       this.carregarArtigos();
       this.carregarForum();
+      this.ouvirNotificacoes(user.uid);
     });
   }
 
@@ -339,6 +386,138 @@ export class HomePsi implements OnInit, OnDestroy {
     this.unsubConsultas?.();
     this.unsubQuestionarios?.();
     this.chatUnsubscribe?.();
+    this.unsubNotificacoes?.();
+  }
+
+  // ==========================================================
+  // AVISOS (sino): novo pedido, mãe cancelou, cadastro aprovado...
+  // Só filtra por destinatário e ordena aqui, sem precisar de índice no Firestore.
+  // ==========================================================
+  readonly notificacoes = signal<{ id: string; titulo: string; mensagem: string; tipo: string; consultaId: string | null; lida: boolean; criadoEm: Date | null }[]>([]);
+  readonly naoLidas = computed(() => this.notificacoes().filter((n) => !n.lida).length);
+  readonly notifAberto = signal(false);
+  /** pedidos esperando resposta: aparece como número no item "Consultas" do menu */
+  readonly pendentesCount = computed(() => this.todasConsultas().filter((c) => c.status === 'Pendente').length);
+  private unsubNotificacoes: (() => void) | null = null;
+
+  private ouvirNotificacoes(uid: string) {
+    this.unsubNotificacoes?.();
+    this.unsubNotificacoes = onSnapshot(
+      query(collection(db, 'notificacoes'), where('destinatarioId', '==', uid)),
+      (snap) => {
+        const lista = snap.docs.map((d) => {
+          const n: any = d.data();
+          return {
+            id: d.id,
+            titulo: n['titulo'] || 'Aviso',
+            mensagem: n['mensagem'] || '',
+            tipo: n['tipo'] || '',
+            consultaId: n['consultaId'] || null,
+            lida: !!n['lida'],
+            criadoEm: n['criadoEm']?.toDate ? n['criadoEm'].toDate() : null,
+          };
+        });
+        lista.sort((a, b) => (b.criadoEm?.getTime() ?? Date.now()) - (a.criadoEm?.getTime() ?? Date.now()));
+        this.notificacoes.set(lista.slice(0, 20));
+      },
+      (e) => console.warn('Avisos indisponíveis:', e),
+    );
+  }
+
+  toggleNotificacoes() {
+    const abrir = !this.notifAberto();
+    this.notifAberto.set(abrir);
+    if (abrir) this.marcarAvisosComoLidos();
+  }
+
+  private async marcarAvisosComoLidos() {
+    const naoLidas = this.notificacoes().filter((n) => !n.lida);
+    if (!naoLidas.length) return;
+    try {
+      const batch = writeBatch(db);
+      naoLidas.forEach((n) => batch.update(doc(db, 'notificacoes', n.id), { lida: true }));
+      await batch.commit();
+    } catch (e) {
+      console.warn('Não foi possível marcar os avisos como lidos:', e);
+    }
+  }
+
+  abrirAviso(n: { tipo: string; consultaId: string | null }) {
+    this.notifAberto.set(false);
+    if (n.tipo === 'consulta_nova') { this.selecionarSecao('consultas'); this.setAbaConsultas('Pendentes'); }
+    else if (n.tipo.startsWith('consulta_cancelada')) { this.selecionarSecao('consultas'); this.setAbaConsultas('Negadas'); }
+    else if (n.consultaId) { this.selecionarSecao('consultas'); }
+  }
+
+  quandoAviso(d: Date | null): string {
+    if (!d) return 'agora';
+    const min = Math.round((Date.now() - d.getTime()) / 60000);
+    if (min < 1) return 'agora';
+    if (min < 60) return `há ${min} min`;
+    const h = Math.round(min / 60);
+    if (h < 24) return `há ${h} h`;
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  }
+
+  // ==========================================================
+  // PRONTUÁRIO: todas as sessões e anotações de uma paciente
+  // ==========================================================
+  readonly prontuarioAberto = signal<{ id: string; nome: string; avatar: string } | null>(null);
+  readonly sessoesProntuario = signal<{ consulta: ConsultaView; texto: string }[]>([]);
+  readonly carregandoProntuario = signal(false);
+  readonly gerandoProntuarioPdf = signal(false);
+
+  async abrirProntuario(p: { id: string; nome: string; avatar: string }) {
+    this.prontuarioAberto.set(p);
+    this.carregandoProntuario.set(true);
+    const sessoes = this.todasConsultas()
+      .filter((c) => c.maeId === p.id && (c.status === 'Realizada' || this.consultaPassou(c)))
+      .sort((a, b) => (b.dataObj?.getTime() ?? 0) - (a.dataObj?.getTime() ?? 0));
+    this.sessoesProntuario.set(sessoes.map((consulta) => ({ consulta, texto: '' })));
+    try {
+      if (this.uidAtual) {
+        const snap = await getDocs(query(
+          collection(db, 'anotacoesSessao'),
+          where('psicologoUid', '==', this.uidAtual),
+          where('maeId', '==', p.id),
+        ));
+        const porConsulta = new Map(snap.docs.map((d) => [d.id, String(d.data()['texto'] || '')]));
+        this.sessoesProntuario.set(sessoes.map((consulta) => ({ consulta, texto: porConsulta.get(consulta.id) || '' })));
+      }
+    } catch (e) {
+      console.error('Erro ao abrir prontuário:', e);
+      this.alerta.erro('Não foi possível carregar as anotações agora.');
+    } finally {
+      this.carregandoProntuario.set(false);
+    }
+  }
+
+  fecharProntuario() { this.prontuarioAberto.set(null); }
+
+  editarDoProntuario(c: ConsultaView) {
+    this.prontuarioAberto.set(null);
+    this.abrirAnotacao(c);
+  }
+
+  async baixarProntuarioPdf() {
+    const p = this.prontuarioAberto();
+    if (!p) return;
+    this.gerandoProntuarioPdf.set(true);
+    try {
+      await gerarProntuario({
+        profissional: { nome: this.nomeCompleto(), crp: this.crp() ? `CRP ${this.crp()}` : '' },
+        pacientes: [{
+          nome: p.nome,
+          sessoes: this.sessoesProntuario().map((s) => ({ data: s.consulta.dataObj, texto: s.texto })),
+        }],
+        nomeArquivo: `prontuario-${p.nome}`,
+      });
+    } catch (e) {
+      console.error('Erro ao gerar PDF:', e);
+      this.alerta.erro('Não foi possível gerar o PDF agora.');
+    } finally {
+      this.gerandoProntuarioPdf.set(false);
+    }
   }
 
   // ==========================================================
@@ -404,6 +583,7 @@ export class HomePsi implements OnInit, OnDestroy {
       if (dados) {
         this.nomeCompleto.set(dados['nome'] || 'Psicólogo(a)');
         this.crp.set(String(dados['crp'] || '').trim());
+        this.statusCadastro.set(String(dados['status'] || 'pendente').toLowerCase());
         this.cidadeProfissional.set(String(dados['cidade'] || '').trim());
         if (dados['avatar']) this.avatarUrl.set(dados['avatar']);
         this.disponibilidade.set(this.paraDatas(dados['disponibilidade']));
@@ -467,6 +647,7 @@ export class HomePsi implements OnInit, OnDestroy {
             realizadoEm: raw['realizadoEm']?.toDate ? raw['realizadoEm'].toDate() : null,
             statusRaw,
             status: STATUS_LABEL[statusRaw] || 'Pendente',
+            canceladaAposAceite: !!raw['canceladaAposAceite'],
           };
         });
         this.todasConsultas.set(lista);
@@ -512,7 +693,7 @@ export class HomePsi implements OnInit, OnDestroy {
    * Aviso para a mãe na coleção `notificacoes` (mesmo formato que o painel do admin usa).
    * Falhar aqui nunca desfaz a confirmação.
    */
-  private async avisarMae(c: ConsultaView, decisao: 'aceita' | 'recusada') {
+  private async avisarMae(c: ConsultaView, decisao: 'aceita' | 'recusada' | 'cancelada', motivo = '') {
     if (!c.maeId) return;
     const quando = c.dataObj
       ? c.dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) + ' às ' + c.horario
@@ -520,11 +701,14 @@ export class HomePsi implements OnInit, OnDestroy {
     try {
       await addDoc(collection(db, 'notificacoes'), {
         destinatarioId: c.maeId,
-        tipo: decisao === 'aceita' ? 'consulta_confirmada' : 'consulta_recusada',
-        titulo: decisao === 'aceita' ? 'Sua consulta foi confirmada!' : 'Sua consulta não pôde ser confirmada',
+        tipo: decisao === 'aceita' ? 'consulta_confirmada' : decisao === 'cancelada' ? 'consulta_cancelada' : 'consulta_recusada',
+        titulo: decisao === 'aceita' ? 'Sua consulta foi confirmada!'
+          : decisao === 'cancelada' ? 'Sua consulta foi desmarcada' : 'Sua consulta não pôde ser confirmada',
         mensagem: decisao === 'aceita'
           ? `${this.nomeCompleto()} confirmou sua consulta de ${quando}. No horário, entre pela página Minhas consultas.`
-          : `${this.nomeCompleto()} não poderá atender em ${quando}. Que tal escolher outro horário?`,
+          : decisao === 'cancelada'
+            ? `${this.nomeCompleto()} precisou desmarcar a consulta de ${quando}.${motivo ? ' Motivo: ' + motivo + '.' : ''} Você pode escolher outro horário quando quiser.`
+            : `${this.nomeCompleto()} não poderá atender em ${quando}. Que tal escolher outro horário?`,
         consultaId: c.id,
         link: '/consultas',
         lida: false,
@@ -532,6 +716,87 @@ export class HomePsi implements OnInit, OnDestroy {
       });
     } catch (e) {
       console.warn('Aviso para a mãe não gravado:', e);
+    }
+  }
+
+  /** Desmarca uma consulta que já tinha sido aceita: libera o horário e avisa a mãe. */
+  async desmarcarConsulta(c: ConsultaView) {
+    const motivo = await this.alerta.solicitar(
+      `Desmarcar a consulta com ${c.nome} em ${c.data} às ${c.horario}? A mãe recebe um aviso. Se quiser, conte o motivo (opcional):`,
+      { titulo: 'Desmarcar consulta', textoOk: 'Desmarcar', textoCancelar: 'Voltar', perigo: true, placeholder: 'Ex.: imprevisto de saúde' },
+    );
+    if (motivo === null) return; // fechou sem confirmar
+    try {
+      await updateDoc(doc(db, 'Consultas', c.id), {
+        status: 'negado',
+        canceladoPor: 'psicologo',
+        canceladoEm: serverTimestamp(),
+        canceladaAposAceite: true,
+        motivoCancelamento: motivo.trim(),
+      });
+      await this.liberarHorario(c.dataObj);
+      await this.avisarMae(c, 'cancelada', motivo.trim());
+      this.alerta.sucesso('Consulta desmarcada. A mãe foi avisada.');
+    } catch (err: any) {
+      console.error(err);
+      this.alerta.erro('Não foi possível desmarcar a consulta. Tente novamente.');
+    }
+  }
+
+  // ---------- Anotações da sessão (registro documental — Resolução CFP 001/2009) ----------
+  // Ficam em anotacoesSessao/{consultaId} e só a própria psicóloga lê e escreve.
+  readonly anotacaoAberta = signal<ConsultaView | null>(null);
+  readonly textoAnotacao = signal('');
+  readonly carregandoAnotacao = signal(false);
+  readonly salvandoAnotacao = signal(false);
+  readonly msgAnotacao = signal<{ tipo: 'ok' | 'erro'; texto: string } | null>(null);
+  readonly anotacaoAtualizadaEm = signal<Date | null>(null);
+
+  async abrirAnotacao(c: ConsultaView) {
+    this.anotacaoAberta.set(c);
+    this.textoAnotacao.set('');
+    this.msgAnotacao.set(null);
+    this.anotacaoAtualizadaEm.set(null);
+    this.carregandoAnotacao.set(true);
+    try {
+      const snap = await getDoc(doc(db, 'anotacoesSessao', c.id));
+      if (snap.exists()) {
+        const d: any = snap.data();
+        this.textoAnotacao.set(d['texto'] || '');
+        this.anotacaoAtualizadaEm.set(d['atualizadoEm']?.toDate ? d['atualizadoEm'].toDate() : null);
+      }
+    } catch (e) {
+      console.error('Erro ao abrir anotação:', e);
+      this.msgAnotacao.set({ tipo: 'erro', texto: 'Não foi possível abrir as anotações agora.' });
+    } finally {
+      this.carregandoAnotacao.set(false);
+    }
+  }
+
+  fecharAnotacao() { if (!this.salvandoAnotacao()) this.anotacaoAberta.set(null); }
+
+  async salvarAnotacao() {
+    const c = this.anotacaoAberta();
+    if (!c || !this.uidAtual) return;
+    this.salvandoAnotacao.set(true);
+    this.msgAnotacao.set(null);
+    try {
+      await setDoc(doc(db, 'anotacoesSessao', c.id), {
+        psicologoUid: this.uidAtual,
+        consultaId: c.id,
+        maeId: c.maeId || '',
+        maeNome: c.nome || '',
+        dataSessao: c.dataObj ? Timestamp.fromDate(c.dataObj) : null,
+        texto: this.textoAnotacao(),
+        atualizadoEm: serverTimestamp(),
+      }, { merge: true });
+      this.anotacaoAtualizadaEm.set(new Date());
+      this.msgAnotacao.set({ tipo: 'ok', texto: 'Anotações salvas.' });
+    } catch (e) {
+      console.error('Erro ao salvar anotação:', e);
+      this.msgAnotacao.set({ tipo: 'erro', texto: 'Não foi possível salvar. Tente de novo.' });
+    } finally {
+      this.salvandoAnotacao.set(false);
     }
   }
 
@@ -741,7 +1006,11 @@ export class HomePsi implements OnInit, OnDestroy {
   async carregarArtigos() {
     try {
       this.carregandoArtigos.set(true);
-      const snap = await getDocs(collection(db, 'artigos'));
+      const [snap, favoritos] = await Promise.all([
+        getDocs(collection(db, 'artigos')),
+        this.uidAtual ? carregarIdsFavoritosPsi(this.uidAtual) : Promise.resolve([] as string[]),
+      ]);
+      this.favoritosIds.set(favoritos);
       this.artigos.set(
         snap.docs.filter((d) => !d.data()?.['moderacao']?.removido).map((d) => {
           const a: any = d.data();
@@ -754,6 +1023,31 @@ export class HomePsi implements OnInit, OnDestroy {
       console.error('Erro ao carregar artigos:', e);
     } finally {
       this.carregandoArtigos.set(false);
+    }
+  }
+
+  /** Troca a aba de artigos e lembra dela (para voltar do artigo na mesma aba). */
+  filtrarArtigos(f: FiltroArtigo) {
+    this.filtroArtigo.set(f);
+    if (this.isBrowser) sessionStorage.setItem(CHAVE_FILTRO_ARTIGO, f);
+  }
+
+  ehFavorito(id: string): boolean { return this.favoritosIds().includes(id); }
+
+  /** Salva/remove dos favoritos direto pelo card, sem abrir o artigo. */
+  async alternarFavorito(artigo: any, ev: Event) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (!this.uidAtual) return;
+    const salvar = !this.ehFavorito(artigo.id);
+    const antes = this.favoritosIds();
+    this.favoritosIds.set(salvar ? [...antes, artigo.id] : antes.filter((id) => id !== artigo.id));
+    try {
+      await definirFavoritoPsi(this.uidAtual, artigo.id, salvar);
+    } catch (e) {
+      console.error('Erro ao atualizar favorito:', e);
+      this.favoritosIds.set(antes); // desfaz se não salvou
+      this.alerta.erro('Não foi possível atualizar seus favoritos. Tente de novo.');
     }
   }
 
@@ -792,7 +1086,9 @@ export class HomePsi implements OnInit, OnDestroy {
     try {
       const raw = localStorage.getItem(CHAVE_RASCUNHO_ARTIGO);
       if (!raw) return;
-      this.artigoForm.set({ ...ARTIGO_VAZIO, ...JSON.parse(raw) });
+      const rascunho = { ...ARTIGO_VAZIO, ...JSON.parse(raw) };
+      if (rascunho.categoria === 'legislativos') rascunho.categoria = ARTIGO_VAZIO.categoria;
+      this.artigoForm.set(rascunho);
       this.statusRascunho.set('Rascunho recuperado.');
     } catch { /* sem rascunho */ }
   }
@@ -803,6 +1099,10 @@ export class HomePsi implements OnInit, OnDestroy {
     const descricao = f.descricao.trim();
     if (!titulo || !descricao) {
       this.msgArtigo.set({ tipo: 'erro', texto: 'Preencha o título e a descrição curta.' });
+      return;
+    }
+    if (f.categoria === 'legislativos') {
+      this.msgArtigo.set({ tipo: 'erro', texto: 'Artigos legislativos são publicados pela equipe jurídica. Escolha outra categoria.' });
       return;
     }
     if (!this.uidAtual) return;
@@ -1370,14 +1670,22 @@ export class HomePsi implements OnInit, OnDestroy {
     }
   }
 
-  abrirInformacoes(): void { this.selecionarSecao('informacoes'); }
+  clicarMenu(item: MenuItem): void {
+    if (item.rota) {
+      this.closeSidebar();
+      this.router.navigate([item.rota]);
+      return;
+    }
+    this.selecionarSecao(item.target);
+  }
+
   toggleSidebar(): void { this.sidebarOpen.update((v) => !v); }
   closeSidebar(): void { this.sidebarOpen.set(false); }
 
   private lerUltimaSecaoSalva(): SecaoHomePsi {
     if (!this.isBrowser) return 'dashboard';
     const salva = localStorage.getItem(CHAVE_ULTIMA_SECAO) as SecaoHomePsi | null;
-    const validas: SecaoHomePsi[] = ['dashboard', 'agenda', 'artigos', 'consultas', 'forum', 'pacientes', 'chats', 'documentos', 'planos', 'informacoes'];
+    const validas: SecaoHomePsi[] = ['dashboard', 'agenda', 'artigos', 'consultas', 'forum', 'pacientes', 'chats', 'documentos', 'planos'];
     return salva && validas.includes(salva) ? salva : 'dashboard';
   }
 

@@ -244,9 +244,11 @@ export class ConsultaListaPsiComponent implements OnInit {
         this.seloService.publicosDeTodos()
       ]);
 
+      // Só aparecem para as mães os profissionais aprovados pelo ADM (registro conferido).
+      const aprovado = (d: any) => String(d.data()?.status || '').toLowerCase() === 'aprovado';
       const docsAll = [
-        ...snapPsi.docs.map(d => ({ snap: d, tipo: 'psicologo' as const })),
-        ...snapAdv.docs.map(d => ({ snap: d, tipo: 'advogado' as const }))
+        ...snapPsi.docs.filter(aprovado).map(d => ({ snap: d, tipo: 'psicologo' as const })),
+        ...snapAdv.docs.filter(aprovado).map(d => ({ snap: d, tipo: 'advogado' as const }))
       ];
 
       const lista: Profissional[] = docsAll.map(({ snap, tipo }) => {

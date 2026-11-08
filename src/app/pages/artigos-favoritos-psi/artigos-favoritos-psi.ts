@@ -72,7 +72,7 @@ export class ArtigosFavoritosPsi implements OnInit {
   }
 
   lerArtigo(id: string) {
-    this.router.navigate(['/artigo_ind'], { queryParams: { id, origem: 'psi' } });
+    this.router.navigate(['/artigo-ind-profissional'], { queryParams: { id, origem: 'psi' } });
   }
 
   abrirLink(link: string) {
