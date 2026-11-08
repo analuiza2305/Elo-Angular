@@ -1,3 +1,115 @@
+/* =========================================================
+   FOOTER - versão clean
+   Usa as mesmas cores e fontes do site (variáveis globais),
+   então acompanha o modo escuro automaticamente.
+========================================================= */
+.ft {
+    background: var(--bg-color, #fdfaff);
+    border-top: 1px solid var(--border-color, rgba(89, 74, 125, 0.12));
+    padding: 64px 0 28px;
+    font-family: 'Nunito', sans-serif;
+    color: var(--text-muted, #8471b1);
+}
+
+.ft-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 48px;
+    padding-bottom: 40px;
+}
+
+/* ---------- Marca ---------- */
+.ft-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--primary-dark, #594a7d);
+    text-decoration: none;
+}
+.ft-logo-icon { width: 32px !important; height: 32px; object-fit: contain; }
+
+.ft-desc {
+    display: block;
+    max-width: 340px;
+    margin: 14px 0 22px;
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: #6e6590;
+}
+
+.ft-social { display: flex; gap: 10px; }
+.ft-social a {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--border-color, rgba(89, 74, 125, 0.12));
+    color: var(--primary-dark, #594a7d);
+    font-size: 1.05rem;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.ft-social a:hover {
+    background: var(--primary-color, #8471b1);
+    border-color: var(--primary-color, #8471b1);
+    color: #ffffff;
+}
+
+/* ---------- Colunas de links ---------- */
+.ft-links { display: flex; flex-direction: column; gap: 12px; }
+.ft-heading {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-dark, #594a7d);
+    margin-bottom: 4px;
+}
+.ft-links a {
+    font-size: 0.875rem;
+    color: #6e6590;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    width: fit-content;
+}
+.ft-links a:hover { color: var(--primary-color, #8471b1); }
+
+/* ---------- Rodapé ---------- */
+.ft-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color, rgba(89, 74, 125, 0.12));
+    font-size: 0.75rem;
+    color: #6e6590;
+}
+.ft-legal { display: flex; gap: 20px; }
+.ft-legal a { color: #6e6590; text-decoration: none; }
+.ft-legal a:hover { color: var(--primary-color, #8471b1); }
+
+/* ---------- Modo escuro ---------- */
+:host-context(body[data-theme="dark"]) .ft-desc,
+:host-context(body[data-theme="dark"]) .ft-links a,
+:host-context(body[data-theme="dark"]) .ft-bottom,
+:host-context(body[data-theme="dark"]) .ft-legal a { color: #b8b0d6; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 768px) {
+    .ft { padding: 48px 0 24px; }
+    .ft-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .ft-brand { grid-column: 1 / -1; }
+    .ft-bottom { flex-direction: column; text-align: center; }
+}
+
+/* =========================================================
+   Correções do footer antigo (.modern-footer), mantidas caso ele volte a ser usado
+========================================================= */
 /* O footer já fica fora de qualquer container, então não precisa do truque
    global de 100vw (que conta a barra de rolagem e alarga a página no mobile) */
 .modern-footer {

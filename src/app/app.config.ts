@@ -1,6 +1,6 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 
-import { provideRouter, withViewTransitions } from '@angular/router';
+import { provideRouter, withViewTransitions, withInMemoryScrolling } from '@angular/router';
 
 
 
@@ -28,7 +28,11 @@ export const appConfig: ApplicationConfig = {
 
     provideBrowserGlobalErrorListeners(),
 
-    provideRouter(routes, withViewTransitions({ skipInitialTransition: true })),
+    provideRouter(
+      routes,
+      withViewTransitions({ skipInitialTransition: true }),
+      withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }),
+    ),
 
     provideClientHydration(withEventReplay()),
 

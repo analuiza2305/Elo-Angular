@@ -1,6 +1,6 @@
 <!-- 1. LANDING PAGE E PROFISSIONAL -->
 @if (tipo === 'landing' || tipo === 'profissional') {
-  <header class="header">
+  <header class="header" [class.scrolled]="isScrolled()">
     <div class="container header-content">
       <a routerLink="/" class="logo" aria-label="Ir para a página inicial">
         <img src="./img/logo_icon.png" alt="Ícone EloMaterno" class="logo-icon">
@@ -15,49 +15,55 @@
             <button type="button" class="btn-close-mobile" aria-label="Fechar menu" (click)="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
           </div>
 
-          <!-- O Angular decide quais links mostrar baseado na página atual -->
-          @if (currentLanding === 'mae') {
-              <a href="/#consultorias" (click)="toggleMobileMenu()" data-i18n="nav_consultorias">Consultorias</a>
-              <a href="/#como-funciona" (click)="toggleMobileMenu()" data-i18n="nav_como_funciona">Como funciona</a>
-              <a routerLink="/profissionais" (click)="toggleMobileMenu()" class="link-destaque" data-i18n="nav_profissional">Sou Profissional</a>
-          } @else {
-              <a href="/profissionais#como-funciona" (click)="toggleMobileMenu()" data-i18n="nav_como_funciona">Como funciona</a>
-              <a href="/profissionais#a-plataforma" (click)="toggleMobileMenu()" data-i18n="nav_a_plataforma">A Plataforma</a>
-              <a routerLink="/" (click)="toggleMobileMenu()" class="link-destaque" data-i18n="nav_sou_mae">Sou Mãe</a>
+          <!-- O Angular decide quais links mostrar baseado na página atual
+               (naPaginaProfissional = pagina="profissionais" OU currentLanding="profissional") -->
+          @if (tipo === 'landing' && naPaginaProfissional) {
+              <!-- Página "Sou Profissional": links das seções dela + volta para a página das mães -->
+              <a routerLink="/profissionais" fragment="como-funciona" [class.active]="activeSection() === 'como-funciona'" (click)="fecharMenuMobile()">{{ 'nav_como_funciona' | t }}</a>
+              <a routerLink="/profissionais" fragment="a-plataforma" [class.active]="activeSection() === 'a-plataforma'" (click)="fecharMenuMobile()">{{ 'nav_a_plataforma' | t }}</a>
+              <a routerLink="/" (click)="fecharMenuMobile()" class="link-destaque">{{ 'nav_mae' | t }}</a>
+          } @else if (tipo === 'landing') {
+              <a routerLink="/" fragment="consultorias" [class.active]="activeSection() === 'consultorias'" (click)="fecharMenuMobile()">{{ 'nav_consultorias' | t }}</a>
+              <a routerLink="/" fragment="como-funciona" [class.active]="activeSection() === 'como-funciona'" (click)="fecharMenuMobile()">{{ 'nav_como_funciona' | t }}</a>
+              <a routerLink="/profissionais" (click)="fecharMenuMobile()" class="link-destaque">{{ 'nav_profissional' | t }}</a>
+          } @else if (tipo === 'profissional') {
+              <a routerLink="/profissionais" fragment="como-funciona" (click)="fecharMenuMobile()">{{ 'nav_como_funciona' | t }}</a>
+              <a routerLink="/profissionais" fragment="a-plataforma" (click)="fecharMenuMobile()">{{ 'nav_a_plataforma' | t }}</a>
+              <a routerLink="/" (click)="fecharMenuMobile()">{{ 'nav_para_maes' | t }}</a>
           }
 
           <div class="mobile-accessibility-section">
-            <span class="mobile-section-label">Ajustes e Acessibilidade</span>
+            <span class="mobile-section-label">{{ 'menu_ajustes' | t }}</span>
 
             <button type="button" class="mobile-acc-btn" (click)="toggleTheme()">
               <i class="fa-solid" [class.fa-moon]="!isDarkMode" [class.fa-sun]="isDarkMode"></i>
-              <span>{{ isDarkMode ? 'Modo Claro' : 'Modo Escuro' }}</span>
+              <span>{{ (isDarkMode ? 'tema_claro' : 'tema_escuro') | t }}</span>
             </button>
 
             <button type="button" class="mobile-acc-btn" (click)="toggleAccMenu($event)">
               <i class="fa-solid fa-universal-access"></i>
-              <span>Opções de Acessibilidade</span>
+              <span>{{ 'acc_opcoes' | t }}</span>
             </button>
 
             @if (isAccMenuOpen) {
               <ul class="mobile-acc-sublist">
-                <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
-                <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
-                <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
-                <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
-                <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
-                <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
-                <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
-                <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
-                <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
-                <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+                <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> {{ 'acc_fonte_mais' | t }}</li>
+                <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> {{ 'acc_fonte_menos' | t }}</li>
+                <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> {{ 'acc_daltonismo' | t }}</li>
+                <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> {{ 'acc_voz' | t }}</li>
+                <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> {{ 'acc_mascara' | t }}</li>
+                <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> {{ 'acc_negrito' | t }}</li>
+                <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> {{ 'acc_contraste' | t }}</li>
+                <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> {{ 'acc_espaco_mais' | t }}</li>
+                <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> {{ 'acc_espaco_menos' | t }}</li>
+                <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> {{ 'acc_redefinir' | t }}</li>
               </ul>
             }
           </div>
 
           <div class="mobile-menu-actions">
-            <a routerLink="/login" (click)="toggleMobileMenu()" class="mobile-menu-item mobile-access-mae"><i class="fa-solid fa-user"></i> <span data-i18n="login_mae">Acesso para Mães</span></a>
-            <a routerLink="/login-profissional" (click)="toggleMobileMenu()" class="mobile-menu-item mobile-access-parceiro"><i class="fa-solid fa-building"></i> <span data-i18n="login_parceiro">Acesso Parceiros</span></a>
+            <a routerLink="/login" (click)="fecharMenuMobile()" class="mobile-menu-item mobile-access-mae"><i class="fa-solid fa-user"></i> <span>{{ 'login_mae' | t }}</span></a>
+            <a routerLink="/login-profissional" (click)="fecharMenuMobile()" class="mobile-menu-item mobile-access-parceiro"><i class="fa-solid fa-building"></i> <span>{{ 'login_parceiro_curto' | t }}</span></a>
           </div>
       </nav>
 
@@ -78,16 +84,16 @@
               <i class="fa fa-universal-access"></i>
             </button>
             <ul id="accessibility-menu" [class.hidden]="!isAccMenuOpen" (click)="$event.stopPropagation()">
-              <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
-              <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
-              <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
-              <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
-              <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
-              <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
-              <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
-              <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
-              <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
-              <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+              <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> {{ 'acc_fonte_mais' | t }}</li>
+              <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> {{ 'acc_fonte_menos' | t }}</li>
+              <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> {{ 'acc_daltonismo' | t }}</li>
+              <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> {{ 'acc_voz' | t }}</li>
+              <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> {{ 'acc_mascara' | t }}</li>
+              <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> {{ 'acc_negrito' | t }}</li>
+              <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> {{ 'acc_contraste' | t }}</li>
+              <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> {{ 'acc_espaco_mais' | t }}</li>
+              <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> {{ 'acc_espaco_menos' | t }}</li>
+              <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> {{ 'acc_redefinir' | t }}</li>
             </ul>
           </div>
 
@@ -95,27 +101,27 @@
             <i class="fa" [class.fa-moon]="!isDarkMode" [class.fa-sun]="isDarkMode"></i>
           </button>
 
-          @if (currentLanding === 'mae') {
+          @if (tipo === 'landing' && !naPaginaProfissional) {
             <div class="login-dropdown-wrapper" [class.active]="isLoginDropdownOpen">
               <button type="button" class="btn btn-primary" (click)="toggleLoginDropdown($event)">
-                <span data-i18n="hero_access">Acessar plataforma</span>
+                <span>{{ 'hero_access' | t }}</span>
                 <i class="fa-solid fa-chevron-down" style="font-size: 0.85rem; margin-left: 6px;"></i>
               </button>
               <div class="login-dropdown-menu">
                 <a routerLink="/login" class="dropdown-item">
                   <i class="fa-solid fa-user dropdown-simple-icon"></i>
-                  <span data-i18n="login_mae">Acesso para Mães</span>
+                  <span>{{ 'login_mae' | t }}</span>
                   <i class="fa-solid fa-chevron-right dropdown-arrow"></i>
                 </a>
                 <a routerLink="/login-profissional" class="dropdown-item">
                   <i class="fa-solid fa-building dropdown-simple-icon"></i>
-                  <span data-i18n="login_parceiro">Acesso para Parceiros</span>
+                  <span>{{ 'login_parceiro' | t }}</span>
                   <i class="fa-solid fa-chevron-right dropdown-arrow"></i>
                 </a>
               </div>
             </div>
           } @else {
-            <a routerLink="/login-profissional" class="btn btn-primary">Acesso Parceiros</a>
+            <a routerLink="/login-profissional" class="btn btn-primary">{{ 'login_parceiro_curto' | t }}</a>
           }
       </div>
 

@@ -10,6 +10,7 @@ import { AnimacoesService } from './core/services/animacoes.service';
 // Telas sem o footer simples: landing page (tem o footer completo), autenticação e videochamada (tela cheia)
 const ROTAS_SEM_FOOTER = new Set([
   '',
+  'profissionais', // tem o próprio footer completo, igual à landing
   'login',
   'login-profissional',
   'cadastro',
