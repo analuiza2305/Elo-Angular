@@ -6,6 +6,7 @@ import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, getDocs, collection, query, where, onSnapshot, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
+import { avisarProfissional } from '../../services/avisos-profissional';
 
 @Component({
   selector: 'app-consultas',
@@ -19,10 +20,10 @@ export class ConsultasComponent implements OnInit {
   private readonly alerta = inject(AlertaService);
 
   currentUser = signal<any>(null);
-  
+
   // Controle de Abas
   abaAtiva = signal<string>('agendadas');
-  
+
   // Listas de consultas
   consultasAgendadas = signal<any[]>([]);
   consultasRealizadas = signal<any[]>([]);
@@ -65,7 +66,7 @@ export class ConsultasComponent implements OnInit {
 
       for (const snapDoc of snapshot.docs) {
         const raw = { id: snapDoc.id, ...snapDoc.data() } as any;
-        
+
         // NOVO CONTRATO DE DADOS DA SPRINT 2
         let profissionalId = raw.profissionalId || raw.Psicologo || raw.Advogado;
         let tipoProf = raw.tipoProfissional;
@@ -218,6 +219,16 @@ export class ConsultasComponent implements OnInit {
         canceladoEm: serverTimestamp(),
         canceladoPor: "mae"
       });
+
+      const user = auth.currentUser;
+      if (user) {
+        avisarProfissional({
+          evento: 'cancelada', profissionalId: consulta.profissionalId, tipoProf: consulta.tipoProf,
+          maeId: user.uid, consultaId: consulta.id,
+          quando: consulta.Datahora?.toDate ? consulta.Datahora.toDate() : null,
+          motivo: this.motivoCancelamento(),
+        });
+      }
 
       this.showModalCancelar.set(false);
       this.consultaParaCancelar.set(null);

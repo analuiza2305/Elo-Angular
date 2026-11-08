@@ -5,13 +5,13 @@ import { Login } from './pages/login/login';
 import { LoginProfissionalComponent } from './pages/login-profissional/login-profissional';
 import { Cadastro } from './pages/cadastro/cadastro';
 import { VerificarEmail } from './pages/verificar-email/verificar-email';
-import { CadastroProfissional } from './pages/cadastro-profissional/cadastro-profissional'; 
+import { CadastroProfissional } from './pages/cadastro-profissional/cadastro-profissional';
 import { HomeAdv } from './pages/home-adv/home-adv';
 import { HomePsi } from './pages/home-psi/home-psi';
 import { HomeMaeComponent } from './pages/home-mae/home-mae';
 import { HomeParc } from './pages/home-parc/home-parc';
 import { Adm } from './pages/adm/adm';
-import { ProfissionalComponent } from './pages/profissional/profissional'; 
+import { ProfissionalComponent } from './pages/profissional/profissional';
 import { adminGuard } from './core/guards/admin.guard';
 
 import { ForumComponent } from './pages/forum/forum';
@@ -34,7 +34,7 @@ export const routes: Routes = [
   { path: 'login-profissional', component: LoginProfissionalComponent },
   { path: 'cadastro', component: Cadastro },
   { path: 'verificar-email', component: VerificarEmail },
-  { path: 'cadastro-profissional', component: CadastroProfissional }, 
+  { path: 'cadastro-profissional', component: CadastroProfissional },
   { path: 'home-adv', component: HomeAdv },
   { path: 'home-psi', component: HomePsi },
   { path: 'home-mae', component: HomeMaeComponent },
@@ -59,9 +59,9 @@ export const routes: Routes = [
   { path: 'perfil-profissional', component: PerfilProfissionalComponent },
   { path: 'perfil-psi', component: PerfilProfissionalComponent },
   { path: 'perfil-adv', component: PerfilProfissionalComponent },
-  { path: 'artigo-ind-profissional', component: ArtigoIndProfissional },  
+  { path: 'artigo-ind-profissional', component: ArtigoIndProfissional },
   { path: 'artigos-favoritos', loadComponent: () => import('./pages/artigos-favoritos/artigos-favoritos').then(m => m.ArtigosFavoritos) },
-  
+
   // Rotas Atualizadas (Videochamada e Pós Consulta)
   { path: 'videochamada', loadComponent: () => import('./pages/videochamada/videochamada').then(m => m.VideochamadaComponent) },
   { path: 'pos-consulta', loadComponent: () => import('./pages/pos-consulta/pos-consulta').then(m => m.PosConsultaComponent) },

@@ -6660,3 +6660,493 @@ header h1 { font-size: 24px; color: var(--primary-color-dark); font-weight: 800;
 :host-context(body[data-theme="dark"]) .info-btn i,
 :host-context(body[data-theme="dark"]) .logout-btn i { color: #583E8E !important; }
 :host-context(body[data-theme="dark"]) .drawer-tag { color: #1A1530 !important; }
+
+
+
+/* =====================================================================
+   AJUSTES DE DESIGN RESPONSIVO — PAINEL DO PSICÓLOGO (07/11)
+   Só visual: nenhuma lógica/HTML alterado. Fica por último de propósito,
+   porque o arquivo tem camadas repetidas com !important.
+   Tudo escopado em .home-psi-page / #seção e em media queries.
+   ===================================================================== */
+
+/* ---------- 1) MENU HAMBÚRGUER (gaveta) — mesmo padrão do menu da mãe ---------- */
+/* Causa: o CSS antigo pedia letras quase brancas (#ece4ff) sobre um fundo que na prática
+   era branco, por isso os itens pareciam "apagados/borrados". Aqui: fundo claro, letras
+   escuras, ícone em quadradinho lilás e item ativo em roxo degradê com letra branca. */
+@media (max-width: 1024px) {
+  .home-psi-page .sidebar {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F6F1FF 100%) !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    z-index: 10000;
+  }
+  .home-psi-page .sidebar.active { box-shadow: 10px 0 36px rgba(60, 35, 110, 0.22) !important; }
+
+  /* topo: fechar + cartão do perfil */
+  .home-psi-page .sidebar .drawer-top { border-bottom: 1px solid rgba(124, 105, 169, 0.16); }
+  .home-psi-page .sidebar .drawer-close {
+    background: #F1EAFF !important; color: #52427D !important; border: none;
+  }
+  .home-psi-page .sidebar .drawer-profile {
+    background: linear-gradient(135deg, #F4EEFF 0%, #E9DFFF 100%);
+    border: 1px solid rgba(124, 105, 169, 0.22);
+    border-radius: 20px; padding: 12px 14px;
+  }
+  .home-psi-page .sidebar .drawer-avatar { border: 3px solid #FFFFFF; box-shadow: 0 4px 12px rgba(82, 66, 125, 0.18); }
+  .home-psi-page .sidebar .drawer-profile-info strong { color: #3E2A72 !important; }
+
+  /* itens */
+  .home-psi-page .sidebar .menu-btn {
+    color: #4B3A7A !important;
+    background: transparent !important;
+    opacity: 1 !important;
+    filter: none !important;
+    font-weight: 700 !important;
+    gap: 14px; padding: 10px 12px !important; border-radius: 16px !important;
+  }
+  .home-psi-page .sidebar .menu-btn span { opacity: 1 !important; }
+  .home-psi-page .sidebar .menu-btn i {
+    opacity: 1 !important;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px !important; height: 36px; min-width: 36px; border-radius: 12px;
+    background: #F0EAFB; color: #6C4BBF !important; font-size: 16px !important;
+  }
+  .home-psi-page .sidebar .menu-btn:hover:not(.active) {
+    background: #F4F0FC !important; color: #3E2A72 !important; transform: none; box-shadow: none !important;
+  }
+  /* item ativo: roxo degradê, letra branca */
+  .home-psi-page .sidebar .menu-btn.active {
+    background: linear-gradient(135deg, #6B4FA6 0%, #4B3680 100%) !important;
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    box-shadow: 0 8px 20px rgba(82, 66, 125, 0.32) !important;
+    transform: none;
+  }
+  .home-psi-page .sidebar .menu-btn.active i {
+    background: rgba(255, 255, 255, 0.2); color: #FFFFFF !important;
+  }
+}
+/* modo escuro: mesma estrutura, cores escuras */
+@media (max-width: 1024px) {
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar {
+    background: linear-gradient(180deg, #1B2336 0%, #141A26 100%) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .drawer-top { border-bottom-color: rgba(255, 255, 255, 0.12); }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .drawer-close { background: rgba(255, 255, 255, 0.1) !important; color: #E2DAFC !important; }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .drawer-profile {
+    background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.14);
+  }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .drawer-profile-info strong { color: #F5F0FF !important; }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .menu-btn { color: #E9E2FF !important; }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .menu-btn i { background: rgba(255, 255, 255, 0.08); color: #BDAFFC !important; }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .menu-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.1) !important; color: #FFFFFF !important; }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .menu-btn.active {
+    background: linear-gradient(135deg, #7D70B6 0%, #5B3D99 100%) !important; color: #FFFFFF !important;
+  }
+  :host-context(body[data-theme="dark"]) .home-psi-page .sidebar .menu-btn.active i { background: rgba(255, 255, 255, 0.2); color: #FFFFFF !important; }
+}
+
+/* ---------- 2) AGENDA — calendário cabendo em telas pequenas ---------- */
+@media (max-width: 1024px) {
+  .home-psi-page .content { min-width: 0; }
+  .home-psi-page .agenda-container { min-width: 0; max-width: 100%; }
+  .home-psi-page .calendar-container,
+  .home-psi-page .events-container { box-sizing: border-box; min-width: 0; max-width: 100%; }
+}
+@media (max-width: 600px) {
+  .home-psi-page .agenda-container { gap: 20px; width: 100%; }
+  .home-psi-page .calendar-container,
+  .home-psi-page .events-container {
+    width: 100%; flex: 0 0 auto;
+    padding: 18px 14px !important; border-radius: 26px !important;
+  }
+  .home-psi-page .calendar-header { gap: 8px; margin-bottom: 18px; }
+  .home-psi-page .calendar-nav-btn { width: 36px; height: 36px; min-width: 36px; font-size: .95rem; flex-shrink: 0; }
+  .home-psi-page .month-year-select { gap: 6px; flex: 1 1 auto; min-width: 0; justify-content: center; }
+  .home-psi-page .month-year-select select {
+    width: auto; min-width: 0; max-width: 100%; padding: 8px 6px 8px 10px; font-size: .8rem; border-radius: 50px; text-overflow: clip;
+  }
+  .home-psi-page .month-year-select select:first-child { flex: 1 1 auto; }
+  .home-psi-page .calendar-days,
+  .home-psi-page .calendar-dates { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .home-psi-page .calendar-days { font-size: .68rem; letter-spacing: 0; margin-bottom: 10px; }
+  .home-psi-page .calendar-dates { gap: 5px; }
+  .home-psi-page .calendar-dates .date { font-size: .85rem; border-radius: 14px; min-width: 0; }
+}
+@media (max-width: 400px) {
+  .home-psi-page .calendar-container,
+  .home-psi-page .events-container { padding: 14px 10px !important; border-radius: 22px !important; }
+  .home-psi-page .calendar-days { font-size: .6rem; }
+  .home-psi-page .calendar-dates { gap: 3px; }
+  .home-psi-page .calendar-dates .date { font-size: .78rem; border-radius: 12px; border-width: 1px; }
+  .home-psi-page .calendar-header { gap: 5px; }
+  .home-psi-page .calendar-nav-btn { width: 30px; height: 30px; min-width: 30px; }
+  .home-psi-page .month-year-select { gap: 4px; }
+  .home-psi-page .month-year-select select { padding: 7px 4px 7px 8px; font-size: .72rem; }
+}
+
+@media (max-width: 340px) {
+  .home-psi-page .calendar-header { flex-wrap: wrap; justify-content: space-between; row-gap: 8px; }
+  .home-psi-page .month-year-select { order: 1; flex: 1 1 100%; }
+  .home-psi-page .month-year-select select { font-size: .72rem; padding: 7px 2px 7px 8px; }
+  .home-psi-page .month-year-select select:first-child { flex: 1 1 60%; }
+  .home-psi-page .month-year-select select:last-child { flex: 1 1 40%; }
+  .home-psi-page .calendar-nav-btn:first-child { order: 2; }
+  .home-psi-page .calendar-nav-btn:last-child { order: 3; }
+}
+
+/* ---------- 3) CONSULTAS — foto circular e nome sem quebrar letra a letra ---------- */
+#consultas .cs-foto {
+  width: 60px; height: 60px; min-width: 60px; max-width: 60px;
+  flex: 0 0 60px; aspect-ratio: 1 / 1; border-radius: 50%; object-fit: cover;
+}
+#consultas .cs-pessoa-info { flex: 1 1 0; }
+#consultas .cs-pessoa-info h3 { overflow-wrap: break-word; word-break: normal; hyphens: none; }
+@media (max-width: 600px) {
+  #consultas .cs-foto { width: 52px; height: 52px; min-width: 52px; max-width: 52px; flex-basis: 52px; }
+  /* cabeçalho pode quebrar linha: o selo de status desce em vez de espremer o nome */
+  #consultas .cs-card-header { flex-wrap: wrap; row-gap: 10px; }
+  #consultas .cs-pessoa { flex: 1 1 100%; gap: 12px; }
+  #consultas .cs-pessoa-info { min-width: 0; flex: 1 1 0; }
+  #consultas .cs-tipo { white-space: normal; }
+  #consultas .cs-badge { margin-left: 64px; } /* alinha o selo com o texto, abaixo da foto */
+}
+@media (max-width: 380px) {
+  #consultas .cs-card { padding: 18px 16px; }
+  #consultas .cs-badge { margin-left: 0; }
+}
+
+/* ---------- 4) CHAT — layout mobile e fotos redondas ---------- */
+.chat-user-item img, .chat-header-bar img { flex-shrink: 0; aspect-ratio: 1 / 1; }
+@media (max-width: 768px) {
+  .home-psi-page .chats-container { height: calc(100vh - 110px); height: calc(100dvh - 110px); min-height: 360px; }
+  .home-psi-page .chat-wrapper-box { width: 100%; min-width: 0; }
+  .home-psi-page .chat-users-list,
+  .home-psi-page .chat-messages-area {
+    box-sizing: border-box; top: 0; bottom: 0; height: auto; max-height: none; min-width: 0; max-width: 100%;
+  }
+  .home-psi-page .chat-users-list { left: 0; right: 0; width: auto; padding: 14px; }
+  .home-psi-page .chat-users-scroll { min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  .home-psi-page .chat-messages-area { width: auto; right: auto; }
+  .home-psi-page .chat-messages-area { left: 100%; width: 100%; }
+  .home-psi-page .chat-messages-area.active { left: 0; }
+
+  /* fotos redondas e proporcionais */
+  .home-psi-page .chat-user-item img,
+  .home-psi-page .chat-header-bar img {
+    width: 46px; height: 46px; min-width: 46px; max-width: 46px; flex: 0 0 46px;
+    border-radius: 50%; object-fit: cover;
+  }
+  .home-psi-page .chat-user-item { box-sizing: border-box; width: 100%; max-width: 100%; padding: 12px 14px !important; gap: 12px; }
+  .home-psi-page .chat-user-info { min-width: 0; flex: 1 1 0; width: auto; }
+
+  /* cabeçalho do chat */
+  .home-psi-page .chat-header-bar { padding: 10px 12px; min-height: 64px; gap: 10px; flex-shrink: 0; }
+  .home-psi-page .chat-header-bar > div { min-width: 0; flex: 1 1 auto; }
+  .home-psi-page .chat-header-bar h4 {
+    font-size: 1.02rem; margin: 0 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .home-psi-page .back-btn { flex: 0 0 auto; width: 38px; height: 38px; padding: 0; }
+  /* chat aberto sem conversa: botão de voltar em cima do texto, para não ficar preso */
+  .home-psi-page .chat-vazio { flex-direction: column; gap: 12px; }
+
+  /* mensagens: rolagem só dentro do histórico */
+  .home-psi-page .chat-history {
+    min-height: 0; overflow-y: auto; overflow-x: hidden;
+    overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    padding: 14px 12px; gap: 10px;
+  }
+  .home-psi-page .chat-bubble { max-width: 85%; padding: 10px 14px; overflow-wrap: anywhere; word-break: normal; }
+  .home-psi-page .chat-bubble audio { max-width: 100% !important; }
+  .home-psi-page .msg-lembrete { width: min(340px, 100%); box-sizing: border-box; }
+
+  /* barra de digitar sempre visível, sem estourar a largura */
+  .home-psi-page .chat-input-bar { flex-shrink: 0; box-sizing: border-box; width: 100%; padding: 10px 12px; gap: 8px; }
+  .home-psi-page .chat-input-bar input { flex: 1 1 auto; min-width: 0; width: 100%; box-sizing: border-box; padding: 12px 16px; }
+  .home-psi-page .btn-send-msg { flex: 0 0 auto; width: 44px; height: 44px; }
+}
+
+/* ---------- 5) DOCUMENTOS — abas uma embaixo da outra no celular ---------- */
+@media (max-width: 700px) {
+  #documentos .doc-tabs { flex-direction: column; flex-wrap: nowrap; gap: 8px; padding: 8px; }
+  #documentos .doc-tab {
+    flex: 0 0 auto; width: 100%; height: auto; min-height: 54px; padding: 10px 16px;
+    justify-content: flex-start; text-align: left; font-size: .95rem; gap: 12px;
+  }
+  #documentos .doc-tab i { width: 22px; text-align: center; flex-shrink: 0; }
+  #documentos .doc-tab .doc-chip { display: inline-flex; margin-left: auto; }
+}
+/* ---------- FAVORITOS — botão de salvar no card do artigo ---------- */
+.home-psi-page .ac-fav-btn {
+  position: absolute; top: 10px; right: 10px; z-index: 2;
+  width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, 0.92); color: #7C69A9; font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(60, 35, 110, 0.18);
+  transition: transform 0.15s, background 0.15s, color 0.15s;
+}
+.home-psi-page .ac-fav-btn:hover { transform: scale(1.08); }
+.home-psi-page .ac-fav-btn.salvo { background: #7C69A9; color: #FFFFFF; }
+:host-context(body[data-theme="dark"]) .home-psi-page .ac-fav-btn:not(.salvo) { background: rgba(15, 20, 34, 0.9); color: #c9bdf0; }
+
+/* ---------- CONSULTAS — aceitas cujo dia já passou ---------- */
+#consultas .cs-badge-confirmar { background: #F1EBFF; color: #5B3D99; }
+#consultas .cs-aviso-passou {
+  display: flex; align-items: center; gap: 8px; margin: 4px 0 12px;
+  padding: 10px 14px; border-radius: 14px; background: #F7F3FF; border: 1px dashed #CDBDF2;
+  color: #5B3D99; font-size: .88rem; font-weight: 600; line-height: 1.4;
+}
+:host-context(body[data-theme="dark"]) #consultas .cs-badge-confirmar { background: rgba(189, 175, 252, .16); color: #D8CCFF; }
+:host-context(body[data-theme="dark"]) #consultas .cs-aviso-passou { background: rgba(189, 175, 252, .08); border-color: rgba(189, 175, 252, .3); color: #D8CCFF; }
+
+/* =====================================================================
+   PREMIUM ROXO — troca o dourado por um roxo "real" (mais escuro e
+   intenso que o roxo do plano gratuito). Fica no FIM para ganhar das
+   regras antigas.
+===================================================================== */
+.home-psi-page {
+  --pr-escuro: #3B1E7A;
+  --pr-forte: #5B2EBF;
+  --pr-medio: #7C4DFF;
+  --pr-claro: #B794F6;
+  --pr-suave: #F3EDFF;
+  --pr-borda: #DCCEFF;
+  --pr-texto: #4A2A9E;
+  --pr-btn: linear-gradient(135deg, #7C4DFF 0%, #5B2EBF 60%, #3B1E7A 100%);
+  --pr-sombra: rgba(91, 46, 191, .30);
+}
+
+/* Faixa "Seu plano atual" quando é premium */
+.home-psi-page #planos .pl-atual.premium {
+  background: linear-gradient(120deg, #2A1260 0%, #4B23A8 50%, #8B5CF6 100%) !important;
+  box-shadow: 0 18px 40px rgba(59, 30, 122, .38) !important;
+}
+
+/* Card premium: borda em degradê roxo e fundo lilás bem leve */
+.home-psi-page #planos .pl-card-premium {
+  background:
+    linear-gradient(170deg, #FFFFFF 0%, #F8F4FF 100%) padding-box,
+    linear-gradient(135deg, var(--pr-claro), var(--pr-medio) 50%, var(--pr-escuro)) border-box !important;
+  box-shadow: 0 20px 44px rgba(91, 46, 191, .16) !important;
+}
+.home-psi-page #planos .pl-card-premium:hover { box-shadow: 0 26px 52px rgba(91, 46, 191, .24) !important; }
+.home-psi-page #planos .pl-card-premium h3 i { background: var(--pr-suave) !important; color: var(--pr-medio) !important; }
+.home-psi-page #planos .pl-card-premium .pl-preco { border-bottom-color: var(--pr-borda) !important; }
+.home-psi-page #planos .pl-card-premium .pl-preco strong {
+  background: linear-gradient(135deg, var(--pr-forte), var(--pr-medio)) !important;
+  -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important;
+}
+.home-psi-page #planos .pl-card-premium .pl-check { background: var(--pr-suave) !important; color: var(--pr-forte) !important; }
+
+/* Selo "Recomendado" / "Seu plano" e botões */
+.home-psi-page #planos .pl-chip-premium,
+.home-psi-page #planos .pl-chip.pl-chip-premium,
+.home-psi-page #planos .pl-card-premium .pl-chip-premium {
+  background: var(--pr-btn) !important; color: #FFFFFF !important; border: none !important;
+  box-shadow: 0 8px 18px var(--pr-sombra) !important;
+}
+.home-psi-page #planos .pl-btn-premium {
+  background: var(--pr-btn) !important; color: #FFFFFF !important;
+  box-shadow: 0 14px 28px var(--pr-sombra), inset 0 1px 0 rgba(255, 255, 255, .25) !important;
+}
+.home-psi-page #planos .pl-btn-premium:hover:not(:disabled) { box-shadow: 0 18px 34px rgba(91, 46, 191, .4) !important; filter: none !important; }
+
+/* Confirmação do pagamento simulado */
+.home-psi-page #planos .pl-confirmar { background: var(--pr-suave) !important; border: 1px solid var(--pr-borda) !important; }
+.home-psi-page #planos .pl-confirmar p { color: var(--pr-texto) !important; }
+
+/* Documentos: selos, banner e botão premium no mesmo roxo */
+.home-psi-page #documentos .doc-chip-premium {
+  background: var(--pr-suave) !important; color: var(--pr-forte) !important; border: 1px solid var(--pr-borda) !important;
+}
+.home-psi-page #documentos .doc-btn-premium {
+  background: var(--pr-btn) !important; color: #FFFFFF !important; box-shadow: 0 12px 26px var(--pr-sombra) !important;
+}
+.home-psi-page #documentos .doc-premium-banner {
+  background: linear-gradient(135deg, #FBF8FF 0%, #F1E9FF 100%) !important; border-color: var(--pr-borda) !important;
+  box-shadow: 0 12px 30px rgba(91, 46, 191, .08) !important;
+}
+.home-psi-page #documentos .doc-premium-icone { color: var(--pr-medio) !important; box-shadow: 0 8px 20px rgba(91, 46, 191, .16) !important; }
+.home-psi-page #documentos .doc-premium-texto strong { color: var(--pr-escuro) !important; }
+.home-psi-page #documentos .doc-premium-texto p { color: var(--pr-texto) !important; }
+.home-psi-page #documentos .doc-modelo.bloqueado .doc-modelo-acao { color: var(--pr-forte) !important; box-shadow: 0 6px 16px rgba(91, 46, 191, .12) !important; }
+
+/* Modo escuro */
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-atual.premium {
+  background: linear-gradient(120deg, #1E0E47 0%, #3A1C85 55%, #6D45D9 100%) !important;
+}
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card-premium {
+  background:
+    linear-gradient(170deg, #1B2336 0%, #241B45 100%) padding-box,
+    linear-gradient(135deg, var(--pr-claro), var(--pr-medio) 50%, var(--pr-forte)) border-box !important;
+}
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card-premium h3 i,
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card-premium .pl-check { background: rgba(183, 148, 246, .16) !important; color: #D6C4FF !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card-premium .pl-preco strong {
+  background: linear-gradient(135deg, #C4B5FD, #E9D5FF) !important; -webkit-background-clip: text !important; background-clip: text !important;
+}
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-card-premium .pl-preco { border-bottom-color: rgba(183, 148, 246, .2) !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-confirmar,
+:host-context(body[data-theme="dark"]) .home-psi-page #documentos .doc-premium-banner {
+  background: linear-gradient(135deg, #1F1840, #2A1F57) !important; border-color: rgba(183, 148, 246, .3) !important;
+}
+:host-context(body[data-theme="dark"]) .home-psi-page #planos .pl-confirmar p,
+:host-context(body[data-theme="dark"]) .home-psi-page #documentos .doc-premium-texto p { color: #D6C4FF !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #documentos .doc-premium-texto strong { color: #F3EDFF !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #documentos .doc-chip-premium { background: rgba(183, 148, 246, .14) !important; color: #D6C4FF !important; border-color: rgba(183, 148, 246, .3) !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page #documentos .doc-premium-icone { background: #1B2336 !important; color: #C4B5FD !important; }
+
+/* =====================================================================
+   CADASTRO EM ANÁLISE · ANOTAÇÕES DA SESSÃO
+===================================================================== */
+.home-psi-page .aviso-cadastro {
+  display: flex; gap: 14px; align-items: flex-start; margin: 0 0 22px; padding: 16px 18px;
+  border-radius: 18px; background: #FFF8E8; border: 1px solid #F6DFA8; color: #6B4A06;
+}
+.home-psi-page .aviso-cadastro > i { font-size: 1.2rem; margin-top: 2px; color: #B7791F; }
+.home-psi-page .aviso-cadastro strong { display: block; font-size: 1rem; margin-bottom: 2px; }
+.home-psi-page .aviso-cadastro p { margin: 0; font-size: .9rem; line-height: 1.5; }
+:host-context(body[data-theme="dark"]) .home-psi-page .aviso-cadastro { background: rgba(251, 191, 36, .1); border-color: rgba(251, 191, 36, .3); color: #FDE68A; }
+:host-context(body[data-theme="dark"]) .home-psi-page .aviso-cadastro > i { color: #FCD34D; }
+
+/* Modal próprio (anotações da sessão) */
+.home-psi-page .an-fundo { position: fixed; inset: 0; background: rgba(30, 18, 60, .45); z-index: 10000; }
+.home-psi-page .an-modal {
+  position: fixed; z-index: 10001; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); overflow-y: auto; box-sizing: border-box;
+  background: #FFFFFF; border-radius: 24px; padding: 26px 24px 22px; box-shadow: 0 24px 60px rgba(40, 20, 90, .3);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.home-psi-page .an-fechar {
+  position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%;
+  border: none; background: #F3EDFF; color: #5B3D99; cursor: pointer; font-size: 1rem;
+}
+.home-psi-page .an-modal h3 { margin: 0; padding-right: 40px; font-size: 1.2rem; color: #2D1E4E; display: flex; align-items: center; gap: 8px; }
+.home-psi-page .an-sub { margin: 0; color: #6E5FA0; font-size: .92rem; }
+.home-psi-page .an-privado {
+  margin: 2px 0; padding: 8px 12px; border-radius: 12px; background: #F3EDFF; color: #5B3D99;
+  font-size: .82rem; font-weight: 600; display: flex; gap: 8px; align-items: center;
+}
+.home-psi-page .an-texto {
+  width: 100%; box-sizing: border-box; min-height: 200px; resize: vertical; padding: 14px; border-radius: 14px;
+  border: 1px solid #DCD2F2; font: inherit; font-size: .95rem; line-height: 1.55; color: #2D1E4E; background: #FCFBFF;
+}
+.home-psi-page .an-texto:focus { outline: 2px solid #B7A4DD; border-color: transparent; }
+.home-psi-page .an-quando, .home-psi-page .an-carregando { color: #8B7DB8; font-size: .8rem; margin: 0; }
+.home-psi-page .an-msg { margin: 0; padding: 8px 12px; border-radius: 12px; font-size: .88rem; background: #E8F7EF; color: #12784A; }
+.home-psi-page .an-msg.erro { background: #FDECEC; color: #B42318; }
+.home-psi-page .an-acoes { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 6px; }
+.home-psi-page .an-acoes > * { flex: 1 1 140px; }
+
+/* Botões do modal */
+.home-psi-page .an-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 10px 18px;
+  border-radius: 14px; font: inherit; font-weight: 800; font-size: .95rem; cursor: pointer; box-sizing: border-box;
+}
+.home-psi-page .an-btn:disabled { opacity: .6; cursor: not-allowed; }
+.home-psi-page .an-btn-primario { border: none; background: linear-gradient(135deg, #7C5CD6 0%, #5B3D99 100%); color: #FFFFFF; box-shadow: 0 10px 22px rgba(91, 61, 153, .28); }
+.home-psi-page .an-btn-outline { background: #FFFFFF; color: #5B3D99; border: 1px solid #DCD2F2; }
+:host-context(body[data-theme="dark"]) .home-psi-page .an-btn-outline { background: transparent; color: #D8CCFF; border-color: rgba(189, 175, 252, .3); }
+
+/* modo escuro */
+:host-context(body[data-theme="dark"]) .home-psi-page .an-modal { background: #1B2336; border-color: rgba(255, 255, 255, .08); }
+:host-context(body[data-theme="dark"]) .home-psi-page .an-modal h3 { color: #F5F0FF; }
+:host-context(body[data-theme="dark"]) .home-psi-page .an-sub { color: #B9AEE0; }
+:host-context(body[data-theme="dark"]) .home-psi-page .an-privado,
+:host-context(body[data-theme="dark"]) .home-psi-page .an-fechar { background: #262046; color: #D8CCFF; }
+:host-context(body[data-theme="dark"]) .home-psi-page .an-texto { background: #161C2B; border-color: rgba(189, 175, 252, .25); color: #F5F0FF; }
+
+/* =====================================================================
+   AVISOS (sino) · CONTADOR NO MENU · PRONTUÁRIO
+===================================================================== */
+.home-psi-page .notif-wrap { position: relative; display: flex; align-items: center; }
+/* no celular o topo esconde os botões; o sino continua aparecendo */
+header.header .right-section > #notif-psi.notif-wrap.notif-wrap { display: flex !important; }
+.home-psi-page .notif-btn {
+  position: relative; width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+  display: grid; place-items: center; background: #F3EDFF; color: #5B3D99; font-size: 1.05rem;
+}
+.home-psi-page .notif-contador {
+  position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box;
+  border-radius: 9px; background: #D92D20; color: #FFFFFF; font-size: .68rem; font-weight: 800;
+  display: grid; place-items: center; border: 2px solid #FFFFFF;
+}
+.home-psi-page .notif-fundo { position: fixed; inset: 0; z-index: 400; }
+.home-psi-page .notif-painel {
+  position: absolute; top: calc(100% + 10px); right: 0; z-index: 401;
+  width: min(360px, calc(100vw - 24px)); max-height: 70vh; overflow-y: auto; box-sizing: border-box;
+  background: #FFFFFF; border-radius: 20px; border: 1px solid #ECE6F8; box-shadow: 0 20px 44px rgba(40, 20, 90, .22);
+  padding: 8px;
+}
+.home-psi-page .notif-topo { padding: 10px 12px 8px; color: #2D1E4E; font-size: 1rem; }
+.home-psi-page .notif-item {
+  display: flex; flex-direction: column; gap: 3px; width: 100%; text-align: left; cursor: pointer;
+  padding: 12px; border: none; border-radius: 14px; background: transparent; font: inherit;
+}
+.home-psi-page .notif-item:hover { background: #F7F3FF; }
+.home-psi-page .notif-item.nova { background: #F3EDFF; }
+.home-psi-page .notif-titulo { font-weight: 800; color: #2D1E4E; font-size: .92rem; }
+.home-psi-page .notif-msg { color: #5E5280; font-size: .86rem; line-height: 1.45; }
+.home-psi-page .notif-quando { color: #9C90C2; font-size: .75rem; }
+.home-psi-page .notif-vazio { margin: 0; padding: 16px 12px 18px; color: #8B7DB8; font-size: .9rem; }
+@media (max-width: 768px) {
+  /* sino no canto direito: [menu] elomaterno ............ [sino] */
+  .home-psi-page header.header .right-section { order: 2; margin-left: auto; margin-right: 58px; }
+  .home-psi-page .notif-painel { position: fixed; top: 64px; right: 12px; }
+}
+
+/* número de pedidos pendentes no item "Consultas" */
+.home-psi-page .menu-btn { position: relative; }
+.home-psi-page .menu-contador {
+  margin-left: auto; min-width: 22px; height: 22px; padding: 0 7px; box-sizing: border-box; border-radius: 11px;
+  background: #D92D20; color: #FFFFFF !important; font-size: .75rem; font-weight: 800; display: inline-grid; place-items: center;
+}
+.home-psi-page .menu-toggle-ponto {
+  position: absolute; top: 4px; right: 4px; width: 9px; height: 9px; border-radius: 50%; background: #D92D20; border: 2px solid #FFFFFF;
+}
+
+/* botão Prontuário no card de paciente */
+.home-psi-page .p-btn-prontuario {
+  width: 100%; margin-bottom: 8px; padding: 11px; border-radius: 10px; cursor: pointer; font-weight: 700;
+  background: #FFFFFF; color: #5B3D99; border: 1px solid #DCD2F2; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.home-psi-page .p-btn-prontuario:hover { background: #F7F3FF; }
+
+/* modal do prontuário */
+.home-psi-page .pr-modal { width: min(640px, calc(100vw - 32px)); }
+.home-psi-page .pr-lista { display: flex; flex-direction: column; gap: 10px; }
+.home-psi-page .pr-sessao { padding: 14px; border-radius: 16px; background: #FCFBFF; border: 1px solid #ECE6F8; }
+.home-psi-page .pr-sessao-topo { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.home-psi-page .pr-sessao-topo strong { color: #2D1E4E; font-size: .93rem; }
+.home-psi-page .pr-chip { padding: 3px 10px; border-radius: 999px; background: #F1EBFF; color: #5B3D99; font-size: .72rem; font-weight: 800; }
+.home-psi-page .pr-editar {
+  margin-left: auto; border: none; background: transparent; color: #5B3D99; font-weight: 700; cursor: pointer;
+  font: inherit; font-size: .85rem; display: flex; gap: 6px; align-items: center; padding: 4px 6px; border-radius: 8px;
+}
+.home-psi-page .pr-editar:hover { background: #F3EDFF; }
+.home-psi-page .pr-texto { margin: 8px 0 0; white-space: pre-line; color: #3D2F63; font-size: .9rem; line-height: 1.55; overflow-wrap: anywhere; }
+.home-psi-page .pr-texto.vazio { color: #9C90C2; font-style: italic; }
+
+/* modo escuro */
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-btn,
+:host-context(body[data-theme="dark"]) .home-psi-page .pr-chip { background: #262046; color: #D8CCFF; }
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-contador,
+:host-context(body[data-theme="dark"]) .home-psi-page .menu-toggle-ponto { border-color: #1B2336; }
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-painel { background: #1B2336; border-color: rgba(255, 255, 255, .08); }
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-topo,
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-titulo,
+:host-context(body[data-theme="dark"]) .home-psi-page .pr-sessao-topo strong { color: #F5F0FF; }
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-msg,
+:host-context(body[data-theme="dark"]) .home-psi-page .pr-texto { color: #D8CCFF; }
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-item:hover,
+:host-context(body[data-theme="dark"]) .home-psi-page .notif-item.nova { background: #262046; }
+:host-context(body[data-theme="dark"]) .home-psi-page .pr-sessao { background: #161C2B; border-color: rgba(189, 175, 252, .18); }
+:host-context(body[data-theme="dark"]) .home-psi-page .p-btn-prontuario { background: transparent; color: #D8CCFF; border-color: rgba(189, 175, 252, .3); }
+:host-context(body[data-theme="dark"]) .home-psi-page .pr-editar { color: #D8CCFF; }
+:host-context(body[data-theme="dark"]) .home-psi-page .pr-editar:hover { background: #262046; }

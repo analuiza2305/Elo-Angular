@@ -379,6 +379,64 @@ export async function gerarDocumentoJuridico(d: DadosDocumentoJuridico): Promise
 }
 
 // ======================================================================
+//  Prontuário: anotações das sessões (Resolução CFP nº 001/2009)
+// ======================================================================
+
+export interface SessaoProntuario {
+  data: Date | null;
+  texto: string;
+}
+
+export interface PacienteProntuario {
+  nome: string;
+  sessoes: SessaoProntuario[];
+}
+
+export interface DadosProntuario {
+  profissional: { nome: string; crp: string };
+  pacientes: PacienteProntuario[];
+  /** usado no nome do arquivo: 'prontuario-<nome>' ou 'prontuarios' */
+  nomeArquivo: string;
+}
+
+export async function gerarProntuario(d: DadosProntuario): Promise<void> {
+  const pdf = await novoPdf();
+  const e = new Escritor(pdf);
+
+  e.cabecalho();
+  e.titulo('REGISTRO DOCUMENTAL DE ATENDIMENTOS');
+  e.subtitulo(`${d.profissional.nome} — ${d.profissional.crp || 'CRP não informado'}`);
+  e.subtitulo(`Gerado em ${dataPorExtenso(new Date())}`);
+  e.espaco(6);
+
+  if (!d.pacientes.length) {
+    e.paragrafo('Nenhuma anotação de sessão registrada.');
+  }
+
+  d.pacientes.forEach((pac, i) => {
+    if (i > 0) e.espaco(8);
+    e.manterJunto(30);
+    e.subtituloSecao(pac.nome || 'Paciente');
+    const ordenadas = [...pac.sessoes].sort((a, b) => (a.data?.getTime() ?? 0) - (b.data?.getTime() ?? 0));
+    ordenadas.forEach((s, j) => {
+      e.espaco(j === 0 ? 1 : 4);
+      e.manterJunto(18);
+      const quando = s.data ? `${s.data.toLocaleDateString('pt-BR')} às ${hm(s.data)}` : 'Data não registrada';
+      e.paragrafo(`Sessão ${j + 1} — ${quando}`, { negrito: true });
+      e.paragrafo(s.texto?.trim() || '(sem anotações)', { justificar: true, entrelinha: 1.5, recuo: 4 });
+    });
+  });
+
+  e.rodapes({
+    rubrica: false,
+    texto: 'Documento sigiloso. Registro documental conforme a Resolução CFP nº 001/2009 (guarda mínima de 5 anos).',
+  });
+  const slug = d.nomeArquivo.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  pdf.save(`${slug || 'prontuario'}.pdf`);
+}
+
+// ======================================================================
 //  Utilidades
 // ======================================================================
 

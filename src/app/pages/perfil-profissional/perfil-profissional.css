@@ -963,3 +963,74 @@ header.header-prof .logout-btn:hover {
 .rep-barra-label i.fa-star { color: #B7791F !important; }
 :host-context(body[data-theme="dark"]) .btn-edit-profile i { color: inherit !important; }
 :host-context(body[data-theme="dark"]) .rep-rodape i { color: #6E5FA0 !important; }
+
+
+
+/* =========================================================
+   MINHA CONTA (só no próprio perfil) + modal de excluir conta
+========================================================= */
+.conta-box h2 { margin-bottom: 12px; }
+.conta-linha {
+  display: flex; justify-content: space-between; gap: 12px; padding: 12px 0;
+  border-bottom: 1px dashed rgba(124, 105, 169, 0.2); font-size: .95rem;
+}
+.conta-linha span { color: #8B7DB8; }
+.conta-linha strong { color: #2D1E4E; text-align: right; overflow-wrap: anywhere; }
+.conta-status { color: #B7791F !important; }
+.conta-status.ok { color: #12784A !important; }
+.conta-perigo {
+  display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap;
+  margin-top: 22px; padding: 18px; border-radius: 18px; background: #FFF6F5; border: 1px solid #F6CACA;
+}
+.conta-perigo > div { flex: 1 1 260px; }
+.conta-perigo strong { color: #B42318; }
+.conta-perigo p { margin: 4px 0 0; color: #6E5FA0; font-size: .9rem; line-height: 1.5; }
+.btn-excluir-conta {
+  border: none; cursor: pointer; padding: 12px 20px; border-radius: 50px; font-weight: 700;
+  background: #D92D20; color: #FFFFFF; box-shadow: 0 8px 18px rgba(217, 45, 32, .22);
+}
+.btn-excluir-conta:hover { filter: brightness(1.05); }
+
+.modal-excluir { text-align: center; }
+.excluir-icone {
+  width: 60px; height: 60px; margin: 0 auto 10px; border-radius: 50%; display: grid; place-items: center;
+  background: #FDECEC; color: #D92D20; font-size: 1.4rem;
+}
+.modal-excluir h2 { color: #B42318; }
+.excluir-label { display: block; text-align: left; margin: 14px 0 6px; font-size: .88rem; font-weight: 700; color: #583E8E; }
+.excluir-input {
+  width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 14px; border: 1px solid #DCD2F2; font: inherit; margin-bottom: 14px;
+}
+.excluir-erro { margin: 0 0 14px; padding: 10px 12px; border-radius: 12px; background: #FDECEC; color: #B42318; font-size: .9rem; text-align: left; }
+.btn-confirmar-excluir { background: #D92D20 !important; }
+
+@media (max-width: 600px) {
+  .conta-linha { flex-direction: column; gap: 2px; }
+  .conta-linha strong { text-align: left; }
+  .btn-excluir-conta { width: 100%; }
+}
+
+:host-context(body[data-theme="dark"]) .conta-linha { border-bottom-color: rgba(255, 255, 255, .08); }
+:host-context(body[data-theme="dark"]) .conta-linha strong { color: #F5F0FF; }
+:host-context(body[data-theme="dark"]) .conta-perigo { background: rgba(248, 113, 113, .08); border-color: rgba(248, 113, 113, .3); }
+:host-context(body[data-theme="dark"]) .conta-perigo strong { color: #FCA5A5; }
+:host-context(body[data-theme="dark"]) .conta-perigo p { color: #B9AEE0; }
+:host-context(body[data-theme="dark"]) .excluir-input { background: #161C2B; border-color: rgba(189, 175, 252, .25); color: #F5F0FF; }
+:host-context(body[data-theme="dark"]) .excluir-icone { background: rgba(248, 113, 113, .15); }
+
+.conta-anotacoes {
+  display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap;
+  margin-top: 22px; padding: 18px; border-radius: 18px; background: #F7F3FF; border: 1px solid #E4DAFB;
+}
+.conta-anotacoes > div { flex: 1 1 260px; }
+.conta-anotacoes strong { color: #4B2C82; }
+.conta-anotacoes p { margin: 4px 0 0; color: #6E5FA0; font-size: .9rem; line-height: 1.5; }
+.btn-baixar-anotacoes {
+  border: none; cursor: pointer; padding: 12px 20px; border-radius: 50px; font-weight: 700;
+  background: #7C69A9; color: #FFFFFF; display: inline-flex; gap: 8px; align-items: center;
+}
+.btn-baixar-anotacoes:disabled { opacity: .6; cursor: not-allowed; }
+@media (max-width: 600px) { .btn-baixar-anotacoes { width: 100%; justify-content: center; } }
+:host-context(body[data-theme="dark"]) .conta-anotacoes { background: rgba(189, 175, 252, .08); border-color: rgba(189, 175, 252, .25); }
+:host-context(body[data-theme="dark"]) .conta-anotacoes strong { color: #E9DFFF; }
+:host-context(body[data-theme="dark"]) .conta-anotacoes p { color: #B9AEE0; }

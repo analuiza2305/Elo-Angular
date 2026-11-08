@@ -6,10 +6,15 @@ import { HeaderComponent } from '../../components/header/header';
 import { db, auth } from '../../core/firebase';
 import {
   doc, getDoc, collection, query, where, getDocs, updateDoc, serverTimestamp,
-  runTransaction, arrayRemove, arrayUnion, Timestamp
+  runTransaction, arrayRemove, arrayUnion, Timestamp, addDoc, deleteDoc
 } from 'firebase/firestore';
 import { liberarQuestionarioPara } from '../../services/questionario-acesso';
-import { onAuthStateChanged } from 'firebase/auth';
+import { avisarProfissional } from '../../services/avisos-profissional';
+import { gerarProntuario, PacienteProntuario } from '../../services/documentos-pdf';
+import {
+  onAuthStateChanged, deleteUser, EmailAuthProvider, GoogleAuthProvider,
+  reauthenticateWithCredential, reauthenticateWithPopup,
+} from 'firebase/auth';
 import { carregarReputacao, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
 import { PlanoService } from '../../services/plano';
 import { SeloService } from '../../services/selo';
@@ -209,6 +214,8 @@ export class PerfilProfissionalComponent implements OnInit {
           tags: data['tags'] || data['especializacoes'] || [],
           foto: data['avatar'] || data['fotoURL'] || 'img/account_icon.png',
           disponibilidadeRaw: data['disponibilidade'] || [],
+          email: data['email'] || '',
+          statusCadastro: String(data['status'] || 'pendente').toLowerCase(),
         });
         this.avatarUrl.set(this.profissional().foto);
         this.buscarReputacao(this.profissional().uid);
@@ -395,6 +402,10 @@ export class PerfilProfissionalComponent implements OnInit {
       });
 
       liberarQuestionarioPara(user.uid, prof.uid || prof.id, prof.tipo);
+      avisarProfissional({
+        evento: 'nova', profissionalId: prof.uid || prof.id, tipoProf: prof.tipo,
+        maeId: user.uid, consultaId: consultaRef.id, quando: new Date(horario.instante),
+      });
 
       // Tira o horário da tela sem precisar recarregar
       this.profissional.update((p) => ({
@@ -431,6 +442,171 @@ export class PerfilProfissionalComponent implements OnInit {
   voltar() { this.location.back(); }
   irParaHome() { this.router.navigate(['/']); }
   logout() { auth.signOut().then(() => this.router.navigate(['/login-profissional'])); }
+
+  // ---------------- Minha conta: situação do cadastro e exclusão ----------------
+  readonly modalExcluirConta = signal(false);
+  readonly senhaExcluir = signal('');
+  readonly excluindoConta = signal(false);
+  readonly erroExcluirConta = signal('');
+
+  rotuloStatusCadastro(): string {
+    const s = this.profissional()?.statusCadastro;
+    return s === 'aprovado' ? 'Aprovado' : s === 'recusado' ? 'Precisa de ajustes' : 'Em análise';
+  }
+
+  ehContaGoogle(): boolean {
+    return !!auth.currentUser?.providerData.some((p) => p.providerId === 'google.com');
+  }
+
+  abrirExcluirConta() {
+    this.senhaExcluir.set('');
+    this.erroExcluirConta.set('');
+    this.modalExcluirConta.set(true);
+  }
+
+  fecharExcluirConta() { if (!this.excluindoConta()) this.modalExcluirConta.set(false); }
+
+  // ---------------- Baixar todas as anotações (prontuários) em PDF ----------------
+  readonly baixandoAnotacoes = signal(false);
+
+  async baixarMinhasAnotacoes() {
+    const user = auth.currentUser;
+    const prof = this.profissional();
+    if (!user || !prof) return;
+    this.baixandoAnotacoes.set(true);
+    try {
+      const snap = await getDocs(query(collection(db, 'anotacoesSessao'), where('psicologoUid', '==', user.uid)));
+      const porMae = new Map<string, PacienteProntuario>();
+      const semNome: string[] = [];
+      for (const d of snap.docs) {
+        const a: any = d.data();
+        const maeId = a['maeId'] || 'sem-id';
+        if (!porMae.has(maeId)) {
+          porMae.set(maeId, { nome: a['maeNome'] || '', sessoes: [] });
+          if (!a['maeNome'] && maeId !== 'sem-id') semNome.push(maeId);
+        }
+        porMae.get(maeId)!.sessoes.push({
+          data: a['dataSessao']?.toDate ? a['dataSessao'].toDate() : null,
+          texto: a['texto'] || '',
+        });
+      }
+      // anotações antigas sem o nome salvo: busca o nome da mãe
+      await Promise.all(semNome.map(async (id) => {
+        try {
+          const u = await getDoc(doc(db, 'usuarios', id));
+          porMae.get(id)!.nome = (u.exists() && u.data()['nome']) || 'Paciente';
+        } catch { porMae.get(id)!.nome = 'Paciente'; }
+      }));
+
+      const pacientes = [...porMae.values()].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+      if (!pacientes.length) {
+        this.alerta.info('Você ainda não tem anotações de sessão para baixar.');
+        return;
+      }
+      await gerarProntuario({
+        profissional: { nome: prof.nome, crp: prof.identificacao && !/não informado/i.test(prof.identificacao) ? `CRP ${prof.identificacao}` : '' },
+        pacientes,
+        nomeArquivo: 'prontuarios-elomaterno',
+      });
+    } catch (e) {
+      console.error('Erro ao baixar anotações:', e);
+      this.alerta.erro('Não foi possível gerar o PDF das anotações agora.');
+    } finally {
+      this.baixandoAnotacoes.set(false);
+    }
+  }
+
+  /**
+   * Apaga a conta do profissional: cancela as consultas que ainda iam acontecer
+   * (avisando cada mãe), apaga as anotações de sessão (psicóloga), o cadastro e,
+   * por último, o login. O Firebase exige login recente, por isso pede a senha antes.
+   */
+  async confirmarExcluirConta() {
+    const user = auth.currentUser;
+    const prof = this.profissional();
+    if (!user || !prof || !this.isProprioPerfil()) return;
+    this.erroExcluirConta.set('');
+    this.excluindoConta.set(true);
+    try {
+      if (this.ehContaGoogle()) {
+        await reauthenticateWithPopup(user, new GoogleAuthProvider());
+      } else {
+        if (!this.senhaExcluir().trim()) {
+          this.erroExcluirConta.set('Digite sua senha para confirmar.');
+          return;
+        }
+        await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email || '', this.senhaExcluir()));
+      }
+
+      // 1. consultas pendentes ou confirmadas de hoje em diante: cancela e avisa a mãe
+      const inicioDeHoje = new Date();
+      inicioDeHoje.setHours(0, 0, 0, 0);
+      try {
+        const snap = await getDocs(query(collection(db, 'Consultas'), where('profissionalId', '==', user.uid)));
+        for (const d of snap.docs) {
+          const c: any = d.data();
+          const status = String(c['status'] || '').toLowerCase();
+          const quando: Date | null = c['Datahora']?.toDate ? c['Datahora'].toDate() : null;
+          const aberta = ['pendente', 'aceito', 'aceita', 'agendada'].includes(status);
+          if (!aberta || (quando && quando < inicioDeHoje)) continue;
+          try {
+            await updateDoc(d.ref, {
+              status: 'negado', canceladoPor: prof.tipo, canceladoEm: serverTimestamp(),
+              canceladaAposAceite: status !== 'pendente',
+              motivoCancelamento: 'O profissional encerrou a conta na plataforma.',
+            });
+            const maeId = c['maeId'] || c['Mae'];
+            if (maeId) {
+              const dataTxt = quando
+                ? quando.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) + ' às '
+                  + quando.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+                : 'a data combinada';
+              await addDoc(collection(db, 'notificacoes'), {
+                destinatarioId: maeId,
+                tipo: 'consulta_cancelada',
+                titulo: 'Sua consulta foi desmarcada',
+                mensagem: `${prof.nome} encerrou a conta na plataforma, então a consulta de ${dataTxt} foi cancelada. Você pode escolher outro profissional quando quiser.`,
+                consultaId: d.id,
+                link: '/consultas',
+                lida: false,
+                criadoEm: serverTimestamp(),
+              });
+            }
+          } catch (e) { console.warn('Consulta não cancelada:', d.id, e); }
+        }
+      } catch (e) { console.warn('Não foi possível revisar as consultas:', e); }
+
+      // 2. anotações das sessões (só psicóloga)
+      if (prof.tipo === 'psicologo') {
+        try {
+          const notas = await getDocs(query(collection(db, 'anotacoesSessao'), where('psicologoUid', '==', user.uid)));
+          await Promise.all(notas.docs.map((n) => deleteDoc(n.ref)));
+        } catch (e) { console.warn('Anotações não apagadas:', e); }
+      }
+
+      // 3. cadastro profissional, dados de usuário e, por último, o login
+      const colecao = prof.tipo === 'psicologo' ? 'psicologos' : 'advogados';
+      await deleteDoc(doc(db, colecao, prof.id));
+      try { await deleteDoc(doc(db, 'usuarios', user.uid)); } catch (e) { console.warn('usuarios/{uid} não apagado:', e); }
+      await deleteUser(user);
+
+      this.modalExcluirConta.set(false);
+      this.router.navigate(['/']);
+    } catch (err: any) {
+      if (err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential') {
+        this.erroExcluirConta.set('Senha incorreta.');
+      } else if (err?.code === 'auth/too-many-requests') {
+        this.erroExcluirConta.set('Muitas tentativas. Aguarde um pouco e tente de novo.');
+      } else if (err?.code === 'auth/popup-closed-by-user') {
+        this.erroExcluirConta.set('A confirmação com o Google foi fechada.');
+      } else {
+        console.error('Erro ao excluir conta:', err);
+        this.erroExcluirConta.set('Não foi possível excluir a conta agora. Tente novamente.');
+      }
+    } finally {
+      this.excluindoConta.set(false);
+    }
+  }
 
   toggleAccessibilityMenu() { this.accessibilityMenuOpen.set(!this.accessibilityMenuOpen()); }
   toggleTheme() {
