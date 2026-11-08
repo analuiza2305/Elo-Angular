@@ -393,7 +393,10 @@ export interface PacienteProntuario {
 }
 
 export interface DadosProntuario {
+  /** crp = registro profissional ("CRP 06/123456" ou "OAB/SP 123456") */
   profissional: { nome: string; crp: string };
+  /** muda título e rodapé; padrão: psicólogo */
+  tipo?: 'psicologo' | 'advogado';
   pacientes: PacienteProntuario[];
   /** usado no nome do arquivo: 'prontuario-<nome>' ou 'prontuarios' */
   nomeArquivo: string;
@@ -404,13 +407,14 @@ export async function gerarProntuario(d: DadosProntuario): Promise<void> {
   const e = new Escritor(pdf);
 
   e.cabecalho();
-  e.titulo('REGISTRO DOCUMENTAL DE ATENDIMENTOS');
-  e.subtitulo(`${d.profissional.nome} — ${d.profissional.crp || 'CRP não informado'}`);
+  const adv = d.tipo === 'advogado';
+  e.titulo(adv ? 'REGISTRO DE ATENDIMENTOS JURÍDICOS' : 'REGISTRO DOCUMENTAL DE ATENDIMENTOS');
+  e.subtitulo(`${d.profissional.nome} — ${d.profissional.crp || (adv ? 'OAB não informada' : 'CRP não informado')}`);
   e.subtitulo(`Gerado em ${dataPorExtenso(new Date())}`);
   e.espaco(6);
 
   if (!d.pacientes.length) {
-    e.paragrafo('Nenhuma anotação de sessão registrada.');
+    e.paragrafo('Nenhuma anotação registrada.');
   }
 
   d.pacientes.forEach((pac, i) => {
@@ -422,14 +426,16 @@ export async function gerarProntuario(d: DadosProntuario): Promise<void> {
       e.espaco(j === 0 ? 1 : 4);
       e.manterJunto(18);
       const quando = s.data ? `${s.data.toLocaleDateString('pt-BR')} às ${hm(s.data)}` : 'Data não registrada';
-      e.paragrafo(`Sessão ${j + 1} — ${quando}`, { negrito: true });
+      e.paragrafo(`${adv ? 'Atendimento' : 'Sessão'} ${j + 1} — ${quando}`, { negrito: true });
       e.paragrafo(s.texto?.trim() || '(sem anotações)', { justificar: true, entrelinha: 1.5, recuo: 4 });
     });
   });
 
   e.rodapes({
     rubrica: false,
-    texto: 'Documento sigiloso. Registro documental conforme a Resolução CFP nº 001/2009 (guarda mínima de 5 anos).',
+    texto: adv
+      ? 'Documento sigiloso, protegido pelo sigilo profissional do(a) advogado(a).'
+      : 'Documento sigiloso. Registro documental conforme a Resolução CFP nº 001/2009 (guarda mínima de 5 anos).',
   });
   const slug = d.nomeArquivo.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

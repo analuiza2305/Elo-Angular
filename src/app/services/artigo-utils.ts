@@ -84,35 +84,37 @@ export async function definirFavorito(uid: string, artigoId: string, salvar: boo
   }
 }
 // =============================================================
-// FAVORITOS DA PSICÓLOGA
-// Fonte da verdade: `psicologos/{id}.favoritos`.
+// FAVORITOS DOS PROFISSIONAIS (psicóloga e advogado)
+// Fonte da verdade: `psicologos/{id}.favoritos` ou `advogados/{id}.favoritos`.
 // Algumas contas antigas não usam o uid como id do documento,
 // então procura pelo campo `uid` como no resto do projeto.
 // =============================================================
-async function refDaPsicologa(uid: string): Promise<DocumentReference | null> {
-  const direto = doc(db, 'psicologos', uid);
+type ColecaoProfissional = 'psicologos' | 'advogados';
+
+async function refDoProfissional(colecao: ColecaoProfissional, uid: string): Promise<DocumentReference | null> {
+  const direto = doc(db, colecao, uid);
   if ((await getDoc(direto)).exists()) return direto;
 
-  const res = await getDocs(query(collection(db, 'psicologos'), where('uid', '==', uid)));
+  const res = await getDocs(query(collection(db, colecao), where('uid', '==', uid)));
   return res.empty ? null : res.docs[0].ref;
 }
 
-export async function carregarIdsFavoritosPsi(uid: string): Promise<string[]> {
+async function carregarFavoritosDe(colecao: ColecaoProfissional, uid: string): Promise<string[]> {
   try {
-    const ref = await refDaPsicologa(uid);
+    const ref = await refDoProfissional(colecao, uid);
     if (!ref) return [];
     const snap = await getDoc(ref);
     return snap.exists() ? ((snap.data()['favoritos'] as string[]) || []) : [];
   } catch (e) {
-    console.error('Erro ao carregar favoritos da psicóloga:', e);
+    console.error('Erro ao carregar favoritos:', e);
     return [];
   }
 }
 
-/** Salva/remove o favorito da psicóloga. Lança erro se não achar o perfil dela. */
-export async function definirFavoritoPsi(uid: string, artigoId: string, salvar: boolean): Promise<void> {
-  const ref = await refDaPsicologa(uid);
-  if (!ref) throw new Error('Perfil da psicóloga não encontrado.');
+/** Salva/remove o favorito. Lança erro se não achar o perfil. */
+async function definirFavoritoDe(colecao: ColecaoProfissional, uid: string, artigoId: string, salvar: boolean): Promise<void> {
+  const ref = await refDoProfissional(colecao, uid);
+  if (!ref) throw new Error('Perfil profissional não encontrado.');
 
   const op = salvar ? arrayUnion : arrayRemove;
   await updateDoc(ref, { favoritos: op(artigoId) });
@@ -123,3 +125,8 @@ export async function definirFavoritoPsi(uid: string, artigoId: string, salvar: 
     console.warn('Não foi possível atualizar salvosPor do artigo:', e);
   }
 }
+
+export const carregarIdsFavoritosPsi = (uid: string) => carregarFavoritosDe('psicologos', uid);
+export const definirFavoritoPsi = (uid: string, artigoId: string, salvar: boolean) => definirFavoritoDe('psicologos', uid, artigoId, salvar);
+export const carregarIdsFavoritosAdv = (uid: string) => carregarFavoritosDe('advogados', uid);
+export const definirFavoritoAdv = (uid: string, artigoId: string, salvar: boolean) => definirFavoritoDe('advogados', uid, artigoId, salvar);

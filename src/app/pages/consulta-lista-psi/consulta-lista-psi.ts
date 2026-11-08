@@ -14,6 +14,7 @@ import { PlanoService } from '../../services/plano';
 import { SeloService } from '../../services/selo';
 import { AlertaService } from '../../core/services/alerta.service';
 import { liberarQuestionarioPara } from '../../services/questionario-acesso';
+import { avisarProfissional } from '../../services/avisos-profissional';
 
 interface Profissional {
   docId: string;
@@ -429,6 +430,10 @@ export class ConsultaListaPsiComponent implements OnInit {
       });
 
       liberarQuestionarioPara(currentUser.uid, info.uid, info.tipo);
+      avisarProfissional({
+        evento: 'nova', profissionalId: info.uid, tipoProf: info.tipo,
+        maeId: currentUser.uid, consultaId: consultaRef.id, quando: dataConsulta,
+      });
       this.alerta.sucesso('Você será avisada quando o profissional confirmar.', 'Consulta agendada!');
       this.fecharModal();
       this.carregarProfissionais();

@@ -9,18 +9,22 @@ import { carregarReputacao, Reputacao, REPUTACAO_VAZIA } from '../../services/re
 
 import {
   doc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, onSnapshot, orderBy, limit,
-  serverTimestamp, Timestamp, arrayUnion, arrayRemove, getCountFromServer, writeBatch,
+  serverTimestamp, Timestamp, arrayUnion, arrayRemove, getCountFromServer, writeBatch, setDoc,
 } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
+import { carregarIdsFavoritosAdv, definirFavoritoAdv } from '../../services/artigo-utils';
+import { avisarMensagemChat } from '../../services/avisos-profissional';
 import { cartaoDoLembrete } from '../../services/lembrete-chat';
 import { PlanoService, Assinatura, Plano, PLANOS_PADRAO_POR_PUBLICO, formatarBRL, sufixoPeriodicidade } from '../../services/plano';
 import { MODELOS_JURIDICOS, ModeloJuridico } from '../../services/modelos-juridicos';
-import { gerarDocumentoJuridico, gerarRelatorioAtendimentos, formatarHoras, ConsultaRelatorio } from '../../services/documentos-pdf';
+import { gerarDocumentoJuridico, gerarRelatorioAtendimentos, formatarHoras, ConsultaRelatorio, gerarProntuario } from '../../services/documentos-pdf';
 
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
-type SecaoHomeAdv = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos' | 'informacoes';
+type SecaoHomeAdv = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos';
 type AbaConsultas = 'Pendentes' | 'Agendadas' | 'Realizadas' | 'Negadas';
 type CategoriaArtigo = 'posts' | 'legislativos' | 'educacionais' | 'dicas';
+type FiltroArtigo = 'todos' | CategoriaArtigo | 'meus' | 'favoritos';
+const CHAVE_FILTRO_ARTIGO = 'advFiltroArtigo';
 
 interface MenuItem { target: SecaoHomeAdv; label: string; icon: string; }
 interface CelulaCalendario { dia: number | null; isHoje: boolean; temDisponibilidade: boolean; }
@@ -38,6 +42,8 @@ interface ConsultaView {
   motivo: string;
   statusRaw: string;
   status: 'Pendente' | 'Agendada' | 'Realizada' | 'Negada';
+  /** true quando a consulta já estava aceita e foi desmarcada depois */
+  canceladaAposAceite?: boolean;
   /** Fim real da consulta (gravado ao encerrar a chamada); usado para calcular a duração nos relatórios. */
   realizadoEm: Date | null;
 }
@@ -122,6 +128,9 @@ export class HomeAdv implements OnInit, OnDestroy {
   private uidAtual: string | null = null;
   private advDocId: string | null = null;
   readonly oab = signal('');
+  /** status do cadastro em advogados/{id}: só 'aprovado' aparece para as mães */
+  readonly statusCadastro = signal<string>('');
+  readonly cadastroAprovado = computed(() => this.statusCadastro() === 'aprovado');
   readonly cidadeProfissional = signal('');
   readonly isPremium = signal(false);
   readonly assinatura = signal<Assinatura | null>(null);
@@ -142,13 +151,42 @@ export class HomeAdv implements OnInit, OnDestroy {
   private unsubConsultas: (() => void) | null = null;
   private cacheMaes = new Map<string, { nome: string; avatar: string }>();
 
+  /** Consulta aceita cujo dia já acabou: não está mais "agendada", falta confirmar se aconteceu. */
+  consultaPassou(c: ConsultaView): boolean {
+    if (c.status !== 'Agendada' || !c.dataObj) return false;
+    const inicioDeHoje = new Date();
+    inicioDeHoje.setHours(0, 0, 0, 0);
+    return c.dataObj.getTime() < inicioDeHoje.getTime();
+  }
+
+  rotuloStatus(c: ConsultaView): string {
+    if (this.consultaPassou(c)) return 'A confirmar';
+    if (c.status === 'Negada' && c.canceladaAposAceite) return 'Cancelada';
+    return c.status;
+  }
+  classeStatus(c: ConsultaView): string { return this.consultaPassou(c) ? 'confirmar' : c.status.toLowerCase(); }
+
   readonly consultasFiltradas = computed(() => {
     const aba = this.abaConsultas();
-    const alvo = aba === 'Pendentes' ? 'Pendente' : aba === 'Agendadas' ? 'Agendada' : aba === 'Realizadas' ? 'Realizada' : 'Negada';
-    return this.todasConsultas()
-      .filter((c) => c.status === alvo)
-      .sort((a, b) => (a.dataObj?.getTime() ?? 0) - (b.dataObj?.getTime() ?? 0));
+    const todas = this.todasConsultas();
+    let lista: ConsultaView[];
+    if (aba === 'Agendadas') {
+      // só de hoje em diante
+      lista = todas.filter((c) => c.status === 'Agendada' && !this.consultaPassou(c));
+    } else if (aba === 'Realizadas') {
+      // as realizadas + as aceitas cujo dia já passou (a psicóloga confirma por aqui)
+      lista = todas.filter((c) => c.status === 'Realizada' || this.consultaPassou(c));
+      const aConfirmar = lista.filter((c) => this.consultaPassou(c));
+      const realizadas = lista.filter((c) => !this.consultaPassou(c))
+        .sort((a, b) => (b.dataObj?.getTime() ?? 0) - (a.dataObj?.getTime() ?? 0));
+      return [...aConfirmar, ...realizadas];
+    } else {
+      const alvo = aba === 'Pendentes' ? 'Pendente' : 'Negada';
+      lista = todas.filter((c) => c.status === alvo);
+    }
+    return lista.sort((a, b) => (a.dataObj?.getTime() ?? 0) - (b.dataObj?.getTime() ?? 0));
   });
+
 
   readonly consultasDeHoje = computed(() => {
     const hoje = new Date().toDateString();
@@ -156,7 +194,7 @@ export class HomeAdv implements OnInit, OnDestroy {
   });
 
   readonly consultasHoje = computed(() => this.consultasDeHoje().length);
-  readonly sessoesAgendadas = computed(() => this.todasConsultas().filter((c) => c.status === 'Agendada').length);
+  readonly sessoesAgendadas = computed(() => this.todasConsultas().filter((c) => c.status === 'Agendada' && !this.consultaPassou(c)).length);
 
   readonly ultimasAtividades = computed(() => {
     const agora = Date.now();
@@ -226,13 +264,16 @@ export class HomeAdv implements OnInit, OnDestroy {
 
   readonly artigos = signal<any[]>([]);
   readonly carregandoArtigos = signal(true);
-  readonly filtroArtigo = signal<'todos' | CategoriaArtigo | 'meus'>('todos');
+  readonly filtroArtigo = signal<FiltroArtigo>('todos');
   readonly ordemArtigos = signal<'recentes' | 'antigos'>('recentes');
+  /** ids dos artigos que o advogado salvou (advogados/{id}.favoritos) */
+  readonly favoritosIds = signal<string[]>([]);
 
   readonly artigosFiltrados = computed(() => {
     const f = this.filtroArtigo();
     let lista = this.artigos();
     if (f === 'meus') lista = lista.filter((a) => a.autorId && a.autorId === this.uidAtual);
+    else if (f === 'favoritos') lista = lista.filter((a) => this.favoritosIds().includes(a.id));
     else if (f !== 'todos') lista = lista.filter((a) => (a.categoria || '').toLowerCase() === f);
     const sinal = this.ordemArtigos() === 'recentes' ? -1 : 1;
     return [...lista].sort((a, b) => sinal * (a.tempo - b.tempo));
@@ -301,6 +342,10 @@ export class HomeAdv implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.activeSection.set(this.lerUltimaSecaoSalva());
     if (this.isBrowser) {
+      const filtroSalvo = sessionStorage.getItem(CHAVE_FILTRO_ARTIGO) as FiltroArtigo | null;
+      if (filtroSalvo) this.filtroArtigo.set(filtroSalvo);
+    }
+    if (this.isBrowser) {
       const temaSalvo = localStorage.getItem('theme');
       this.isDarkMode.set(temaSalvo === 'dark');
       document.body.setAttribute('data-theme', this.isDarkMode() ? 'dark' : 'light');
@@ -322,6 +367,7 @@ export class HomeAdv implements OnInit, OnDestroy {
       this.lembreteService.iniciarListenerDeConsultas(user.uid, 'advogado');
       this.carregarArtigos();
       this.carregarForum();
+      this.ouvirNotificacoes(user.uid);
     });
   }
 
@@ -329,6 +375,158 @@ export class HomeAdv implements OnInit, OnDestroy {
     this.timers.forEach((t) => clearTimeout(t));
     this.unsubConsultas?.();
     this.chatUnsubscribe?.();
+    this.unsubNotificacoes?.();
+  }
+
+  // ==========================================================
+  // AVISOS (sino): novo pedido, mãe cancelou, cadastro aprovado...
+  // Só filtra por destinatário e ordena aqui, sem precisar de índice no Firestore.
+  // ==========================================================
+  readonly notificacoes = signal<{ id: string; titulo: string; mensagem: string; tipo: string; consultaId: string | null; remetenteId: string | null; lida: boolean; criadoEm: Date | null }[]>([]);
+  readonly naoLidas = computed(() => this.notificacoes().filter((n) => !n.lida).length);
+  readonly notifAberto = signal(false);
+  /** pedidos esperando resposta: aparece como número no item "Consultas" do menu */
+  readonly pendentesCount = computed(() => this.todasConsultas().filter((c) => c.status === 'Pendente').length);
+  private unsubNotificacoes: (() => void) | null = null;
+
+  private ouvirNotificacoes(uid: string) {
+    this.unsubNotificacoes?.();
+    this.unsubNotificacoes = onSnapshot(
+      query(collection(db, 'notificacoes'), where('destinatarioId', '==', uid)),
+      (snap) => {
+        const lista = snap.docs.map((d) => {
+          const n: any = d.data();
+          return {
+            id: d.id,
+            titulo: n['titulo'] || 'Aviso',
+            mensagem: n['mensagem'] || '',
+            tipo: n['tipo'] || '',
+            consultaId: n['consultaId'] || null,
+            remetenteId: n['remetenteId'] || null,
+            lida: !!n['lida'],
+            criadoEm: n['criadoEm']?.toDate ? n['criadoEm'].toDate() : null,
+          };
+        });
+        lista.sort((a, b) => (b.criadoEm?.getTime() ?? Date.now()) - (a.criadoEm?.getTime() ?? Date.now()));
+        this.notificacoes.set(lista.slice(0, 20));
+      },
+      (e) => console.warn('Avisos indisponíveis:', e),
+    );
+  }
+
+  toggleNotificacoes() { this.notifAberto.update((v) => !v); }
+
+  async marcarAvisosComoLidos() {
+    const naoLidas = this.notificacoes().filter((n) => !n.lida);
+    if (!naoLidas.length) return;
+    try {
+      const batch = writeBatch(db);
+      naoLidas.forEach((n) => batch.update(doc(db, 'notificacoes', n.id), { lida: true }));
+      await batch.commit();
+    } catch (e) {
+      console.warn('Não foi possível marcar os avisos como lidos:', e);
+    }
+  }
+
+  iconeAviso(tipo: string): string {
+    switch (tipo) {
+      case 'consulta_nova': return 'fa-solid fa-calendar-plus';
+      case 'consulta_cancelada_mae': return 'fa-solid fa-calendar-xmark';
+      case 'chat_mensagem': return 'fa-solid fa-comment-dots';
+      case 'aprovacao_profissional': return 'fa-solid fa-circle-check';
+      default: return 'fa-solid fa-bell';
+    }
+  }
+
+  async abrirAviso(n: { id: string; lida: boolean; tipo: string; consultaId: string | null; remetenteId: string | null }) {
+    this.notifAberto.set(false);
+    if (!n.lida) {
+      try { await updateDoc(doc(db, 'notificacoes', n.id), { lida: true }); }
+      catch (e) { console.warn('Não foi possível marcar como lida:', e); }
+    }
+    if (n.tipo === 'chat_mensagem') {
+      this.selecionarSecao('chats');
+      const conversa = this.chatUsers().find((u) => u.id === n.remetenteId);
+      if (conversa) this.selecionarChat(conversa);
+      return;
+    }
+    if (n.tipo === 'consulta_nova') { this.selecionarSecao('consultas'); this.setAbaConsultas('Pendentes'); }
+    else if (n.tipo.startsWith('consulta_cancelada')) { this.selecionarSecao('consultas'); this.setAbaConsultas('Negadas'); }
+    else if (n.consultaId) { this.selecionarSecao('consultas'); }
+  }
+
+  quandoAviso(d: Date | null): string {
+    if (!d) return 'agora';
+    const min = Math.round((Date.now() - d.getTime()) / 60000);
+    if (min < 1) return 'agora';
+    if (min < 60) return `há ${min} min`;
+    const h = Math.floor(min / 60);
+    if (h < 24) return `há ${h} h`;
+    const dias = Math.floor(h / 24);
+    if (dias < 7) return dias === 1 ? 'ontem' : `há ${dias} dias`;
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  }
+
+  // ==========================================================
+  // HISTÓRICO DO ATENDIMENTO: todas as consultas e anotações de uma cliente
+  // ==========================================================
+  readonly prontuarioAberto = signal<{ id: string; nome: string; avatar: string } | null>(null);
+  readonly sessoesProntuario = signal<{ consulta: ConsultaView; texto: string }[]>([]);
+  readonly carregandoProntuario = signal(false);
+  readonly gerandoProntuarioPdf = signal(false);
+
+  async abrirProntuario(p: { id: string; nome: string; avatar: string }) {
+    this.prontuarioAberto.set(p);
+    this.carregandoProntuario.set(true);
+    const sessoes = this.todasConsultas()
+      .filter((c) => c.maeId === p.id && (c.status === 'Realizada' || this.consultaPassou(c)))
+      .sort((a, b) => (b.dataObj?.getTime() ?? 0) - (a.dataObj?.getTime() ?? 0));
+    this.sessoesProntuario.set(sessoes.map((consulta) => ({ consulta, texto: '' })));
+    try {
+      if (this.uidAtual) {
+        const snap = await getDocs(query(
+          collection(db, 'anotacoesAtendimento'),
+          where('profissionalUid', '==', this.uidAtual),
+          where('maeId', '==', p.id),
+        ));
+        const porConsulta = new Map(snap.docs.map((d) => [d.id, String(d.data()['texto'] || '')]));
+        this.sessoesProntuario.set(sessoes.map((consulta) => ({ consulta, texto: porConsulta.get(consulta.id) || '' })));
+      }
+    } catch (e) {
+      console.error('Erro ao abrir prontuário:', e);
+      this.alerta.erro('Não foi possível carregar as anotações agora.');
+    } finally {
+      this.carregandoProntuario.set(false);
+    }
+  }
+
+  fecharProntuario() { this.prontuarioAberto.set(null); }
+
+  editarDoProntuario(c: ConsultaView) {
+    this.prontuarioAberto.set(null);
+    this.abrirAnotacao(c);
+  }
+
+  async baixarProntuarioPdf() {
+    const p = this.prontuarioAberto();
+    if (!p) return;
+    this.gerandoProntuarioPdf.set(true);
+    try {
+      await gerarProntuario({
+        tipo: 'advogado',
+        profissional: { nome: this.nomeCompleto(), crp: this.oab() ? `OAB ${this.oab()}` : '' },
+        pacientes: [{
+          nome: p.nome,
+          sessoes: this.sessoesProntuario().map((s) => ({ data: s.consulta.dataObj, texto: s.texto })),
+        }],
+        nomeArquivo: `atendimentos-${p.nome}`,
+      });
+    } catch (e) {
+      console.error('Erro ao gerar PDF:', e);
+      this.alerta.erro('Não foi possível gerar o PDF agora.');
+    } finally {
+      this.gerandoProntuarioPdf.set(false);
+    }
   }
 
   irParaPerfil() {
@@ -356,6 +554,7 @@ export class HomeAdv implements OnInit, OnDestroy {
       if (dados) {
         this.nomeCompleto.set(dados['nome'] || 'Advogado(a)');
         this.oab.set(String(dados['oab'] || '').trim());
+        this.statusCadastro.set(String(dados['status'] || 'pendente').toLowerCase());
         this.cidadeProfissional.set(String(dados['cidade'] || '').trim());
         if (dados['avatar']) this.avatarUrl.set(dados['avatar']);
         this.disponibilidade.set(this.paraDatas(dados['disponibilidade']));
@@ -418,6 +617,7 @@ export class HomeAdv implements OnInit, OnDestroy {
             motivo: raw['Motivo'] || 'Não informado',
             statusRaw,
             status: STATUS_LABEL[statusRaw] || 'Pendente',
+            canceladaAposAceite: !!raw['canceladaAposAceite'],
             realizadoEm: raw['realizadoEm']?.toDate ? raw['realizadoEm'].toDate() : null,
           };
         });
@@ -464,7 +664,7 @@ export class HomeAdv implements OnInit, OnDestroy {
    * Aviso para a mãe na coleção `notificacoes` (mesmo formato que o painel do admin usa).
    * Falhar aqui nunca desfaz a confirmação.
    */
-  private async avisarMae(c: ConsultaView, decisao: 'aceita' | 'recusada') {
+  private async avisarMae(c: ConsultaView, decisao: 'aceita' | 'recusada' | 'cancelada', motivo = '') {
     if (!c.maeId) return;
     const quando = c.dataObj
       ? c.dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) + ' às ' + c.horario
@@ -472,11 +672,14 @@ export class HomeAdv implements OnInit, OnDestroy {
     try {
       await addDoc(collection(db, 'notificacoes'), {
         destinatarioId: c.maeId,
-        tipo: decisao === 'aceita' ? 'consulta_confirmada' : 'consulta_recusada',
-        titulo: decisao === 'aceita' ? 'Sua consulta foi confirmada!' : 'Sua consulta não pôde ser confirmada',
+        tipo: decisao === 'aceita' ? 'consulta_confirmada' : decisao === 'cancelada' ? 'consulta_cancelada' : 'consulta_recusada',
+        titulo: decisao === 'aceita' ? 'Sua consulta foi confirmada!'
+          : decisao === 'cancelada' ? 'Sua consulta foi desmarcada' : 'Sua consulta não pôde ser confirmada',
         mensagem: decisao === 'aceita'
           ? `${this.nomeCompleto()} confirmou sua consulta de ${quando}. No horário, entre pela página Minhas consultas.`
-          : `${this.nomeCompleto()} não poderá atender em ${quando}. Que tal escolher outro horário?`,
+          : decisao === 'cancelada'
+            ? `${this.nomeCompleto()} precisou desmarcar a consulta de ${quando}.${motivo ? ' Motivo: ' + motivo + '.' : ''} Você pode escolher outro horário quando quiser.`
+            : `${this.nomeCompleto()} não poderá atender em ${quando}. Que tal escolher outro horário?`,
         consultaId: c.id,
         link: '/consultas',
         lida: false,
@@ -484,6 +687,87 @@ export class HomeAdv implements OnInit, OnDestroy {
       });
     } catch (e) {
       console.warn('Aviso para a mãe não gravado:', e);
+    }
+  }
+
+  /** Desmarca uma consulta que já tinha sido aceita: libera o horário e avisa a mãe. */
+  async desmarcarConsulta(c: ConsultaView) {
+    const motivo = await this.alerta.solicitar(
+      `Desmarcar a consulta com ${c.nome} em ${c.data} às ${c.horario}? A mãe recebe um aviso. Se quiser, conte o motivo (opcional):`,
+      { titulo: 'Desmarcar consulta', textoOk: 'Desmarcar', textoCancelar: 'Voltar', perigo: true, placeholder: 'Ex.: imprevisto de saúde' },
+    );
+    if (motivo === null) return; // fechou sem confirmar
+    try {
+      await updateDoc(doc(db, 'Consultas', c.id), {
+        status: 'negado',
+        canceladoPor: 'advogado',
+        canceladoEm: serverTimestamp(),
+        canceladaAposAceite: true,
+        motivoCancelamento: motivo.trim(),
+      });
+      await this.liberarHorario(c.dataObj);
+      await this.avisarMae(c, 'cancelada', motivo.trim());
+      this.alerta.sucesso('Consulta desmarcada. A mãe foi avisada.');
+    } catch (err: any) {
+      console.error(err);
+      this.alerta.erro('Não foi possível desmarcar a consulta. Tente novamente.');
+    }
+  }
+
+  // ---------- Anotações do atendimento (sigilo profissional) ----------
+  // Ficam em anotacoesAtendimento/{consultaId} e só o próprio advogado lê e escreve.
+  readonly anotacaoAberta = signal<ConsultaView | null>(null);
+  readonly textoAnotacao = signal('');
+  readonly carregandoAnotacao = signal(false);
+  readonly salvandoAnotacao = signal(false);
+  readonly msgAnotacao = signal<{ tipo: 'ok' | 'erro'; texto: string } | null>(null);
+  readonly anotacaoAtualizadaEm = signal<Date | null>(null);
+
+  async abrirAnotacao(c: ConsultaView) {
+    this.anotacaoAberta.set(c);
+    this.textoAnotacao.set('');
+    this.msgAnotacao.set(null);
+    this.anotacaoAtualizadaEm.set(null);
+    this.carregandoAnotacao.set(true);
+    try {
+      const snap = await getDoc(doc(db, 'anotacoesAtendimento', c.id));
+      if (snap.exists()) {
+        const d: any = snap.data();
+        this.textoAnotacao.set(d['texto'] || '');
+        this.anotacaoAtualizadaEm.set(d['atualizadoEm']?.toDate ? d['atualizadoEm'].toDate() : null);
+      }
+    } catch (e) {
+      console.error('Erro ao abrir anotação:', e);
+      this.msgAnotacao.set({ tipo: 'erro', texto: 'Não foi possível abrir as anotações agora.' });
+    } finally {
+      this.carregandoAnotacao.set(false);
+    }
+  }
+
+  fecharAnotacao() { if (!this.salvandoAnotacao()) this.anotacaoAberta.set(null); }
+
+  async salvarAnotacao() {
+    const c = this.anotacaoAberta();
+    if (!c || !this.uidAtual) return;
+    this.salvandoAnotacao.set(true);
+    this.msgAnotacao.set(null);
+    try {
+      await setDoc(doc(db, 'anotacoesAtendimento', c.id), {
+        profissionalUid: this.uidAtual,
+        consultaId: c.id,
+        maeId: c.maeId || '',
+        maeNome: c.nome || '',
+        dataAtendimento: c.dataObj ? Timestamp.fromDate(c.dataObj) : null,
+        texto: this.textoAnotacao(),
+        atualizadoEm: serverTimestamp(),
+      }, { merge: true });
+      this.anotacaoAtualizadaEm.set(new Date());
+      this.msgAnotacao.set({ tipo: 'ok', texto: 'Anotações salvas.' });
+    } catch (e) {
+      console.error('Erro ao salvar anotação:', e);
+      this.msgAnotacao.set({ tipo: 'erro', texto: 'Não foi possível salvar. Tente de novo.' });
+    } finally {
+      this.salvandoAnotacao.set(false);
     }
   }
 
@@ -693,7 +977,11 @@ export class HomeAdv implements OnInit, OnDestroy {
   async carregarArtigos() {
     try {
       this.carregandoArtigos.set(true);
-      const snap = await getDocs(collection(db, 'artigos'));
+      const [snap, favoritos] = await Promise.all([
+        getDocs(collection(db, 'artigos')),
+        this.uidAtual ? carregarIdsFavoritosAdv(this.uidAtual) : Promise.resolve([] as string[]),
+      ]);
+      this.favoritosIds.set(favoritos);
       this.artigos.set(
         snap.docs.filter((d) => !d.data()?.['moderacao']?.removido).map((d) => {
           const a: any = d.data();
@@ -706,6 +994,31 @@ export class HomeAdv implements OnInit, OnDestroy {
       console.error('Erro ao carregar artigos:', e);
     } finally {
       this.carregandoArtigos.set(false);
+    }
+  }
+
+  /** Troca a aba de artigos e lembra dela (para voltar do artigo na mesma aba). */
+  filtrarArtigos(f: FiltroArtigo) {
+    this.filtroArtigo.set(f);
+    if (this.isBrowser) sessionStorage.setItem(CHAVE_FILTRO_ARTIGO, f);
+  }
+
+  ehFavorito(id: string): boolean { return this.favoritosIds().includes(id); }
+
+  /** Salva/remove dos favoritos direto pelo card, sem abrir o artigo. */
+  async alternarFavorito(artigo: any, ev: Event) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (!this.uidAtual) return;
+    const salvar = !this.ehFavorito(artigo.id);
+    const antes = this.favoritosIds();
+    this.favoritosIds.set(salvar ? [...antes, artigo.id] : antes.filter((id) => id !== artigo.id));
+    try {
+      await definirFavoritoAdv(this.uidAtual, artigo.id, salvar);
+    } catch (e) {
+      console.error('Erro ao atualizar favorito:', e);
+      this.favoritosIds.set(antes); // desfaz se não salvou
+      this.alerta.erro('Não foi possível atualizar seus favoritos. Tente de novo.');
     }
   }
 
@@ -948,6 +1261,16 @@ export class HomeAdv implements OnInit, OnDestroy {
     if (!texto || !this.chatId || !this.uidAtual) return;
     this.novaMensagem.set('');
     try {
+      // resumo do chat antes desta mensagem (para o aviso não repetir a cada mensagem)
+      const antes: any = (await getDoc(doc(db, 'chats', this.chatId))).data() || {};
+      const outro = (antes['participantes'] || []).find((p: string) => p !== this.uidAtual)
+        || this.chatSelecionado()?.id;
+      avisarMensagemChat({
+        chatId: this.chatId, remetenteId: this.uidAtual, remetenteNome: this.nomeCompleto(),
+        destinatarioId: outro, texto, link: `/chat?uid=${this.uidAtual}`,
+        ultimoEnviadoPor: antes['ultimoEnviadoPor'],
+        ultimaAtualizacao: antes['ultimaAtualizacao']?.toDate ? antes['ultimaAtualizacao'].toDate() : null,
+      });
       await addDoc(collection(db, 'chats', this.chatId, 'mensagens'), {
         texto,
         enviadoPor: this.uidAtual,
@@ -1281,14 +1604,13 @@ export class HomeAdv implements OnInit, OnDestroy {
     }
   }
 
-  abrirInformacoes(): void { this.selecionarSecao('informacoes'); }
   toggleSidebar(): void { this.sidebarOpen.update((v) => !v); }
   closeSidebar(): void { this.sidebarOpen.set(false); }
 
   private lerUltimaSecaoSalva(): SecaoHomeAdv {
     if (!this.isBrowser) return 'dashboard';
     const salva = localStorage.getItem(CHAVE_ULTIMA_SECAO) as SecaoHomeAdv | null;
-    const validas: SecaoHomeAdv[] = ['dashboard', 'agenda', 'artigos', 'consultas', 'forum', 'pacientes', 'chats', 'documentos', 'planos', 'informacoes'];
+    const validas: SecaoHomeAdv[] = ['dashboard', 'agenda', 'artigos', 'consultas', 'forum', 'pacientes', 'chats', 'documentos', 'planos'];
     return salva && validas.includes(salva) ? salva : 'dashboard';
   }
 
