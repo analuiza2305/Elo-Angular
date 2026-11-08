@@ -4,8 +4,8 @@
     <!-- HERO
          Desktop: arte recomposta em banner (sem o texto) com o texto em HTML por cima.
          Telas menores: texto + recorte só com as mães. -->
-    <section class="fr-hero">
-        <img src="/img/forum-hero-banner.webp" alt="" class="fr-hero-banner" width="2520" height="720">
+    <section class="fr-hero" [class.sem-banner]="bannerFalhou()">
+        <img src="/img/forum-hero-banner.webp" alt="" class="fr-hero-banner" width="2520" height="720" (error)="bannerFalhou.set(true)">
 
         <div class="fr-hero-texto">
             @if (embutido) {

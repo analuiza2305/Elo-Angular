@@ -377,3 +377,66 @@
 }
 .pp-root .pl-descricao-plano { margin: 0 0 6px; color: #6b6480; font-size: .88rem; }
 :host-context(body[data-theme="dark"]) .pp-root .pl-descricao-plano { color: #b8b0d6; }
+
+/* =====================================================================
+   PREMIUM ROXO — mesmo padrão do psicólogo e do advogado (sem dourado).
+   Fica no FIM para ganhar das regras antigas. Vale para Planos e Divulgação.
+===================================================================== */
+.pp-root {
+  --s-ouro: #6A3FD1;
+  --s-ouro-claro: #F3EDFF;
+  --s-ouro-borda: #DCCEFF;
+  --s-btn-ouro: linear-gradient(135deg, #7C4DFF 0%, #5B2EBF 60%, #3B1E7A 100%);
+  --pr-btn: linear-gradient(135deg, #7C4DFF 0%, #5B2EBF 60%, #3B1E7A 100%);
+  --pr-sombra: rgba(91, 46, 191, .30);
+}
+.pp-root .pl-atual.premium {
+  background: linear-gradient(120deg, #2A1260 0%, #4B23A8 50%, #8B5CF6 100%) !important;
+  border-color: transparent !important; box-shadow: 0 18px 40px rgba(59, 30, 122, .38) !important;
+}
+.pp-root .pl-atual.premium .pl-atual-icone { background: rgba(255, 255, 255, .18) !important; color: #FFFFFF !important; }
+.pp-root .pl-atual.premium small { color: #E9DFFF !important; }
+.pp-root .pl-card-premium {
+  background:
+    linear-gradient(170deg, #FFFFFF 0%, #F8F4FF 100%) padding-box,
+    linear-gradient(135deg, #B794F6, #7C4DFF 50%, #3B1E7A) border-box !important;
+  box-shadow: 0 20px 44px rgba(91, 46, 191, .16) !important;
+}
+.pp-root .pl-card-premium:hover { box-shadow: 0 26px 52px rgba(91, 46, 191, .24) !important; }
+.pp-root .pl-card-premium.atual { border-color: transparent !important; }
+.pp-root .pl-card h3 i,
+.pp-root .pl-card-premium h3 i { background: #F3EDFF !important; color: #7C4DFF !important; }
+.pp-root .pl-card-premium .pl-preco strong {
+  background: linear-gradient(135deg, #5B2EBF, #7C4DFF) !important;
+  -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important;
+}
+.pp-root .pl-card-premium .pl-check { background: #F3EDFF !important; color: #5B2EBF !important; }
+.pp-root .pl-chip-premium,
+.pp-root .pl-chip.pl-chip-premium {
+  background: var(--pr-btn) !important; color: #FFFFFF !important; border: none !important;
+  box-shadow: 0 8px 18px var(--pr-sombra) !important;
+}
+.pp-root .pl-btn-premium {
+  background: var(--pr-btn) !important; color: #FFFFFF !important;
+  box-shadow: 0 14px 28px var(--pr-sombra), inset 0 1px 0 rgba(255, 255, 255, .25) !important;
+}
+.pp-root .pl-btn-premium:hover:not(:disabled) { box-shadow: 0 18px 34px rgba(91, 46, 191, .4) !important; }
+.pp-root .pl-confirmar { background: #F3EDFF !important; border: 1px solid #DCCEFF !important; }
+.pp-root .pl-confirmar p { color: #4A2A9E !important; }
+
+:host-context(body[data-theme="dark"]) .pp-root .pl-card-premium {
+  background:
+    linear-gradient(170deg, #1B2336 0%, #241B45 100%) padding-box,
+    linear-gradient(135deg, #B794F6, #7C4DFF 50%, #5B2EBF) border-box !important;
+}
+:host-context(body[data-theme="dark"]) .pp-root .pl-card h3 i,
+:host-context(body[data-theme="dark"]) .pp-root .pl-card-premium .pl-check { background: rgba(183, 148, 246, .16) !important; color: #D6C4FF !important; }
+:host-context(body[data-theme="dark"]) .pp-root .pl-card-premium .pl-preco strong {
+  background: linear-gradient(135deg, #C4B5FD, #E9D5FF) !important; -webkit-background-clip: text !important; background-clip: text !important;
+}
+:host-context(body[data-theme="dark"]) .pp-root .pl-confirmar { background: linear-gradient(135deg, #1F1840, #2A1F57) !important; border-color: rgba(183, 148, 246, .3) !important; }
+:host-context(body[data-theme="dark"]) .pp-root .pl-confirmar p,
+:host-context(body[data-theme="dark"]) .pp-root .pl-chip-premium { color: #FFFFFF !important; }
+.pp-root .pl-card-premium .pl-chip-premium {
+  background: var(--pr-btn) !important; color: #FFFFFF !important; box-shadow: 0 8px 18px var(--pr-sombra) !important;
+}

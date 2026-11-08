@@ -1100,6 +1100,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         const raw = localStorage.getItem(this.DRAFT_ARTIGO);
         if (!raw) { statusRascunho(''); return; }
         const d = JSON.parse(raw);
+        if (d['categoria'] === 'legislativos') d['categoria'] = 'posts';
         campos.forEach((id) => { const el = document.getElementById(id) as HTMLInputElement | null; if (el && d[id] != null) el.value = d[id]; });
         statusRascunho('Rascunho recuperado.');
       } catch { /* sem rascunho */ }
@@ -1128,7 +1129,8 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         resumo: val('resumo').trim(),
         img: val('img').trim(),
         link: val('link').trim(),
-        categoria: val('categoria'),
+        // Empresa não publica artigo legislativo (conteúdo jurídico é dos advogados)
+        categoria: ['posts', 'educacionais', 'dicas'].includes(val('categoria')) ? val('categoria') : 'posts',
         postadoPor: this.nomeEmpresaAtual,
         datahorapost: new Date(),
         custoMoedas: 0,

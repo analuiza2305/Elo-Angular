@@ -1211,3 +1211,13 @@ button.fr-acao:hover,
   .fr-embutido .fr-hero-texto h1 { font-size: clamp(1.5rem, 4.4cqw, 3.2rem); margin-bottom: .35em; }
   .fr-embutido .fr-hero-texto p { font-size: clamp(.85rem, 1.65cqw, 1.25rem); line-height: 1.5; }
 }
+
+/* Banner grande não carregou: some com o ícone quebrado e usa o layout de telas menores
+   (texto à esquerda + ilustração das mães à direita), que funciona em qualquer largura. */
+.fr-hero.sem-banner {
+  display: flex !important; align-items: stretch; min-height: 280px;
+  background: linear-gradient(110deg, #F6F1FF 0%, #EEE5FF 55%, #E6DAFB 100%) !important;
+}
+.fr-hero.sem-banner .fr-hero-banner { display: none !important; }
+.fr-hero.sem-banner .fr-hero-arte { display: block !important; position: static !important; width: min(38%, 340px) !important; height: auto !important; align-self: flex-end; }
+.fr-hero.sem-banner .fr-hero-texto { position: static !important; transform: none !important; width: auto !important; flex: 1; padding: 36px 40px !important; }

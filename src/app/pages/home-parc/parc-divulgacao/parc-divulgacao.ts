@@ -25,7 +25,40 @@ type Aviso = { tipo: 'ok' | 'erro'; texto: string };
   templateUrl: './parc-divulgacao.html',
   styleUrls: ['../parc-planos/parc-planos.css'],
   styles: [`
-    .dv-secao { margin-top: 44px; }
+    .dv-secao { margin-top: 22px; }
+    /* card "Visibilidade das suas publicações" logo abaixo das abas, na largura toda */
+    .dv-visibilidade { margin-top: 18px; }
+    .dv-visibilidade .pl-atual { max-width: none !important; width: 100%; box-sizing: border-box; margin: 0 !important; }
+    /* cards de 3 em 3 */
+    .pp-root .pl-grid.dv-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; max-width: none !important; gap: 24px !important; align-items: stretch; }
+    @media (max-width: 1200px) { .pp-root .pl-grid.dv-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+    @media (max-width: 700px) { .pp-root .pl-grid.dv-grid-3 { grid-template-columns: 1fr !important; gap: 30px !important; } }
+    .dv-lista { margin-top: 0; }
+    /* sub-abas */
+    .dv-abas {
+      display: flex; gap: 6px; margin-top: 26px; padding: 6px; overflow-x: auto; scrollbar-width: none;
+      background: var(--s-card); border: 1px solid var(--s-borda); border-radius: 18px; box-shadow: var(--s-sombra);
+    }
+    .dv-abas::-webkit-scrollbar { display: none; }
+    .dv-aba {
+      flex: 1 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
+      padding: 12px 18px; border: none; border-radius: 13px; background: transparent; cursor: pointer;
+      font: inherit; font-weight: 700; font-size: .95rem; color: var(--s-suave); transition: background .2s, color .2s;
+    }
+    .dv-aba:hover { background: var(--s-roxo-claro); color: var(--s-roxo); }
+    .dv-aba.ativa { background: var(--s-btn-roxo); color: #FFFFFF; box-shadow: 0 8px 18px rgba(91, 61, 153, .25); }
+    .dv-aba-num {
+      min-width: 22px; height: 22px; padding: 0 7px; box-sizing: border-box; border-radius: 11px; display: inline-grid; place-items: center;
+      font-size: .75rem; font-weight: 800; background: var(--s-roxo-claro); color: var(--s-roxo);
+    }
+    .dv-aba.ativa .dv-aba-num { background: rgba(255, 255, 255, .25); color: #FFFFFF; }
+    .dv-vazio-card { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 22px; border-radius: 18px; border: 1px dashed var(--s-borda); background: var(--s-card); }
+    .dv-acoes .pl-btn { width: auto !important; flex: 0 0 auto; }
+    @media (max-width: 600px) {
+      .dv-aba { padding: 11px 14px; font-size: .88rem; }
+      .dv-acoes { width: 100%; }
+      .dv-acoes .pl-btn { flex: 1 1 140px; }
+    }
     .dv-secao > h3 { margin: 0 0 6px; font-size: 1.35rem; color: var(--s-texto); }
     .dv-secao > p { margin: 0 0 20px; color: var(--s-suave); }
     .dv-lista { display: grid; gap: 12px; margin-top: 18px; }
@@ -90,6 +123,22 @@ export class ParcDivulgacaoComponent implements OnInit, OnDestroy {
     const melhor = [...this.pacotesAtivos()].sort((a, b) => ordem(b.visibilidade) - ordem(a.visibilidade))[0];
     return melhor ? { visibilidade: melhor.visibilidade, ate: melhor.validoAte } : { visibilidade: 'basico', ate: null };
   });
+
+  // sub-abas da Divulgação (antes era tudo numa página só, um embaixo do outro)
+  readonly abas: { id: 'pacotes' | 'eventos' | 'anuncios' | 'meus'; rotulo: string; icone: string }[] = [
+    { id: 'pacotes', rotulo: 'Pacotes', icone: 'fa-solid fa-box-open' },
+    { id: 'eventos', rotulo: 'Divulgar evento', icone: 'fa-solid fa-calendar-check' },
+    { id: 'anuncios', rotulo: 'Anunciar', icone: 'fa-solid fa-bullhorn' },
+    { id: 'meus', rotulo: 'Meus anúncios', icone: 'fa-solid fa-chart-simple' },
+  ];
+  readonly aba = signal<'pacotes' | 'eventos' | 'anuncios' | 'meus'>('pacotes');
+  trocarAba(id: 'pacotes' | 'eventos' | 'anuncios' | 'meus', ev?: Event) {
+    this.aba.set(id);
+    // no celular as abas rolam para o lado: traz a aba escolhida para o meio
+    (ev?.currentTarget as HTMLElement | undefined)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    this.confirmandoPacoteId.set(null);
+    this.msg.set(null);
+  }
 
   // pacote: confirmação inline
   readonly confirmandoPacoteId = signal<string | null>(null);
