@@ -557,13 +557,20 @@ export class PerfilProfissionalComponent implements OnInit {
   // ---------------- Baixar todas as anotações (prontuários) em PDF ----------------
   readonly baixandoAnotacoes = signal(false);
 
+  /** Onde ficam as anotações de cada profissão. */
+  private consultaDasAnotacoes(uid: string, tipo: string) {
+    return tipo === 'advogado'
+      ? query(collection(db, 'anotacoesAtendimento'), where('profissionalUid', '==', uid))
+      : query(collection(db, 'anotacoesSessao'), where('psicologoUid', '==', uid));
+  }
+
   async baixarMinhasAnotacoes() {
     const user = auth.currentUser;
     const prof = this.profissional();
     if (!user || !prof) return;
     this.baixandoAnotacoes.set(true);
     try {
-      const snap = await getDocs(query(collection(db, 'anotacoesSessao'), where('psicologoUid', '==', user.uid)));
+      const snap = await getDocs(this.consultaDasAnotacoes(user.uid, prof.tipo));
       const porMae = new Map<string, PacienteProntuario>();
       const semNome: string[] = [];
       for (const d of snap.docs) {
@@ -574,7 +581,7 @@ export class PerfilProfissionalComponent implements OnInit {
           if (!a['maeNome'] && maeId !== 'sem-id') semNome.push(maeId);
         }
         porMae.get(maeId)!.sessoes.push({
-          data: a['dataSessao']?.toDate ? a['dataSessao'].toDate() : null,
+          data: (a['dataSessao'] || a['dataAtendimento'])?.toDate ? (a['dataSessao'] || a['dataAtendimento']).toDate() : null,
           texto: a['texto'] || '',
         });
       }
@@ -588,13 +595,16 @@ export class PerfilProfissionalComponent implements OnInit {
 
       const pacientes = [...porMae.values()].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
       if (!pacientes.length) {
-        this.alerta.info('Você ainda não tem anotações de sessão para baixar.');
+        this.alerta.info('Você ainda não tem anotações para baixar.');
         return;
       }
+      const adv = prof.tipo === 'advogado';
+      const registro = prof.identificacao && !/não informad/i.test(prof.identificacao) ? `${adv ? 'OAB' : 'CRP'} ${prof.identificacao}` : '';
       await gerarProntuario({
-        profissional: { nome: prof.nome, crp: prof.identificacao && !/não informado/i.test(prof.identificacao) ? `CRP ${prof.identificacao}` : '' },
+        tipo: adv ? 'advogado' : 'psicologo',
+        profissional: { nome: prof.nome, crp: registro },
         pacientes,
-        nomeArquivo: 'prontuarios-elomaterno',
+        nomeArquivo: adv ? 'atendimentos-elomaterno' : 'prontuarios-elomaterno',
       });
     } catch (e) {
       console.error('Erro ao baixar anotações:', e);
@@ -664,13 +674,11 @@ export class PerfilProfissionalComponent implements OnInit {
         }
       } catch (e) { console.warn('Não foi possível revisar as consultas:', e); }
 
-      // 2. anotações das sessões (só psicóloga)
-      if (prof.tipo === 'psicologo') {
-        try {
-          const notas = await getDocs(query(collection(db, 'anotacoesSessao'), where('psicologoUid', '==', user.uid)));
-          await Promise.all(notas.docs.map((n) => deleteDoc(n.ref)));
-        } catch (e) { console.warn('Anotações não apagadas:', e); }
-      }
+      // 2. anotações (psicóloga: anotacoesSessao · advogado: anotacoesAtendimento)
+      try {
+        const notas = await getDocs(this.consultaDasAnotacoes(user.uid, prof.tipo));
+        await Promise.all(notas.docs.map((n) => deleteDoc(n.ref)));
+      } catch (e) { console.warn('Anotações não apagadas:', e); }
 
       // 3. cadastro profissional, dados de usuário e, por último, o login
       const colecao = prof.tipo === 'psicologo' ? 'psicologos' : 'advogados';

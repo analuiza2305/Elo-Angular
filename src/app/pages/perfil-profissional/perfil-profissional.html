@@ -123,22 +123,25 @@
               <strong class="conta-status" [class.ok]="profissional().statusCadastro === 'aprovado'">{{ rotuloStatusCadastro() }}</strong>
             </div>
 
-            @if (isPsicologo()) {
-              <div class="conta-anotacoes">
-                <div>
+            <div class="conta-anotacoes">
+              <div>
+                @if (isPsicologo()) {
                   <strong>Suas anotações de sessão</strong>
                   <p>Baixe todos os prontuários em PDF. O CFP pede que esses registros sejam guardados por pelo menos 5 anos, então baixe antes de excluir a conta.</p>
-                </div>
-                <button type="button" class="btn-baixar-anotacoes" (click)="baixarMinhasAnotacoes()" [disabled]="baixandoAnotacoes()">
-                  <i class="fa-solid fa-download"></i> {{ baixandoAnotacoes() ? 'Gerando...' : 'Baixar PDF' }}
-                </button>
+                } @else {
+                  <strong>Suas anotações de atendimento</strong>
+                  <p>Baixe o histórico de todas as clientes em PDF. Vale guardar uma cópia antes de excluir a conta.</p>
+                }
               </div>
-            }
+              <button type="button" class="btn-baixar-anotacoes" (click)="baixarMinhasAnotacoes()" [disabled]="baixandoAnotacoes()">
+                <i class="fa-solid fa-download"></i> {{ baixandoAnotacoes() ? 'Gerando...' : 'Baixar PDF' }}
+              </button>
+            </div>
 
             <div class="conta-perigo">
               <div>
                 <strong>Excluir conta</strong>
-                <p>Apaga seu cadastro{{ isPsicologo() ? ', suas anotações de sessão' : '' }} e seu login. As consultas que ainda iam acontecer são canceladas e as mães recebem um aviso. Não dá para desfazer.</p>
+                <p>Apaga seu cadastro, suas anotações e seu login. As consultas que ainda iam acontecer são canceladas e as mães recebem um aviso. Não dá para desfazer.</p>
               </div>
               <button type="button" class="btn-excluir-conta" (click)="abrirExcluirConta()">Excluir minha conta</button>
             </div>
