@@ -70,6 +70,19 @@ import { Anuncio, DivulgacaoService } from '../../services/divulgacao';
     .ad-cta { font-size: .82rem; font-weight: 800; color: #5B3D99; margin-top: 2px; }
     .ad-cta i { font-size: .7rem; }
     @media (max-width: 520px) { .ad-corpo { flex-direction: column; align-items: flex-start; } .ad-img { width: 100%; height: 130px; } }
+    /* Versão larga (home da mãe): no computador ocupa a largura da página, como as outras seções.
+       No celular continua igual (já ficava bom). */
+    @media (min-width: 768px) {
+      :host(.anuncio-largo) { margin: 8px 0; }
+      :host(.anuncio-largo) .ad { max-width: none; padding: 34px 28px 24px; border-radius: 24px; }
+      :host(.anuncio-largo) .ad-etiqueta { top: 12px; left: 28px; font-size: .7rem; }
+      :host(.anuncio-largo) .ad-corpo { gap: 26px; }
+      :host(.anuncio-largo) .ad-img { width: 240px; height: 150px; border-radius: 16px; }
+      :host(.anuncio-largo) .ad-texto { gap: 8px; }
+      :host(.anuncio-largo) .ad-texto strong { font-size: 1.3rem; }
+      :host(.anuncio-largo) .ad-desc { font-size: 1rem; line-height: 1.55; }
+      :host(.anuncio-largo) .ad-cta { font-size: .92rem; margin-top: 4px; }
+    }
     :host-context(body[data-theme="dark"]) .ad { background: #1B2336; border-color: rgba(255, 255, 255, .1); box-shadow: none; }
     :host-context(body[data-theme="dark"]) .ad-etiqueta { color: #B9AEE0; }
     :host-context(body[data-theme="dark"]) .ad-texto strong { color: #F5F0FF; }

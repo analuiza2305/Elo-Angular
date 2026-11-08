@@ -22,6 +22,8 @@ const POSTS_POR_PAGINA = 8;
   styleUrls: ['./forum.css']
 })
 export class ForumComponent implements OnInit {
+  /** Se a arte grande do banner não carregar, usa o layout com texto + ilustração (sem ícone quebrado). */
+  readonly bannerFalhou = signal(false);
   private router = inject(Router);
 
   /**
