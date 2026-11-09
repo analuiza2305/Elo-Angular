@@ -314,9 +314,8 @@
                   <a routerLink="/home-mae" routerLinkActive="ativo" class="nav-item">Início</a>
                   <a routerLink="/forum" routerLinkActive="ativo" class="nav-item">Fórum</a>
                   <a routerLink="/consultoria" routerLinkActive="ativo" class="nav-item">Consultorias</a>
-                  <a routerLink="/agenda-mae" routerLinkActive="ativo" class="nav-item">Agenda</a>
                   <a routerLink="/eventos" routerLinkActive="ativo" class="nav-item">Eventos</a>
-                  <a routerLink="/artigos" routerLinkActive="ativo" class="nav-item">Artigos</a>
+                  <a routerLink="/artigos" routerLinkActive="ativo" class="nav-item">Comunidade</a>
                   <a routerLink="/carreiras" routerLinkActive="ativo" class="nav-item">Carreiras</a>
               </nav>
           </div>
@@ -341,7 +340,7 @@
                   }
                 </button>
 
-                @if (isNotifOpen) {
+                @if (isNotifOpen && !isMobileMenuOpen) {
                   <div class="notif-panel" role="dialog" aria-label="Notificações" (click)="$event.stopPropagation()">
                     <div class="notif-panel-header">
                       <strong>Notificações</strong>
@@ -409,6 +408,7 @@
                   </button>
                   @if (isUserDropdownOpen) {
                   <div class="user-dropdown-menu">
+                      <a routerLink="/agenda-mae" class="dropdown-item"><i class="fa-regular fa-calendar"></i> Agenda</a>
                       <a routerLink="/perfil" class="dropdown-item"><i class="fa-regular fa-user"></i> Meu Perfil</a>
                       <div class="dropdown-item text-danger" (click)="logout()" style="cursor:pointer;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair da conta</div>
                   </div>
@@ -460,10 +460,10 @@
                       <i class="fa-solid fa-bullhorn"></i> Eventos
                   </a>
                   <a routerLink="/artigos" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
-                      <i class="fa-solid fa-book-open"></i> Artigos
+                      <i class="fa-solid fa-book-open"></i> Comunidade
                   </a>
                   <a routerLink="/carreiras" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
-                      <i class="fa-solid fa-seedling"></i> Carreiras
+                      <i class="fa-solid fa-briefcase"></i> Carreiras
                   </a>
                   <a routerLink="/chat" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link mobile-link-chat">
                       <i class="fa-solid fa-comment-dots"></i> Minhas Mensagens
