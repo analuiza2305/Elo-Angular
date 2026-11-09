@@ -1221,3 +1221,27 @@ button.fr-acao:hover,
 .fr-hero.sem-banner .fr-hero-banner { display: none !important; }
 .fr-hero.sem-banner .fr-hero-arte { display: block !important; position: static !important; width: min(38%, 340px) !important; height: auto !important; align-self: flex-end; }
 .fr-hero.sem-banner .fr-hero-texto { position: static !important; transform: none !important; width: auto !important; flex: 1; padding: 36px 40px !important; }
+/* Banner do fórum mais baixo no computador: corta um pouco em cima e embaixo, sem distorcer */
+@media (min-width: 1024px) {
+  .fr-hero-banner {
+    aspect-ratio: 3.4 / 1;
+    height: auto !important;
+    object-fit: cover;
+    object-position: center center;
+  }
+}
+/* Celular e tablet: usa o banner novo (png) embaixo do texto, em vez do recorte antigo das mães */
+@media (max-width: 1023px) {
+  .fr-hero { flex-direction: column; }
+  .fr-hero-arte { display: none !important; }
+  .fr-hero-banner {
+    display: block !important;
+    order: 2;
+    width: 100% !important;
+    height: 220px !important;
+    object-fit: cover;
+    object-position: 85% center;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 25%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 25%);
+  }
+}

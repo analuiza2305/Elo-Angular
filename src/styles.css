@@ -13451,3 +13451,75 @@ body[data-theme="dark"] .mobile-link.ativo i {
   background: rgba(26, 21, 48, 0.12) !important;
   color: #1A1530 !important;
 }
+/* =========================================================
+   BANNERS: tipografia e cores iguais ao banner do fórum
+   (carreiras, artigos, favoritos, eventos, consultoria,
+   escolher profissional)
+   ========================================================= */
+app-carreiras .car-hero h1,
+app-artigos .artigos-hero-banner .hero-content h1,
+app-artigos-favoritos .artigos-hero-banner .hero-content h1,
+app-artigos-favoritos-psi .artigos-hero-banner .hero-content h1,
+app-eventos .eventos-hero-banner .hero-content h1,
+app-consultoria .ct-banner-texto h1,
+app-consulta-lista-psi .page-header h1 {
+  font-family: var(--font-heading, 'Poppins', sans-serif) !important;
+  font-size: clamp(2rem, 3.2vw, 3.2rem) !important;
+  font-weight: 800 !important;
+  line-height: 1.12 !important;
+  letter-spacing: normal !important;
+  color: #2A1B5C !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: 0 !important;
+  margin: 0 0 .4em !important;
+  text-align: left;
+}
+
+app-carreiras .car-hero h1 span,
+app-consultoria .ct-banner-texto h1 span,
+app-artigos .artigos-hero-banner .hero-content h1 span,
+app-eventos .eventos-hero-banner .hero-content h1 span {
+  color: #7c69a9 !important;
+}
+
+app-carreiras .car-hero p,
+app-artigos .artigos-hero-banner .hero-content p,
+app-artigos-favoritos .artigos-hero-banner .hero-content p,
+app-artigos-favoritos-psi .artigos-hero-banner .hero-content p,
+app-eventos .eventos-hero-banner .hero-content p,
+app-consultoria .ct-banner-texto p,
+app-consulta-lista-psi .page-header p {
+  font-family: inherit !important;
+  font-size: clamp(1rem, 1.25vw, 1.3rem) !important;
+  font-weight: 400 !important;
+  line-height: 1.55 !important;
+  color: #3E3656 !important;
+  text-shadow: none !important;
+  text-align: left;
+}
+
+/* Modo escuro: banners com fundo escuro ganham texto claro (mesmo tom do fórum no escuro) */
+body[data-theme="dark"] app-carreiras .car-hero h1 { color: #F4F1FF !important; }
+body[data-theme="dark"] app-carreiras .car-hero p { color: #CFC7EA !important; }
+
+/* Celular: título menor para não quebrar demais */
+@media (max-width: 600px) {
+  app-carreiras .car-hero h1,
+  app-artigos .artigos-hero-banner .hero-content h1,
+  app-artigos-favoritos .artigos-hero-banner .hero-content h1,
+  app-artigos-favoritos-psi .artigos-hero-banner .hero-content h1,
+  app-eventos .eventos-hero-banner .hero-content h1,
+  app-consultoria .ct-banner-texto h1,
+  app-consulta-lista-psi .page-header h1 {
+    font-size: 1.75rem !important;
+  }
+  app-carreiras .car-hero p,
+  app-artigos .artigos-hero-banner .hero-content p,
+  app-artigos-favoritos .artigos-hero-banner .hero-content p,
+  app-artigos-favoritos-psi .artigos-hero-banner .hero-content p,
+  app-eventos .eventos-hero-banner .hero-content p,
+  app-consultoria .ct-banner-texto p,
+  app-consulta-lista-psi .page-header p {
+    font-size: .98rem !important;
+  }
+}
