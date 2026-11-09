@@ -6699,3 +6699,162 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
 :host-context(body[data-theme="dark"]) .cfg-aviso { background: rgba(251, 191, 36, .12); color: #FBD38D; }
 :host-context(body[data-theme="dark"]) .cfg-pendente { background: rgba(251, 191, 36, .14); color: #FBBF24; }
 :host-context(body[data-theme="dark"]) .cfg-voce { background: rgba(157, 143, 231, .18); color: #D6CBFF; }
+
+/* INDICADORES DO MONITORAMENTO DE ERROS */
+
+.monitoramento-indicadores {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin: 24px 0;
+}
+
+.monitoramento-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 14px;
+  background: var(--card-bg, #fff);
+}
+
+.monitoramento-card-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 20px;
+}
+
+.monitoramento-card p {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #777;
+}
+
+.monitoramento-card h3 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .monitoramento-indicadores {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* GRÁFICO DO MONITORAMENTO DE ERROS */
+
+.monitoramento-grafico {
+  margin: 28px 0;
+  padding: 24px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 14px;
+  background: var(--card-bg, #fff);
+}
+
+.monitoramento-grafico h3 {
+  margin: 0 0 20px;
+}
+
+.monitoramento-grafico-area {
+  position: relative;
+  width: 100%;
+  height: 280px;
+}
+
+
+/* =========================================
+   MELHORIAS VISUAIS - MONITORAMENTO DE ERROS
+========================================= */
+
+/* Cabeçalho */
+
+#monitoramentoErros .monitoramento-cabecalho {
+  margin-bottom: 20px;
+}
+
+#monitoramentoErros .monitoramento-cabecalho h3 {
+  font-size: 21px;
+  margin-bottom: 6px;
+}
+
+/* Gráfico */
+
+#monitoramentoErros .monitoramento-grafico {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 26px;
+  margin: 28px 0;
+  border-radius: 16px;
+}
+
+#monitoramentoErros .monitoramento-grafico h3 {
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+#monitoramentoErros .monitoramento-grafico-area {
+  position: relative;
+  width: 100%;
+  height: 380px;
+}
+
+/* Botão atualizar */
+
+#monitoramentoErros .monitoramento-btn-atualizar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 155px;
+  min-height: 46px;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 10px;
+  background: #8E65BF;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: .2s ease;
+}
+
+#monitoramentoErros .monitoramento-btn-atualizar:hover {
+  background: #7650A8;
+  transform: translateY(-2px);
+}
+
+#monitoramentoErros .monitoramento-btn-atualizar:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+/* Rolagem da tabela */
+
+#monitoramentoErros .mod-tabela-scroll {
+  max-height: 440px;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsividade */
+
+@media (max-width: 768px) {
+  #monitoramentoErros .monitoramento-grafico-area {
+    height: 300px;
+  }
+
+  #monitoramentoErros .monitoramento-btn-atualizar {
+    width: 100%;
+  }
+}

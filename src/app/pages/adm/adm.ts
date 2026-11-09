@@ -38,7 +38,7 @@ import { Assinante, PagamentoPlano, PlanoService, RelatorioFinanceiro, formatarB
 import { AdmPlanosComponent } from './adm-planos/adm-planos';
 import { AdmDivulgacaoComponent } from './adm-divulgacao/adm-divulgacao';
 import { AdmSelosComponent } from './adm-selos/adm-selos';
-
+import { ErrorMonitorService, ErroMonitorado } from '../../services/error-monitor.service';
 Chart.register(...registerables);
 
 interface ProfissionalData {
@@ -169,12 +169,14 @@ interface AdminUsuario {
 type NivelAdm = 'superAdmin' | 'administrador' | 'moderador';
 
 /** Áreas do painel que podem ser liberadas por nível (a chave é a aba). */
+
 const PERMISSOES_ADM: { chave: string; nome: string; desc: string; soSuper?: boolean }[] = [
   { chave: 'usuarios', nome: 'Usuários', desc: 'Ver mães, profissionais e parceiros; advertir e suspender.' },
   { chave: 'aprovacoes', nome: 'Aprovações', desc: 'Aprovar ou recusar cadastros de psicólogos e advogados.' },
   { chave: 'denuncias', nome: 'Denúncias', desc: 'Analisar e resolver denúncias.' },
   { chave: 'forum', nome: 'Fórum', desc: 'Moderar posts e respostas do fórum.' },
   { chave: 'moderacao', nome: 'Moderação de conteúdo', desc: 'Ocultar ou excluir artigos e eventos.' },
+  { chave: 'monitoramentoErros', nome: 'Monitoramento de Erros', desc: 'Visualizar e acompanhar os erros registrados pela plataforma.' },
   { chave: 'planos', nome: 'Planos', desc: 'Planos e assinaturas.' },
   { chave: 'divulgacao', nome: 'Divulgação', desc: 'Pacotes de divulgação de parceiros.' },
   { chave: 'selos', nome: 'Selos', desc: 'Selos de destaque e apoiador.' },
@@ -183,9 +185,21 @@ const PERMISSOES_ADM: { chave: string; nome: string; desc: string; soSuper?: boo
 ];
 
 const PERMISSOES_PADRAO: Record<'administrador' | 'moderador', string[]> = {
-  administrador: ['usuarios', 'aprovacoes', 'denuncias', 'forum', 'moderacao', 'planos', 'divulgacao', 'selos', 'relatorios'],
+  administrador: [
+    'usuarios',
+    'aprovacoes',
+    'denuncias',
+    'forum',
+    'moderacao',
+    'monitoramentoErros',
+    'planos',
+    'divulgacao',
+    'selos',
+    'relatorios'
+  ],
   moderador: ['usuarios', 'denuncias', 'forum', 'moderacao'],
 };
+
 
 /** Linha da tabela do modal "Notificações". */
 interface NotificacaoConfig {
@@ -2203,7 +2217,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
 
   private redeChart: any = null;
   private unsubscribes: Unsubscribe[] = [];
-
+  private errosChart: any = null;
 
   // ==========================================================================
   // NOVO — ADMIN LIGADO AO BANCO (aprovações, profissionais, parceiros, avisos, fórum)
@@ -2211,6 +2225,161 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   private router = inject(Router);
   private readonly alerta = inject(AlertaService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly errorMonitor = inject(ErrorMonitorService);
+
+  // Monitoramento de erros
+errosMonitorados: ErroMonitorado[] = [];
+carregandoErrosMonitorados = false;
+erroAoCarregarErros = '';
+errosJaCarregados = false;
+
+// Total de registros de erros agrupados
+get totalErrosMonitorados(): number {
+  return this.errosMonitorados.length;
+}
+
+// Soma de todas as ocorrências registradas
+get totalOcorrenciasErros(): number {
+  return this.errosMonitorados.reduce(
+    (total, erro) => total + (erro.ocorrencias || 1),
+    0
+  );
+}
+
+// Quantidade de tipos diferentes de erros
+get totalTiposErros(): number {
+  return new Set(
+    this.errosMonitorados.map(erro => erro.tipo)
+  ).size;
+}
+
+async testarGravacaoMonitoramento(): Promise<void> {
+  try {
+    await this.errorMonitor.registrarErro({
+      tipo: 'TesteManual',
+      mensagem: 'Teste de gravação do monitoramento',
+      pagina: window.location.pathname,
+      navegador: navigator.userAgent,
+      stack: 'Teste manual do sistema de monitoramento'
+    });
+
+    console.log('[TESTE] Erro gravado com sucesso no Firestore!');
+    alert('Sucesso! O teste foi gravado no Firebase.');
+
+  } catch (erro) {
+    console.error('[TESTE] Falha ao gravar no Firestore:', erro);
+    alert('Falha na gravação. Consulte o Console do navegador.');
+  }
+}
+
+async carregarErrosMonitorados(forcarAtualizacao = false): Promise<void> {
+  if (this.carregandoErrosMonitorados) return;
+
+  if (this.errosJaCarregados && !forcarAtualizacao) return;
+
+  this.carregandoErrosMonitorados = true;
+  this.erroAoCarregarErros = '';
+
+  try {
+    this.errosMonitorados = await this.errorMonitor.listarErros();
+    this.errosJaCarregados = true;
+    this.atualizarGraficoErros();
+
+    console.log(
+      '[MONITORAMENTO] Erros carregados:',
+      this.errosMonitorados
+    );
+
+  } catch (erro) {
+    console.error('[MONITORAMENTO] Erro ao buscar registros:', erro);
+    this.erroAoCarregarErros = 'Não foi possível carregar os erros registrados.';
+  } finally {
+    this.carregandoErrosMonitorados = false;
+    this.atualizarTela();
+  }
+}
+
+
+atualizarGraficoErros(): void {
+  const canvas = document.getElementById(
+    'monitoramentoErrosChart'
+  ) as HTMLCanvasElement | null;
+
+  if (!canvas) return;
+
+  // Seleciona os 5 erros com mais ocorrências
+  const principais = [...this.errosMonitorados]
+    .sort((a, b) => b.ocorrencias - a.ocorrencias)
+    .slice(0, 5);
+
+  const labels = principais.map(erro =>
+    erro.tipo.length > 25
+      ? erro.tipo.substring(0, 25) + '...'
+      : erro.tipo
+  );
+
+  const valores = principais.map(erro => erro.ocorrencias);
+
+  if (this.errosChart) {
+    this.errosChart.data.labels = labels;
+    this.errosChart.data.datasets[0].data = valores;
+    this.errosChart.update();
+    return;
+  }
+
+  this.errosChart = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Ocorrências',
+        data: valores,
+        backgroundColor: '#8E65BF',
+        borderRadius: 8,
+        maxBarThickness: 55
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0
+          }
+        }
+      }
+    }
+  });
+}
+
+
+formatarDataErro(valor: unknown): Date | null {
+  if (valor instanceof Date) {
+    return valor;
+  }
+
+  if (
+    valor &&
+    typeof valor === 'object' &&
+    'toDate' in valor &&
+    typeof (valor as { toDate?: unknown }).toDate === 'function'
+  ) {
+    const data = (valor as { toDate: () => Date }).toDate();
+
+    return data instanceof Date && !isNaN(data.getTime())
+      ? data
+      : null;
+  }
+
+  return null;
+}
 
   constructor() {
     this.avisarAngularQuandoAsyncTerminar();
@@ -2884,6 +3053,10 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
       this.redeChart.destroy();
     }
 
+if (this.errosChart) {
+  this.errosChart.destroy();
+}
+
     if (this.conteudoDonutChart) {
       this.conteudoDonutChart.destroy();
     }
@@ -2941,6 +3114,12 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
     }
     this.abaAtiva = aba;
     this.sidebarAberta = false;
+
+    if (aba === 'monitoramentoErros') {
+  void this.carregarErrosMonitorados();
+}
+
+
 
     if (aba === 'home') {
       setTimeout(() => this.atualizarGraficoRede(), 0);

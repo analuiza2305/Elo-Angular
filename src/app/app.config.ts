@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, ErrorHandler} from '@angular/core';
 
 import { provideRouter, withViewTransitions, withInMemoryScrolling } from '@angular/router';
 
@@ -7,7 +7,7 @@ import { provideRouter, withViewTransitions, withInMemoryScrolling } from '@angu
 import { routes } from './app.routes';
 
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-
+import { GlobalErrorHandler } from './services/error-handler.service';
 
 
 // OBS: o Firebase (Auth + Firestore) deste projeto é inicializado uma
@@ -27,7 +27,10 @@ export const appConfig: ApplicationConfig = {
   providers: [
 
     provideBrowserGlobalErrorListeners(),
-
+ {
+    provide: ErrorHandler,
+    useClass: GlobalErrorHandler
+  },
     provideRouter(
       routes,
       withViewTransitions({ skipInitialTransition: true }),
