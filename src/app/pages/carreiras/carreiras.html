@@ -8,23 +8,13 @@
       <h1>Seu próximo passo começa aqui</h1>
       <p>Vagas e cursos divulgados por empresas e ONGs parceiras. Encontre uma oportunidade e siga direto para a página de quem divulgou.</p>
     </div>
-    <img class="car-hero-img" src="/img/carreiras-hero.webp" alt="" width="1350" height="900" aria-hidden="true">
+    <img class="car-hero-img" src="/img/carreiras-hero.png" alt="" width="1350" height="900" aria-hidden="true">
   </section>
 
-  <!-- ABAS -->
-  <nav class="car-abas" role="tablist" aria-label="Seções de carreiras">
-    <button type="button" role="tab" class="car-aba" [class.ativa]="aba() === 'vagas'" [attr.aria-selected]="aba() === 'vagas'" (click)="aba.set('vagas')">
-      <span class="car-aba-ic ic-vaga"><i class="fa-solid fa-briefcase"></i></span>
-      <span class="car-aba-txt"><strong>Vagas</strong><small>{{ totalVagas() }} {{ totalVagas() === 1 ? 'aberta' : 'abertas' }}</small></span>
-    </button>
-    <button type="button" role="tab" class="car-aba" [class.ativa]="aba() === 'cursos'" [attr.aria-selected]="aba() === 'cursos'" (click)="aba.set('cursos')">
-      <span class="car-aba-ic ic-curso"><i class="fa-solid fa-graduation-cap"></i></span>
-      <span class="car-aba-txt"><strong>Cursos</strong><small>{{ totalCursos() }} {{ totalCursos() === 1 ? 'disponível' : 'disponíveis' }}</small></span>
-    </button>
-  </nav>
 
-  <!-- ===================== VAGAS ===================== -->
-  @if (aba() === 'vagas') {
+  <!-- BUSCA + VAGAS/CURSOS -->
+  <section class="car-painel">
+    @if (aba() === 'vagas') {
     <div class="car-barra">
       <label class="car-barra-busca">
         <i class="fa-solid fa-magnifying-glass"></i>
@@ -58,14 +48,52 @@
         </div>
       </div>
     }
-
-    <div class="car-resumo">
-      <span>{{ vagasFiltradas().length }} {{ vagasFiltradas().length === 1 ? 'vaga encontrada' : 'vagas encontradas' }}</span>
-      @if (filtrosVagaAtivos()) {
-        <button type="button" class="car-limpar" (click)="limparFiltrosVaga()"><i class="fa-solid fa-xmark"></i> Limpar filtros</button>
-      }
+    } @else {
+    <div class="car-barra">
+      <label class="car-barra-busca">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" placeholder="Curso ou instituição" [ngModel]="buscaCurso()" (ngModelChange)="buscaCurso.set($event)" aria-label="Buscar cursos">
+      </label>
+      <span class="car-barra-div" aria-hidden="true"></span>
+      <select class="car-barra-select" [ngModel]="areaCurso()" (ngModelChange)="areaCurso.set($event)" aria-label="Área">
+        <option value="">Todas as áreas</option>
+        @for (a of areas; track a.nome) { <option [value]="a.nome">{{ a.nome }}</option> }
+      </select>
+      <button type="button" class="car-barra-btn" [class.ativo]="soGratuitos()" (click)="soGratuitos.set(!soGratuitos())" [attr.aria-pressed]="soGratuitos()">
+        <span class="car-mini-switch" [class.on]="soGratuitos()"></span> Só gratuitos
+      </button>
     </div>
+    }
 
+    <div class="car-painel-pe">
+    <nav class="car-abas" role="tablist" aria-label="Seções de carreiras">
+      <button type="button" role="tab" class="car-aba" [class.ativa]="aba() === 'vagas'" [attr.aria-selected]="aba() === 'vagas'" (click)="aba.set('vagas')">
+        <span class="car-aba-ic ic-vaga"><i class="fa-solid fa-briefcase"></i></span>
+        <span class="car-aba-txt"><strong>Vagas</strong><small>{{ totalVagas() }} {{ totalVagas() === 1 ? 'aberta' : 'abertas' }}</small></span>
+      </button>
+      <button type="button" role="tab" class="car-aba" [class.ativa]="aba() === 'cursos'" [attr.aria-selected]="aba() === 'cursos'" (click)="aba.set('cursos')">
+        <span class="car-aba-ic ic-curso"><i class="fa-solid fa-graduation-cap"></i></span>
+        <span class="car-aba-txt"><strong>Cursos</strong><small>{{ totalCursos() }} {{ totalCursos() === 1 ? 'disponível' : 'disponíveis' }}</small></span>
+      </button>
+    </nav>
+      <div class="car-resumo">
+        @if (aba() === 'vagas') {
+        <span>{{ vagasFiltradas().length }} {{ vagasFiltradas().length === 1 ? 'vaga encontrada' : 'vagas encontradas' }}</span>
+        @if (filtrosVagaAtivos()) {
+          <button type="button" class="car-limpar" (click)="limparFiltrosVaga()"><i class="fa-solid fa-xmark"></i> Limpar filtros</button>
+        }
+        } @else {
+        <span>{{ cursosFiltrados().length }} {{ cursosFiltrados().length === 1 ? 'curso encontrado' : 'cursos encontrados' }}</span>
+        @if (buscaCurso() || areaCurso() || soGratuitos()) {
+          <button type="button" class="car-limpar" (click)="limparFiltrosCurso()"><i class="fa-solid fa-xmark"></i> Limpar filtros</button>
+        }
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- LISTA -->
+  @if (aba() === 'vagas') {
     @if (carregando()) {
       <div class="car-vazio"><span class="car-spin"></span> Carregando vagas...</div>
     } @else if (vagasFiltradas().length === 0) {
@@ -111,32 +139,7 @@
         }
       </div>
     }
-  }
-
-  <!-- ===================== CURSOS ===================== -->
-  @if (aba() === 'cursos') {
-    <div class="car-barra">
-      <label class="car-barra-busca">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="search" placeholder="Curso ou instituição" [ngModel]="buscaCurso()" (ngModelChange)="buscaCurso.set($event)" aria-label="Buscar cursos">
-      </label>
-      <span class="car-barra-div" aria-hidden="true"></span>
-      <select class="car-barra-select" [ngModel]="areaCurso()" (ngModelChange)="areaCurso.set($event)" aria-label="Área">
-        <option value="">Todas as áreas</option>
-        @for (a of areas; track a.nome) { <option [value]="a.nome">{{ a.nome }}</option> }
-      </select>
-      <button type="button" class="car-barra-btn" [class.ativo]="soGratuitos()" (click)="soGratuitos.set(!soGratuitos())" [attr.aria-pressed]="soGratuitos()">
-        <span class="car-mini-switch" [class.on]="soGratuitos()"></span> Só gratuitos
-      </button>
-    </div>
-
-    <div class="car-resumo">
-      <span>{{ cursosFiltrados().length }} {{ cursosFiltrados().length === 1 ? 'curso encontrado' : 'cursos encontrados' }}</span>
-      @if (buscaCurso() || areaCurso() || soGratuitos()) {
-        <button type="button" class="car-limpar" (click)="limparFiltrosCurso()"><i class="fa-solid fa-xmark"></i> Limpar filtros</button>
-      }
-    </div>
-
+  } @else {
     @if (cursosFiltrados().length === 0) {
       <div class="car-vazio">
         <span class="car-vazio-ic"><i class="fa-solid fa-graduation-cap"></i></span>
@@ -212,7 +215,7 @@
 
           @if (v.beneficios.length) {
             <section class="car-msecao">
-              <h3>Benefícios</h3>
+              <h3><span class="car-msecao-ic ic-rosa"><i class="fa-solid fa-heart"></i></span> Benefícios</h3>
               <div class="car-mbens">
                 @for (b of v.beneficios; track b) { <span><i class="fa-solid fa-check"></i> {{ b }}</span> }
               </div>
@@ -220,13 +223,13 @@
           }
           @if (v.descricao) {
             <section class="car-msecao">
-              <h3>Sobre a vaga</h3>
+              <h3><span class="car-msecao-ic"><i class="fa-solid fa-align-left"></i></span> Sobre a vaga</h3>
               <p class="car-texto">{{ v.descricao }}</p>
             </section>
           }
           @if (v.requisitos) {
             <section class="car-msecao">
-              <h3>Requisitos</h3>
+              <h3><span class="car-msecao-ic"><i class="fa-solid fa-list-check"></i></span> Requisitos</h3>
               <p class="car-texto">{{ v.requisitos }}</p>
             </section>
           }
@@ -289,7 +292,7 @@
           }
           @if (c.descricao) {
             <section class="car-msecao">
-              <h3>Sobre o curso</h3>
+              <h3><span class="car-msecao-ic"><i class="fa-solid fa-book-open"></i></span> Sobre o curso</h3>
               <p class="car-texto">{{ c.descricao }}</p>
             </section>
           }

@@ -348,3 +348,129 @@ i { color: inherit; }
 @media (prefers-reduced-motion: reduce) { .car-fundo, .car-modal, .car-vaga, .car-curso { animation: none !important; transition: none !important; } }
 :host-context(body[data-theme="dark"]) .car-vaga,
 :host-context(body[data-theme="dark"]) .car-curso { box-shadow: 0 12px 34px rgba(0, 0, 0, .3), inset 0 0 0 1px rgba(255, 255, 255, .06); }
+
+/* =========================================================
+   09/11 — banner novo (carreiras-hero.png) cobrindo a altura do
+   hero, layout mais largo com lateral e modal mais soft
+   ========================================================= */
+.car-container { max-width: 1720px; padding: 0 40px; }
+
+/* hero: imagem na altura toda, borda esquerda dissolvendo no fundo */
+.car-hero {
+  display: block; min-height: 300px; padding: 0;
+  background: linear-gradient(135deg, #F8F5FF, #F1EBFF);
+}
+.car-hero-img {
+  position: absolute; top: 0; right: 0;
+  width: auto !important; height: 100% !important; max-width: 70%;
+  margin: 0; object-fit: cover; object-position: right center;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 30%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 30%);
+}
+.car-hero-texto { position: relative; z-index: 1; max-width: 640px; padding: 56px 0 56px 52px; }
+
+/* modal: seções em cartões suaves */
+.car-mcorpo { gap: 14px; padding: 8px 28px 22px; }
+.car-msalario {
+  padding: 16px 18px; border-radius: 22px; border: 1px solid #D8F0E3;
+  background: linear-gradient(135deg, #F2FBF6 0%, #E6F6EE 100%);
+  box-shadow: 0 8px 20px rgba(47, 158, 110, .07);
+}
+.car-msalario.lilas { border-color: #E6DEF7; box-shadow: 0 8px 20px rgba(108, 75, 191, .06); }
+.car-msecao {
+  padding: 18px 20px; border-radius: 22px;
+  background: linear-gradient(160deg, #FCFAFF 0%, #F6F2FD 100%);
+  border: 1px solid #EEE8FA;
+}
+.car-msecao h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: .98rem; }
+.car-msecao-ic {
+  flex: 0 0 32px; height: 32px; display: grid; place-items: center; border-radius: 11px;
+  background: #fff; color: #6C55A8; font-size: .82rem; box-shadow: 0 4px 12px rgba(91, 61, 153, .1);
+}
+.car-msecao-ic.ic-rosa { color: #D9578F; box-shadow: 0 4px 12px rgba(217, 87, 143, .14); }
+.car-texto { padding: 0; background: none; border-radius: 0; color: #4A4266; font-size: .95rem; line-height: 1.75; }
+.car-mbens { gap: 8px; }
+.car-mbens span {
+  padding: 7px 14px 7px 7px; background: #fff; border: 1px solid #F6D9E7; color: #8E3260;
+  box-shadow: 0 3px 10px rgba(217, 87, 143, .07);
+}
+.car-mbens i { background: linear-gradient(145deg, #F49BC2, #D9578F); color: #fff; }
+:host-context(body[data-theme="dark"]) .car-msecao { background: rgba(255, 255, 255, .03); border-color: rgba(255, 255, 255, .08); }
+:host-context(body[data-theme="dark"]) .car-msecao-ic { background: rgba(255, 255, 255, .08); color: #DCD3FF; box-shadow: none; }
+:host-context(body[data-theme="dark"]) .car-texto { color: #D9D3EE; }
+:host-context(body[data-theme="dark"]) .car-mbens span { background: rgba(240, 130, 180, .1); border-color: rgba(240, 130, 180, .25); color: #F7B3D2; box-shadow: none; }
+:host-context(body[data-theme="dark"]) .car-msalario { border-color: rgba(52, 211, 153, .2); box-shadow: none; }
+
+/* telas menores */
+@media (max-width: 860px) {
+  .car-container { padding: 0 18px; }
+  .car-hero-texto { max-width: none; padding: 28px 22px 8px; }
+  .car-hero-img {
+    position: static; display: block; width: 100% !important; height: auto !important; max-width: none;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 20%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 20%);
+  }
+}
+@media (max-width: 640px) {
+  .car-container { padding: 0 16px; }
+  .car-mcorpo { padding: 6px 18px 18px; }
+  .car-msecao { padding: 16px; }
+}
+
+/* =========================================================
+   09/11 (2) — busca e Vagas/Cursos num painel só, sem lateral
+   ========================================================= */
+.car-painel {
+  margin-bottom: 26px; padding: 16px; border-radius: 28px;
+  background: var(--c-card); border: 1px solid var(--c-borda); box-shadow: var(--c-sombra);
+}
+.car-painel .car-barra { background: var(--c-campo); box-shadow: none; border-radius: 20px; }
+.car-painel .car-barra-select:hover, .car-painel .car-barra-select:focus-visible { background-color: rgba(255, 255, 255, .7); }
+.car-painel .car-barra-btn { background: #fff; }
+.car-painel .car-barra-btn.ativo { background: #fff; }
+.car-painel .car-ben-painel { margin-top: 12px; background: var(--c-fundo-card); box-shadow: inset 0 0 0 1px var(--c-borda); }
+
+.car-painel-pe {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  margin-top: 14px; padding: 14px 4px 0; border-top: 1px dashed var(--c-borda);
+}
+.car-painel .car-abas {
+  margin: 0; padding: 4px; gap: 4px; border-radius: 999px;
+  background: var(--c-campo); box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+.car-painel .car-aba { min-width: 0; height: 44px; padding: 0 18px 0 5px; gap: 10px; border-radius: 999px; }
+.car-painel .car-aba:hover { background: rgba(255, 255, 255, .6); }
+.car-painel .car-aba.ativa { background: #fff; box-shadow: 0 6px 16px rgba(91, 61, 153, .1); }
+.car-painel .car-aba-ic { width: 34px; height: 34px; flex-basis: 34px; border-radius: 50%; font-size: .85rem; }
+.car-painel .car-aba-txt { flex-direction: row; align-items: center; gap: 8px; }
+.car-painel .car-aba-txt strong { font-size: .95rem; }
+.car-painel .car-aba-txt small {
+  padding: 2px 8px; border-radius: 999px; background: rgba(255, 255, 255, .8);
+  font-size: .72rem; font-weight: 700; opacity: 1;
+}
+.car-painel .car-aba.ativa .car-aba-txt small { background: #F1EDF9; color: #5B3D99; }
+.car-painel .car-resumo { margin: 0; min-height: 0; }
+
+:host-context(body[data-theme="dark"]) .car-painel .car-barra-btn,
+:host-context(body[data-theme="dark"]) .car-painel .car-aba.ativa { background: rgba(255, 255, 255, .08); }
+:host-context(body[data-theme="dark"]) .car-painel .car-aba-txt small { background: rgba(255, 255, 255, .06); }
+:host-context(body[data-theme="dark"]) .car-painel .car-aba.ativa .car-aba-txt small { background: rgba(157, 143, 231, .18); color: #DCD3FF; }
+
+/* lista ocupa a largura toda */
+.car-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+
+@media (max-width: 640px) {
+  .car-painel { padding: 12px; border-radius: 24px; }
+  .car-painel-pe { flex-direction: column; align-items: stretch; }
+  .car-painel .car-abas { display: flex; }
+  .car-painel .car-aba { flex: 1; justify-content: center; }
+  .car-grid { grid-template-columns: 1fr; }
+}
+
+/* No celular o styles.css global estica toda <img> para 100% de largura:
+   aqui as fotos das empresas voltam ao tamanho certo (sem achatar) */
+img.car-logo { width: 46px !important; height: 46px !important; max-width: none; object-fit: cover; }
+img.car-mavatar { width: 82px !important; height: 82px !important; max-width: none; object-fit: cover; }
+@media (max-width: 640px) {
+  img.car-mavatar { width: 70px !important; height: 70px !important; }
+}
