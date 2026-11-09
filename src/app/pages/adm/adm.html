@@ -155,7 +155,7 @@
     </button>
     }
 
-    @if (pode('denuncias') || pode('forum') || pode('moderacao')) {
+    @if (pode('denuncias') || pode('forum') || pode('moderacao') || pode('monitoramentoErros')) {
     <div class="sidebar-group-label">Conteúdo e moderação</div>
     }
 
@@ -180,6 +180,13 @@
       <span>Moderação</span>
     </button>
     }
+
+    @if (pode('monitoramentoErros')) {
+<button type="button" class="menu-btn" [class.active]="abaAtiva === 'monitoramentoErros'" (click)="mudarAba('monitoramentoErros')">
+  <i class="fa-solid fa-bug"></i>
+  <span>Monitoramento de Erros</span>
+</button>
+}
 
     @if (pode('planos') || pode('divulgacao') || pode('selos') || pode('relatorios')) {
     <div class="sidebar-group-label">Financeiro</div>
@@ -2226,6 +2233,155 @@
       </div>
     </div>
   </section>
+
+
+
+<!-- MONITORAMENTO DE ERROS -->
+<section class="content" id="monitoramentoErros"
+  [class.hidden]="abaAtiva !== 'monitoramentoErros'">
+
+  <div class="pagina-topo cab-pagina">
+    <span class="cab-icone">
+      <i class="fa-solid fa-bug"></i>
+    </span>
+
+    <div class="cab-texto">
+      <h2 class="page-title">Monitoramento de Erros</h2>
+      <p class="page-subtitle">
+        Acompanhe os erros registrados na plataforma Elo Materno.
+      </p>
+    </div>
+  </div>
+
+  <div class="dash-panel">
+    <div class="monitoramento-cabecalho">
+  <div>
+    <h3>Central de monitoramento</h3>
+    <p>Registros de erros identificados na plataforma.</p>
+  </div>
+</div>
+
+<div class="monitoramento-indicadores">
+
+  <div class="monitoramento-card">
+    <span class="monitoramento-card-icone">
+      <i class="fa-solid fa-bug"></i>
+    </span>
+    <div>
+      <p>Total de registros</p>
+      <h3>{{ totalErrosMonitorados }}</h3>
+    </div>
+  </div>
+
+  <div class="monitoramento-card">
+    <span class="monitoramento-card-icone">
+      <i class="fa-solid fa-chart-line"></i>
+    </span>
+    <div>
+      <p>Total de ocorrências</p>
+      <h3>{{ totalOcorrenciasErros }}</h3>
+    </div>
+  </div>
+
+  <div class="monitoramento-card">
+    <span class="monitoramento-card-icone">
+      <i class="fa-solid fa-layer-group"></i>
+    </span>
+    <div>
+      <p>Tipos diferentes</p>
+      <h3>{{ totalTiposErros }}</h3>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTÃO ATUALIZAR -->
+<div class="monitoramento-acoes">
+  <button
+    type="button"
+    class="monitoramento-btn-atualizar"
+    (click)="carregarErrosMonitorados(true)"
+    [disabled]="carregandoErrosMonitorados">
+
+    <i class="fa-solid fa-rotate"></i>
+    {{ carregandoErrosMonitorados ? 'Atualizando...' : 'Atualizar dados' }}
+  </button>
+</div>
+
+<!-- GRÁFICO DE ERROS -->
+<div class="monitoramento-grafico">
+
+  <div class="monitoramento-grafico-topo">
+
+    <div>
+      <h3>Erros mais recorrentes</h3>
+      <p>Os cinco erros com maior número de ocorrências.</p>
+    </div>
+
+    
+
+  </div>
+
+  @if (errosMonitorados.length > 0) {
+    <div class="monitoramento-grafico-area">
+      <canvas id="monitoramentoErrosChart"></canvas>
+    </div>
+  } @else {
+    <p>Não existem dados suficientes para gerar o gráfico.</p>
+  }
+
+</div>
+
+    
+
+    @if (carregandoErrosMonitorados) {
+      <p>Carregando registros de erros...</p>
+    }
+
+    @if (erroAoCarregarErros) {
+      <p class="erro-mensagem">{{ erroAoCarregarErros }}</p>
+    }
+
+    @if (!carregandoErrosMonitorados && !erroAoCarregarErros) {
+      @if (errosMonitorados.length === 0) {
+        <p>Nenhum erro registrado até o momento.</p>
+      } @else {
+        <div class="mod-tabela-scroll">
+          <table class="mod-tabela">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Mensagem</th>
+                <th>Página</th>
+                <th>Ocorrências</th>
+                <th>Última ocorrência</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (erro of errosMonitorados; track erro.id) {
+                <tr>
+                  <td>{{ erro.tipo }}</td>
+                  <td>{{ erro.mensagem }}</td>
+                  <td>{{ erro.pagina }}</td>
+                  <td>{{ erro.ocorrencias }}</td>
+                 <td>
+  @if (formatarDataErro(erro.ultimaOcorrencia); as dataErro) {
+    {{ dataErro | date:'dd/MM/yyyy HH:mm:ss' }}
+  } @else {
+    Data indisponível
+  }
+</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </div>
+</section>
+
 
 
   <!-- FÓRUM (MODERAÇÃO DOS POSTS REAIS) -->
