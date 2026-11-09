@@ -220,7 +220,7 @@
         </button>
         }
 
-        @if (podeAbaAdm('denuncias') || podeAbaAdm('forum') || podeAbaAdm('moderacao')) { <span class="mobile-section-label">Conteúdo e moderação</span> }
+        @if (podeAbaAdm('denuncias') || podeAbaAdm('forum') || podeAbaAdm('moderacao') || podeAbaAdm('monitoramentoErros')) { <span class="mobile-section-label">Conteúdo e moderação</span> }
         @if (podeAbaAdm('denuncias')) {
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'denuncias'" (click)="irAbaAdm('denuncias')"><i class="fa-solid fa-flag"></i> Denúncias
           @if (denunciasAdm > 0) { <span class="notif-badge-inline">{{ denunciasAdm }}</span> }
@@ -231,6 +231,9 @@
         }
         @if (podeAbaAdm('moderacao')) {
         <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'moderacao'" (click)="irAbaAdm('moderacao')"><i class="fa-solid fa-shield-halved"></i> Moderação</button>
+        }
+        @if (podeAbaAdm('monitoramentoErros')) {
+        <button type="button" class="mobile-link" [class.ativo]="abaAdmAtiva === 'monitoramentoErros'" (click)="irAbaAdm('monitoramentoErros')"><i class="fa-solid fa-bug"></i> Monitoramento de Erros</button>
         }
 
         @if (podeAbaAdm('planos') || podeAbaAdm('divulgacao') || podeAbaAdm('selos') || podeAbaAdm('relatorios')) { <span class="mobile-section-label">Financeiro</span> }
