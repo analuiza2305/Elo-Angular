@@ -210,7 +210,7 @@ export class HomeMaeComponent implements OnInit {
     event.stopPropagation();
     const user = this.currentUser();
     if (!user) {
-      this.infoModal.set({title: 'Login necessário', message: 'Você precisa estar logada para salvar artigos!'});
+      this.infoModal.set({title: 'Login necessário', message: 'Você precisa estar logada para salvar postagens!'});
       return;
     }
     const isSaved = artigo.salvo;

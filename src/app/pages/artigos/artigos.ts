@@ -23,8 +23,8 @@ export class Artigos implements OnInit {
   private readonly alerta = inject(AlertaService);
 
   /**
-   * Modo "dentro do painel do parceiro": sem header, com o botão Novo artigo,
-   * o filtro Meus artigos e a lixeira nos artigos da própria empresa.
+   * Modo "dentro do painel do parceiro": sem header, com o botão Nova postagem,
+   * o filtro Minhas postagens e a lixeira nos artigos da própria empresa.
    */
   @Input() embutido = false;
   @Output() abrirArtigo = new EventEmitter<string>();
@@ -181,7 +181,7 @@ export class Artigos implements OnInit {
   async toggleFavoritoRapido(artigo: any) {
     const user = this.currentUser();
     if (!user) {
-      this.alerta.aviso('Entre na sua conta para salvar artigos.', 'Faça login');
+      this.alerta.aviso('Entre na sua conta para salvar postagens.', 'Faça login');
       return;
     }
 

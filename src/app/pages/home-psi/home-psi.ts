@@ -1122,7 +1122,7 @@ export class HomePsi implements OnInit, OnDestroy {
       return;
     }
     if (f.categoria === 'legislativos') {
-      this.msgArtigo.set({ tipo: 'erro', texto: 'Artigos legislativos são publicados pela equipe jurídica. Escolha outra categoria.' });
+      this.msgArtigo.set({ tipo: 'erro', texto: 'Postagens legislativas são publicadas pela equipe jurídica. Escolha outra categoria.' });
       return;
     }
     if (!this.uidAtual) return;
@@ -1149,7 +1149,7 @@ export class HomePsi implements OnInit, OnDestroy {
       await this.carregarArtigos();
     } catch (err: any) {
       console.error('Erro ao publicar artigo:', err);
-      this.msgArtigo.set({ tipo: 'erro', texto: 'Erro ao publicar o artigo. Tente novamente.' });
+      this.msgArtigo.set({ tipo: 'erro', texto: 'Erro ao publicar a postagem. Tente novamente.' });
     } finally {
       this.publicandoArtigo.set(false);
     }

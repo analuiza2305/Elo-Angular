@@ -60,7 +60,7 @@ export const MODELOS_DIVULGACAO: { valor: ModeloDivulgacao; rotulo: string; sing
 export const POSICOES_ANUNCIO: { valor: string; rotulo: string; descricao: string }[] = [
   { valor: 'pos-avaliacao-mae', rotulo: 'Depois da avaliação (mãe)', descricao: 'Na tela que a mãe vê logo depois de avaliar o profissional.' },
   { valor: 'forum', rotulo: 'Fórum', descricao: 'Entre os posts da lista do fórum.' },
-  { valor: 'artigos', rotulo: 'Artigos', descricao: 'Entre os cartões da lista de artigos e na página do artigo.' },
+  { valor: 'artigos', rotulo: 'Comunidade', descricao: 'Entre os cartões da Comunidade e na página da postagem.' },
   { valor: 'eventos', rotulo: 'Eventos', descricao: 'Entre os cartões da lista de eventos.' },
   { valor: 'home-mae', rotulo: 'Home da mãe', descricao: 'Na página inicial da mãe.' },
   { valor: 'pos-avaliacao-profissional', rotulo: 'Depois da avaliação (psicólogo e advogado)', descricao: 'Na tela do profissional depois das consultas e da avaliação.' },
@@ -228,13 +228,13 @@ export const ITENS_PADRAO: Record<ModeloDivulgacao, ItemPadrao[]> = {
     {
       modelo: 'pacote', nome: 'Destaque', descricao: 'Suas publicações aparecem antes das básicas.',
       visibilidade: 'destaque', preco: 79.9, periodicidade: 'mensal', duracaoDias: 30,
-      beneficios: ['Artigos e eventos aparecem antes dos básicos nas listas', 'Selo "Em destaque" nas publicações'],
+      beneficios: ['Postagens e eventos aparecem antes dos básicos nas listas', 'Selo "Em destaque" nas publicações'],
       posicoes: [], ativo: true, destaque: false, ordem: 1,
     },
     {
       modelo: 'pacote', nome: 'Premium', descricao: 'A maior visibilidade da plataforma.',
       visibilidade: 'premium', preco: 149.9, periodicidade: 'mensal', duracaoDias: 30,
-      beneficios: ['Tudo do Destaque', 'Primeiras posições nas listas de artigos e eventos', 'Selo "Destaque Premium" nas publicações'],
+      beneficios: ['Tudo do Destaque', 'Primeiras posições nas listas de postagens e eventos', 'Selo "Destaque Premium" nas publicações'],
       posicoes: [], ativo: true, destaque: true, ordem: 2,
     },
   ],

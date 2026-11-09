@@ -72,7 +72,7 @@
               </div>
             }
           } @else {
-            <p class="pl-descricao-plano"><i class="fa-solid fa-handshake-angle"></i> O selo Apoiador já aparece no perfil, nos artigos e nos eventos da sua empresa.</p>
+            <p class="pl-descricao-plano"><i class="fa-solid fa-handshake-angle"></i> O selo Apoiador já aparece no perfil, nas postagens e nos eventos da sua empresa.</p>
           }
         </div>
       } @empty {
@@ -86,6 +86,6 @@
     @if (msgPlano(); as m) {
       <p class="pl-msg" [class.erro]="m.tipo === 'erro'" role="status">{{ m.texto }}</p>
     }
-    <p class="pl-nota"><i class="fa-solid fa-handshake-angle"></i> O selo Apoiador aparece ao lado do nome da empresa nos artigos, nos eventos e no perfil enquanto o Premium estiver ativo.</p>
+    <p class="pl-nota"><i class="fa-solid fa-handshake-angle"></i> O selo Apoiador aparece ao lado do nome da empresa nas postagens, nos eventos e no perfil enquanto o Premium estiver ativo.</p>
   }
 </div>

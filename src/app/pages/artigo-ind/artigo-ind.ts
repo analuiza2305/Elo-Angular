@@ -158,7 +158,7 @@ export class ArtigoInd implements OnInit, AfterViewInit {
   async toggleFavorito() {
     const user = auth.currentUser;
     if (!user) {
-      this.alerta.aviso('Você precisa estar logada para salvar artigos nos favoritos.', 'Faça login');
+      this.alerta.aviso('Você precisa estar logada para salvar postagens nos favoritos.', 'Faça login');
       this.router.navigate(['/login']);
       return;
     }

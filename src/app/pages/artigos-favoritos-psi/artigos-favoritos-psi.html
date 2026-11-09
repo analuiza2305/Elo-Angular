@@ -14,7 +14,6 @@
             <p>Um espaço dedicado para você guardar, reler e relembrar leituras que transformam o seu dia a dia.</p>
         </div>
     </section>
-    
 
     <!-- 2. GRID DE ARTIGOS FAVORITOS -->
     @if (isLoading()) {
@@ -58,7 +57,7 @@
                         <p class="artigo-resumo">{{ artigo.resumo || artigo.conteudo }}</p>
                         
                         <div class="artigo-footer">
-                            <span class="ler-mais">Ler artigo completo <i class="fa-solid fa-arrow-right" style="font-size: 0.75rem;"></i></span>
+                            <span class="ler-mais">Ler postagem completa <i class="fa-solid fa-arrow-right" style="font-size: 0.75rem;"></i></span>
                             <app-selos-autor [uid]="artigo.autorId || artigo.parceiroId" [compacto]="true"></app-selos-autor>
                             <button class="btn-externo-card" title="Abrir link externo" (click)="$event.stopPropagation(); abrirLink(artigo.link)">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
@@ -72,7 +71,7 @@
                         <i class="fa-regular fa-bookmark"></i>
                     </div>
                     <h3>Você ainda não salvou nada da Comunidade</h3>
-                    <p>Explore a Comunidade e clique em "Salvar postagem"</p>
+                    <p>Explore a Comunidade e clique em "Salvar postagem" para salvar suas leituras preferidas aqui.</p>
                     <a routerLink="/home-psi" class="btn-explorar">Ir para a Comunidade</a>
                 </div>
             }

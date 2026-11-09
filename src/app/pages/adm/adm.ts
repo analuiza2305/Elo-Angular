@@ -175,7 +175,7 @@ const PERMISSOES_ADM: { chave: string; nome: string; desc: string; soSuper?: boo
   { chave: 'aprovacoes', nome: 'Aprovações', desc: 'Aprovar ou recusar cadastros de psicólogos e advogados.' },
   { chave: 'denuncias', nome: 'Denúncias', desc: 'Analisar e resolver denúncias.' },
   { chave: 'forum', nome: 'Fórum', desc: 'Moderar posts e respostas do fórum.' },
-  { chave: 'moderacao', nome: 'Moderação de conteúdo', desc: 'Ocultar ou excluir artigos e eventos.' },
+  { chave: 'moderacao', nome: 'Moderação de conteúdo', desc: 'Ocultar ou excluir postagens e eventos.' },
   { chave: 'monitoramentoErros', nome: 'Monitoramento de Erros', desc: 'Visualizar e acompanhar os erros registrados pela plataforma.' },
   { chave: 'planos', nome: 'Planos', desc: 'Planos e assinaturas.' },
   { chave: 'divulgacao', nome: 'Divulgação', desc: 'Pacotes de divulgação de parceiros.' },
@@ -1714,7 +1714,7 @@ export class Adm implements OnInit, OnDestroy, AfterViewInit {
   configNotificacoes: NotificacaoConfig[] = [
     { chave: 'cadastros', titulo: 'Cadastros para aprovar', descricao: 'Psicólogos e advogados esperando análise.', ativo: true },
     { chave: 'parceiros', titulo: 'Novos parceiros', descricao: 'Empresas que acabaram de se cadastrar.', ativo: true },
-    { chave: 'denuncias', titulo: 'Novas denúncias', descricao: 'Posts, artigos, eventos e perfis denunciados.', ativo: true },
+    { chave: 'denuncias', titulo: 'Novas denúncias', descricao: 'Posts do fórum, postagens, eventos e perfis denunciados.', ativo: true },
     { chave: 'popups', titulo: 'Avisos na tela', descricao: 'Mostrar um aviso no canto da tela quando algo novo chegar.', ativo: true },
   ];
 
@@ -3182,7 +3182,7 @@ if (this.errosChart) {
 
     this.itensAtencao = [
       { icone: 'fa-solid fa-user-clock', cor: 'icone-azul', texto: 'Cadastros de profissionais aguardando aprovação', total: this.pendentesAprovacao, aba: 'usuarios', visao: 'aprovacao' },
-      { icone: 'fa-solid fa-flag', cor: 'icone-laranja', texto: 'Denúncias em aberto (posts, artigos e eventos)', total: this.denunciasAbertas, aba: 'denuncias' }
+      { icone: 'fa-solid fa-flag', cor: 'icone-laranja', texto: 'Denúncias em aberto (posts, postagens e eventos)', total: this.denunciasAbertas, aba: 'denuncias' }
     ];
 
     this.reconstruirUsuariosTodos();
@@ -4593,7 +4593,7 @@ async carregarUsuarios(): Promise<void> {
     this.opcoesConteudoAbertasId = null;
   }
 
-  /** Desenha (ou atualiza) o donut "Dados Gerais": proporção de Eventos x Artigos publicados. */
+  /** Desenha (ou atualiza) o donut "Dados Gerais": proporção de Eventos x Postagens publicadas. */
   private atualizarGraficoConteudoModeracao(): void {
     const ctx = document.getElementById('conteudoDonutChart') as HTMLCanvasElement;
 

@@ -16,7 +16,7 @@ export const EVENTO_PLANO_ALTERADO = 'elo-plano-alterado';
  *
  * Os planos vêm do catálogo que a ADM gerencia (PlanoService.planosParaOfertar('parceiro')).
  * Enquanto a ADM não cadastrar nenhum, aparecem os planos padrão.
- * O Premium dá o selo Apoiador: ele aparece no perfil, nos artigos e nos eventos da empresa.
+ * O Premium dá o selo Apoiador: ele aparece no perfil, nas postagens e nos eventos da empresa.
  */
 @Component({
   selector: 'app-parc-planos',

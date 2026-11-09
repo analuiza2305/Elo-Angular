@@ -100,7 +100,7 @@ export const TRANSLATIONS: Record<Idioma, Record<string, string>> = {
     feat_2_desc: 'Troque experiências com outras mães, com moderação e opção anônima.',
     feat_3_title: 'Agendamento simplificado',
     feat_3_desc: 'Veja os horários livres e marque em poucos toques.',
-    feat_4_title: 'Artigos informativos',
+    feat_4_title: 'Postagens informativas',
     feat_4_desc: 'Conteúdos sobre direitos, saúde e rotina escritos por especialistas.',
     feat_5_title: 'Cursos e eventos',
     feat_5_desc: 'Capacitação, feiras de emprego e eventos das empresas parceiras.',
@@ -204,7 +204,7 @@ export const TRANSLATIONS: Record<Idioma, Record<string, string>> = {
     // ---------- Sou Profissional: portal do parceiro ----------
     prof_portal_title: 'Sua Empresa',
     prof_portal_subtitle: 'Painel de Conteúdo',
-    prof_portal_post_title: 'Artigo: Retorno ao Mercado',
+    prof_portal_post_title: 'Postagem: Retorno ao Mercado',
     prof_portal_post_desc: 'Dicas práticas para mães que buscam novas oportunidades e desejam atualizar seus currículos.',
     prof_portal_tag_1: 'Carreira',
     prof_portal_tag_2: 'Leitura: 5 min',
@@ -218,7 +218,7 @@ export const TRANSLATIONS: Record<Idioma, Record<string, string>> = {
     prof_section_title_2_bold: 'Portal do Parceiro',
     prof_section_desc_2: 'Participe ativamente do dia a dia da nossa comunidade. Nossa plataforma oferece um espaço dedicado para sua empresa publicar conteúdos, divulgar ações e apoiar as mães de perto.',
     prof_portal_benefit_1: 'Divulgue eventos, vagas e campanhas próprias.',
-    prof_portal_benefit_2: 'Publique artigos educativos e informativos.',
+    prof_portal_benefit_2: 'Publique postagens educativas e informativas.',
     prof_portal_benefit_3: 'Interaja e tire dúvidas no Fórum de Acolhimento.',
 
     // ---------- Sou Profissional: FAQ ----------

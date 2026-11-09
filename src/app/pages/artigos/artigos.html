@@ -9,7 +9,7 @@
             @if (embutido) {
             <p>É assim que as mães veem a Comunidade. Publique conteúdos da sua empresa e acompanhe os seus.</p>
             } @else {
-            <p>Artigos, dicas e informações jurídicas da nossa comunidade para facilitar o seu dia a dia.</p>
+            <p>Postagens, dicas e informações jurídicas da nossa comunidade para facilitar o seu dia a dia.</p>
             }
         </div>
     </section>
@@ -18,9 +18,9 @@
         <div class="art-parc-barra">
             <div class="art-parc-abas" role="tablist">
                 <button type="button" role="tab" class="art-parc-aba" [class.ativa]="!soMeus()" [attr.aria-selected]="!soMeus()" (click)="soMeus.set(false)"><i class="fa-solid fa-globe"></i> Toda a Comunidade</button>
-                <button type="button" role="tab" class="art-parc-aba" [class.ativa]="soMeus()" [attr.aria-selected]="soMeus()" (click)="soMeus.set(true)"><i class="fa-regular fa-building"></i> Meus artigos</button>
+                <button type="button" role="tab" class="art-parc-aba" [class.ativa]="soMeus()" [attr.aria-selected]="soMeus()" (click)="soMeus.set(true)"><i class="fa-regular fa-building"></i> Minhas postagens</button>
             </div>
-            <button type="button" class="art-parc-novo" (click)="novoArtigo.emit()"><i class="fa-solid fa-plus"></i> Novo artigo</button>
+            <button type="button" class="art-parc-novo" (click)="novoArtigo.emit()"><i class="fa-solid fa-plus"></i> Nova postagem</button>
         </div>
     }
 
@@ -134,10 +134,10 @@
                         <i class="fa-regular fa-newspaper"></i>
                     </div>
                     @if (embutido && soMeus()) {
-                    <h3>Você ainda não publicou artigos</h3>
-                    <p>Use o botão "Novo artigo" para publicar o primeiro.</p>
+                    <h3>Você ainda não publicou postagens</h3>
+                    <p>Use o botão "Nova postagem" para publicar a primeira.</p>
                     } @else {
-                    <h3>Nenhum artigo encontrado nesta categoria</h3>
+                    <h3>Nenhuma postagem encontrada nesta categoria</h3>
                     <p>Tente selecionar outro filtro para ver as leituras disponíveis.</p>
                     }
                 </div>

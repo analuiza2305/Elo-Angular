@@ -339,7 +339,7 @@
           <p class="secao-sub">Acesse materiais e publique conteúdos para apoiar as mães.</p>
         </div>
         <button type="button" class="btn-novo-artigo" (click)="abrirModalArtigo()">
-          <i class="fa-solid fa-plus"></i> Novo artigo
+          <i class="fa-solid fa-plus"></i> Nova postagem
         </button>
       </div>
       <div class="artigos-filter-bar">
@@ -350,7 +350,7 @@
           <button class="cat-btn" [class.active]="filtroArtigo() === 'educacionais'" (click)="filtrarArtigos('educacionais')"><i class="fa-solid fa-graduation-cap"></i> Educacionais</button>
           <button class="cat-btn" [class.active]="filtroArtigo() === 'dicas'" (click)="filtrarArtigos('dicas')"><i class="fa-solid fa-lightbulb"></i> Dicas</button>
           <button class="cat-btn" [class.active]="filtroArtigo() === 'posts'" (click)="filtrarArtigos('posts')"><i class="fa-regular fa-newspaper"></i> Posts</button>
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'meus'" (click)="filtrarArtigos('meus')"><i class="fa-solid fa-user-pen"></i> Meus artigos</button>
+          <button class="cat-btn" [class.active]="filtroArtigo() === 'meus'" (click)="filtrarArtigos('meus')"><i class="fa-solid fa-user-pen"></i> Minhas postagens</button>
         </div>
       </div>
       <div class="loader" *ngIf="carregandoArtigos()" style="margin: 40px auto;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
@@ -371,21 +371,21 @@
             <p class="ac-excerpt">{{ artigo.descricao || artigo.resumo }}</p>
             <div class="ac-footer">
               <span class="ac-author"><i class="fa-solid fa-user-doctor"></i> {{ artigo.postadoPor || 'Equipe' }}</span>
-              <span class="ac-ler">Ler artigo <i class="fa-solid fa-arrow-right"></i></span>
+              <span class="ac-ler">Ler postagem <i class="fa-solid fa-arrow-right"></i></span>
             </div>
           </div>
         </a>
       </div>
       <p class="vazio-msg" *ngIf="!carregandoArtigos() && filtroArtigo() === 'favoritos' && artigosFiltrados().length === 0">
-        Você ainda não salvou nenhum artigo. Toque no <i class="fa-regular fa-bookmark"></i> de um artigo para guardar aqui.
+        Você ainda não salvou nenhuma postagem. Toque no <i class="fa-regular fa-bookmark"></i> de uma postagem para guardar aqui.
       </p>
 
       <!-- MODAL: NOVO ARTIGO COM PRÉVIA -->
       <div class="modal" *ngIf="modalArtigoAberto()">
         <div class="modal-content modal-wide">
           <button type="button" class="modal-close" (click)="fecharModalArtigo()" aria-label="Fechar">&times;</button>
-          <h3>Novo artigo</h3>
-          <p class="modal-sub">Preencha os dados e veja ao lado como o artigo vai aparecer para as mães.</p>
+          <h3>Nova postagem</h3>
+          <p class="modal-sub">Preencha os dados e veja ao lado como a postagem vai aparecer para as mães.</p>
 
           <div class="modal-grid">
             <form class="modal-form" (ngSubmit)="publicarArtigo()" #formArtigo="ngForm">
@@ -394,11 +394,11 @@
                      [ngModel]="artigoForm().titulo" (ngModelChange)="setCampoArtigo('titulo', $event)">
 
               <label for="artDescricao">Descrição curta</label>
-              <input type="text" id="artDescricao" name="descricao" maxlength="140" placeholder="Uma frase que resume o artigo"
+              <input type="text" id="artDescricao" name="descricao" maxlength="140" placeholder="Uma frase que resume a postagem"
                      [ngModel]="artigoForm().descricao" (ngModelChange)="setCampoArtigo('descricao', $event)">
 
               <label for="artResumo">Resumo <span class="opcional">(opcional)</span></label>
-              <textarea id="artResumo" name="resumo" rows="3" placeholder="Texto que aparece na página do artigo"
+              <textarea id="artResumo" name="resumo" rows="3" placeholder="Texto que aparece na página da postagem"
                         [ngModel]="artigoForm().resumo" (ngModelChange)="setCampoArtigo('resumo', $event)"></textarea>
 
               <div class="form-row">
@@ -415,7 +415,7 @@
                 </div>
               </div>
 
-              <label for="artLink">Link do artigo <span class="opcional">(opcional)</span></label>
+              <label for="artLink">Link da postagem <span class="opcional">(opcional)</span></label>
               <input type="url" id="artLink" name="link" placeholder="https://..."
                      [ngModel]="artigoForm().link" (ngModelChange)="setCampoArtigo('link', $event)">
 
@@ -433,7 +433,7 @@
                 <img *ngIf="artigoForm().img.trim() && imagemPreviaOk()" [src]="artigoForm().img.trim()" class="preview-img" alt="" (error)="imagemPreviaOk.set(false)">
                 <div class="preview-thumb" *ngIf="!artigoForm().img.trim() || !imagemPreviaOk()"><i class="fa-regular fa-image"></i></div>
                 <div class="preview-body">
-                  <h4>{{ artigoForm().titulo.trim() || 'Título do artigo' }}</h4>
+                  <h4>{{ artigoForm().titulo.trim() || 'Título da postagem' }}</h4>
                   <p>{{ artigoForm().descricao.trim() || 'A descrição aparece aqui.' }}</p>
                   <span class="categoria-tag">{{ artigoForm().categoria }}</span>
                   <div class="preview-footer">

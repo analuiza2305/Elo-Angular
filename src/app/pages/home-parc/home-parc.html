@@ -172,8 +172,8 @@
     <div id="postModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="postModalTitulo">
         <div class="modal-content modal-wide">
             <span id="closeModal" class="close" role="button" tabindex="0" aria-label="Fechar">&times;</span>
-            <h2 id="postModalTitulo">Novo artigo</h2>
-            <p class="modal-sub">Preencha os dados e veja ao lado como o artigo vai aparecer para as mães.</p>
+            <h2 id="postModalTitulo">Nova postagem</h2>
+            <p class="modal-sub">Preencha os dados e veja ao lado como a postagem vai aparecer para as mães.</p>
 
             <div class="modal-grid">
                 <form id="postForm" class="modal-form">
@@ -181,7 +181,7 @@
                     <input type="text" id="artigoTitulo" required maxlength="90" placeholder="Ex: 5 dicas para a amamentação">
 
                     <label for="artigoDescricao">Descrição curta</label>
-                    <input type="text" id="artigoDescricao" required maxlength="140" placeholder="Uma frase que resume o artigo">
+                    <input type="text" id="artigoDescricao" required maxlength="140" placeholder="Uma frase que resume a postagem">
 
                     <label for="resumo">Resumo <span class="opcional">(opcional)</span></label>
                     <textarea id="resumo" rows="3"></textarea>
@@ -201,7 +201,7 @@
                         </div>
                     </div>
 
-                    <label for="link">Link do artigo</label>
+                    <label for="link">Link da postagem</label>
                     <input type="url" id="link" placeholder="https://..." required>
 
                     <div class="modal-actions">
@@ -218,7 +218,7 @@
                         <img id="prevArtImg" class="article-img" alt="" hidden>
                         <div class="article-thumb" id="prevArtThumb"><i class="fa-regular fa-image"></i></div>
                         <div class="article-body">
-                            <h3 id="prevArtTitulo">Título do artigo</h3>
+                            <h3 id="prevArtTitulo">Título da postagem</h3>
                             <p id="prevArtDesc">A descrição aparece aqui.</p>
                             <span class="categoria-tag" id="prevArtCat">posts</span>
                             <div class="article-card-footer">
@@ -414,7 +414,7 @@
                     <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-book-open"></i></div>
                     <div class="stat-info">
                         <span class="stat-number" id="statArtigos">–</span>
-                        <span class="stat-label">Artigos Publicados</span>
+                        <span class="stat-label">Postagens Publicadas</span>
                         <span class="stat-delta" id="statArtigosDelta"></span>
                     </div>
                 </div>
@@ -450,7 +450,7 @@
                         <div class="dash-panel-header">
                             <div class="dash-panel-tit">
                                 <span class="dash-panel-ic"><i class="fa-solid fa-book-open"></i></span>
-                                <div><h3>Artigos recentes</h3><p>O que a sua empresa publicou por último</p></div>
+                                <div><h3>Postagens recentes</h3><p>O que a sua empresa publicou por último</p></div>
                             </div>
                             <button class="dash-see-more" data-target="artigos">Ver comunidade</button>
                         </div>
@@ -465,7 +465,7 @@
                         <div class="quick-actions-grid">
                             <button class="quick-action-btn qa-tile add-post-btn-artigos">
                                 <span class="qa-ic"><i class="fa-solid fa-pen-nib"></i></span>
-                                <span class="qa-txt"><strong>Novo artigo</strong><small>Compartilhe um conteúdo</small></span>
+                                <span class="qa-txt"><strong>Nova postagem</strong><small>Compartilhe um conteúdo</small></span>
                                 <i class="fa-solid fa-chevron-right qa-seta"></i>
                             </button>
                             <button class="quick-action-btn qa-tile add-event-btn">
@@ -727,7 +727,7 @@
         </div>
 
         <section class="content hidden" id="artigos">
-            <!-- A mesma página de artigos das mães, com Novo artigo, Meus artigos e lixeira nos da empresa -->
+            <!-- A mesma página de artigos das mães, com Nova postagem, Minhas postagens e lixeira nos da empresa -->
             @if (secaoAtiva() === 'artigos') {
                 @if (artigoAberto()) {
                     <app-artigo-ind class="parc-embutido" [embutido]="true" [artigoIdEmbutido]="artigoAberto()!" (voltarPainel)="artigoAberto.set(null)"></app-artigo-ind>
@@ -746,7 +746,7 @@
                 <span class="cab-icone"><i class="fa-solid fa-bullhorn"></i></span>
                 <div class="cab-texto">
                     <h2 class="page-title">Divulgação</h2>
-                    <p class="page-subtitle">Dê mais visibilidade aos seus artigos e eventos e anuncie em espaços da plataforma.</p>
+                    <p class="page-subtitle">Dê mais visibilidade às suas postagens e eventos e anuncie em espaços da plataforma.</p>
                 </div>
             </div>
             <app-parc-divulgacao></app-parc-divulgacao>
@@ -768,7 +768,7 @@
                 <span class="cab-icone"><i class="fa-solid fa-bell"></i></span>
                 <div class="cab-texto">
                     <h2 class="page-title">Notificações</h2>
-                    <p class="page-subtitle">Novidades sobre seus artigos, eventos e a sua conta.</p>
+                    <p class="page-subtitle">Novidades sobre suas postagens, eventos e a sua conta.</p>
                 </div>
             </div>
             <div class="filtros-categorias" id="notifFiltros">
@@ -785,7 +785,7 @@
                 <span class="cab-icone"><i class="fa-solid fa-chart-pie"></i></span>
                 <div class="cab-texto">
                     <h2 class="page-title">Relatórios</h2>
-                    <p class="page-subtitle">Acompanhe o alcance dos seus artigos, eventos e da sua participação no fórum.</p>
+                    <p class="page-subtitle">Acompanhe o alcance das suas postagens, eventos e da sua participação no fórum.</p>
                 </div>
                 <button class="quick-action-btn qa-purple cab-acao" id="exportarRelatorioBtn"><i class="fa-solid fa-download"></i> Exportar</button>
             </div>
@@ -795,7 +795,7 @@
                     <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-file-lines"></i></div>
                     <div class="stat-info">
                         <span class="stat-number" id="repArtigos">–</span>
-                        <span class="stat-label">Artigos publicados</span>
+                        <span class="stat-label">Postagens publicadas</span>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -823,7 +823,7 @@
 
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3>Artigos publicados por mês</h3>
+                    <h3>Postagens publicadas por mês</h3>
                     <canvas id="chartArtigos"></canvas>
                 </div>
                 <div class="chart-card">
@@ -961,7 +961,7 @@
                             <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-file-lines"></i></div>
                             <div class="stat-info">
                                 <span class="stat-number" id="perfilArtigosCount">–</span>
-                                <span class="stat-label">Artigos publicados</span>
+                                <span class="stat-label">Postagens publicadas</span>
                             </div>
                         </div>
                         <div class="stat-card">
@@ -998,7 +998,7 @@
                         </div>
                         <div class="dash-panel">
                             <div class="dash-panel-header">
-                                <h3>Seus últimos artigos</h3>
+                                <h3>Suas últimas postagens</h3>
                                 <button class="dash-see-more" data-target="artigos">Ver todos</button>
                             </div>
                             <div id="perfilArtigosList" class="dash-list">

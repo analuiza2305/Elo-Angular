@@ -12,9 +12,9 @@ type VisaoContratacoes = 'anuncios' | 'pacotes' | 'cobrancas';
 
 const SUGESTOES_BENEFICIOS: Record<ModeloDivulgacao, string[]> = {
   pacote: [
-    'Artigos e eventos aparecem antes dos básicos nas listas',
+    'Postagens e eventos aparecem antes dos básicos nas listas',
     'Selo "Em destaque" nas publicações',
-    'Primeiras posições nas listas de artigos e eventos',
+    'Primeiras posições nas listas de postagens e eventos',
   ],
   evento: ['Evento aparece antes dos básicos', 'Selo "Em destaque" no evento', 'Evento nas primeiras posições da lista'],
   anuncio: ['Anúncio em um espaço à sua escolha', 'Renovação automática (simulada) até você cancelar'],

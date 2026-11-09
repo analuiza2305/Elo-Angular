@@ -259,7 +259,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  /** "Novo artigo" da página embutida abre o mesmo formulário do painel. */
+  /** "Nova postagem" da página embutida abre o mesmo formulário do painel. */
   abrirNovoArtigo(): void {
     (document.querySelector('.add-post-btn-artigos') as HTMLElement | null)?.click();
   }
@@ -798,7 +798,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         const topArtigos = artigos.slice(0, 3);
 
         artigosLista.innerHTML = topArtigos.length === 0
-          ? `<p class="empty-hint">Você ainda não publicou artigos.</p>`
+          ? `<p class="empty-hint">Você ainda não publicou postagens.</p>`
           : topArtigos.map((a) => `
               <div class="dash-item">
                 <img class="dash-item-thumb" src="${this.sanitize(a['img'] || './img/artigo_icon.png')}" alt="">
@@ -872,7 +872,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       await Promise.all(Array.from(artigos.entries()).map(async ([id, art]) => {
         try {
           const fav = await getDocs(query(collection(db, 'usuarios'), where('favoritos', 'array-contains', id)));
-          add('fav:' + id, 'fav', fav.size, art['titulo'] || 'seu artigo');
+          add('fav:' + id, 'fav', fav.size, art['titulo'] || 'sua postagem');
         } catch { /* regras do Firestore podem bloquear: ignora */ }
       }));
     } catch (err) { console.warn('Notificações: favoritos', err); }
@@ -1069,7 +1069,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       const imgEl = document.getElementById('prevArtImg') as HTMLImageElement | null;
       const thumb = document.getElementById('prevArtThumb');
       const set = (id: string, t: string) => { const el = document.getElementById(id); if (el) el.textContent = t; };
-      set('prevArtTitulo', val('artigoTitulo').trim() || 'Título do artigo');
+      set('prevArtTitulo', val('artigoTitulo').trim() || 'Título da postagem');
       set('prevArtDesc', val('artigoDescricao').trim() || 'A descrição aparece aqui.');
       set('prevArtCat', cat);
       set('prevArtData', new Date().toLocaleDateString('pt-BR'));
@@ -1144,14 +1144,14 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         limparFormularioArtigo();
         atualizarPrevia();
         statusRascunho('');
-        this.alerta.sucesso('Artigo publicado com sucesso!');
+        this.alerta.sucesso('Postagem publicada com sucesso!');
         this.fecharModal(modal);
         this.carregarArtigosNaAbaArtigos(this.nomeEmpresaAtual);
         this.carregarDashboardStats();
         this.carregarAtividadeEArtigosRecentes();
       } catch (err) {
         console.error('Erro ao criar post:', err);
-        if (postMsg) { postMsg.style.color = 'red'; postMsg.textContent = 'Erro ao publicar o artigo.'; }
+        if (postMsg) { postMsg.style.color = 'red'; postMsg.textContent = 'Erro ao publicar a postagem.'; }
       }
     });
 
@@ -1165,7 +1165,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       this.abrirModal(modal);
     });
 
-    // abas "Meus artigos" / "Outros parceiros" (setas ← → também funcionam)
+    // abas "Minhas postagens" / "Outros parceiros" (setas ← → também funcionam)
     const abas = Array.from(document.querySelectorAll<HTMLElement>('.aba-btn'));
     abas.forEach((aba, i) => {
       aba.addEventListener('click', () => {
@@ -1617,7 +1617,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     document.getElementById('exportarRelatorioBtn')?.addEventListener('click', () => {
       const linhas = [
         ['Métrica', 'Valor'],
-        ['Artigos publicados', document.getElementById('repArtigos')?.textContent || '0'],
+        ['Postagens publicadas', document.getElementById('repArtigos')?.textContent || '0'],
         ['Eventos realizados', document.getElementById('repEventos')?.textContent || '0'],
         ['Participantes alcançados', document.getElementById('repParticipantes')?.textContent || '0'],
         ['Novos membros', document.getElementById('repNovosMembros')?.textContent || '0'],

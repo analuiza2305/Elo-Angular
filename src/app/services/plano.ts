@@ -217,7 +217,7 @@ const BENEFICIOS_PREMIUM_ADV = [
 // Os benefícios das empresas parceiras serão refinados junto com a aba de Planos do parceiro.
 const BENEFICIOS_GRATUITO_PARC = [
   'Perfil da empresa na plataforma',
-  'Publicação de artigos e eventos',
+  'Publicação de postagens e eventos',
 ];
 
 const BENEFICIOS_PREMIUM_PARC = [
