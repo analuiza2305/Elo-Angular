@@ -4617,7 +4617,7 @@ async carregarUsuarios(): Promise<void> {
     this.conteudoDonutChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['Eventos', 'Artigos'],
+        labels: ['Eventos', 'Comunidade'],
         datasets: [{
           data: valores,
           backgroundColor: cores,

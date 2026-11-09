@@ -1175,7 +1175,7 @@
                   <th>Segmento</th>
                   <th>Status</th>
                   <th>Eventos</th>
-                  <th>Artigos</th>
+                  <th>Comunidade</th>
                   <th>Engajamento</th>
                   <th>Satisfação</th>
                   <th>Último acesso</th>
@@ -1852,7 +1852,7 @@
       </button>
       <button type="button" class="usr-resumo-card" [class.ativo]="filtroTipoDenuncia === 'artigo'" (click)="filtroTipoDenuncia = 'artigo'">
         <span class="usr-resumo-icone icone-azul"><i class="fa-regular fa-file-lines"></i></span>
-        <span class="usr-resumo-info"><strong>{{ contarDenuncias('artigo') }}</strong><span>Artigos</span></span>
+        <span class="usr-resumo-info"><strong>{{ contarDenuncias('artigo') }}</strong><span>Comunidade</span></span>
       </button>
       <button type="button" class="usr-resumo-card" [class.ativo]="filtroTipoDenuncia === 'evento'" (click)="filtroTipoDenuncia = 'evento'">
         <span class="usr-resumo-icone icone-verde"><i class="fa-regular fa-calendar"></i></span>
@@ -1877,7 +1877,7 @@
         <select [(ngModel)]="filtroTipoDenuncia">
           <option value="todas">Todos</option>
           <option value="post">Posts do fórum</option>
-          <option value="artigo">Artigos</option>
+          <option value="artigo">Comunidade</option>
           <option value="evento">Eventos</option>
         </select>
       </label>
@@ -2030,7 +2030,7 @@
           <span class="cab-icone"><i class="fa-solid fa-shield-halved"></i></span>
           <div class="cab-texto">
             <h2 class="page-title">Moderação de Conteúdo</h2>
-            <p class="page-subtitle">Acompanhe os eventos e artigos publicados e tome uma ação quando precisar.</p>
+            <p class="page-subtitle">Acompanhe os eventos e as publicações da Comunidade e tome uma ação quando precisar.</p>
           </div>
         </div>
 
@@ -2038,7 +2038,7 @@
           <div class="stat-card">
             <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-layer-group"></i></div>
             <div class="stat-info">
-              <span class="stat-label">Total de Eventos e Artigos</span>
+              <span class="stat-label">Total de Eventos e Publicações</span>
               <span class="stat-number">{{ contagemConteudoModeracao.total }}</span>
               <span class="stat-trend neutral">posts...</span>
             </div>
@@ -2056,7 +2056,7 @@
           <div class="stat-card">
             <div class="stat-icon stat-icon-purple"><i class="fa-regular fa-file-lines"></i></div>
             <div class="stat-info">
-              <span class="stat-label">Artigos Publicados</span>
+              <span class="stat-label">Publicações na Comunidade</span>
               <span class="stat-number">{{ contagemConteudoModeracao.artigos }}</span>
               <span class="stat-trend neutral">posts...</span>
             </div>
@@ -2082,7 +2082,7 @@
                 <i class="fa-regular fa-calendar"></i> Eventos
               </button>
               <button type="button" class="mod-tab" [class.active]="filtroConteudoModeracao === 'artigos'" (click)="filtrarConteudoModeracao('artigos')">
-                <i class="fa-regular fa-file-lines"></i> Artigos
+                <i class="fa-regular fa-file-lines"></i> Comunidade
               </button>
               <button type="button" class="mod-tab mod-tab-alerta" [class.active]="filtroConteudoModeracao === 'denuncias'" (click)="filtrarConteudoModeracao('denuncias')">
                 <i class="fa-solid fa-circle-info"></i> Denúncias
@@ -2200,7 +2200,7 @@
             </div>
             <div class="creditos-donut-legenda-item">
               <span class="creditos-donut-dot" style="background:#c9b8f0"></span>
-              <span class="creditos-donut-legenda-nome">Artigos</span>
+              <span class="creditos-donut-legenda-nome">Comunidade</span>
               <span class="creditos-donut-legenda-valor">{{ percentualArtigosConteudo }} %</span>
             </div>
             <div class="creditos-donut-legenda-item">

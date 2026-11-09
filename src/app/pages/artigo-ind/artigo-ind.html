@@ -4,7 +4,7 @@
     
     <div class="breadcrumb-acoes">
         <button type="button" class="link-voltar" (click)="voltar()">
-            <i class="fa-solid fa-arrow-left"></i> Voltar<span class="so-desktop"> para artigos</span>
+            <i class="fa-solid fa-arrow-left"></i> Voltar para a Comunidade
         </button>
         
         @if (!isLoading() && artigo()) {
@@ -13,9 +13,9 @@
                 <app-denunciar tipo="artigo" [alvoId]="artigoId" [alvoTitulo]="artigo().titulo || ''" [alvoDono]="artigo().postadoPor || ''"></app-denunciar>
                     <button class="btn-favoritar" [class.salvo]="isFavorito()" (click)="toggleFavorito()">
                         @if (isFavorito()) {
-                            <i class="fa-solid fa-bookmark"></i> Salvo<span class="so-desktop"> nos favoritos</span>
+                            <i class="fa-solid fa-bookmark"></i> Salvo<span class="so-desktop">nos favoritos</span>
                         } @else {
-                            <i class="fa-regular fa-bookmark"></i> Salvar<span class="so-desktop"> artigo</span>
+                            <i class="fa-regular fa-bookmark"></i> Salvar<span class="so-desktop">artigo</span>
                         }
                     </button>
                 }
@@ -32,7 +32,7 @@
             <div class="vazio-icon-wrapper"><i class="fa-solid fa-triangle-exclamation"></i></div>
             <h3>Ops! Algo deu errado</h3>
             <p>{{ errorMessage() }}</p>
-            <button type="button" class="btn-externo" style="margin-top: 15px; border: none; cursor: pointer;" (click)="voltar()">Voltar aos Artigos</button>
+            <button type="button" class="btn-externo" style="margin-top: 15px; border: none; cursor: pointer;" (click)="voltar()">Voltar para a Comunidade</button>
         </div>
     } @else {
         <article class="artigo-card com-brilho">

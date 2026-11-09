@@ -102,7 +102,7 @@ export class HomeAdv implements OnInit, OnDestroy {
   readonly menuItems: MenuItem[] = [
     { target: 'dashboard', label: 'Painel de controle', icon: 'fa-solid fa-chart-line' },
     { target: 'agenda', label: 'Agenda', icon: 'fa-solid fa-calendar-days' },
-    { target: 'artigos', label: 'Artigos', icon: 'fa-solid fa-newspaper' },
+    { target: 'artigos', label: 'Comunidade', icon: 'fa-solid fa-newspaper' },
     { target: 'consultas', label: 'Consultas', icon: 'fa-solid fa-hands-helping' },
     { target: 'forum', label: 'Fórum', icon: 'fa-solid fa-comments' },
     { target: 'pacientes', label: 'Clientes', icon: 'fa-solid fa-user-group' },

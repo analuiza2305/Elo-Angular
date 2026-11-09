@@ -349,3 +349,6 @@ button.link-voltar { height: 44px; padding: 0 18px !important; }
 :host-context(body[data-theme="dark"]) .afi-ic-autor i { color: #F7B3D2 !important; }
 :host-context(body[data-theme="dark"]) .afi-txt small { color: #A79FC6; }
 :host-context(body[data-theme="dark"]) .afi-txt strong { color: #F4F1FF; }
+
+/* "Salvar artigo": espaço normal entre as palavras (o gap do botão separava demais) */
+.btn-favoritar .so-desktop { margin-left: -4px; }
