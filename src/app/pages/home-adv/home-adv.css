@@ -7127,3 +7127,8 @@ header.header .right-section > #notif-psi.notif-wrap.notif-wrap { display: flex 
   :host :is(.home-psi-page, .home-adv-page) #documentos .doc-tab { border-bottom-width: 0 !important; border-left: 3px solid transparent !important; }
   :host :is(.home-psi-page, .home-adv-page) #documentos .doc-tab.ativo { border-left-color: #7C69A9 !important; }
 }
+/* ===== CONTRASTE (09/11 - 2) ===== */
+:host-context(body[data-theme="dark"]) .rep-nota-grande { background: #1B2336 !important; border-color: rgba(255, 255, 255, .1) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) .rep-nota-grande strong { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) .rep-nota-grande small { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) .rep-rodape { border-top-color: rgba(255, 255, 255, .08) !important; }
