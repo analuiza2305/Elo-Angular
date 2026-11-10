@@ -6966,3 +6966,164 @@ header.header .right-section > #notif-psi.notif-wrap.notif-wrap { display: flex 
   :host :is(.home-psi-page, .home-adv-page) #documentos .doc-acoes-final .doc-btn-primario { width: 100% !important; justify-content: center; }
 }
 :host :is(.home-psi-page, .home-adv-page) section#planos.content { max-width: 1100px !important; width: 100%; margin-left: auto !important; margin-right: auto !important; }
+
+/* =========================================================
+   MODO ESCURO E CONTRASTE (09/11) — mesmo bloco em home-psi e home-adv
+   Regra geral: fundo #161c2c (cartões) / #1B2336 (campos),
+   texto principal #F1ECFF, texto secundário #CFC7EA, destaque #C4B5FD
+   ========================================================= */
+/* ícone da coroa no cartão Premium (modo claro também) */
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card-premium .pl-card-topo h3 i {
+  background: linear-gradient(145deg, #FFD36E, #E0A82E) !important; color: #fff !important; opacity: 1 !important;
+}
+
+/* ---------- Header ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .header :is(.notif-btn, .logout-btn, .theme-toggle, #accessibility-toggle) {
+  background: rgba(255, 255, 255, .08) !important; border: 1px solid rgba(255, 255, 255, .1) !important; box-shadow: none !important; color: #E6DEFF !important;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .header :is(.notif-btn, .logout-btn, .theme-toggle, #accessibility-toggle) i { color: #E6DEFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .header .avatar-btn { background: rgba(255, 255, 255, .08) !important; border-color: rgba(255, 255, 255, .15) !important; }
+
+/* ---------- Menu lateral: itens inativos legíveis ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn:not(.active) { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn:not(.active) span { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn:not(.active) i { color: #A99BD6 !important; }
+
+/* ---------- Títulos de página e subtítulos ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) :is(.pro-titulo-pagina p, .secao-sub, #planos .pl-topo p) { color: #CFC7EA !important; }
+
+/* ---------- Agenda ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .calendar-header { border-bottom-color: rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .calendar-nav-btn { background: transparent !important; color: #E6DEFF !important; border-color: rgba(196, 181, 253, .55) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .calendar-nav-btn i { color: #E6DEFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .calendar-nav-btn:hover { background: #5B3D99 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .calendar-days > div { color: #A99BD6 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date.has-event:not(.today) {
+  background: rgba(196, 181, 253, .16) !important; color: #F1ECFF !important; border-color: #A48FE0 !important;
+  box-shadow: 0 0 0 3px #161c2c, 0 0 0 4px rgba(196, 181, 253, .3) !important;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date.has-event::after { background: #C4B5FD; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date.today { background: #7C69A9 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .events-container h3 { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .ev-ic { background: rgba(196, 181, 253, .14) !important; color: #E6DEFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .ev-ic i { color: #E6DEFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .ev-txt strong { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .ev-data { color: #D8B4FE !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .ev-txt small { color: #CFC7EA !important; }
+
+/* ---------- Comunidade ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-excerpt { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-ler { color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-ler i { color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-footer { border-top-color: rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-author { color: #E6DEFF !important; }
+
+/* ---------- Consultas: estado vazio ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-vazio { background: #161c2c !important; border-color: rgba(255, 255, 255, .08) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-vazio::after { opacity: .15; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-vazio h2 { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-vazio p { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-card :is(.cs-info-label) { color: #A99BD6 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-card :is(.cs-info-value, h3, strong) { color: #F1ECFF !important; }
+
+/* ---------- Fórum ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .forum-post-card .f-post-author-data strong { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .forum-post-card .f-post-author-data span { color: #A99BD6 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .forum-post-card .f-post-text { color: #D9D3EE !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .forum-post-card .f-post-footer { border-top-color: rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .forum-post-card .f-post-author-row img { background: #fff; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .forum-replies { background: rgba(255, 255, 255, .03) !important; border-color: rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .forum-replies .vazio-msg { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .reply-item { background: #1B2336 !important; border-color: rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .reply-item :is(strong, p) { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .reply-item small { color: #A99BD6 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .reply-form { background: transparent !important; border-color: rgba(255, 255, 255, .08) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .reply-form textarea { background: #1B2336 !important; color: #F1ECFF !important; border-color: rgba(255, 255, 255, .12) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .reply-form textarea::placeholder { color: #8F86B0; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .reply-form .btn-aceitar:disabled { background: rgba(124, 105, 169, .35) !important; color: rgba(255, 255, 255, .6) !important; }
+
+/* ---------- Pacientes / Clientes ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-details-box p { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-details-box strong { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-tag { background: rgba(196, 181, 253, .16) !important; color: #E6DEFF !important; }
+
+/* ---------- Chats ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .chat-user-item .chat-user-info span { color: #A99BD6 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .chat-user-item .chat-user-info h4 { color: #F1ECFF !important; }
+
+/* ---------- Documentos ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-card-titulo { border-bottom-color: rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-card-titulo p { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-card-titulo h3 i { background: rgba(196, 181, 253, .16) !important; color: #E6DEFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-card:not(.doc-card-resumo) .doc-dica { background: rgba(255, 255, 255, .04) !important; color: #CFC7EA !important; border: 1px solid rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-campo > span { color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .rel-periodo:not(.ativo) { background: transparent !important; color: #E6DEFF !important; border-color: rgba(255, 255, 255, .15) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-card.doc-card-resumo {
+  background: radial-gradient(circle at 85% 0%, rgba(255, 255, 255, .1), transparent 45%), linear-gradient(140deg, #4A3C78 0%, #3A2D66 55%, #2A2150 100%) !important;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo-icone { border-color: rgba(255, 255, 255, .15) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-form-topo span:not(.doc-modelo-icone) { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-voltar { background: transparent !important; color: #E6DEFF !important; border-color: rgba(255, 255, 255, .2) !important; }
+
+/* ---------- Planos ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-atual,
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-atual.premium {
+  background: radial-gradient(circle at 90% 10%, rgba(255, 255, 255, .1), transparent 40%), linear-gradient(135deg, #4A3C78 0%, #3A2D66 55%, #2A2150 100%) !important;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-atual-status { background: #fff !important; color: #2F7A55 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-card-topo h3 i:not(.fa-crown) { background: rgba(196, 181, 253, .16) !important; color: #E6DEFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-preco span { color: #A99BD6 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-preco { border-bottom-color: rgba(255, 255, 255, .12) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-card-premium .pl-preco strong { background: linear-gradient(135deg, #E6DEFF, #C4B5FD); -webkit-background-clip: text; background-clip: text; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-descricao-plano { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-btn-outline { background: transparent !important; color: #E6DEFF !important; border-color: rgba(255, 255, 255, .25) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-check { background: rgba(52, 211, 153, .14) !important; color: #6EE7B7 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-card-premium .pl-check { background: rgba(196, 181, 253, .16) !important; color: #E6DEFF !important; }
+/* banners com imagem clara: texto escuro também no modo escuro */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .pro-banner :is(p, .secao-sub) { color: #3E3656 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .pro-banner h2 { color: #2A1B5C !important; -webkit-text-fill-color: #2A1B5C !important; }
+/* ===== CONTRASTE E SIDEBAR (09/11 - 2) ===== */
+/* Sidebar igual ao menu da mãe: ícones em quadradinhos, item ativo em degradê roxo */
+:host :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn {
+  display: flex !important; align-items: center; gap: 14px; padding: 8px 12px !important; margin-bottom: 4px !important;
+  border-radius: 16px !important; font-weight: 700 !important; color: #2A1B5C !important; background: transparent !important; box-shadow: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn i {
+  flex: 0 0 38px; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px;
+  background: #F3EDFF; color: #5B3D99 !important; font-size: .95rem !important; transition: background .2s ease, color .2s ease;
+}
+:host :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn:not(.active):hover { background: #F6F2FD !important; }
+:host :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn.active {
+  background: linear-gradient(135deg, #7C69A9 0%, #52427D 100%) !important; color: #fff !important;
+  box-shadow: 0 10px 22px rgba(82, 66, 125, .28) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn.active span:not(.menu-contador) { color: #fff !important; }
+:host :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn.active i { background: rgba(255, 255, 255, .18); color: #fff !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn:not(.active) { color: #E6DEFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn:not(.active) i { background: rgba(196, 181, 253, .12); color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn:not(.active):hover { background: rgba(255, 255, 255, .06) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn.active { background: linear-gradient(135deg, #6A58A0 0%, #45386E 100%) !important; }
+
+/* Selects de mês/ano: seta clara e lista de opções legível no modo escuro */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) select { color-scheme: dark; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) select option { background: #1B2336; color: #F1ECFF; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .month-year-select select {
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23C4B5FD%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") !important;
+}
+
+/* Banners claros (Comunidade e Fórum): subtítulo escuro também no modo escuro */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) :is(#artigos, #forum) .pro-banner p,
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) :is(#artigos, #forum) .pro-banner .secao-sub { color: #3E3656 !important; }
+
+/* Documentos: papel da ilustração claro e abas inativas legíveis no modo escuro */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-ilustra-papel { background: #F4F0FF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-ilustra-papel span { background: #CFC2F2 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-tab:not(.ativo) { color: #CFC7EA !important; }
+
+/* Celular: Consultas mostra só o seletor (sem as abas cortadas) e Documentos sem o tracinho solto */
+@media (max-width: 768px) {
+  :host :is(.home-psi-page, .home-adv-page) section#consultas .cs-tabs { display: none !important; }
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-tab.ativo::before { display: none !important; }
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-tab { border-bottom-width: 0 !important; border-left: 3px solid transparent !important; }
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-tab.ativo { border-left-color: #7C69A9 !important; }
+}

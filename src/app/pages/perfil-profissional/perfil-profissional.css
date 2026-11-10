@@ -1094,3 +1094,28 @@ header.header-prof .logout-btn:hover {
 @media (max-width: 992px) {
   .profile-hero-card > .btn-editar-dados { position: static; align-self: center; margin-top: 4px; }
 }
+
+/* =========================================================
+   MODO ESCURO DO PERFIL DO PROFISSIONAL (09/11)
+   ========================================================= */
+:host-context(body[data-theme="dark"]) .perfil-container { color: #F1ECFF; }
+:host-context(body[data-theme="dark"]) :is(.profile-hero-card, .content-box, .action-card, .loading-card, .empty-state) {
+  background: #161c2c !important; border-color: rgba(255, 255, 255, .08) !important; box-shadow: none !important;
+}
+:host-context(body[data-theme="dark"]) :is(.profile-hero-card, .content-box, .action-card) :is(h1, h2, h3, h4, strong) { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) :is(.profile-hero-card, .content-box, .action-card) :is(p, span:not(.selo):not(.esp-tag):not(.conta-status), small, li, .profile-role, .subtext) { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) .esp-tag { background: rgba(196, 181, 253, .16) !important; color: #E6DEFF !important; }
+:host-context(body[data-theme="dark"]) .back-link, :host-context(body[data-theme="dark"]) .back-link i { color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) :is(.btn-edit-profile, .btn-editar-dados, .btn-ghost) { background: transparent !important; color: #E6DEFF !important; border-color: rgba(255, 255, 255, .25) !important; }
+:host-context(body[data-theme="dark"]) .conta-linha { border-color: rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) .conta-linha > :first-child { color: #A99BD6 !important; }
+:host-context(body[data-theme="dark"]) .conta-linha > :last-child:not(.conta-status) { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) .conta-anotacoes { background: rgba(196, 181, 253, .08) !important; border-color: rgba(196, 181, 253, .25) !important; }
+:host-context(body[data-theme="dark"]) .conta-perigo { background: rgba(229, 72, 77, .08) !important; border-color: rgba(229, 72, 77, .35) !important; }
+:host-context(body[data-theme="dark"]) .conta-perigo :is(strong, h4) { color: #FECDD3 !important; }
+:host-context(body[data-theme="dark"]) .conta-perigo :is(p, span) { color: #F5C2C7 !important; }
+:host-context(body[data-theme="dark"]) :is(.rep-media, .rep-resumo) { background: #1B2336 !important; border-color: rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) :is(.rep-nota-grande, .rep-barra-label, .rep-barra-qtd) { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) .rep-barra { background: rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) .rep-elogio { background: #1B2336 !important; color: #E6DEFF !important; border-color: rgba(255, 255, 255, .1) !important; }
+:host-context(body[data-theme="dark"]) .profile-avatar-container .profile-avatar { background: #fff; }
