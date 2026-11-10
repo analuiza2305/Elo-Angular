@@ -1,6 +1,12 @@
 <div class="home-psi-page">
   <header class="header">
-    <h1 id="boasVindas">Bem-vindo(a), Dr(a). {{ nomeCompleto() }}</h1>
+    <h1 id="boasVindas" class="pro-marca">
+      <a routerLink="/home-psi" class="pro-logo" aria-label="EloMaterno - painel">
+        <img src="./img/logo_icon.png" alt="" class="pro-logo-icon">
+        <span class="pro-logo-texto">elomaterno</span>
+      </a>
+      <span class="pro-titulo">Painel do psicólogo</span>
+    </h1>
     <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" (click)="toggleSidebar()"><i class="fa-solid fa-bars" aria-hidden="true"></i>@if (pendentesCount()) {<span class="menu-toggle-ponto" aria-hidden="true"></span>}</button>
     <div id="sidebar-overlay" class="sidebar-overlay" [class.active]="sidebarOpen()" (click)="closeSidebar()" aria-hidden="true"></div>
     <div class="right-section">
@@ -121,6 +127,10 @@
         <div class="hero-content">
           <h2 id="hero-nome">Olá, Dr(a). {{ primeiroNome() }}!</h2>
           <p>Seu espaço de cuidado está pronto. Acompanhe seus atendimentos, gerencie sua agenda e transforme o dia dos seus pacientes.</p>
+          <div class="hero-botoes">
+            <button type="button" class="botao-roxo" (click)="selecionarSecao('agenda')">Ver minha agenda <i class="fa-solid fa-arrow-right"></i></button>
+            <button type="button" class="botao-branco" (click)="selecionarSecao('consultas')">Ver consultas</button>
+          </div>
         </div>
         <div class="hero-glow shape-1"></div>
         <div class="hero-glow shape-2"></div>
@@ -205,7 +215,7 @@
           </div>
         </div>
       }
-      <div class="agenda-topo">
+      <div class="agenda-topo pro-titulo-pagina">
         <div>
           <h2>Minha agenda</h2>
           <p class="secao-sub">Clique em um dia para marcar os horários em que você atende. As mães veem essas vagas na hora de agendar.</p>
@@ -231,7 +241,7 @@
           </div>
           <div class="calendar-days"><div *ngFor="let d of diasSemana">{{ d }}</div></div>
           <div class="calendar-dates">
-            <div *ngFor="let celula of celulasCalendario()" class="date" [class.vazio]="celula.dia === null" [class.today]="celula.isHoje" [class.has-event]="celula.temDisponibilidade" (click)="abrirSelecaoHorarios(celula.dia)">
+            <div *ngFor="let celula of celulasCalendario()" class="date" [class.vazio]="celula.dia === null" [class.today]="celula.isHoje" [class.has-event]="celula.temDisponibilidade" [class.past]="celula.passado" (click)="abrirSelecaoHorarios(celula.dia)">
               {{ celula.dia }}
             </div>
           </div>
@@ -241,10 +251,13 @@
         <div class="events-container">
           <h3>Consultas do mês</h3>
           <div class="event-list">
-            <div class="event" *ngFor="let evento of eventosDoMesOrdenados()">
-              <strong>{{ evento.data | date:'dd/MM' }} • {{ evento.titulo }}</strong>
-              <p>{{ evento.descricao }}</p>
-              <small>{{ evento.local }}</small>
+            <div class="event ev-card" *ngFor="let evento of eventosDoMesOrdenados()">
+              <span class="ev-ic"><i class="fa-solid fa-video"></i></span>
+              <div class="ev-txt">
+                <strong>Consulta com {{ evento.titulo }}</strong>
+                <span class="ev-data">{{ evento.data | date:'dd/MM/yyyy' }} {{ evento.local }}</span>
+                <small>{{ evento.descricao }}</small>
+              </div>
             </div>
             <p class="em-construcao" *ngIf="eventosDoMesOrdenados().length === 0">Nenhuma consulta marcada neste mês.</p>
           </div>
@@ -333,15 +346,17 @@
 
     <!-- ARTIGOS -->
     <section class="content" id="artigos" *ngIf="activeSection() === 'artigos'">
-      <div class="artigos-header-top">
+
+      <div class="artigos-header-top pro-banner banner-comunidade">
         <div class="artigos-title-box">
           <h2>Comunidade</h2>
-          <p class="secao-sub">Acesse materiais e publique conteúdos para apoiar as mães.</p>
+          <p class="secao-sub">Acesse materiais e publique conteúdos para apoiar as mães da comunidade.</p>
         </div>
         <button type="button" class="btn-novo-artigo" (click)="abrirModalArtigo()">
           <i class="fa-solid fa-plus"></i> Nova postagem
         </button>
       </div>
+
       <div class="artigos-filter-bar">
         <div class="artigos-categorias">
           <button class="cat-btn" [class.active]="filtroArtigo() === 'todos'" (click)="filtrarArtigos('todos')"><i class="fa-solid fa-border-all"></i> Todos</button>
@@ -352,12 +367,17 @@
           <button class="cat-btn" [class.active]="filtroArtigo() === 'posts'" (click)="filtrarArtigos('posts')"><i class="fa-regular fa-newspaper"></i> Posts</button>
           <button class="cat-btn" [class.active]="filtroArtigo() === 'meus'" (click)="filtrarArtigos('meus')"><i class="fa-solid fa-user-pen"></i> Minhas postagens</button>
         </div>
+        <button class="btn-sort" type="button" (click)="alternarOrdemArtigos()">
+          <i class="fa-solid fa-sliders"></i> {{ ordemArtigos() === 'recentes' ? 'Mais recentes' : 'Mais antigos' }}
+        </button>
       </div>
+
       <div class="loader" *ngIf="carregandoArtigos()" style="margin: 40px auto;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+
       <div class="artigos-grid-psi" *ngIf="!carregandoArtigos()">
         <a [routerLink]="['/artigo-ind-profissional']" [queryParams]="{ id: artigo.id, origem: 'psi' }" class="artigo-card-novo" *ngFor="let artigo of artigosFiltrados()">
           <div class="ac-img-wrapper">
-            <img *ngIf="imagemDoArtigo(artigo)" [src]="imagemDoArtigo(artigo)" [alt]="artigo.titulo" class="ac-cover">
+            <img *ngIf="imagemDoArtigo(artigo)" [src]="imagemDoArtigo(artigo)" [alt]="artigo.titulo" class="ac-cover" (error)="artigo.img = ''; artigo.capa = ''; artigo.imagem = ''">
             <div class="ac-sem-imagem" *ngIf="!imagemDoArtigo(artigo)"><i class="fa-regular fa-image"></i></div>
             <span class="ac-tag" [style.color]="corCategoria(artigo.categoria)">{{ artigo.categoria || 'conteúdo' }}</span>
             <button type="button" class="ac-fav-btn" [class.salvo]="ehFavorito(artigo.id)" (click)="alternarFavorito(artigo, $event)"
@@ -368,16 +388,20 @@
           </div>
           <div class="ac-body">
             <h4 class="ac-title">{{ artigo.titulo }}</h4>
-            <p class="ac-excerpt">{{ artigo.descricao || artigo.resumo }}</p>
+            <p class="ac-excerpt">{{ artigo.descricao || artigo.resumo || artigo.conteudo }}</p>
             <div class="ac-footer">
-              <span class="ac-author"><i class="fa-solid fa-user-doctor"></i> {{ artigo.postadoPor || 'Equipe' }}</span>
+              <span class="ac-author"><i class="fa-solid fa-pen-nib"></i> {{ artigo.postadoPor || 'Equipe EloMaterno' }}</span>
               <span class="ac-ler">Ler postagem <i class="fa-solid fa-arrow-right"></i></span>
             </div>
           </div>
         </a>
       </div>
-      <p class="vazio-msg" *ngIf="!carregandoArtigos() && filtroArtigo() === 'favoritos' && artigosFiltrados().length === 0">
-        Você ainda não salvou nenhuma postagem. Toque no <i class="fa-regular fa-bookmark"></i> de uma postagem para guardar aqui.
+      <p class="vazio-msg" *ngIf="!carregandoArtigos() && artigosFiltrados().length === 0">
+        @if (filtroArtigo() === 'favoritos') {
+          Você ainda não salvou nenhuma postagem. Toque no <i class="fa-regular fa-bookmark"></i> de uma postagem para guardar aqui.
+        } @else {
+          {{ filtroArtigo() === 'meus' ? 'Você ainda não publicou nenhum artigo.' : 'Nenhum artigo publicado ainda.' }}
+        }
       </p>
 
       <!-- MODAL: NOVO ARTIGO COM PRÉVIA -->
@@ -451,7 +475,7 @@
 
     <!-- CONSULTAS (mesmo visual da tela "Minhas consultas" da mãe) -->
     <section class="content" id="consultas" *ngIf="activeSection() === 'consultas'">
-      <div class="cs-topo">
+      <div class="cs-topo pro-titulo-pagina">
         <h2>Minhas consultas</h2>
         <p>Acompanhe as solicitações, as consultas agendadas e o histórico de atendimento.</p>
       </div>
@@ -665,13 +689,21 @@
     }
 
     <section class="content" id="forum" *ngIf="activeSection() === 'forum'">
-      <h2>Fórum da Comunidade</h2>
-      <p class="secao-sub">Acolha e oriente as mães da rede Elo Materno.</p>
+      <div class="pro-banner banner-forum">
+        <div>
+        <h2>Fórum da comunidade</h2>
+      <p class="secao-sub">Acolha e oriente as mães. Sua resposta aparece para elas assim que você enviar.</p>
+        </div>
+      </div>
 
       <div class="forum-toolbar">
         <div class="forum-search-bar">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" placeholder="Pesquisar publicações..." [ngModel]="termoForum()" (ngModelChange)="termoForum.set($event)">
+          <input type="text" placeholder="Pesquisar no fórum..." [ngModel]="termoForum()" (ngModelChange)="termoForum.set($event)">
+        </div>
+        <div class="forum-filtros">
+          <button type="button" class="cat-btn" [class.active]="filtroForum() === 'todos'" (click)="filtroForum.set('todos')">Todos</button>
+          <button type="button" class="cat-btn" [class.active]="filtroForum() === 'aguardando'" (click)="filtroForum.set('aguardando')"><i class="fa-regular fa-clock"></i> Aguardando resposta</button>
         </div>
       </div>
 
@@ -690,29 +722,44 @@
             </div>
             <h3 class="f-post-title">{{ post.titulo }}</h3>
             <p class="f-post-text">{{ post.conteudo }}</p>
+
             <div class="f-post-footer">
-              <span class="badge-respondido"><i class="fa-solid fa-check-circle"></i> {{ post.totalRespostas }} respostas</span>
+              @if (post.totalRespostas > 0) {
+                <span class="badge-respondido"><i class="fa-solid fa-check-circle"></i> {{ post.totalRespostas }} {{ post.totalRespostas === 1 ? 'resposta' : 'respostas' }}</span>
+              } @else {
+                <span class="badge-aguardando"><i class="fa-regular fa-clock"></i> Aguardando especialista</span>
+              }
               <button type="button" class="btn-responder" (click)="alternarPost(post)">
                 <i class="fa-solid fa-reply"></i> {{ postAbertoId() === post.id ? 'Fechar' : 'Responder' }}
               </button>
             </div>
+
             @if (postAbertoId() === post.id) {
               <div class="forum-replies">
-                @for (r of respostasDoPost(); track r.id) {
-                  <div class="reply-item">
-                    <img [src]="r.autorFoto" [alt]="r.autorNome">
-                    <div class="reply-body">
-                      <div class="reply-head"><strong>{{ r.autorNome }}</strong> <span class="reply-tag" *ngIf="r.profissional">Especialista</span> <small>{{ r.dataTexto }}</small></div>
-                      <p>{{ r.conteudo }}</p>
+                @if (carregandoRespostas()) {
+                  <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                } @else {
+                  @for (r of respostasDoPost(); track r.id) {
+                    <div class="reply-item">
+                      <img [src]="r.autorFoto" [alt]="r.autorNome">
+                      <div class="reply-body">
+                        <div class="reply-head"><strong>{{ r.autorNome }}</strong> <span class="reply-tag" *ngIf="r.profissional">Profissional</span> <small>{{ r.dataTexto }}</small></div>
+                        <p>{{ r.conteudo }}</p>
+                      </div>
                     </div>
-                  </div>
-                } @empty {
-                  <p class="vazio-msg">Ainda sem respostas. Seja a primeira pessoa a acolher.</p>
+                  } @empty {
+                    <p class="vazio-msg" style="margin: 4px 0 12px;">Ainda não há respostas. Seja a primeira pessoa a acolher.</p>
+                  }
                 }
+
                 <div class="reply-form">
-                  <textarea rows="3" placeholder="Escreva sua orientação profissional..." [ngModel]="textoResposta()" (ngModelChange)="textoResposta.set($event)"></textarea>
+                  <textarea rows="3" placeholder="Escreva sua orientação profissional ou acolhimento..."
+                            [ngModel]="textoResposta()" (ngModelChange)="textoResposta.set($event)"></textarea>
+                  <p class="reply-erro" *ngIf="erroResposta()">{{ erroResposta() }}</p>
                   <div class="reply-actions">
-                    <button type="button" class="btn-aceitar" [disabled]="enviandoResposta() || !textoResposta().trim()" (click)="enviarResposta(post)">Enviar resposta</button>
+                    <button type="button" class="btn-aceitar" [disabled]="enviandoResposta() || !textoResposta().trim()" (click)="enviarResposta(post)">
+                      {{ enviandoResposta() ? 'Enviando...' : 'Enviar resposta' }}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -726,7 +773,12 @@
 
     <!-- PACIENTES -->
     <section class="content" id="pacientes" *ngIf="activeSection() === 'pacientes'">
-      <h2>Histórico de Pacientes</h2>
+      <div class="pro-titulo-pagina">
+        <div>
+          <h2>Histórico de Pacientes</h2>
+          <p>As mães que você já atendeu. Abra o histórico das sessões ou continue a conversa pelo chat.</p>
+        </div>
+      </div>
       <div class="pacientes-grid-novo">
         <div class="paciente-card-novo" *ngFor="let paciente of pacientes()">
           <div class="p-avatar-circle"><img [src]="paciente.avatar" alt="Avatar"></div>
@@ -734,7 +786,7 @@
           <span class="p-tag">Paciente</span>
           <div class="p-details-box"><p>Última consulta: <strong>{{ paciente.ultimaConsulta }}</strong></p></div>
           <button class="p-btn-prontuario" (click)="abrirProntuario(paciente)"><i class="fa-regular fa-folder-open"></i> Prontuário</button>
-          <button class="p-btn-chat" (click)="abrirChatComPaciente(paciente)">Abrir Chat</button>
+          <button class="p-btn-chat" (click)="abrirChatComPaciente(paciente)"><i class="fa-regular fa-comment-dots"></i> Abrir chat</button>
         </div>
       </div>
       <p class="vazio-msg" *ngIf="pacientes().length === 0">Você ainda não possui pacientes no histórico.</p>
@@ -1115,7 +1167,7 @@
       </div>
 
       <div class="pl-atual" [class.premium]="isPremium()">
-        <div class="pl-atual-icone"><i class="fa-solid" [class.fa-crown]="isPremium()" [class.fa-seedling]="!isPremium()"></i></div>
+        <div class="pl-atual-icone"><i class="fa-solid" [class.fa-crown]="isPremium()" [class.fa-circle-check]="!isPremium()"></i></div>
         <div class="pl-atual-texto">
           <span>Seu plano atual</span>
           <strong>{{ isPremium() ? (assinatura()?.planoNome || 'Premium') : 'Gratuito' }}</strong>
@@ -1123,16 +1175,16 @@
             <small>Ativo até {{ validadePremiumTexto() }}</small>
           }
         </div>
-        <div class="pl-atual-ilustra" aria-hidden="true">
-          <i class="fa-regular fa-calendar-days"></i>
-          <i class="fa-solid fa-seedling"></i>
-        </div>
+        <span class="pl-atual-status" [class.premium]="isPremium()">
+          <i class="fa-solid" [class.fa-circle-check]="isPremium()" [class.fa-user]="!isPremium()"></i>
+          {{ isPremium() ? 'Assinatura ativa' : 'Plano básico' }}
+        </span>
       </div>
 
       <div class="pl-grid">
         <div class="pl-card" [class.atual]="!isPremium()">
           <div class="pl-card-topo">
-            <h3>{{ planoGratuito().nome }}</h3>
+            <h3><i class="fa-regular fa-heart"></i> {{ planoGratuito().nome }}</h3>
             @if (!isPremium()) { <span class="pl-chip">Seu plano</span> }
           </div>
           <div class="pl-preco"><strong>R$ 0</strong><span>/mês</span></div>

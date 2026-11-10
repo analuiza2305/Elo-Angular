@@ -1,6 +1,12 @@
 <div class="home-adv-page">
   <header class="header">
-    <h1 id="boasVindas">Bem-vindo(a), Dr(a). {{ nomeCompleto() }}</h1>
+    <h1 id="boasVindas" class="pro-marca">
+      <a routerLink="/home-adv" class="pro-logo" aria-label="EloMaterno - painel">
+        <img src="./img/logo_icon.png" alt="" class="pro-logo-icon">
+        <span class="pro-logo-texto">elomaterno</span>
+      </a>
+      <span class="pro-titulo">Painel do advogado</span>
+    </h1>
     <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu" (click)="toggleSidebar()"><i class="fa-solid fa-bars" aria-hidden="true"></i>@if (pendentesCount()) {<span class="menu-toggle-ponto" aria-hidden="true"></span>}</button>
     <div id="sidebar-overlay" class="sidebar-overlay" [class.active]="sidebarOpen()" (click)="closeSidebar()" aria-hidden="true"></div>
     <div class="right-section">
@@ -133,6 +139,10 @@
         <div class="hero-content">
           <h2 id="hero-nome">Olá, Dr(a). {{ primeiroNome() }}!</h2>
           <p>Seu espaço de gestão jurídica está pronto. Acompanhe suas consultas, gerencie sua agenda e ofereça o melhor suporte às mães da comunidade.</p>
+          <div class="hero-botoes">
+            <button type="button" class="botao-roxo" (click)="selecionarSecao('agenda')">Ver minha agenda <i class="fa-solid fa-arrow-right"></i></button>
+            <button type="button" class="botao-branco" (click)="selecionarSecao('consultas')">Ver consultas</button>
+          </div>
         </div>
         <div class="hero-glow shape-1"></div>
         <div class="hero-glow shape-2"></div>
@@ -217,7 +227,7 @@
           </div>
         </div>
       }
-      <div class="agenda-topo">
+      <div class="agenda-topo pro-titulo-pagina">
         <div>
           <h2>Minha agenda</h2>
           <p class="secao-sub">Clique em um dia para marcar os horários em que você atende. As mães veem essas vagas na hora de agendar.</p>
@@ -243,7 +253,7 @@
           </div>
           <div class="calendar-days"><div *ngFor="let d of diasSemana">{{ d }}</div></div>
           <div class="calendar-dates">
-            <div *ngFor="let celula of celulasCalendario()" class="date" [class.vazio]="celula.dia === null" [class.today]="celula.isHoje" [class.has-event]="celula.temDisponibilidade" (click)="abrirSelecaoHorarios(celula.dia)">
+            <div *ngFor="let celula of celulasCalendario()" class="date" [class.vazio]="celula.dia === null" [class.today]="celula.isHoje" [class.has-event]="celula.temDisponibilidade" [class.past]="celula.passado" (click)="abrirSelecaoHorarios(celula.dia)">
               {{ celula.dia }}
             </div>
           </div>
@@ -253,10 +263,13 @@
         <div class="events-container">
           <h3>Consultas do mês</h3>
           <div class="event-list">
-            <div class="event" *ngFor="let evento of eventosDoMesOrdenados()">
-              <strong>{{ evento.data | date:'dd/MM' }} • {{ evento.titulo }}</strong>
-              <p>{{ evento.descricao }}</p>
-              <small>{{ evento.local }}</small>
+            <div class="event ev-card" *ngFor="let evento of eventosDoMesOrdenados()">
+              <span class="ev-ic"><i class="fa-solid fa-video"></i></span>
+              <div class="ev-txt">
+                <strong>Consulta com {{ evento.titulo }}</strong>
+                <span class="ev-data">{{ evento.data | date:'dd/MM/yyyy' }} {{ evento.local }}</span>
+                <small>{{ evento.descricao }}</small>
+              </div>
             </div>
             <p class="em-construcao" *ngIf="eventosDoMesOrdenados().length === 0">Nenhuma consulta marcada neste mês.</p>
           </div>
@@ -346,7 +359,7 @@
     <!-- ARTIGOS -->
     <section class="content" id="artigos" *ngIf="activeSection() === 'artigos'">
 
-      <div class="artigos-header-top">
+      <div class="artigos-header-top pro-banner banner-comunidade">
         <div class="artigos-title-box">
           <h2>Comunidade</h2>
           <p class="secao-sub">Acesse materiais e publique conteúdos para apoiar as mães da comunidade.</p>
@@ -474,7 +487,7 @@
 
     <!-- CONSULTAS (mesmo visual da tela "Minhas consultas" da mãe) -->
     <section class="content" id="consultas" *ngIf="activeSection() === 'consultas'">
-      <div class="cs-topo">
+      <div class="cs-topo pro-titulo-pagina">
         <h2>Minhas consultas</h2>
         <p>Acompanhe as solicitações, as consultas agendadas e o histórico de atendimento.</p>
       </div>
@@ -640,8 +653,12 @@
 
     <!-- FÓRUM (Padronizado com estilo da Mãe) -->
     <section class="content" id="forum" *ngIf="activeSection() === 'forum'">
-      <h2>Fórum da comunidade</h2>
+      <div class="pro-banner banner-forum">
+        <div>
+        <h2>Fórum da comunidade</h2>
       <p class="secao-sub">Acolha e oriente as mães. Sua resposta aparece para elas assim que você enviar.</p>
+        </div>
+      </div>
 
       <div class="forum-toolbar">
         <div class="forum-search-bar">
@@ -720,7 +737,12 @@
 
     <!-- PACIENTES -->
     <section class="content" id="pacientes" *ngIf="activeSection() === 'pacientes'">
-      <h2>Histórico de Clientes</h2>
+      <div class="pro-titulo-pagina">
+        <div>
+          <h2>Histórico de Clientes</h2>
+          <p>As mães que você já atendeu. Abra o histórico das sessões ou continue a conversa pelo chat.</p>
+        </div>
+      </div>
       <div class="pacientes-grid-novo">
         <div class="paciente-card-novo" *ngFor="let paciente of pacientes()">
           <div class="p-avatar-circle"><img [src]="paciente.avatar" alt="Avatar"></div>
@@ -728,7 +750,7 @@
           <span class="p-tag">Cliente</span>
           <div class="p-details-box"><p>Última consulta: <strong>{{ paciente.ultimaConsulta }}</strong></p></div>
           <button class="p-btn-prontuario" (click)="abrirProntuario(paciente)"><i class="fa-regular fa-folder-open"></i> Histórico</button>
-          <button class="p-btn-chat" (click)="abrirChatComPaciente(paciente)">Abrir Chat</button>
+          <button class="p-btn-chat" (click)="abrirChatComPaciente(paciente)"><i class="fa-regular fa-comment-dots"></i> Abrir chat</button>
         </div>
       </div>
       <p class="vazio-msg" *ngIf="pacientes().length === 0">Você ainda não possui clientes no histórico.</p>
@@ -1033,7 +1055,7 @@
       </div>
 
       <div class="pl-atual" [class.premium]="isPremium()">
-        <div class="pl-atual-icone"><i class="fa-solid" [class.fa-crown]="isPremium()" [class.fa-seedling]="!isPremium()"></i></div>
+        <div class="pl-atual-icone"><i class="fa-solid" [class.fa-crown]="isPremium()" [class.fa-circle-check]="!isPremium()"></i></div>
         <div class="pl-atual-texto">
           <span>Seu plano atual</span>
           <strong>{{ isPremium() ? (assinatura()?.planoNome || 'Premium') : 'Gratuito' }}</strong>
@@ -1041,16 +1063,16 @@
             <small>Ativo até {{ validadePremiumTexto() }}</small>
           }
         </div>
-        <div class="pl-atual-ilustra" aria-hidden="true">
-          <i class="fa-regular fa-calendar-days"></i>
-          <i class="fa-solid fa-seedling"></i>
-        </div>
+        <span class="pl-atual-status" [class.premium]="isPremium()">
+          <i class="fa-solid" [class.fa-circle-check]="isPremium()" [class.fa-user]="!isPremium()"></i>
+          {{ isPremium() ? 'Assinatura ativa' : 'Plano básico' }}
+        </span>
       </div>
 
       <div class="pl-grid">
         <div class="pl-card" [class.atual]="!isPremium()">
           <div class="pl-card-topo">
-            <h3>{{ planoGratuito().nome }}</h3>
+            <h3><i class="fa-regular fa-heart"></i> {{ planoGratuito().nome }}</h3>
             @if (!isPremium()) { <span class="pl-chip">Seu plano</span> }
           </div>
           <div class="pl-preco"><strong>R$ 0</strong><span>/mês</span></div>

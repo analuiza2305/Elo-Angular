@@ -28,7 +28,8 @@ type FiltroArtigo = 'todos' | CategoriaArtigo | 'meus' | 'favoritos';
 const CHAVE_FILTRO_ARTIGO = 'psiFiltroArtigo';
 
 interface MenuItem { target: SecaoHomePsi; label: string; icon: string; rota?: string; }
-interface CelulaCalendario { dia: number | null; isHoje: boolean; temDisponibilidade: boolean; }
+interface CelulaCalendario {
+  passado?: boolean; dia: number | null; isHoje: boolean; temDisponibilidade: boolean; }
 interface EventoAgenda { titulo: string; descricao: string; local: string; data: Date; }
 type StatusHorario = 'livre' | 'ocupado' | 'passado';
 interface HorarioSlot { horario: string; status: StatusHorario; selecionado: boolean; publicado: boolean; pacienteNome?: string; }
@@ -54,7 +55,7 @@ interface ArtigoForm {
 const CHAVE_ULTIMA_SECAO = 'homepsi_lastSection';
 const CHAVE_RASCUNHO_ARTIGO = 'homepsi_draft_artigo';
 const NOMES_MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-const DIAS_SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const STATUS_LABEL: Record<string, ConsultaView['status']> = {
   pendente: 'Pendente',
   aceito: 'Agendada', aceita: 'Agendada', agendada: 'Agendada',
@@ -247,7 +248,7 @@ export class HomePsi implements OnInit, OnDestroy {
     for (let i = 0; i < primeiroDiaSemana; i++) celulas.push({ dia: null, isHoje: false, temDisponibilidade: false });
     for (let d = 1; d <= diasNoMes; d++) {
       const dataAtual = new Date(ano, mes, d);
-      celulas.push({ dia: d, isHoje: dataAtual.toDateString() === hoje.toDateString(), temDisponibilidade: marcados.has(d) });
+      celulas.push({ dia: d, isHoje: dataAtual.toDateString() === hoje.toDateString(), temDisponibilidade: marcados.has(d), passado: dataAtual < new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()) });
     }
     return celulas;
   });

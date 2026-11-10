@@ -7204,3 +7204,838 @@ header.header .right-section > #notif-psi.notif-wrap.notif-wrap { display: flex 
 @media (max-width: 768px) {
   #agenda .btn-horarios-hoje { width: 100%; margin-bottom: 20px; }
 }
+
+/* =========================================================
+   PADRÃO DAS TELAS DA MÃE (09/11) — mesmo bloco em home-psi
+   e home-adv, para os dois painéis ficarem iguais.
+   ========================================================= */
+
+/* ---------- Header: logo + "Painel do ..." ---------- */
+:host :is(.home-psi-page, .home-adv-page) .header #boasVindas.pro-marca {
+  display: flex !important; align-items: center; gap: 14px; margin: 0 !important;
+  font-size: inherit !important; background: none !important; -webkit-text-fill-color: initial !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .pro-logo { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+:host :is(.home-psi-page, .home-adv-page) img.pro-logo-icon { width: 32px !important; height: 32px !important; max-width: none; object-fit: contain; }
+:host :is(.home-psi-page, .home-adv-page) .pro-logo-texto {
+  font-family: 'Poppins', sans-serif; font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; color: #2D1E4E;
+}
+:host :is(.home-psi-page, .home-adv-page) .pro-titulo {
+  padding-left: 14px; border-left: 2px solid rgba(132, 113, 177, .25);
+  font-family: inherit; font-size: 1.05rem; font-weight: 700; color: #52427D; white-space: nowrap;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .pro-logo-texto { color: #F4F1FF; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .pro-titulo { color: #CFC6EC; border-left-color: rgba(255, 255, 255, .18); }
+@media (max-width: 1024px) {
+  :host :is(.home-psi-page, .home-adv-page) .pro-titulo { display: none; }
+  :host :is(.home-psi-page, .home-adv-page) .pro-logo-texto { font-size: 1.2rem; }
+}
+
+/* ---------- Menu lateral: item ativo como o "Início" da mãe ---------- */
+:host :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn.active {
+  background: #ECE6F8 !important; color: #3E2A72 !important;
+  box-shadow: none !important; transform: none !important; font-weight: 800;
+}
+:host :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn.active i { color: #52427D !important; }
+:host :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn.active span:not(.menu-contador) { color: #3E2A72 !important; }
+:host :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn:not(.active):hover { background: #F6F2FD !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn.active { background: rgba(196, 181, 253, .14) !important; color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn.active i { color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn.active span:not(.menu-contador) { color: #F4F1FF !important; }
+
+/* ---------- Banner do painel: layout da home da mãe (texto, botões e imagem),
+   mantendo o gradiente roxo que segue o mouse ---------- */
+:host :is(.home-psi-page, .home-adv-page) #dashboard .welcome-hero {
+  position: relative; display: flex !important; align-items: center !important; justify-content: space-between; gap: 32px;
+  min-height: 0 !important; padding: 40px 44px !important; border-radius: 28px !important; overflow: hidden !important;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), #7C69A9 0%, #5B3D99 50%, #3E2A72 100%) !important;
+  border: none !important; box-shadow: 0 15px 35px rgba(62, 42, 114, .22) !important; color: #fff !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #dashboard .welcome-hero .hero-glow { display: block !important; z-index: 0; pointer-events: none; }
+:host :is(.home-psi-page, .home-adv-page) #dashboard .welcome-hero .hero-content { flex: 1 1 0; max-width: 640px; position: relative; z-index: 2; }
+:host :is(.home-psi-page, .home-adv-page) #dashboard .welcome-hero .hero-saudacao { display: block; margin-bottom: 14px; font-size: .95rem; color: rgba(255, 255, 255, .85); }
+:host :is(.home-psi-page, .home-adv-page) #dashboard .welcome-hero .hero-saudacao strong { color: #fff; }
+:host :is(.home-psi-page, .home-adv-page) #dashboard .welcome-hero #hero-nome {
+  margin: 0 0 14px !important; font-family: 'Poppins', sans-serif !important;
+  font-size: clamp(1.8rem, 2.6vw, 2.4rem) !important; font-weight: 800 !important; line-height: 1.2 !important;
+  color: #fff !important; -webkit-text-fill-color: #fff !important; background: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #dashboard .welcome-hero #hero-nome .destaque { color: #E4D9FF !important; -webkit-text-fill-color: #E4D9FF !important; }
+:host :is(.home-psi-page, .home-adv-page) #dashboard .welcome-hero .hero-content p {
+  margin: 0 0 26px !important; max-width: 520px; font-size: 1rem !important; line-height: 1.6 !important; color: rgba(255, 255, 255, .88) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .hero-botoes { display: flex; flex-wrap: wrap; gap: 12px; }
+:host :is(.home-psi-page, .home-adv-page) .botao-roxo, :host :is(.home-psi-page, .home-adv-page) .botao-branco {
+  display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 24px; border-radius: 999px;
+  font: inherit; font-size: .95rem; font-weight: 700; cursor: pointer; transition: transform .2s ease, background .2s ease;
+}
+:host :is(.home-psi-page, .home-adv-page) .botao-roxo { background: #fff; color: #3E2A72; border: none; box-shadow: 0 10px 22px rgba(20, 10, 50, .2); }
+:host :is(.home-psi-page, .home-adv-page) .botao-roxo i { color: #3E2A72; }
+:host :is(.home-psi-page, .home-adv-page) .botao-branco { background: rgba(255, 255, 255, .14); color: #fff; border: 1px solid rgba(255, 255, 255, .35); }
+:host :is(.home-psi-page, .home-adv-page) .botao-branco:hover { background: rgba(255, 255, 255, .22); }
+:host :is(.home-psi-page, .home-adv-page) .botao-roxo:hover, :host :is(.home-psi-page, .home-adv-page) .botao-branco:hover { transform: translateY(-2px); }
+
+:host :is(.home-psi-page, .home-adv-page) .hero-imagem { position: relative; z-index: 2; flex: 0 1 420px; max-width: 44%; }
+:host :is(.home-psi-page, .home-adv-page) .hero-imagem img {
+  display: block; width: 100% !important; height: auto !important; border-radius: 24px; object-fit: cover;
+  aspect-ratio: 16 / 10; border: 4px solid rgba(255, 255, 255, .18);
+}
+:host :is(.home-psi-page, .home-adv-page) .hero-flutuante {
+  position: absolute; left: -22px; bottom: -18px; display: flex; align-items: center; gap: 12px;
+  padding: 12px 18px 12px 12px; border-radius: 18px; background: #fff; box-shadow: 0 14px 30px rgba(20, 10, 50, .22);
+}
+:host :is(.home-psi-page, .home-adv-page) .hero-flutuante-ic { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: #EFE8FB; color: #52427D; }
+:host :is(.home-psi-page, .home-adv-page) .hero-flutuante small { display: block; font-size: .72rem; color: #8B7DB5; }
+:host :is(.home-psi-page, .home-adv-page) .hero-flutuante strong { font-size: .92rem; color: #2D1E4E; }
+
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #dashboard .welcome-hero {
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), #2A2F55 0%, #171B2D 55%, #0F1422 100%) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, .35) !important; border: 1px solid rgba(255, 255, 255, .08) !important;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .hero-flutuante { background: #161c2c; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .hero-flutuante strong { color: #F4F1FF; }
+
+@media (max-width: 900px) {
+  :host :is(.home-psi-page, .home-adv-page) #dashboard .welcome-hero { flex-direction: column; align-items: stretch !important; padding: 28px 22px 34px !important; }
+  :host :is(.home-psi-page, .home-adv-page) #dashboard .welcome-hero .hero-content { max-width: none; }
+  :host :is(.home-psi-page, .home-adv-page) .hero-imagem { max-width: none; flex-basis: auto; }
+  :host :is(.home-psi-page, .home-adv-page) .hero-flutuante { left: 12px; bottom: -16px; }
+}
+@media (max-width: 480px) {
+  :host :is(.home-psi-page, .home-adv-page) .hero-botoes { flex-direction: column; }
+  :host :is(.home-psi-page, .home-adv-page) .botao-roxo, :host :is(.home-psi-page, .home-adv-page) .botao-branco { justify-content: center; width: 100%; }
+}
+
+/* ---------- Cartões e títulos com o mesmo acabamento da mãe ---------- */
+:host :is(.home-psi-page, .home-adv-page) #dashboard .stat-card {
+  background: #fff !important; border: 1px solid #EEE8FA !important; border-radius: 22px !important;
+  box-shadow: 0 8px 24px rgba(82, 66, 125, .06) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .content h2:not(#hero-nome), :host :is(.home-psi-page, .home-adv-page) .section-title-row h3, :host :is(.home-psi-page, .home-adv-page) .pl-topo h2 {
+  font-family: 'Poppins', sans-serif !important; font-weight: 800 !important; color: #2D1E4E !important;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #dashboard .stat-card { background: #161c2c !important; border-color: rgba(255,255,255,.08) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .content h2:not(#hero-nome),
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .section-title-row h3,
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .pl-topo h2 { color: #F4F1FF !important; }
+
+/* ---------- Banner "Seu plano atual" ---------- */
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual {
+  position: relative; display: flex !important; align-items: center; gap: 18px; overflow: hidden;
+  padding: 22px 26px !important; margin-bottom: 22px; border-radius: 24px !important;
+  background: linear-gradient(135deg, #F6F2FD 0%, #ECE6F8 100%) !important;
+  border: 1px solid #E6DEF7 !important; box-shadow: 0 10px 28px rgba(82, 66, 125, .07) !important; color: #2D1E4E !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual::before, :host :is(.home-psi-page, .home-adv-page) #planos .pl-atual::after { display: none !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual.premium {
+  background: linear-gradient(135deg, #FFF9EC 0%, #F6F0FF 100%) !important; border-color: #F3E3BC !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-icone {
+  flex: 0 0 54px; width: 54px !important; height: 54px !important; border-radius: 18px !important;
+  display: grid; place-items: center; background: #fff !important; color: #52427D !important; font-size: 1.3rem !important;
+  box-shadow: 0 8px 18px rgba(82, 66, 125, .12) !important; border: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual.premium .pl-atual-icone { color: #D9A21B !important; box-shadow: 0 8px 18px rgba(217, 162, 27, .2) !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-texto span {
+  font-size: .72rem !important; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8B7DB5 !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-texto strong {
+  font-family: 'Poppins', sans-serif; font-size: 1.5rem !important; font-weight: 800; color: #2D1E4E !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-texto small { font-size: .88rem !important; font-weight: 600; color: #6B5E8E !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-status {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px;
+  background: #fff; color: #52427D; font-size: .85rem; font-weight: 800; box-shadow: 0 6px 14px rgba(82, 66, 125, .08);
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-status.premium { color: #2F7A55; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-status.premium i { color: #2F9E6E; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-atual { background: linear-gradient(135deg, #22263F, #1B1F33) !important; border-color: rgba(255,255,255,.08) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-atual.premium { background: linear-gradient(135deg, #2A2733, #1E2236) !important; border-color: rgba(253, 230, 138, .2) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-atual-icone,
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-atual-status { background: rgba(255,255,255,.08) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-atual-texto strong { color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-atual-texto small { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-atual-status { color: #E6DEFF; }
+@media (max-width: 600px) {
+  :host :is(.home-psi-page, .home-adv-page) #planos .pl-atual { flex-wrap: wrap; padding: 18px !important; }
+  :host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-status { width: 100%; justify-content: center; }
+}
+
+/* Celular: o logo agora vem do HTML; some o "elomaterno" que era desenhado pelo CSS */
+@media (max-width: 768px) {
+  :host :is(.home-psi-page, .home-adv-page) header.header::after { content: none !important; display: none !important; }
+  :host :is(.home-psi-page, .home-adv-page) header.header #boasVindas.pro-marca { display: flex !important; }
+}
+
+/* =========================================================
+   SEÇÕES NO PADRÃO DAS PÁGINAS DA MÃE (09/11) — mesmo bloco
+   em home-psi e home-adv. Menu lateral continua; cada seção
+   ganha o banner e os painéis das páginas da mãe.
+   ========================================================= */
+:host :is(.home-psi-page, .home-adv-page) .content { --m-texto: #2A1B5C; --m-suave: #3E3656; --m-roxo: #7c69a9; --m-borda: rgba(132, 113, 177, .14); }
+
+/* ---------- Banners (igual Comunidade/Eventos/Fórum da mãe) ---------- */
+:host :is(.home-psi-page, .home-adv-page) .pro-banner {
+  position: relative; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 24px;
+  flex-wrap: wrap; min-height: 230px; padding: 44px 50px !important; margin: 0 0 28px !important;
+  border-radius: 32px !important; border: 1px solid var(--m-borda) !important;
+  background-color: #F4EFFD !important; background-repeat: no-repeat !important;
+  background-size: cover !important; background-position: center right !important;
+  box-shadow: 0 12px 35px rgba(115, 93, 163, .05) !important; overflow: hidden;
+}
+:host :is(.home-psi-page, .home-adv-page) .banner-agenda { background-image: url('/img/hero-evento.png') !important; }
+:host :is(.home-psi-page, .home-adv-page) .banner-comunidade { background-image: url('/img/hero-artigos.png') !important; }
+:host :is(.home-psi-page, .home-adv-page) .banner-consultas { background-image: url('/img/Imagem-Consultorias.jpg') !important; }
+:host :is(.home-psi-page, .home-adv-page) .banner-forum { background-image: url('/img/forum-hero-banner.png') !important; min-height: 260px; }
+:host :is(.home-psi-page, .home-adv-page) .pro-banner > div:first-child,
+:host :is(.home-psi-page, .home-adv-page) .pro-banner .artigos-title-box { max-width: 560px; position: relative; z-index: 1; }
+:host :is(.home-psi-page, .home-adv-page) .pro-banner h2 {
+  margin: 0 0 .4em !important; font-family: var(--font-heading, 'Poppins', sans-serif) !important;
+  font-size: clamp(1.9rem, 2.8vw, 2.8rem) !important; font-weight: 800 !important; line-height: 1.12 !important;
+  color: var(--m-texto) !important; -webkit-text-fill-color: var(--m-texto) !important; background: none !important; text-align: left !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .pro-banner p {
+  margin: 0 !important; max-width: 520px; font-size: clamp(1rem, 1.1vw, 1.12rem) !important; line-height: 1.55 !important;
+  color: var(--m-suave) !important; text-align: left !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .cs-topo.pro-banner { flex-direction: column; align-items: flex-start !important; justify-content: center !important; }
+/* botão de ação dentro do banner (Nova postagem / Definir horários) */
+:host :is(.home-psi-page, .home-adv-page) .pro-banner > button {
+  position: relative; z-index: 1; align-self: flex-end; height: 48px; padding: 0 24px !important; border-radius: 999px !important;
+  background: #52427D !important; color: #fff !important; border: none !important; font-weight: 700 !important;
+  box-shadow: 0 10px 22px rgba(82, 66, 125, .22) !important; display: inline-flex; align-items: center; gap: 10px; width: auto !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .pro-banner > button i { color: #fff !important; }
+:host :is(.home-psi-page, .home-adv-page) .pro-banner > button:hover { transform: translateY(-2px); }
+
+/* ---------- Painel branco de filtros (igual ao da Comunidade/Fórum da mãe) ---------- */
+:host :is(.home-psi-page, .home-adv-page) .artigos-filter-bar,
+:host :is(.home-psi-page, .home-adv-page) .forum-toolbar,
+:host :is(.home-psi-page, .home-adv-page) .cs-tabs {
+  display: flex !important; align-items: center !important; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 12px 16px !important; margin: 0 0 28px !important; border-radius: 26px !important;
+  background: #fff !important; border: 1px solid var(--m-borda) !important; box-shadow: 0 8px 24px rgba(115, 93, 163, .05) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .artigos-categorias,
+:host :is(.home-psi-page, .home-adv-page) .forum-filtros { display: flex; flex-wrap: wrap; gap: 6px; }
+:host :is(.home-psi-page, .home-adv-page) :is(.artigos-filter-bar, .forum-toolbar) .cat-btn,
+:host :is(.home-psi-page, .home-adv-page) .cs-tabs .cs-tab {
+  display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 18px !important; border-radius: 999px !important;
+  background: transparent !important; border: none !important; box-shadow: none !important;
+  color: #3E2A72 !important; font-weight: 700 !important; font-size: .9rem !important; cursor: pointer; transition: background .2s ease;
+}
+:host :is(.home-psi-page, .home-adv-page) :is(.artigos-filter-bar, .forum-toolbar) .cat-btn:hover,
+:host :is(.home-psi-page, .home-adv-page) .cs-tabs .cs-tab:hover { background: #F4F0FC !important; }
+:host :is(.home-psi-page, .home-adv-page) :is(.artigos-filter-bar, .forum-toolbar) .cat-btn.active,
+:host :is(.home-psi-page, .home-adv-page) .cs-tabs .cs-tab.ativo {
+  background: #4B2C82 !important; color: #fff !important; box-shadow: 0 8px 18px rgba(75, 44, 130, .22) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) :is(.artigos-filter-bar, .forum-toolbar) .cat-btn.active i,
+:host :is(.home-psi-page, .home-adv-page) .cs-tabs .cs-tab.ativo i { color: #fff !important; }
+:host :is(.home-psi-page, .home-adv-page) .cs-tabs .cs-tab::after { display: none !important; }
+:host :is(.home-psi-page, .home-adv-page) .cs-tabs { justify-content: flex-start; }
+:host :is(.home-psi-page, .home-adv-page) .btn-sort {
+  height: 42px; padding: 0 18px !important; border-radius: 999px !important; background: #fff !important;
+  border: 1px solid var(--m-borda) !important; color: #3E2A72 !important; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;
+}
+/* busca do fórum, igual à da mãe */
+:host :is(.home-psi-page, .home-adv-page) .forum-toolbar { flex-direction: column; align-items: stretch !important; }
+:host :is(.home-psi-page, .home-adv-page) .forum-search-bar {
+  display: flex; align-items: center; gap: 12px; width: 100% !important; max-width: none !important; height: 50px;
+  padding: 0 18px !important; margin: 0 !important; border-radius: 18px !important; background: #F6F2FF !important; border: none !important; box-shadow: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .forum-search-bar i { color: #8B7DB5; }
+:host :is(.home-psi-page, .home-adv-page) .forum-search-bar input { flex: 1; border: none !important; background: transparent !important; outline: none; font: inherit; color: var(--m-texto); box-shadow: none !important; }
+
+/* ---------- Cartões da Comunidade (igual aos da mãe) ---------- */
+:host :is(.home-psi-page, .home-adv-page) .artigos-grid-psi { grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)) !important; gap: 24px !important; }
+:host :is(.home-psi-page, .home-adv-page) .artigo-card-novo {
+  border-radius: 24px !important; border: 1px solid var(--m-borda) !important; background: #fff !important; overflow: hidden;
+  box-shadow: 0 8px 24px rgba(115, 93, 163, .06) !important; transition: transform .25s ease, box-shadow .25s ease;
+}
+:host :is(.home-psi-page, .home-adv-page) .artigo-card-novo:hover { transform: translateY(-4px); box-shadow: 0 16px 34px rgba(115, 93, 163, .12) !important; }
+:host :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-img-wrapper { height: 190px; border-radius: 0 !important; }
+:host :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-tag {
+  top: 14px !important; left: 14px !important; padding: 5px 12px !important; border-radius: 999px !important;
+  background: #fff !important; color: #3E2A72 !important; font-size: .75rem !important; font-weight: 800 !important; text-transform: capitalize;
+}
+:host :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-fav-btn {
+  width: 34px !important; height: 34px !important; border-radius: 10px !important; background: #fff !important; color: #3E2A72 !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-body { padding: 18px 20px 20px !important; }
+:host :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-title { font-size: 1.02rem !important; font-weight: 800 !important; color: #3E2A72 !important; line-height: 1.35 !important; }
+:host :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-excerpt { color: #6B6290 !important; font-size: .88rem !important; }
+:host :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-footer { border-top: 1px solid #F1ECFB !important; padding-top: 14px !important; }
+:host :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-ler { color: #4B2C82 !important; font-weight: 800 !important; }
+
+/* ---------- Tópicos do fórum (igual à lista da mãe) ---------- */
+:host :is(.home-psi-page, .home-adv-page) .forum-posts-list { max-width: none !important; gap: 16px !important; }
+:host :is(.home-psi-page, .home-adv-page) .forum-post-card {
+  padding: 22px 26px !important; border-radius: 24px !important; background: #fff !important;
+  border: 1px solid var(--m-borda) !important; box-shadow: 0 8px 24px rgba(115, 93, 163, .05) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .forum-post-card .f-post-title { font-size: 1.08rem !important; font-weight: 800 !important; color: #2A1B5C !important; }
+:host :is(.home-psi-page, .home-adv-page) .forum-post-card .f-post-text { color: #554D6B !important; line-height: 1.6 !important; }
+:host :is(.home-psi-page, .home-adv-page) .forum-post-card .f-post-footer { border-top: 1px solid #F1ECFB; padding-top: 14px; margin-top: 14px; }
+:host :is(.home-psi-page, .home-adv-page) .forum-post-card .btn-responder { border-radius: 999px !important; background: #52427D !important; color: #fff !important; padding: 0 20px !important; height: 40px; }
+:host :is(.home-psi-page, .home-adv-page) .forum-post-card .btn-responder i { color: #fff !important; }
+
+/* ---------- Agenda e consultas: cartões brancos suaves ---------- */
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-container,
+:host :is(.home-psi-page, .home-adv-page) #agenda .agenda-container > :not(.calendar-container),
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-lista,
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-vazio {
+  border-radius: 28px !important; border: 1px solid var(--m-borda) !important; background: #fff !important;
+  box-shadow: 0 10px 30px rgba(115, 93, 163, .06) !important;
+}
+
+/* ---------- Modo escuro ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) :is(.artigos-filter-bar, .forum-toolbar, .cs-tabs),
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) :is(.artigo-card-novo, .forum-post-card),
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .calendar-container,
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .agenda-container > :not(.calendar-container) {
+  background: #161c2c !important; border-color: rgba(255, 255, 255, .08) !important; box-shadow: none !important;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) :is(.artigos-filter-bar, .forum-toolbar) .cat-btn:not(.active),
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .cs-tabs .cs-tab:not(.ativo),
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .artigo-card-novo .ac-title,
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .forum-post-card .f-post-title { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .forum-search-bar { background: rgba(255, 255, 255, .06) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .btn-sort { background: transparent !important; color: #E6DEFF !important; border-color: rgba(255,255,255,.15) !important; }
+
+/* ---------- Celular ---------- */
+@media (max-width: 768px) {
+  :host :is(.home-psi-page, .home-adv-page) .pro-banner {
+    min-height: 0; padding: 26px 22px 150px !important; border-radius: 26px !important;
+    background-size: auto 150px !important; background-position: right bottom !important;
+  }
+  :host :is(.home-psi-page, .home-adv-page) .pro-banner > button { align-self: stretch; justify-content: center; }
+  :host :is(.home-psi-page, .home-adv-page) .pro-banner h2 { font-size: 1.75rem !important; }
+  :host :is(.home-psi-page, .home-adv-page) .artigos-categorias, :host :is(.home-psi-page, .home-adv-page) .cs-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  :host :is(.home-psi-page, .home-adv-page) .cat-btn, :host :is(.home-psi-page, .home-adv-page) .cs-tab { flex: 0 0 auto; white-space: nowrap; }
+}
+/* ajustes: banner do fórum na largura toda, abas de consulta do tamanho do texto,
+   e no celular as consultas continuam usando o seletor (sem as abas) */
+:host :is(.home-psi-page, .home-adv-page) #forum .pro-banner { width: 100% !important; max-width: none !important; align-self: stretch !important; text-align: left !important; }
+:host :is(.home-psi-page, .home-adv-page) .cs-tabs .cs-tab { flex: 0 0 auto !important; width: auto !important; }
+@media (max-width: 768px) {
+  :host :is(.home-psi-page, .home-adv-page) #consultas .cs-tabs { display: none !important; }
+}
+/* selos do fórum iguais nos dois painéis */
+:host :is(.home-psi-page, .home-adv-page) .forum-post-card .badge-aguardando {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+  background: #FFF4DA !important; color: #9A6A00 !important; border: none !important; font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em;
+}
+:host :is(.home-psi-page, .home-adv-page) .forum-post-card .badge-respondido {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+  background: #E9F7EF !important; color: #2F7A55 !important; border: none !important; font-size: .75rem; font-weight: 800;
+}
+:host :is(.home-psi-page, .home-adv-page) .reply-erro { color: #b02a37; font-size: .85rem; font-weight: 700; margin: 8px 0 0; }
+
+/* =========================================================
+   AGENDA, CONSULTAS E PACIENTES/CLIENTES IGUAIS ÀS TELAS DA MÃE
+   ========================================================= */
+/* ---------- Título simples de página (como "Minhas consultas" da mãe) ---------- */
+:host :is(.home-psi-page, .home-adv-page) .pro-titulo-pagina {
+  display: flex !important; align-items: flex-start !important; justify-content: space-between !important; gap: 20px; flex-wrap: wrap;
+  margin: 0 0 26px !important; padding: 0 !important; background: none !important; border: none !important; box-shadow: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .pro-titulo-pagina h2 {
+  margin: 0 0 8px !important; font-family: var(--font-heading, 'Poppins', sans-serif) !important; font-size: clamp(1.8rem, 2.4vw, 2.2rem) !important;
+  font-weight: 800 !important; color: #2A1B5C !important; -webkit-text-fill-color: #2A1B5C !important; background: none !important; text-align: left !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .pro-titulo-pagina p { margin: 0 !important; color: #5B3D99 !important; font-size: 1rem !important; text-align: left !important; max-width: 640px; }
+:host :is(.home-psi-page, .home-adv-page) .pro-titulo-pagina > button {
+  display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 22px !important; width: auto !important;
+  border-radius: 14px !important; background: #5B3D99 !important; color: #fff !important; border: none !important;
+  font-weight: 800 !important; box-shadow: 0 10px 22px rgba(91, 61, 153, .22) !important; margin: 0 !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .pro-titulo-pagina > button i { color: #fff !important; }
+:host :is(.home-psi-page, .home-adv-page) .cs-topo.pro-titulo-pagina { flex-direction: column; }
+
+/* ---------- Agenda: cartões, botões e calendário iguais à agenda da mãe ---------- */
+:host :is(.home-psi-page, .home-adv-page) #agenda .agenda-container { display: flex !important; gap: 40px !important; align-items: flex-start !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-container {
+  flex: 1.2 !important; max-width: none !important; padding: 35px 40px !important; border-radius: 28px !important;
+  background: rgba(255, 255, 255, .9) !important; border: 1px solid rgba(255, 255, 255, .6) !important; box-shadow: 0 15px 40px rgba(89, 74, 125, .08) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .events-container {
+  flex: 1.4 !important; padding: 35px 45px !important; border-radius: 28px !important;
+  background: rgba(255, 255, 255, .9) !important; border: 1px solid rgba(255, 255, 255, .6) !important; box-shadow: 0 15px 40px rgba(89, 74, 125, .08) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .events-container h3 { margin: 0 0 24px !important; color: #3E2A72 !important; font-size: 1.3rem !important; font-weight: 800 !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .em-construcao {
+  margin: 0 !important; padding: 40px 20px !important; text-align: center; border: 1.5px dashed #DCD0F2 !important; border-radius: 18px !important;
+  background: #FCFAFF !important; color: #443A66 !important; font-size: .95rem !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .event {
+  padding: 16px 18px !important; margin-bottom: 12px !important; border-radius: 18px !important; background: #FBF9FF !important;
+  border: 1px solid #EEE8FA !important; border-left: 4px solid #7C69A9 !important; box-shadow: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-header {
+  display: flex !important; justify-content: space-between !important; align-items: center !important;
+  padding: 0 0 18px !important; margin: 0 0 22px !important; border: none !important; border-bottom: 1px solid #F0EBFA !important; background: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-nav-btn {
+  width: 42px !important; height: 42px !important; border-radius: 50% !important; padding: 0 !important;
+  display: grid !important; place-items: center; background: #fff !important; color: #5B3D99 !important;
+  border: 1.5px solid #5B3D99 !important; box-shadow: none !important; transition: background .2s ease, color .2s ease;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-nav-btn:hover { background: #5B3D99 !important; color: #fff !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .month-year-select { display: flex !important; gap: 12px !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .month-year-select select {
+  appearance: none; -webkit-appearance: none; height: 44px; padding: 0 38px 0 22px !important; border-radius: 999px !important;
+  background-color: #F4ECFF !important; border: 1px solid rgba(132, 113, 177, .2) !important; color: #2A1B5C !important;
+  font-weight: 700 !important; font-size: 1rem !important; cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234B2C82%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") !important;
+  background-repeat: no-repeat !important; background-position: right 16px top 50% !important; background-size: 10px auto !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-days {
+  display: grid !important; grid-template-columns: repeat(7, 1fr) !important; text-align: center; margin: 0 0 18px !important;
+  font-weight: 800 !important; font-size: 1.05rem !important; color: #7B6AAE !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-days > div { color: #7B6AAE !important; background: none !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates { display: grid !important; grid-template-columns: repeat(7, 1fr) !important; gap: 34px 8px !important; justify-items: center; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date {
+  width: 46px !important; height: 46px !important; min-height: 0 !important; border-radius: 50% !important; padding: 0 !important;
+  display: grid !important; place-items: center; background: transparent !important; border: none !important; box-shadow: none !important;
+  color: #2A1B5C !important; font-size: 1.05rem !important; font-weight: 600 !important; cursor: pointer; transition: background .2s ease, transform .2s ease;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date::before, :host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date::after { display: none !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date:not(.vazio):hover { background: #F4ECFF !important; transform: scale(1.06); }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date.vazio { visibility: hidden; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date.has-event:not(.today) { background: #E9E0FF !important; color: #4B2C82 !important; font-weight: 800 !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date.today {
+  background: #52427D !important; color: #fff !important; font-weight: 800 !important; box-shadow: 0 8px 18px rgba(75, 44, 130, .3) !important;
+}
+
+/* ---------- Consultas: abas iguais às da mãe ---------- */
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-tabs {
+  display: flex !important; gap: 0 !important; padding: 0 !important; margin: 0 0 36px !important; overflow: hidden !important;
+  border-radius: 12px !important; background: #fff !important; border: 1px solid #EEE8FA !important; box-shadow: 0 4px 15px rgba(91, 61, 153, .05) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-tabs .cs-tab {
+  position: relative; flex: 1 1 0 !important; width: auto !important; height: 60px !important; padding: 0 !important; margin: 0 !important;
+  display: flex !important; align-items: center !important; justify-content: center !important; gap: 10px !important;
+  background: #fff !important; border: none !important; border-bottom: 3px solid transparent !important; border-radius: 0 !important;
+  color: #8B79B1 !important; font-weight: 700 !important; font-size: 1rem !important; box-shadow: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-tabs .cs-tab i { color: inherit !important; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-tabs .cs-tab:hover { background: #FAF8FF !important; color: #5B3D99 !important; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-tabs .cs-tab.ativo {
+  background: #F3EDFF !important; color: #5B3D99 !important; border-bottom-color: #5B3D99 !important; font-weight: 800 !important; box-shadow: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-tabs .cs-tab.ativo::before {
+  content: "" !important; display: block !important; position: absolute; top: 0; left: 50%; width: 32px; height: 3px;
+  transform: translateX(-50%); background: #5B3D99; border-radius: 0 0 6px 6px;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-card {
+  border-radius: 22px !important; background: #fff !important; border: 1px solid #EEE8FA !important; border-top: 3px solid #E2D6FA !important;
+  box-shadow: 0 10px 28px rgba(91, 61, 153, .07) !important;
+}
+
+/* ---------- Pacientes / Clientes ---------- */
+:host :is(.home-psi-page, .home-adv-page) .pacientes-grid-novo {
+  display: grid !important; grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)) !important; gap: 22px !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo {
+  position: relative; display: flex !important; flex-direction: column; align-items: center; overflow: hidden;
+  padding: 0 22px 22px !important; border-radius: 26px !important; background: #fff !important;
+  border: 1px solid #EEE8FA !important; box-shadow: 0 10px 28px rgba(91, 61, 153, .07) !important; transition: transform .25s ease, box-shadow .25s ease;
+}
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo:hover { transform: translateY(-4px); box-shadow: 0 18px 36px rgba(91, 61, 153, .12) !important; }
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 78px;
+  background: linear-gradient(135deg, #EFE8FD 0%, #F9EAF3 100%);
+}
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo > * { position: relative; }
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-avatar-circle {
+  width: 84px !important; height: 84px !important; margin: 34px 0 12px !important; padding: 4px !important; border-radius: 50% !important;
+  background: #fff !important; border: none !important; box-shadow: 0 8px 20px rgba(91, 61, 153, .15) !important; overflow: hidden;
+}
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-avatar-circle img { width: 100% !important; height: 100% !important; border-radius: 50% !important; object-fit: cover; }
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo h3 { margin: 0 0 6px !important; font-size: 1.12rem !important; font-weight: 800 !important; color: #2A1B5C !important; text-align: center; }
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-tag {
+  padding: 4px 12px !important; border-radius: 999px !important; background: #F1EDF9 !important; color: #5B3D99 !important;
+  font-size: .75rem !important; font-weight: 800 !important; margin-bottom: 16px !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-details-box {
+  width: 100%; margin: 0 0 16px !important; padding: 12px 14px !important; border-radius: 16px !important;
+  background: #FBF9FF !important; border: 1px dashed #E2D8F6 !important; text-align: center;
+}
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-details-box p { margin: 0 !important; font-size: .88rem !important; color: #6B6290 !important; }
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-details-box strong { color: #2A1B5C !important; }
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo :is(.p-btn-prontuario, .p-btn-chat) {
+  width: 100% !important; height: 44px !important; margin: 0 0 8px !important; border-radius: 999px !important;
+  display: inline-flex !important; align-items: center; justify-content: center; gap: 8px; font-weight: 800 !important; font-size: .9rem !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-btn-prontuario { background: #fff !important; color: #5B3D99 !important; border: 1.5px solid #E2D6FA !important; }
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-btn-prontuario:hover { background: #F6F2FD !important; }
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-btn-chat { margin-bottom: 0 !important; background: #52427D !important; color: #fff !important; border: none !important; box-shadow: 0 8px 18px rgba(82, 66, 125, .2) !important; }
+:host :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-btn-chat i { color: #fff !important; }
+
+/* ---------- Modo escuro ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .pro-titulo-pagina h2 { color: #F4F1FF !important; -webkit-text-fill-color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .pro-titulo-pagina p { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda :is(.calendar-container, .events-container),
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas :is(.cs-tabs, .cs-tabs .cs-tab, .cs-card),
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .paciente-card-novo { background: #161c2c !important; border-color: rgba(255, 255, 255, .08) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-tabs .cs-tab.ativo { background: rgba(196, 181, 253, .14) !important; color: #E6DEFF !important; border-bottom-color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date:not(.today):not(.has-event),
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .paciente-card-novo h3 { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .month-year-select select { background-color: rgba(255,255,255,.08) !important; color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda :is(.em-construcao, .event),
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-details-box { background: rgba(255,255,255,.04) !important; border-color: rgba(255,255,255,.12) !important; color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .paciente-card-novo::before { background: linear-gradient(135deg, #2A2F55, #26203F); }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .paciente-card-novo .p-btn-prontuario { background: transparent !important; color: #E6DEFF !important; border-color: rgba(255,255,255,.2) !important; }
+
+/* ---------- Celular ---------- */
+@media (max-width: 900px) {
+  :host :is(.home-psi-page, .home-adv-page) #agenda .agenda-container { flex-direction: column !important; gap: 22px !important; }
+  :host :is(.home-psi-page, .home-adv-page) #agenda :is(.calendar-container, .events-container) { width: 100%; padding: 22px 18px !important; }
+  :host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates { gap: 12px 4px !important; }
+  :host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date { width: 38px !important; height: 38px !important; font-size: .95rem !important; }
+  :host :is(.home-psi-page, .home-adv-page) #agenda .calendar-days { font-size: .82rem !important; }
+  :host :is(.home-psi-page, .home-adv-page) #agenda .month-year-select select { height: 40px; padding: 0 30px 0 14px !important; font-size: .9rem !important; }
+  :host :is(.home-psi-page, .home-adv-page) .pro-titulo-pagina > button { width: 100% !important; justify-content: center; }
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-days, :host :is(.home-psi-page, .home-adv-page) #agenda .calendar-days > div { text-transform: none !important; letter-spacing: 0 !important; }
+
+/* =========================================================
+   09/11 (3) — agenda igual à da mãe, banner do fórum inteiro,
+   Documentos e Planos redesenhados (mesmo bloco nos dois painéis)
+   ========================================================= */
+/* ---------- Agenda ---------- */
+:host :is(.home-psi-page, .home-adv-page) #agenda .agenda-container { gap: 44px !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-container { flex: 0 1 585px !important; padding: 48px 58px 50px !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .events-container { flex: 1 1 0 !important; padding: 45px 45px !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-header { padding-bottom: 14px !important; margin-bottom: 28px !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-days { margin-bottom: 30px !important; font-size: 1.1rem !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates { gap: 35px 6px !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date { position: relative; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date.past:not(.today) { color: #B9B2CC !important; font-weight: 500 !important; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date.has-event:not(.today) {
+  background: #F4ECFF !important; color: #2A1B5C !important; font-weight: 800 !important;
+  border: 2px solid #8E79C6 !important; box-shadow: 0 0 0 3px #fff, 0 0 0 4px #E4DAF8 !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date.has-event::after {
+  content: "" !important; display: block !important; position: absolute; left: 50%; bottom: -9px; width: 5px; height: 5px;
+  transform: translateX(-50%); border-radius: 50%; background: #7C69A9;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .event.ev-card {
+  display: flex !important; align-items: center; gap: 16px; padding: 20px 22px !important; margin-bottom: 14px !important;
+  border-radius: 18px !important; background: #fff !important; border: 1px solid #F0EBFA !important; border-left: 4px solid #A66CEB !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .ev-ic {
+  flex: 0 0 50px; height: 50px; display: grid; place-items: center; border-radius: 14px; background: #F3EDFF; color: #4B2C82; font-size: 1.1rem;
+}
+:host :is(.home-psi-page, .home-adv-page) #agenda .ev-txt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .ev-txt strong { font-size: 1.02rem; font-weight: 800; color: #2A1B5C; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .ev-data { font-size: .82rem; font-weight: 700; color: #9333EA; }
+:host :is(.home-psi-page, .home-adv-page) #agenda .ev-txt small { font-size: .82rem; color: #6B6290; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .event.ev-card { background: rgba(255,255,255,.04) !important; border-color: rgba(255,255,255,.1) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .ev-txt strong { color: #F1ECFF; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates .date.past:not(.today) { color: #6E6890 !important; }
+
+/* ---------- Banner do fórum: mesmo formato do fórum da mãe, sem cortar as cabeças ---------- */
+:host :is(.home-psi-page, .home-adv-page) .banner-forum {
+  min-height: 0 !important; aspect-ratio: 3.4 / 1; background-position: center 30% !important;
+}
+
+/* ---------- Documentos ---------- */
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-topo {
+  position: relative; display: flex !important; align-items: center; justify-content: space-between; gap: 24px;
+  padding: 42px 50px !important; margin: 0 0 26px !important; border-radius: 32px !important; overflow: hidden;
+  background: radial-gradient(circle at 85% 30%, rgba(247, 198, 221, .45), transparent 45%), linear-gradient(135deg, #F7F3FF 0%, #ECE4FB 100%) !important;
+  border: 1px solid rgba(132, 113, 177, .14) !important; box-shadow: 0 12px 35px rgba(115, 93, 163, .06) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-topo h2 {
+  margin: 0 0 .4em !important; font-family: var(--font-heading, 'Poppins', sans-serif) !important; font-size: clamp(1.9rem, 2.8vw, 2.8rem) !important;
+  font-weight: 800 !important; color: #2A1B5C !important; -webkit-text-fill-color: #2A1B5C !important; background: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-topo p { margin: 0 !important; max-width: 540px; color: #3E3656 !important; font-size: 1.05rem !important; line-height: 1.55; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-ilustra { transform: scale(1.35); transform-origin: right center; margin-right: 24px; }
+
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-tabs {
+  display: flex !important; gap: 0 !important; padding: 0 !important; margin: 0 0 28px !important; overflow: hidden !important;
+  border-radius: 14px !important; background: #fff !important; border: 1px solid #EEE8FA !important; box-shadow: 0 4px 15px rgba(91, 61, 153, .05) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-tab {
+  position: relative; flex: 1 1 0 !important; height: 62px !important; margin: 0 !important; padding: 0 12px !important;
+  display: flex !important; align-items: center; justify-content: center; gap: 10px; border-radius: 0 !important; border: none !important;
+  border-bottom: 3px solid transparent !important; background: #fff !important; box-shadow: none !important;
+  color: #8B79B1 !important; font-weight: 700 !important; font-size: .98rem !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-tab i { color: inherit !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-tab:hover { background: #FAF8FF !important; color: #5B3D99 !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-tab.ativo { background: #F3EDFF !important; color: #5B3D99 !important; border-bottom-color: #5B3D99 !important; font-weight: 800 !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-tab.ativo::before {
+  content: ""; position: absolute; top: 0; left: 50%; width: 32px; height: 3px; transform: translateX(-50%); background: #5B3D99; border-radius: 0 0 6px 6px;
+}
+
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card {
+  padding: 30px 32px !important; border-radius: 28px !important; background: #fff !important;
+  border: 1px solid #EEE8FA !important; box-shadow: 0 12px 34px rgba(91, 61, 153, .07) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-titulo { padding-bottom: 18px !important; margin-bottom: 20px !important; border-bottom: 1px solid #F1ECFB !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-titulo h3 { display: flex; align-items: center; gap: 12px; font-size: 1.15rem !important; font-weight: 800 !important; color: #2A1B5C !important; margin: 0 0 6px !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-titulo h3 i {
+  width: 40px; height: 40px; display: grid; place-items: center; border-radius: 13px; background: #F3EDFF; color: #5B3D99 !important; font-size: 1rem;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-titulo p { margin: 0 0 0 52px !important; color: #7B6AAE !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-campo > span { color: #5B3D99 !important; letter-spacing: .05em; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-input-icone {
+  border-radius: 16px !important; background: #F7F3FF !important; border: 1.5px solid transparent !important; box-shadow: none !important; transition: border-color .2s ease, background .2s ease;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-input-icone:focus-within { background: #fff !important; border-color: #B9A6E8 !important; box-shadow: 0 0 0 4px rgba(124, 105, 169, .12) !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-input-icone :is(select, input) { background: transparent !important; border: none !important; box-shadow: none !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-dica { padding: 12px 14px !important; border-radius: 14px !important; background: #FBF9FF !important; color: #6B6290 !important; }
+
+/* cartão de resumo: mesmo gradiente roxo do banner da página inicial */
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card.doc-card-resumo {
+  position: relative; overflow: hidden; color: #fff !important; border: none !important;
+  background: radial-gradient(circle at 85% 0%, rgba(255, 255, 255, .16), transparent 45%), linear-gradient(140deg, #7C69A9 0%, #5B3D99 55%, #3E2A72 100%) !important;
+  box-shadow: 0 18px 40px rgba(62, 42, 114, .25) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-resumo .doc-stat {
+  background: rgba(255, 255, 255, .12) !important; border: 1px solid rgba(255, 255, 255, .2) !important; border-radius: 20px !important; box-shadow: none !important;
+  backdrop-filter: blur(6px);
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-resumo .doc-stat-icone { background: #fff !important; color: #5B3D99 !important; box-shadow: none !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-resumo .doc-stat-icone i { color: #5B3D99 !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-resumo .doc-stat strong { color: #fff !important; font-size: 1.7rem !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-resumo .doc-stat small { color: rgba(255, 255, 255, .8) !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-resumo :is(.doc-resumo-texto, .doc-seguro, p) { color: rgba(255, 255, 255, .88) !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-resumo .doc-seguro i { color: #fff !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-resumo .doc-btn-primario {
+  background: #fff !important; color: #3E2A72 !important; border: none !important; border-radius: 999px !important;
+  box-shadow: 0 12px 26px rgba(20, 10, 50, .25) !important; font-weight: 800 !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-resumo .doc-btn-primario i { color: #3E2A72 !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-card-resumo .doc-btn-primario:disabled { opacity: .65; }
+
+/* ---------- Planos ---------- */
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-topo h2 {
+  font-family: var(--font-heading, 'Poppins', sans-serif) !important; font-size: clamp(1.8rem, 2.4vw, 2.2rem) !important; font-weight: 800 !important;
+  color: #2A1B5C !important; -webkit-text-fill-color: #2A1B5C !important; background: none !important; margin: 0 0 8px !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-topo p { color: #5B3D99 !important; font-size: 1rem !important; margin: 0 0 24px !important; }
+/* plano atual: cartão com o gradiente roxo da página inicial */
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual,
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual.premium {
+  max-width: 1080px; padding: 26px 30px !important; border: none !important; border-radius: 28px !important;
+  background: radial-gradient(circle at 90% 10%, rgba(255, 255, 255, .18), transparent 40%), linear-gradient(135deg, #7C69A9 0%, #5B3D99 55%, #3E2A72 100%) !important;
+  box-shadow: 0 18px 40px rgba(62, 42, 114, .22) !important; color: #fff !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual .pl-atual-icone { background: rgba(255, 255, 255, .16) !important; color: #fff !important; box-shadow: none !important; border: 1px solid rgba(255, 255, 255, .25) !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual.premium .pl-atual-icone { background: #fff !important; color: #E0A82E !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual .pl-atual-icone i { color: inherit !important; font-size: 1.35rem; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-texto span { color: rgba(255, 255, 255, .75) !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-texto strong { color: #fff !important; font-size: 1.6rem !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-texto small { color: rgba(255, 255, 255, .85) !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-status { background: #fff !important; color: #3E2A72 !important; box-shadow: none !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual-status.premium { color: #2F7A55 !important; }
+
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-grid { max-width: 1080px; gap: 26px !important; align-items: stretch; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card {
+  position: relative; display: flex !important; flex-direction: column; padding: 32px 32px 30px !important; border-radius: 28px !important;
+  background: #fff !important; border: 1px solid #EEE8FA !important; box-shadow: 0 12px 34px rgba(91, 61, 153, .07) !important; transition: transform .25s ease, box-shadow .25s ease;
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(91, 61, 153, .12) !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card.pl-card-premium {
+  border: 2px solid transparent !important;
+  background: linear-gradient(#fff, #fff) padding-box, linear-gradient(135deg, #B9A3F2, #7C69A9 45%, #F2A7C9) border-box !important;
+  box-shadow: 0 18px 44px rgba(124, 105, 169, .18) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card.pl-card-premium::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 120px; border-radius: 26px 26px 0 0; pointer-events: none;
+  background: linear-gradient(180deg, #F5F0FF 0%, rgba(245, 240, 255, 0) 100%);
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card > * { position: relative; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card-topo { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card-topo h3 { display: flex; align-items: center; gap: 12px; margin: 0 !important; font-size: 1.25rem !important; font-weight: 800 !important; color: #2A1B5C !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card-topo h3 i {
+  width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; font-size: 1rem; background: #F3EDFF; color: #5B3D99 !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card-premium .pl-card-topo h3 i { background: linear-gradient(145deg, #FFD36E, #E0A82E); color: #fff !important; box-shadow: 0 8px 18px rgba(224, 168, 46, .3); }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-chip { padding: 6px 12px !important; border-radius: 999px !important; font-size: .72rem !important; font-weight: 800 !important; background: #F1EDF9 !important; color: #5B3D99 !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-chip.pl-chip-premium { background: linear-gradient(135deg, #7C69A9, #5B3D99) !important; color: #fff !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-preco { margin: 14px 0 6px !important; padding-bottom: 20px !important; border-bottom: 1px dashed #E6DEF7 !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-preco strong { font-family: var(--font-heading, 'Poppins', sans-serif); font-size: 2.6rem !important; font-weight: 800 !important; color: #2A1B5C !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card-premium .pl-preco strong { background: linear-gradient(135deg, #7C69A9, #3E2A72); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card ul { flex: 1; margin: 18px 0 24px !important; display: flex; flex-direction: column; gap: 14px; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card li { display: flex; align-items: flex-start; gap: 12px; color: #3E3656 !important; font-size: .95rem; line-height: 1.45; margin: 0 !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-check { flex: 0 0 24px; width: 24px !important; height: 24px !important; border-radius: 50% !important; display: grid !important; place-items: center; background: #E9F7EF !important; color: #2F9E6E !important; font-size: .7rem; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card-premium .pl-check { background: #F1EDF9 !important; color: #5B3D99 !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-check i { color: inherit !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-btn { height: 52px; border-radius: 999px !important; font-weight: 800 !important; font-size: 1rem !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-btn-premium {
+  background: linear-gradient(135deg, #7C69A9 0%, #5B3D99 55%, #3E2A72 100%) !important; color: #fff !important; border: none !important;
+  box-shadow: 0 12px 26px rgba(62, 42, 114, .25) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-btn-premium i { color: #FFD36E !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-btn-outline { background: #fff !important; color: #5B3D99 !important; border: 1.5px solid #E2D6FA !important; }
+
+/* ---------- Modo escuro (Documentos e Planos) ---------- */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-topo { background: linear-gradient(135deg, #22263F, #1B1F33) !important; border-color: rgba(255,255,255,.08) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-topo h2,
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-topo h2 { color: #F4F1FF !important; -webkit-text-fill-color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-topo p { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos :is(.doc-tabs, .doc-tab, .doc-card:not(.doc-card-resumo)),
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-card:not(.pl-card-premium) { background: #161c2c !important; border-color: rgba(255,255,255,.08) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-card.pl-card-premium { background: linear-gradient(#161c2c, #161c2c) padding-box, linear-gradient(135deg, #B9A3F2, #7C69A9 45%, #F2A7C9) border-box !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-card.pl-card-premium::before { background: linear-gradient(180deg, rgba(124,105,169,.18), transparent); }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-tab.ativo { background: rgba(196,181,253,.14) !important; color: #E6DEFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-input-icone { background: rgba(255,255,255,.06) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) :is(#documentos .doc-card-titulo h3, #planos .pl-card-topo h3, #planos .pl-preco strong) { color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #planos .pl-card li { color: #CFC7EA !important; }
+
+/* ---------- Celular ---------- */
+@media (max-width: 900px) {
+  :host :is(.home-psi-page, .home-adv-page) #agenda .calendar-container { flex-basis: auto !important; padding: 24px 18px !important; }
+  :host :is(.home-psi-page, .home-adv-page) #agenda .events-container { padding: 24px 18px !important; }
+  :host :is(.home-psi-page, .home-adv-page) #agenda .calendar-dates { gap: 14px 4px !important; }
+  :host :is(.home-psi-page, .home-adv-page) .banner-forum { aspect-ratio: auto; }
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-topo { padding: 26px 22px !important; }
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-ilustra { display: none !important; }
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-tabs { display: grid !important; grid-template-columns: 1fr; }
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-tab { height: 52px !important; }
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-card { padding: 22px 18px !important; }
+  :host :is(.home-psi-page, .home-adv-page) #planos .pl-card { padding: 24px 20px !important; }
+}
+
+/* =========================================================
+   09/11 (4) — consultas em 3 colunas, planos centralizados,
+   Documentos com mais impacto, modelos e formulário bonitos
+   ========================================================= */
+/* ---------- Consultas: 3 cartões por linha ---------- */
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-grid { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 22px !important; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-card { min-width: 0 !important; width: auto !important; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-acoes { display: grid !important; grid-template-columns: 1fr 1fr; gap: 10px !important; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-acoes > * { width: 100% !important; min-width: 0 !important; margin: 0 !important; justify-content: center; white-space: nowrap; }
+@media (max-width: 1280px) { :host :is(.home-psi-page, .home-adv-page) #consultas .cs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+@media (max-width: 760px) { :host :is(.home-psi-page, .home-adv-page) #consultas .cs-grid { grid-template-columns: minmax(0, 1fr) !important; } }
+
+/* ---------- Planos centralizados ---------- */
+:host :is(.home-psi-page, .home-adv-page) #planos { max-width: 1100px; margin-left: auto !important; margin-right: auto !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-topo { text-align: center; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-topo h2, :host :is(.home-psi-page, .home-adv-page) #planos .pl-topo p { text-align: center !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-atual, :host :is(.home-psi-page, .home-adv-page) #planos .pl-grid { max-width: none !important; margin-left: 0 !important; margin-right: 0 !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-grid { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-card-premium .pl-card-topo h3 i { color: #fff !important; }
+:host :is(.home-psi-page, .home-adv-page) #planos .pl-nota, :host :is(.home-psi-page, .home-adv-page) #planos .pl-msg { text-align: center; }
+@media (max-width: 860px) { :host :is(.home-psi-page, .home-adv-page) #planos .pl-grid { grid-template-columns: minmax(0, 1fr) !important; } }
+
+/* ---------- Documentos: banner com impacto (gradiente roxo da página inicial) ---------- */
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-topo {
+  min-height: 220px; padding: 48px 56px !important; border: none !important;
+  background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, .2), transparent 40%),
+              radial-gradient(circle at 10% 110%, rgba(242, 167, 201, .35), transparent 45%),
+              linear-gradient(135deg, #7C69A9 0%, #5B3D99 50%, #3E2A72 100%) !important;
+  box-shadow: 0 20px 45px rgba(62, 42, 114, .28) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-topo::after {
+  content: ""; position: absolute; right: -80px; bottom: -120px; width: 340px; height: 340px; border-radius: 50%;
+  background: rgba(255, 255, 255, .08); pointer-events: none;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-topo h2 { color: #fff !important; -webkit-text-fill-color: #fff !important; font-size: clamp(2.1rem, 3.2vw, 3.1rem) !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-topo p { color: rgba(255, 255, 255, .88) !important; font-size: 1.08rem !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-topo-texto { position: relative; z-index: 1; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-ilustra { position: relative; z-index: 1; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-ilustra .doc-brilho { color: #FFD9EA !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-ilustra .doc-ponto { background: rgba(255, 255, 255, .6) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-topo {
+  background: radial-gradient(circle at 80% 20%, rgba(124, 105, 169, .35), transparent 45%), linear-gradient(135deg, #2A2F55 0%, #171B2D 60%, #0F1422 100%) !important;
+}
+
+/* ---------- Modelos de documentos ---------- */
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelos { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 22px !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo {
+  position: relative; display: flex !important; flex-direction: column; align-items: flex-start; text-align: left; overflow: hidden;
+  min-height: 0; padding: 0 26px 24px !important; border-radius: 26px !important; background: #fff !important;
+  border: 1px solid #EEE8FA !important; box-shadow: 0 12px 30px rgba(91, 61, 153, .07) !important; cursor: pointer;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 92px; pointer-events: none;
+  background: linear-gradient(135deg, #F1EAFD 0%, #FBEFF6 100%);
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo > * { position: relative; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo:not(.bloqueado):hover { transform: translateY(-6px); border-color: #D9CCF5 !important; box-shadow: 0 22px 44px rgba(91, 61, 153, .14) !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo-icone {
+  width: 60px !important; height: 60px !important; margin: 26px 0 18px !important; border-radius: 18px !important;
+  display: grid !important; place-items: center; font-size: 1.4rem !important;
+  background: linear-gradient(145deg, #8D7BC0, #5B3D99) !important; color: #fff !important; box-shadow: 0 12px 24px rgba(91, 61, 153, .28) !important; border: 3px solid #fff !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo-icone i { color: #fff !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo-topo { display: flex !important; align-items: center; justify-content: space-between; gap: 10px; width: 100%; margin-bottom: 8px !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo-artigo { font-size: .76rem !important; font-weight: 800 !important; letter-spacing: .06em; color: #8B7DB5 !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo h3 { margin: 0 0 8px !important; font-size: 1.2rem !important; font-weight: 800 !important; color: #2A1B5C !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo p { flex: 1; margin: 0 0 20px !important; font-size: .92rem !important; line-height: 1.6 !important; color: #6B6290 !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo-acao {
+  display: inline-flex !important; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 46px;
+  border-radius: 999px !important; background: #F3EDFF !important; color: #4B2C82 !important; font-weight: 800 !important; font-size: .92rem !important;
+  box-shadow: none !important; transition: background .2s ease, color .2s ease;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo:not(.bloqueado):hover .doc-modelo-acao { background: linear-gradient(135deg, #7C69A9, #5B3D99) !important; color: #fff !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo:not(.bloqueado):hover .doc-modelo-acao i { color: #fff !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo.bloqueado { cursor: not-allowed; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo.bloqueado .doc-modelo-icone { background: #E6E0F3 !important; box-shadow: none !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo.bloqueado .doc-modelo-acao { background: #FFF6E2 !important; color: #9A6A00 !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-chip-premium { background: linear-gradient(135deg, #7C69A9, #5B3D99) !important; color: #fff !important; border: none !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-chip-premium i { color: #FFD36E !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-chip-gratis { background: #E9F7EF !important; color: #2F7A55 !important; border: none !important; }
+@media (max-width: 1280px) { :host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelos { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+@media (max-width: 700px) { :host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelos { grid-template-columns: minmax(0, 1fr) !important; } }
+
+/* ---------- Preenchimento do documento: centralizado, com cabeçalho em destaque ---------- */
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-form-topo,
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-form { width: 100%; max-width: 960px !important; margin-left: auto !important; margin-right: auto !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-form-topo {
+  display: flex !important; align-items: center; gap: 16px; margin-bottom: 22px !important; padding: 22px 26px !important;
+  border-radius: 24px !important; background: linear-gradient(135deg, #F7F3FF 0%, #F9EEF5 100%) !important; border: 1px solid #EEE8FA !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-form-topo h3 { margin: 0 0 4px !important; font-size: 1.4rem !important; font-weight: 800 !important; color: #2A1B5C !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-form-topo span:not(.doc-modelo-icone) { font-size: .88rem; color: #7B6AAE; font-weight: 600; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo-icone.pequeno { width: 54px !important; height: 54px !important; margin: 0 !important; border-radius: 16px !important; font-size: 1.2rem !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-voltar {
+  order: 3; margin-left: auto !important; height: 42px; padding: 0 18px !important; border-radius: 999px !important;
+  background: #fff !important; color: #5B3D99 !important; border: 1.5px solid #E2D6FA !important; font-weight: 800 !important; display: inline-flex; align-items: center; gap: 8px;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-form { gap: 20px !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-form .doc-card { padding: 28px 32px !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-form :is(input, textarea, select):not([type="checkbox"]) {
+  border-radius: 14px !important; background: #F7F3FF !important; border: 1.5px solid transparent !important; box-shadow: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-form :is(input, textarea):focus { background: #fff !important; border-color: #B9A6E8 !important; box-shadow: 0 0 0 4px rgba(124, 105, 169, .12) !important; outline: none; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-form .doc-input-icone :is(input, select) { background: transparent !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-acoes-final {
+  display: flex !important; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+  padding: 22px 26px !important; border-radius: 24px !important; color: #fff;
+  background: linear-gradient(135deg, #7C69A9 0%, #5B3D99 55%, #3E2A72 100%) !important; box-shadow: 0 16px 36px rgba(62, 42, 114, .25) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-acoes-final .doc-privacidade { flex: 1 1 320px; margin: 0 !important; color: rgba(255, 255, 255, .9) !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-acoes-final .doc-privacidade i { color: #fff !important; }
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-acoes-final .doc-btn-primario {
+  width: auto !important; height: 50px; padding: 0 28px !important; border-radius: 999px !important; border: none !important;
+  background: #fff !important; color: #3E2A72 !important; font-weight: 800 !important; box-shadow: 0 10px 22px rgba(20, 10, 50, .22) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #documentos .doc-acoes-final .doc-btn-primario i { color: #3E2A72 !important; }
+
+/* modo escuro */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos :is(.doc-modelo, .doc-form-topo) { background: #161c2c !important; border-color: rgba(255,255,255,.08) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo::before { background: linear-gradient(135deg, rgba(124,105,169,.25), rgba(242,167,201,.12)); }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos :is(.doc-modelo h3, .doc-form-topo h3) { color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo p { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-modelo-acao { background: rgba(255,255,255,.08) !important; color: #E6DEFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #documentos .doc-form :is(input, textarea, select):not([type="checkbox"]) { background: rgba(255,255,255,.06) !important; color: #F1ECFF !important; }
+
+@media (max-width: 760px) {
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-topo { padding: 28px 22px !important; min-height: 0; }
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-form-topo { flex-wrap: wrap; padding: 18px !important; }
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-voltar { order: -1; margin: 0 !important; }
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-form .doc-card { padding: 20px 18px !important; }
+  :host :is(.home-psi-page, .home-adv-page) #documentos .doc-acoes-final .doc-btn-primario { width: 100% !important; justify-content: center; }
+}
+:host :is(.home-psi-page, .home-adv-page) section#planos.content { max-width: 1100px !important; width: 100%; margin-left: auto !important; margin-right: auto !important; }
