@@ -787,3 +787,63 @@ body[data-theme="dark"] .banner-image img {
 @keyframes avFade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes avSobe { from { opacity: 0; transform: translateY(22px) scale(.96); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .modal:not([style]), .modal:not([style]) .modal-content { animation: none !important; } }
+/* ===== Celular: "Complete seu perfil" centralizado e com respiro em volta (11/11) ===== */
+@media (max-width: 600px) {
+  .bv-fundo { display: flex; align-items: center; justify-content: center; padding: 24px 18px; }
+  .bv-modal {
+    width: 100%; max-width: 420px; margin: auto;
+    max-height: calc(100dvh - 48px); overflow-y: auto; overscroll-behavior: contain;
+    border-radius: 26px; padding: 26px 20px 20px;
+  }
+  .bv-selo { width: 54px; height: 54px; border-radius: 18px; }
+  .bv-modal h2 { font-size: 21px; }
+  .bv-sub { font-size: 13.5px; margin-bottom: 16px; }
+  .bv-fechar { top: 12px; right: 12px; width: 36px; height: 36px; }
+}
+/* =========================================================
+   BANNERS NO MODO ESCURO: troca cada arte pela versão dark
+   e deixa o texto claro (11/11)
+   ========================================================= */
+/* Fórum */
+html body[data-theme="dark"] app-forum .fr-hero.fr-hero { background: #15112E !important; border-color: rgba(255, 255, 255, .08) !important; }
+html body[data-theme="dark"] app-forum .fr-hero .fr-hero-banner.fr-hero-banner { content: url('/img/forum-banner-dark.png'); }
+
+/* Carreiras */
+html body[data-theme="dark"] app-carreiras .car-hero.car-hero { background: #15112E !important; border-color: rgba(255, 255, 255, .08) !important; }
+html body[data-theme="dark"] app-carreiras .car-hero .car-hero-img.car-hero-img { content: url('/img/carreiras-banner-dark.png'); }
+
+/* Consultorias */
+html body[data-theme="dark"] app-consultoria .ct-banner.ct-banner { background: #15112E !important; border-color: rgba(255, 255, 255, .08) !important; }
+html body[data-theme="dark"] app-consultoria .ct-banner .ct-banner-img.ct-banner-img { content: url('/img/consultoria-banner-dark.png'); }
+
+/* Eventos, Comunidade e Favoritos (a arte é fundo do banner) */
+html body[data-theme="dark"] app-eventos .eventos-hero-banner.eventos-hero-banner {
+  background-color: #15112E !important; background-image: url('/img/banner_eventos_dark.png') !important;
+  background-size: cover !important; background-position: right center !important; border-color: rgba(255, 255, 255, .08) !important;
+}
+html body[data-theme="dark"] app-artigos .artigos-hero-banner.artigos-hero-banner {
+  background-color: #15112E !important; background-image: url('/img/comunidade-banner-dark.png') !important;
+  background-size: cover !important; background-position: right center !important; border-color: rgba(255, 255, 255, .08) !important;
+}
+html body[data-theme="dark"] :is(app-artigos-favoritos, app-artigos-favoritos-psi) .artigos-hero-banner.artigos-hero-banner {
+  background-color: #15112E !important; background-image: url('/img/post-favorito-dark.png') !important;
+  background-size: cover !important; background-position: right center !important; border-color: rgba(255, 255, 255, .08) !important;
+}
+
+/* Texto claro em todos esses banners */
+html body[data-theme="dark"] :is(app-forum .fr-hero-texto, app-carreiras .car-hero-texto, app-consultoria .ct-banner-texto,
+  app-eventos .eventos-hero-banner .hero-content, app-artigos .artigos-hero-banner .hero-content,
+  app-artigos-favoritos .artigos-hero-banner .hero-content, app-artigos-favoritos-psi .artigos-hero-banner .hero-content) h1 {
+  color: #F4F1FF !important; -webkit-text-fill-color: #F4F1FF !important;
+}
+html body[data-theme="dark"] :is(app-forum .fr-hero-texto, app-carreiras .car-hero-texto, app-consultoria .ct-banner-texto,
+  app-eventos .eventos-hero-banner .hero-content, app-artigos .artigos-hero-banner .hero-content,
+  app-artigos-favoritos .artigos-hero-banner .hero-content, app-artigos-favoritos-psi .artigos-hero-banner .hero-content) h1 span {
+  color: #C4B5FD !important; -webkit-text-fill-color: #C4B5FD !important;
+}
+html body[data-theme="dark"] :is(app-forum .fr-hero-texto, app-carreiras .car-hero-texto, app-consultoria .ct-banner-texto,
+  app-eventos .eventos-hero-banner .hero-content, app-artigos .artigos-hero-banner .hero-content,
+  app-artigos-favoritos .artigos-hero-banner .hero-content, app-artigos-favoritos-psi .artigos-hero-banner .hero-content) p {
+  color: #D9D3EE !important;
+}
+html body[data-theme="dark"] app-forum .fr-hero-texto .fr-hero-destaque.fr-hero-destaque { color: #C4B5FD !important; }

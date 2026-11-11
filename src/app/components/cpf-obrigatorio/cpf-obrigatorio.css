@@ -175,3 +175,18 @@
 @media (prefers-reduced-motion: reduce) {
   .cpf-fundo, .cpf-modal, .cpf-selo, .cpf-campo, .cpf-ok { animation: none !important; }
 }
+/* ===== Celular: modal centralizado e com respiro em volta (11/11) ===== */
+@media (max-width: 600px) {
+  .cpf-fundo { display: flex; align-items: center; justify-content: center; padding: 24px 18px; }
+  .cpf-modal {
+    width: 100%; max-width: 400px; margin: auto;
+    max-height: calc(100dvh - 48px); overflow-y: auto; overscroll-behavior: contain;
+    border-radius: 26px; padding: 26px 20px 20px;
+  }
+  .cpf-selo { width: 54px; height: 54px; font-size: 22px; border-radius: 18px; margin-bottom: 10px; }
+  .cpf-modal h2 { font-size: 21px; }
+  .cpf-sub { font-size: 13.5px; margin-bottom: 14px; }
+  .cpf-motivos { gap: 8px; margin-bottom: 16px; }
+  .cpf-motivos li { padding: 8px 10px; font-size: 13px; }
+  .cpf-ic { flex-basis: 32px; height: 32px; font-size: 13px; border-radius: 10px; }
+}
