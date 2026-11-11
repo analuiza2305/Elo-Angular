@@ -7197,3 +7197,35 @@ header.header .right-section > #notif-psi.notif-wrap.notif-wrap { display: flex 
   :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .dm-sair { background: rgba(229, 72, 77, .12); color: #FDA4AF; }
   :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .dm-sair i { color: #FDA4AF; }
 }
+/* ===== MODAL "PERÍODO DE ATENDIMENTO" (09/11) ===== */
+:host :is(.home-psi-page, .home-adv-page) .premium-modal-psi input[type="time"] {
+  color: #2A1B5C !important; -webkit-text-fill-color: #2A1B5C !important; background: #F7F3FF !important;
+  border: 1.5px solid #E2D6FA !important; border-radius: 14px !important; font-weight: 700 !important; font-size: 1.05rem !important;
+  color-scheme: light; height: 52px;
+}
+:host :is(.home-psi-page, .home-adv-page) .premium-modal-psi input[type="time"]:focus {
+  outline: none; background: #fff !important; border-color: #9F84E6 !important; box-shadow: 0 0 0 4px rgba(124, 105, 169, .15) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .premium-modal-psi label { color: #3E2A72 !important; }
+:host :is(.home-psi-page, .home-adv-page) .premium-modal-psi .modal-actions { display: flex !important; gap: 12px !important; align-items: stretch !important; }
+:host :is(.home-psi-page, .home-adv-page) .premium-modal-psi .modal-actions :is(.contact-btn, .add-consult-btn) {
+  flex: 1 1 0; height: 50px !important; margin: 0 !important; padding: 0 20px !important; border-radius: 999px !important;
+  font-size: 1rem !important; font-weight: 800 !important; transform: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .premium-modal-psi .modal-actions .contact-btn {
+  background: linear-gradient(135deg, #7C69A9, #52427D) !important; color: #fff !important; border: none !important;
+  box-shadow: 0 10px 22px rgba(82, 66, 125, .25) !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .premium-modal-psi .modal-actions .add-consult-btn {
+  background: #fff !important; color: #52427D !important; border: 1.5px solid #E2D6FA !important; box-shadow: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) .premium-modal-psi .modal-actions .add-consult-btn:hover { background: #F6F2FD !important; }
+/* modo escuro */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .premium-modal-psi input[type="time"] {
+  color: #F1ECFF !important; -webkit-text-fill-color: #F1ECFF !important; background: #1B2336 !important;
+  border-color: rgba(255, 255, 255, .15) !important; color-scheme: dark;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .premium-modal-psi label { color: #E6DEFF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .premium-modal-psi .modal-actions .add-consult-btn {
+  background: transparent !important; color: #E6DEFF !important; border-color: rgba(255, 255, 255, .25) !important;
+}

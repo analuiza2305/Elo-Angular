@@ -237,3 +237,8 @@
   background: rgba(255, 255, 255, .2); color: #FFFFFF;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25);
 }
+
+/* ===== Banner no modo escuro: texto claro sobre a arte escura (11/11) ===== */
+:host-context(body[data-theme="dark"]) .ct-banner-texto h1 { color: #F4F1FF !important; -webkit-text-fill-color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) .ct-banner-texto h1 span { color: #C4B5FD !important; -webkit-text-fill-color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) .ct-banner-texto p { color: #E2DCF5 !important; }

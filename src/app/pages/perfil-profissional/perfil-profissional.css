@@ -1119,3 +1119,9 @@ header.header-prof .logout-btn:hover {
 :host-context(body[data-theme="dark"]) .rep-barra { background: rgba(255, 255, 255, .08) !important; }
 :host-context(body[data-theme="dark"]) .rep-elogio { background: #1B2336 !important; color: #E6DEFF !important; border-color: rgba(255, 255, 255, .1) !important; }
 :host-context(body[data-theme="dark"]) .profile-avatar-container .profile-avatar { background: #fff; }
+
+/* ===== CONTRASTE (09/11 - 2) ===== */
+:host-context(body[data-theme="dark"]) .rep-nota-grande { background: #1B2336 !important; border-color: rgba(255, 255, 255, .1) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) .rep-nota-grande strong { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) .rep-nota-grande small { color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) .rep-rodape { border-top-color: rgba(255, 255, 255, .08) !important; }

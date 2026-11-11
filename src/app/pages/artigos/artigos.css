@@ -444,3 +444,8 @@ body {
 :host-context(body[data-theme="dark"]) .art-parc-abas { background: rgba(255, 255, 255, .04); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); }
 :host-context(body[data-theme="dark"]) .art-parc-aba.ativa { background: #232842; color: #E5DEFF; }
 @media (max-width: 600px) { .art-parc-abas { width: 100%; } .art-parc-aba { flex: 1; justify-content: center; padding: 0 10px; } .art-parc-novo { width: 100%; justify-content: center; } }
+
+/* ===== Banner no modo escuro: texto claro sobre a arte escura (11/11) ===== */
+:host-context(body[data-theme="dark"]) .artigos-hero-banner .hero-content h1 { color: #F4F1FF !important; -webkit-text-fill-color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) .artigos-hero-banner .hero-content h1 span { color: #C4B5FD !important; -webkit-text-fill-color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) .artigos-hero-banner .hero-content p { color: #E2DCF5 !important; }
