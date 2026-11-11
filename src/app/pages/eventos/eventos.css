@@ -1155,3 +1155,19 @@ body.dark-theme .estado-vazio p,
 .evm-btn-previa { background: #F3EEFF; color: #6B5A9A; font-size: .9rem; cursor: default; }
 .evm-btn-previa i { color: inherit !important; }
 :host-context(body[data-theme="dark"]) .evm-btn-previa { background: rgba(157, 143, 231, .14); color: #C9BCFF; }
+/* ===== Banner no modo escuro: versão dark da arte e texto claro (11/11) ===== */
+:host-context(body[data-theme="dark"]) .eventos-hero-banner {
+  background-color: #15112E !important;
+  background-image: url('/img/banner_eventos_dark.png') !important;
+  background-size: cover !important;
+  background-position: right center !important;
+  background-repeat: no-repeat !important;
+  border-color: rgba(255, 255, 255, .08) !important;
+  filter: none !important;
+}
+:host-context(body[data-theme="dark"]) .eventos-hero-banner .hero-content h1 { color: #F4F1FF !important; -webkit-text-fill-color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) .eventos-hero-banner .hero-content h1 span { color: #C4B5FD !important; -webkit-text-fill-color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) .eventos-hero-banner .hero-content p { color: #D9D3EE !important; }
+@media (max-width: 750px) {
+  :host-context(body[data-theme="dark"]) .eventos-hero-banner { background-size: auto 70% !important; background-position: right bottom !important; }
+}
