@@ -77,29 +77,21 @@
 
   <main class="main-container">
     <aside class="sidebar" [class.active]="sidebarOpen()">
-      <div class="drawer-top">
-        <button type="button" class="drawer-close" aria-label="Fechar menu" (click)="closeSidebar()">
-          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-        </button>
-        <div class="drawer-profile" (click)="irParaPerfil()">
+      <div class="drawer-top dm-topo">
+        <div class="dm-cab">
+          <span class="dm-logo"><img src="img/logo_icon.png" alt=""> elomaterno</span>
+          <button type="button" class="drawer-close dm-fechar" aria-label="Fechar menu" (click)="closeSidebar()">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <button type="button" class="dm-perfil" (click)="irParaPerfil(); closeSidebar()">
           <img class="drawer-avatar" [src]="avatarUrl()" alt="Foto do perfil">
-          <div class="drawer-profile-info">
+          <span class="dm-perfil-info">
             <strong>{{ nomeCompleto() }}</strong>
-            <span class="drawer-tag">Advogado(a)</span>
-          </div>
-        </div>
-        <div class="drawer-actions">
-          <button type="button" (click)="toggleAccessibilityMenu(); closeSidebar()">
-            <i class="fa fa-universal-access" aria-hidden="true"></i><span>Acessibilidade</span>
-          </button>
-          <button type="button" (click)="toggleTheme()">
-            <i class="fas" [class.fa-moon]="!isDarkMode()" [class.fa-sun]="isDarkMode()" aria-hidden="true"></i>
-            <span>{{ isDarkMode() ? 'Modo claro' : 'Modo escuro' }}</span>
-          </button>
-          <button type="button" class="drawer-sair" (click)="logout()">
-            <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Sair</span>
-          </button>
-        </div>
+            <small><i class="fa-solid fa-circle"></i> Advogado(a)</small>
+          </span>
+          <i class="fa-solid fa-chevron-right dm-seta" aria-hidden="true"></i>
+        </button>
       </div>
       <button
         *ngFor="let item of menuItems"
@@ -113,6 +105,20 @@
           <span class="menu-contador" [attr.aria-label]="pendentesCount() + ' pedidos esperando resposta'">{{ pendentesCount() }}</span>
         }
       </button>
+      <div class="dm-rodape">
+        <span class="dm-secao">Acessibilidade e tema</span>
+        <button type="button" class="menu-btn dm-item" (click)="toggleTheme()">
+          <i class="fas" [class.fa-moon]="!isDarkMode()" [class.fa-sun]="isDarkMode()" aria-hidden="true"></i>
+          <span>{{ isDarkMode() ? 'Modo Claro' : 'Modo Escuro' }}</span>
+        </button>
+        <button type="button" class="menu-btn dm-item" (click)="toggleAccessibilityMenu(); closeSidebar()">
+          <i class="fa fa-universal-access" aria-hidden="true"></i>
+          <span>Opções de Acessibilidade</span>
+        </button>
+        <button type="button" class="dm-sair" (click)="logout()">
+          <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sair da conta
+        </button>
+      </div>
       <div class="last-activities">
         <h3>Próximas Consultas</h3>
         <ul>

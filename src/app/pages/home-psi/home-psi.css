@@ -8205,3 +8205,68 @@ header.header .right-section > #notif-psi.notif-wrap.notif-wrap { display: flex 
 :host-context(body[data-theme="dark"]) .rep-nota-grande strong { color: #F1ECFF !important; }
 :host-context(body[data-theme="dark"]) .rep-nota-grande small { color: #CFC7EA !important; }
 :host-context(body[data-theme="dark"]) .rep-rodape { border-top-color: rgba(255, 255, 255, .08) !important; }
+/* ===== BANNERS NO MODO ESCURO: versão dark das artes e texto claro (11/11) ===== */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .pro-banner { background-color: #15112E !important; border-color: rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .banner-comunidade { background-image: url('/img/comunidade-banner-dark.png') !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .banner-forum { background-image: url('/img/forum-banner-dark.png') !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .banner-agenda { background-image: url('/img/banner_eventos_dark.png') !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .banner-consultas { background-image: url('/img/consultoria-banner-dark.png') !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) :is(#artigos, #forum) .pro-banner h2 { color: #F4F1FF !important; -webkit-text-fill-color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) :is(#artigos, #forum) .pro-banner :is(p, .secao-sub) { color: #D9D3EE !important; }
+/* =========================================================
+   MENU DO CELULAR IGUAL AO DA MÃE (11/11) — psi e adv
+   ========================================================= */
+:host :is(.home-psi-page, .home-adv-page) .dm-rodape { display: none; }
+
+@media (max-width: 1024px) {
+  :host :is(.home-psi-page, .home-adv-page) .sidebar {
+    display: flex !important; flex-direction: column; gap: 2px;
+    width: min(300px, 86vw) !important; padding: 16px 14px 18px !important; overflow-y: auto;
+    background: #FDFBFF !important; border-radius: 0 26px 26px 0 !important;
+  }
+  :host :is(.home-psi-page, .home-adv-page) .sidebar .dm-topo { display: block !important; margin: 0 0 12px !important; padding: 0 0 14px !important; border-bottom: none !important; }
+  :host :is(.home-psi-page, .home-adv-page) .dm-cab { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  :host :is(.home-psi-page, .home-adv-page) .dm-logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.05rem; color: #2A1B5C; }
+  :host :is(.home-psi-page, .home-adv-page) .dm-logo img { width: 24px !important; height: 24px !important; max-width: none; }
+  :host :is(.home-psi-page, .home-adv-page) .sidebar .dm-fechar {
+    position: static !important; width: 34px !important; height: 34px !important; border-radius: 50% !important;
+    display: grid !important; place-items: center; background: #F1EAFF !important; color: #52427D !important; border: none !important;
+  }
+  :host :is(.home-psi-page, .home-adv-page) .dm-perfil {
+    display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; text-align: left; cursor: pointer; font: inherit;
+    border-radius: 20px; background: linear-gradient(135deg, #F4EEFF 0%, #E9DFFF 100%); border: 1px solid rgba(124, 105, 169, .2);
+  }
+  :host :is(.home-psi-page, .home-adv-page) .dm-perfil .drawer-avatar {
+    width: 46px !important; height: 46px !important; max-width: none; flex-shrink: 0; border-radius: 50%; object-fit: cover;
+    border: 3px solid #fff; box-shadow: 0 4px 12px rgba(82, 66, 125, .18);
+  }
+  :host :is(.home-psi-page, .home-adv-page) .dm-perfil-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  :host :is(.home-psi-page, .home-adv-page) .dm-perfil-info strong { font-size: .95rem; font-weight: 800; color: #2A1B5C; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  :host :is(.home-psi-page, .home-adv-page) .dm-perfil-info small { display: inline-flex; align-items: center; gap: 5px; font-size: .74rem; color: #6B6290; }
+  :host :is(.home-psi-page, .home-adv-page) .dm-perfil-info small i { font-size: .45rem; color: #8B72D6; }
+  :host :is(.home-psi-page, .home-adv-page) .dm-seta { color: #7C69A9; font-size: .8rem; }
+  :host :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn { width: 100%; padding: 6px 10px !important; margin: 0 !important; font-size: .9rem !important; border-radius: 14px !important; }
+  :host :is(.home-psi-page, .home-adv-page) .sidebar .menu-btn i { flex-basis: 32px; width: 32px; height: 32px; border-radius: 10px; font-size: .85rem !important; }
+  :host :is(.home-psi-page, .home-adv-page) .dm-rodape { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; padding-top: 12px; border-top: 1px solid rgba(124, 105, 169, .16); }
+  :host :is(.home-psi-page, .home-adv-page) .dm-secao { margin: 0 0 6px 10px; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #6B6290; }
+  :host :is(.home-psi-page, .home-adv-page) .dm-sair {
+    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 44px; margin-top: 14px;
+    border: none; border-radius: 14px; background: #FBEFF3; color: #B3324F; font: inherit; font-weight: 800; font-size: .9rem; cursor: pointer;
+  }
+  :host :is(.home-psi-page, .home-adv-page) .dm-sair i { color: #B3324F; }
+  :host :is(.home-psi-page, .home-adv-page) .sidebar .last-activities,
+  :host :is(.home-psi-page, .home-adv-page) .sidebar .drawer-actions { display: none !important; }
+
+  :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .sidebar { background: #141A28 !important; }
+  :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .dm-logo,
+  :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .dm-perfil-info strong { color: #F4F1FF; }
+  :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .sidebar .dm-fechar { background: rgba(255,255,255,.08) !important; color: #E6DEFF !important; }
+  :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .dm-perfil { background: rgba(196, 181, 253, .1); border-color: rgba(196, 181, 253, .2); }
+  :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .dm-perfil-info small,
+  :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .dm-secao { color: #B8B0D6; }
+  :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .dm-perfil .drawer-avatar { border-color: rgba(255,255,255,.15); }
+  :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .dm-seta { color: #C4B5FD; }
+  :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .dm-rodape { border-top-color: rgba(255,255,255,.1); }
+  :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .dm-sair { background: rgba(229, 72, 77, .12); color: #FDA4AF; }
+  :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .dm-sair i { color: #FDA4AF; }
+}
