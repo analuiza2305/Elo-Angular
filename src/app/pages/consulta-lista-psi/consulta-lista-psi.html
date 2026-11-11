@@ -203,43 +203,52 @@
 @if (showFiltroModal()) {
   <div class="modal-wrapper">
     <div class="modal-overlay" (click)="fecharFiltros()"></div>
-    <div class="modal-content premium-modal">
-      <div class="modal-header-fancy">
-        <h2>Filtrar Profissionais</h2>
-        <button class="close-btn" (click)="fecharFiltros()"><i class="ph ph-x"></i></button>
+    <div class="modal-content premium-modal fp-modal" role="dialog" aria-modal="true" aria-labelledby="fpTitulo">
+      <div class="fp-topo">
+        <span class="fp-topo-ic"><i class="ph ph-sliders-horizontal"></i></span>
+        <div>
+          <h2 id="fpTitulo">Filtrar profissionais</h2>
+          <p>Personalize sua busca para encontrar o atendimento ideal.</p>
+        </div>
+        <button class="fp-fechar" (click)="fecharFiltros()" aria-label="Fechar"><i class="ph ph-x"></i></button>
       </div>
-      <p class="modal-subtitle">Personalize sua busca para encontrar o atendimento ideal.</p>
 
-      <div class="input-group">
-        <label>Apenas com horários disponíveis</label>
-        <label class="checkbox-container">
+      <div class="fp-corpo">
+        <label class="fp-opcao" [class.ativa]="filtroDisponibilidade()">
+          <span class="fp-opcao-ic"><i class="ph ph-calendar-check"></i></span>
+          <span class="fp-opcao-txt">
+            <strong>Com horários disponíveis</strong>
+            <small>Só profissionais com agenda aberta</small>
+          </span>
           <input type="checkbox" [checked]="filtroDisponibilidade()" (change)="filtroDisponibilidade.set(!filtroDisponibilidade())">
-          <span class="checkmark"></span>
-          Mostrar somente profissionais com agenda aberta
+          <span class="fp-switch" aria-hidden="true"></span>
         </label>
-      </div>
 
-      <div class="input-group">
-        <label>Selo das mães</label>
-        <label class="checkbox-container">
+        <label class="fp-opcao" [class.ativa]="filtroBemAvaliados()">
+          <span class="fp-opcao-ic ic-rosa"><i class="ph ph-heart"></i></span>
+          <span class="fp-opcao-txt">
+            <strong>Bem avaliados pelas mães</strong>
+            <small>Só quem tem o selo das mães</small>
+          </span>
           <input type="checkbox" [checked]="filtroBemAvaliados()" (change)="filtroBemAvaliados.set(!filtroBemAvaliados())">
-          <span class="checkmark"></span>
-          Mostrar somente profissionais "Bem avaliados pelas mães"
+          <span class="fp-switch" aria-hidden="true"></span>
         </label>
+
+        <div class="fp-ordem">
+          <span class="fp-rotulo">Ordenar por</span>
+          <div class="fp-pills" role="radiogroup" aria-label="Ordenar por">
+            <button type="button" class="fp-pill" [class.ativa]="filtroOrdem() === 'relevancia'" (click)="filtroOrdem.set('relevancia')"><i class="ph ph-sparkle"></i> Relevância</button>
+            <button type="button" class="fp-pill" [class.ativa]="filtroOrdem() === 'avaliacao'" (click)="filtroOrdem.set('avaliacao')"><i class="ph ph-star"></i> Melhor avaliados</button>
+            <button type="button" class="fp-pill" [class.ativa]="filtroOrdem() === 'disponiveis'" (click)="filtroOrdem.set('disponiveis')"><i class="ph ph-calendar-dots"></i> Mais datas livres</button>
+            <button type="button" class="fp-pill" [class.ativa]="filtroOrdem() === 'nome'" (click)="filtroOrdem.set('nome')"><i class="ph ph-sort-ascending"></i> Nome (A–Z)</button>
+          </div>
+          <small class="fp-dica">Em "Relevância", os destaques Premium aparecem primeiro.</small>
+        </div>
       </div>
 
-      <div class="input-group">
-        <label for="ordemSelect">Ordenar por</label>
-        <select id="ordemSelect" [value]="filtroOrdem()" (change)="filtroOrdem.set($any($event.target).value)" class="styled-select">
-          <option value="relevancia">Relevância (destaques Premium primeiro)</option>
-          <option value="avaliacao">Melhor avaliados pelas mães</option>
-          <option value="disponiveis">Mais datas disponíveis</option>
-          <option value="nome">Nome (A–Z)</option>
-        </select>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn-confirm" (click)="fecharFiltros()">Aplicar Filtros</button>
+      <div class="fp-rodape">
+        <button type="button" class="fp-limpar" (click)="filtroDisponibilidade.set(false); filtroBemAvaliados.set(false); filtroOrdem.set('relevancia')">Limpar</button>
+        <button type="button" class="fp-aplicar" (click)="fecharFiltros()"><i class="ph ph-check"></i> Aplicar filtros</button>
       </div>
     </div>
   </div>

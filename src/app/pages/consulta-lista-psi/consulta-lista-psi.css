@@ -1202,3 +1202,124 @@ body {
 .tipo-chip.ativo, .tipo-chip.ativo span { color: #FFFFFF !important; }
 .tipo-chip:not(.ativo) span { color: #5B4A93; }
 .tipo-chip.ativo span { background: rgba(26, 21, 48, 0.28) !important; }
+
+/* ===== Banner no modo escuro: texto claro (11/11) ===== */
+:host-context(body[data-theme="dark"]) .hero-section .page-header h1 {
+  color: #F4F1FF !important; -webkit-text-fill-color: #F4F1FF !important; background: none !important;
+}
+:host-context(body[data-theme="dark"]) .hero-section .page-header h1 span { color: #C4B5FD !important; -webkit-text-fill-color: #C4B5FD !important; }
+:host-context(body[data-theme="dark"]) .hero-section .page-header p { color: #E2DCF5 !important; }
+
+/* ===== Modal "Confirmar Agendamento" no modo escuro (11/11) ===== */
+:host-context(body[data-theme="dark"]) .input-group {
+  background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important;
+}
+:host-context(body[data-theme="dark"]) .input-group label {
+  display: block; text-align: left; margin: 0 0 8px 4px;
+  color: #E6DEFF !important; font-weight: 700;
+}
+:host-context(body[data-theme="dark"]) .input-group textarea {
+  background: #1B2336 !important; color: #F1ECFF !important;
+  border: 1.5px solid rgba(255, 255, 255, .12) !important; border-radius: 16px !important;
+}
+:host-context(body[data-theme="dark"]) .input-group textarea::placeholder { color: #8F86B0 !important; }
+:host-context(body[data-theme="dark"]) .input-group textarea:focus {
+  outline: none; border-color: #A48FE0 !important; box-shadow: 0 0 0 4px rgba(164, 143, 224, .18) !important;
+}
+
+/* ===== Botões do modal de agendamento no modo escuro (11/11) ===== */
+:host-context(body[data-theme="dark"]) .btn-confirm {
+  background: linear-gradient(135deg, #7C69A9 0%, #5B3D99 100%) !important;
+  color: #fff !important; border: none !important;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .35) !important;
+}
+:host-context(body[data-theme="dark"]) .btn-confirm i { color: #fff !important; opacity: 1 !important; }
+:host-context(body[data-theme="dark"]) .btn-confirm:hover:not(:disabled) { filter: brightness(1.1); }
+:host-context(body[data-theme="dark"]) .btn-confirm:disabled { opacity: .6; }
+:host-context(body[data-theme="dark"]) .btn-cancel {
+  background: transparent !important; color: #E6DEFF !important;
+  border: 1.5px solid rgba(255, 255, 255, .2) !important;
+}
+
+/* =========================================================
+   MODAL "FILTRAR PROFISSIONAIS" (11/11)
+   ========================================================= */
+.modal-content.fp-modal {
+  --fp-card: #FFFFFF; --fp-campo: #F7F3FF; --fp-borda: #EEE8FA; --fp-texto: #2A1B5C; --fp-suave: #6B6290; --fp-roxo: #5B3D99;
+  width: min(520px, calc(100vw - 32px)) !important; max-width: none !important; padding: 0 !important; overflow: hidden;
+  border-radius: 28px !important; background: var(--fp-card) !important; text-align: left !important;
+  box-shadow: 0 30px 80px rgba(46, 28, 92, .25) !important;
+}
+.fp-topo { display: flex; align-items: center; gap: 14px; padding: 24px 24px 18px; border-bottom: 1px solid var(--fp-borda); }
+.fp-topo > div { flex: 1; min-width: 0; }
+.fp-topo h2 { margin: 0 0 2px !important; font-size: 1.3rem !important; font-weight: 800; color: var(--fp-texto) !important; text-align: left !important; }
+.fp-topo p { margin: 0 !important; font-size: .88rem; color: var(--fp-suave) !important; text-align: left !important; }
+.fp-topo-ic {
+  flex: 0 0 48px; height: 48px; display: grid; place-items: center; border-radius: 16px; font-size: 1.3rem;
+  background: linear-gradient(145deg, #8D7BC0, #5B3D99); color: #fff; box-shadow: 0 8px 18px rgba(91, 61, 153, .25);
+}
+.fp-fechar {
+  flex: 0 0 38px; height: 38px; align-self: flex-start; display: grid; place-items: center; border: none; border-radius: 50%;
+  background: var(--fp-campo); color: var(--fp-roxo); font-size: 1rem; cursor: pointer; transition: transform .2s;
+}
+.fp-fechar:hover { transform: rotate(90deg); }
+
+.fp-corpo { display: flex; flex-direction: column; gap: 12px; padding: 20px 24px; }
+.fp-opcao {
+  position: relative; display: flex; align-items: center; gap: 14px; padding: 14px 16px; cursor: pointer;
+  border-radius: 18px; background: var(--fp-campo); border: 1.5px solid transparent; transition: border-color .2s, background .2s;
+}
+.fp-opcao:hover { border-color: #DCD0F5; }
+.fp-opcao.ativa { background: #F1EBFF; border-color: #B9A6E8; }
+.fp-opcao input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.fp-opcao-ic { flex: 0 0 40px; height: 40px; display: grid; place-items: center; border-radius: 13px; background: #fff; color: var(--fp-roxo); font-size: 1.15rem; }
+.fp-opcao-ic.ic-rosa { color: #D9578F; }
+.fp-opcao-txt { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.fp-opcao-txt strong { font-size: .95rem; font-weight: 800; color: var(--fp-texto); }
+.fp-opcao-txt small { font-size: .8rem; color: var(--fp-suave); }
+.fp-switch { position: relative; flex: 0 0 42px; height: 24px; border-radius: 999px; background: #D9D2EA; transition: background .2s; }
+.fp-switch::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); transition: transform .2s;
+}
+.fp-opcao input:checked ~ .fp-switch { background: var(--fp-roxo); }
+.fp-opcao input:checked ~ .fp-switch::after { transform: translateX(18px); }
+.fp-opcao input:focus-visible ~ .fp-switch { outline: 3px solid #B9A8F5; outline-offset: 2px; }
+
+.fp-ordem { margin-top: 6px; }
+.fp-rotulo { display: block; margin: 0 0 10px 2px; font-size: .78rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--fp-roxo); }
+.fp-pills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fp-pill {
+  display: flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 12px;
+  border-radius: 14px; border: 1.5px solid var(--fp-borda); background: var(--fp-card); color: var(--fp-texto);
+  font: inherit; font-size: .88rem; font-weight: 700; cursor: pointer; transition: all .2s;
+}
+.fp-pill:hover { border-color: #CFC3EC; }
+.fp-pill.ativa { background: var(--fp-roxo); border-color: var(--fp-roxo); color: #fff; box-shadow: 0 8px 18px rgba(91, 61, 153, .22); }
+.fp-pill.ativa i { color: #fff; }
+.fp-dica { display: block; margin: 10px 0 0 2px; font-size: .78rem; color: var(--fp-suave); }
+
+.fp-rodape { display: flex; gap: 10px; padding: 16px 24px 22px; border-top: 1px solid var(--fp-borda); }
+.fp-limpar, .fp-aplicar { height: 50px; border-radius: 999px; font: inherit; font-weight: 800; font-size: .95rem; cursor: pointer; }
+.fp-limpar { flex: 0 0 auto; padding: 0 22px; background: transparent; color: var(--fp-roxo); border: 1.5px solid var(--fp-borda); }
+.fp-aplicar {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; color: #fff;
+  background: linear-gradient(135deg, #7C69A9, #5B3D99); box-shadow: 0 10px 22px rgba(91, 61, 153, .25);
+}
+.fp-aplicar:hover { filter: brightness(1.08); }
+
+:host-context(body[data-theme="dark"]) .modal-content.fp-modal {
+  --fp-card: #161c2c; --fp-campo: #1B2336; --fp-borda: rgba(255, 255, 255, .1); --fp-texto: #F1ECFF; --fp-suave: #B8B0D6; --fp-roxo: #C4B5FD;
+  border: 1px solid rgba(255, 255, 255, .08) !important; box-shadow: 0 30px 80px rgba(0, 0, 0, .5) !important;
+}
+:host-context(body[data-theme="dark"]) .fp-opcao.ativa { background: rgba(196, 181, 253, .12); border-color: rgba(196, 181, 253, .45); }
+:host-context(body[data-theme="dark"]) .fp-opcao-ic { background: rgba(255, 255, 255, .06); }
+:host-context(body[data-theme="dark"]) .fp-switch { background: rgba(255, 255, 255, .18); }
+:host-context(body[data-theme="dark"]) .fp-opcao input:checked ~ .fp-switch { background: #7C69A9; }
+:host-context(body[data-theme="dark"]) .fp-pill.ativa { background: #7C69A9; border-color: #7C69A9; }
+
+@media (max-width: 480px) {
+  .fp-topo, .fp-corpo { padding-left: 18px; padding-right: 18px; }
+  .fp-rodape { padding: 14px 18px 18px; }
+  .fp-pills { grid-template-columns: 1fr; }
+}
