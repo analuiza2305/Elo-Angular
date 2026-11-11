@@ -334,6 +334,16 @@ export class Perfil implements OnInit {
         await reauthenticateWithCredential(user, credential);
       }
 
+      // Libera o CPF para poder ser usado de novo numa conta nova
+      // (o documento cpfs/{hash} é o que impede o mesmo CPF em duas contas).
+      try {
+        const snapUsuario = await getDoc(doc(db, 'usuarios', user.uid));
+        const cpfHash = snapUsuario.data()?.['cpfHash'];
+        if (cpfHash) await deleteDoc(doc(db, 'cpfs', cpfHash));
+      } catch (e) {
+        console.warn('cpfs/{hash} não apagado:', e);
+      }
+
       await deleteDoc(doc(db, 'usuarios', user.uid));
       await deleteUser(user);
 
