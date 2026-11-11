@@ -327,6 +327,7 @@
                   <input type="text" placeholder="Pesquisar na comunidade...">
               </div>
 
+              <a routerLink="/agenda-mae" routerLinkActive="ativo" class="header-icon-btn" title="Agenda" aria-label="Agenda"><i class="fa-regular fa-calendar"></i></a>
               <a routerLink="/chat" class="header-icon-btn" title="Mensagens"><i class="fa-regular fa-comment"></i></a>
 
               <!-- SINO DE NOTIFICAÇÕES -->
@@ -408,7 +409,6 @@
                   </button>
                   @if (isUserDropdownOpen) {
                   <div class="user-dropdown-menu">
-                      <a routerLink="/agenda-mae" class="dropdown-item"><i class="fa-regular fa-calendar"></i> Agenda</a>
                       <a routerLink="/perfil" class="dropdown-item"><i class="fa-regular fa-user"></i> Meu Perfil</a>
                       <div class="dropdown-item text-danger" (click)="logout()" style="cursor:pointer;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair da conta</div>
                   </div>
