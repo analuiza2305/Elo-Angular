@@ -9,9 +9,25 @@ import type { jsPDF } from 'jspdf';
 import { ModeloDocumento } from './modelos-psicologia';
 import { ModeloJuridico } from './modelos-juridicos';
 
-const ROXO: [number, number, number] = [75, 44, 130];
-const CINZA: [number, number, number] = [110, 104, 128];
-const TEXTO: [number, number, number] = [35, 28, 52];
+// Paleta da plataforma (mesmos tons do site)
+const ROXO: [number, number, number] = [91, 61, 153];          // #5B3D99
+const ROXO_ESCURO: [number, number, number] = [62, 42, 114];   // #3E2A72
+const LILAS: [number, number, number] = [124, 105, 169];       // #7C69A9
+const LILAS_CLARO: [number, number, number] = [244, 239, 252]; // #F4EFFC
+const BORDA: [number, number, number] = [228, 220, 246];
+const CINZA: [number, number, number] = [107, 98, 144];
+const TEXTO: [number, number, number] = [42, 27, 92];          // #2A1B5C
+// Tons pastel (soft UI)
+const FUNDO_SOFT: [number, number, number] = [246, 242, 254];
+const LAVANDA: [number, number, number] = [234, 226, 252];
+const LAVANDA_FORTE: [number, number, number] = [181, 160, 236];
+const ROSA: [number, number, number] = [251, 228, 241];
+const ROSA_FORTE: [number, number, number] = [238, 170, 205];
+const MENTA: [number, number, number] = [222, 243, 236];
+const ROSA_CLARO: [number, number, number] = [253, 240, 247];
+const MENTA_CLARO: [number, number, number] = [237, 249, 245];
+const PESSEGO_CLARO: [number, number, number] = [254, 244, 236];
+const ZEBRA: [number, number, number] = [251, 249, 255];
 const MARGEM = 20;          // mm
 const LARGURA_A4 = 210;
 const ALTURA_A4 = 297;
@@ -446,10 +462,32 @@ export async function gerarProntuario(d: DadosProntuario): Promise<void> {
 //  Utilidades
 // ======================================================================
 
+/** Logo do Elo (public/img/logo_icon.png) em base64, carregada uma vez só. */
+let logoElo: string | null | undefined;
+
+async function carregarLogo(): Promise<string | null> {
+  if (logoElo !== undefined) return logoElo;
+  try {
+    const resp = await fetch('img/logo_icon.png');
+    if (!resp.ok) throw new Error(String(resp.status));
+    const blob = await resp.blob();
+    logoElo = await new Promise<string>((ok, erro) => {
+      const leitor = new FileReader();
+      leitor.onload = () => ok(String(leitor.result));
+      leitor.onerror = erro;
+      leitor.readAsDataURL(blob);
+    });
+  } catch {
+    logoElo = null; // sem logo, o PDF sai só com o nome
+  }
+  return logoElo;
+}
+
 async function novoPdf(): Promise<jsPDF> {
   const { jsPDF } = await import('jspdf');
   const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
   pdf.setProperties({ creator: 'EloMaterno' });
+  await carregarLogo();
   return pdf;
 }
 
@@ -501,7 +539,7 @@ class Escritor {
   private garantir(altura: number) {
     if (this.y + altura > ALTURA_A4 - RODAPE) {
       this.pdf.addPage();
-      this.y = MARGEM;
+      this.y = MARGEM + 4;
     }
   }
 
@@ -510,34 +548,59 @@ class Escritor {
   /** Pula de página se o próximo bloco (ex.: local, data e assinatura) não couber inteiro. */
   manterJunto(mm: number) { this.garantir(mm); }
 
+  /** Cartão lilás clarinho no topo da 1ª página, com a logo do Elo. */
   cabecalho() {
     const p = this.pdf;
-    p.setFont('helvetica', 'bold').setFontSize(14).setTextColor(...ROXO);
-    p.text('elomaterno', MARGEM, this.y + 4);
-    p.setFont('helvetica', 'normal').setFontSize(8.5).setTextColor(...CINZA);
-    p.text('Rede de apoio à maternidade', LARGURA_A4 - MARGEM, this.y + 4, { align: 'right' });
-    this.y += 9;
-    p.setDrawColor(225, 216, 245).setLineWidth(0.4).line(MARGEM, this.y, LARGURA_A4 - MARGEM, this.y);
-    this.y += 12;
+    const x = 10, y = 8, larg = LARGURA_A4 - 20, alt = 30;
+    p.setFillColor(...FUNDO_SOFT).roundedRect(x, y, larg, alt, 8, 8, 'F');
+    // bolinhas decorativas (dentro do cartão)
+    p.setFillColor(...LAVANDA).circle(x + larg - 16, y + 9, 9, 'F');
+    p.setFillColor(...ROSA).circle(x + larg - 28, y + alt - 7, 5, 'F');
+    p.setFillColor(...MENTA).circle(x + larg - 6, y + alt - 5, 3, 'F');
+
+    // selo redondo branco com a logo
+    const cx = MARGEM + 5, cy = y + alt / 2;
+    p.setFillColor(255, 255, 255).circle(cx, cy, 9.5, 'F');
+    if (logoElo) {
+      try { p.addImage(logoElo, 'PNG', cx - 6.5, cy - 6.5, 13, 13, 'logo-elo', 'FAST'); } catch { /* segue sem logo */ }
+    }
+    p.setFont('helvetica', 'bold').setFontSize(17).setTextColor(...ROXO_ESCURO);
+    p.text('elomaterno', cx + 14, cy + 0.5);
+    p.setFont('helvetica', 'normal').setFontSize(9).setTextColor(...LILAS);
+    p.text('Rede de apoio à maternidade', cx + 14, cy + 6);
+    p.setFontSize(8.5).text('elomaterno.netlify.app', x + larg - 40, cy + 6, { align: 'right' });
+
+    this.y = y + alt + 17;
   }
 
+  /** Título grande, com um tracinho lavanda e uma bolinha rosa embaixo. */
   titulo(t: string) {
-    this.pdf.setFont('helvetica', 'bold').setFontSize(17).setTextColor(...TEXTO);
-    this.pdf.text(t, LARGURA_A4 / 2, this.y, { align: 'center' });
-    this.y += 7;
+    const p = this.pdf;
+    p.setFont('helvetica', 'bold').setFontSize(20).setTextColor(...ROXO_ESCURO);
+    const linhas = p.splitTextToSize(t, this.largura) as string[];
+    linhas.forEach((l) => { p.text(l, LARGURA_A4 / 2, this.y, { align: 'center' }); this.y += 8; });
+    p.setFillColor(...LAVANDA_FORTE).roundedRect(LARGURA_A4 / 2 - 11, this.y - 4, 18, 1.8, 0.9, 0.9, 'F');
+    p.setFillColor(...ROSA_FORTE).circle(LARGURA_A4 / 2 + 10.5, this.y - 3.1, 0.95, 'F');
+    this.y += 5;
   }
 
   subtitulo(t: string) {
     this.pdf.setFont('helvetica', 'normal').setFontSize(11).setTextColor(...CINZA);
     this.pdf.text(t, LARGURA_A4 / 2, this.y, { align: 'center' });
-    this.y += 5;
+    this.y += 6;
   }
 
+  /** Título de seção: pílula lilás clarinha com uma bolinha na frente. */
   subtituloSecao(t: string) {
-    this.garantir(12);
-    this.pdf.setFont('helvetica', 'bold').setFontSize(11.5).setTextColor(...ROXO);
-    this.pdf.text(t, MARGEM, this.y);
-    this.y += 6;
+    const p = this.pdf;
+    this.garantir(16);
+    const altura = 9.5;
+    const topo = this.y - 6.3;
+    p.setFillColor(...FUNDO_SOFT).roundedRect(MARGEM, topo, this.largura, altura, 4.75, 4.75, 'F');
+    p.setFillColor(...LAVANDA_FORTE).circle(MARGEM + 5.5, topo + altura / 2, 1.5, 'F');
+    p.setFont('helvetica', 'bold').setFontSize(11.5).setTextColor(...ROXO_ESCURO);
+    p.text(t, MARGEM + 10, this.y);
+    this.y += 9.5;
   }
 
   campo(rotulo: string, valor: string) {
@@ -545,7 +608,7 @@ class Escritor {
     p.setFontSize(10.5);
     const linhas = p.splitTextToSize(valor, this.largura - 34) as string[];
     this.garantir(linhas.length * 5 + 1);
-    p.setFont('helvetica', 'bold').setTextColor(...CINZA).text(`${rotulo}:`, MARGEM, this.y);
+    p.setFont('helvetica', 'bold').setTextColor(...LILAS).text(`${rotulo}:`, MARGEM, this.y);
     p.setFont('helvetica', 'normal').setTextColor(...TEXTO).text(linhas, MARGEM + 34, this.y);
     this.y += linhas.length * 5 + 1;
   }
@@ -579,48 +642,55 @@ class Escritor {
     this.paragrafo(t, { tamanho: 8.5, cor: CINZA, entrelinha: 1.35 });
   }
 
+  /** Números em destaque: um cartãozinho pastel para cada item. */
   caixaTotais(itens: [string, string][]) {
     const p = this.pdf;
-    const altura = 20;
+    const altura = 24;
+    const gap = 4;
+    const tons = [FUNDO_SOFT, ROSA_CLARO, MENTA_CLARO, PESSEGO_CLARO];
     this.garantir(altura + 2);
-    p.setFillColor(244, 236, 255).setDrawColor(225, 216, 245).roundedRect(MARGEM, this.y, this.largura, altura, 3, 3, 'FD');
-    const col = this.largura / itens.length;
+    const col = (this.largura - gap * (itens.length - 1)) / itens.length;
     itens.forEach(([rotulo, valor], i) => {
-      const cx = MARGEM + col * i + col / 2;
-      p.setFont('helvetica', 'bold').setFontSize(15).setTextColor(...ROXO).text(valor, cx, this.y + 9, { align: 'center' });
-      p.setFont('helvetica', 'normal').setFontSize(8.5).setTextColor(...CINZA).text(rotulo.toUpperCase(), cx, this.y + 15, { align: 'center' });
+      const x = MARGEM + i * (col + gap);
+      p.setFillColor(...tons[i % tons.length]).roundedRect(x, this.y, col, altura, 5, 5, 'F');
+      p.setFont('helvetica', 'bold').setFontSize(valor.length > 12 ? 12 : 16).setTextColor(...ROXO_ESCURO)
+        .text(valor, x + col / 2, this.y + 11.5, { align: 'center', maxWidth: col - 4 });
+      p.setFont('helvetica', 'normal').setFontSize(8).setTextColor(...CINZA)
+        .text(rotulo, x + col / 2, this.y + 18, { align: 'center', maxWidth: col - 4 });
     });
-    this.y += altura;
+    this.y += altura + 3;
   }
 
   tabela(cabecalho: string[], larguras: number[], linhas: string[][], vazio = 'Nenhum atendimento realizado neste mês.') {
     const p = this.pdf;
-    const alt = 6.2;
+    const alt = 6.4;
     const desenharCabecalho = () => {
-      p.setFillColor(243, 241, 250).rect(MARGEM, this.y - 5, this.largura, alt, 'F');
-      p.setFont('helvetica', 'bold').setFontSize(9).setTextColor(...CINZA);
-      let x = MARGEM + 2;
+      p.setFillColor(...LAVANDA).roundedRect(MARGEM, this.y - 4.8, this.largura, alt + 1.2, 3.2, 3.2, 'F');
+      p.setFont('helvetica', 'bold').setFontSize(8.8).setTextColor(...ROXO_ESCURO);
+      let x = MARGEM + 3;
       cabecalho.forEach((c, i) => { p.text(c, x, this.y); x += larguras[i]; });
-      this.y += alt;
+      this.y += alt + 0.8;
     };
     this.garantir(alt * 2);
     desenharCabecalho();
     p.setFont('helvetica', 'normal').setFontSize(9.5).setTextColor(...TEXTO);
     if (!linhas.length) {
-      p.text(vazio, MARGEM + 2, this.y);
+      p.setTextColor(...CINZA).text(vazio, MARGEM + 3, this.y);
       this.y += alt;
       return;
     }
+    let zebra = false;
     for (const linha of linhas) {
       if (this.y + alt > ALTURA_A4 - RODAPE) {
         p.addPage();
-        this.y = MARGEM + 5;
+        this.y = MARGEM + 9;
         desenharCabecalho();
-        p.setFont('helvetica', 'normal').setFontSize(9.5).setTextColor(...TEXTO);
       }
-      let x = MARGEM + 2;
+      if (zebra) p.setFillColor(...ZEBRA).roundedRect(MARGEM, this.y - 4.3, this.largura, alt, 2, 2, 'F');
+      zebra = !zebra;
+      p.setFont('helvetica', 'normal').setFontSize(9.5).setTextColor(...TEXTO);
+      let x = MARGEM + 3;
       linha.forEach((c, i) => { p.text(c, x, this.y); x += larguras[i]; });
-      p.setDrawColor(238, 234, 246).setLineWidth(0.2).line(MARGEM, this.y + 2.5, LARGURA_A4 - MARGEM, this.y + 2.5);
       this.y += alt;
     }
   }
@@ -629,7 +699,7 @@ class Escritor {
     const p = this.pdf;
     this.garantir(22);
     const meio = LARGURA_A4 / 2;
-    p.setDrawColor(...TEXTO).setLineWidth(0.3).line(meio - 40, this.y, meio + 40, this.y);
+    p.setDrawColor(...LAVANDA_FORTE).setLineWidth(0.4).line(meio - 40, this.y, meio + 40, this.y);
     p.setFont('helvetica', 'bold').setFontSize(10.5).setTextColor(...TEXTO).text(nome, meio, this.y + 5, { align: 'center' });
     p.setFont('helvetica', 'normal').setFontSize(9.5).setTextColor(...CINZA).text(linha2, meio, this.y + 10, { align: 'center' });
     this.y += 14;
@@ -641,12 +711,28 @@ class Escritor {
     const total = p.getNumberOfPages();
     for (let i = 1; i <= total; i++) {
       p.setPage(i);
+      // da 2ª página em diante: cartãozinho com a marca no topo
+      if (i > 1) {
+        p.setFillColor(...FUNDO_SOFT).roundedRect(10, 6, LARGURA_A4 - 20, 10, 5, 5, 'F');
+        if (logoElo) { try { p.addImage(logoElo, 'PNG', MARGEM - 3, 7.6, 6.8, 6.8, 'logo-elo', 'FAST'); } catch { /* sem logo */ } }
+        p.setFont('helvetica', 'bold').setFontSize(9).setTextColor(...ROXO_ESCURO).text('elomaterno', MARGEM + 5.5, 12.4);
+        p.setFillColor(...ROSA).circle(LARGURA_A4 - 18, 11, 2, 'F');
+        p.setFillColor(...LAVANDA).circle(LARGURA_A4 - 24, 11, 1.3, 'F');
+      }
       const yR = ALTURA_A4 - 10;
-      p.setDrawColor(235, 230, 245).setLineWidth(0.3).line(MARGEM, yR - 5, LARGURA_A4 - MARGEM, yR - 5);
+      p.setDrawColor(...BORDA).setLineWidth(0.3).line(MARGEM, yR - 5.5, LARGURA_A4 - MARGEM, yR - 5.5);
       p.setFont('helvetica', 'normal').setFontSize(7.5).setTextColor(...CINZA);
-      p.text(o.texto, MARGEM, yR, { maxWidth: 120 });
-      const direita = o.rubrica && i < total ? `Rubrica: ____________   Página ${i} de ${total}` : `Página ${i} de ${total}`;
-      p.text(direita, LARGURA_A4 - MARGEM, yR, { align: 'right' });
+      p.text(o.texto, MARGEM, yR, { maxWidth: 115 });
+      // número da página numa pílula
+      const pag = `Página ${i} de ${total}`;
+      p.setFont('helvetica', 'bold').setFontSize(7.5);
+      const lp = p.getTextWidth(pag) + 7;
+      const xp = LARGURA_A4 - MARGEM - lp;
+      p.setFillColor(...FUNDO_SOFT).roundedRect(xp, yR - 3.6, lp, 5.4, 2.7, 2.7, 'F');
+      p.setTextColor(...ROXO).text(pag, xp + lp / 2, yR, { align: 'center' });
+      if (o.rubrica && i < total) {
+        p.setFont('helvetica', 'normal').setTextColor(...CINZA).text('Rubrica: ____________', xp - 3, yR, { align: 'right' });
+      }
     }
   }
 }
