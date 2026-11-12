@@ -8302,3 +8302,29 @@ header.header .right-section > #notif-psi.notif-wrap.notif-wrap { display: flex 
 :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .premium-modal-psi .modal-actions .add-consult-btn {
   background: transparent !important; color: #E6DEFF !important; border-color: rgba(255, 255, 255, .25) !important;
 }
+/* ===== Agenda: "Consultas do mês" na altura do calendário, com rolagem (12/11) ===== */
+@media (min-width: 901px) {
+  :host :is(.home-psi-page, .home-adv-page) #agenda .agenda-container { align-items: stretch !important; }
+  :host :is(.home-psi-page, .home-adv-page) #agenda .events-container {
+    contain: size; align-self: stretch !important; overflow-y: auto !important; overscroll-behavior: contain;
+    scrollbar-width: thin; scrollbar-color: #CFC2F2 transparent;
+  }
+  :host :is(.home-psi-page, .home-adv-page) #agenda .events-container h3 {
+    position: sticky; top: -45px; z-index: 1; margin: -45px -45px 20px !important; padding: 45px 45px 14px !important;
+    background: inherit;
+  }
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #agenda .events-container { scrollbar-color: rgba(196, 181, 253, .35) transparent; }
+
+/* ===== Modal "Duração das Sessões" no modo escuro (12/11) ===== */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .contador-minutos-container {
+  background: #1B2336 !important; border: 1px solid rgba(255, 255, 255, .1) !important; box-shadow: none !important;
+} 
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .display-minutos,
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .display-minutos * { color: #F4F1FF !important; -webkit-text-fill-color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .display-minutos :is(span, small, p) { color: #C4B5FD !important; -webkit-text-fill-color: #C4B5FD !important; opacity: 1 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .btn-contador {
+  background: #7C69A9 !important; color: #fff !important; box-shadow: none !important;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .btn-contador i { color: #fff !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .checkbox-container-psi { color: #E6DEFF !important; }
