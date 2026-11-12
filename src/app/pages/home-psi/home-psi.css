@@ -8328,3 +8328,150 @@ header.header .right-section > #notif-psi.notif-wrap.notif-wrap { display: flex 
 }
 :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .btn-contador i { color: #fff !important; }
 :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .checkbox-container-psi { color: #E6DEFF !important; }
+/* ===== Consultas: botões lado a lado, sem estourar o cartão (12/11) ===== */
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-acoes {
+  display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; width: 100%;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-acoes > .cs-btn {
+  display: inline-flex !important; align-items: center; justify-content: center; gap: 8px;
+  width: 100% !important; min-width: 0 !important; height: 48px; padding: 0 12px !important; margin: 0 !important;
+  border-radius: 999px !important; font-size: .92rem !important; font-weight: 800 !important;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-acoes > .cs-btn i { position: static !important; margin: 0 !important; flex-shrink: 0; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-recusar-par {
+  background: #fff !important; color: #B3324F !important; border: 1.5px solid #F3C9D3 !important; box-shadow: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-recusar-par i { color: #B3324F !important; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-recusar-par:hover { background: #FDF1F4 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-recusar-par {
+  background: transparent !important; color: #FDA4AF !important; border-color: rgba(253, 164, 175, .4) !important;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-recusar-par i { color: #FDA4AF !important; }
+/* ===== Consultas: ícones legíveis e ações secundárias mais bonitas (12/11) ===== */
+/* ícone branco nos botões roxos (Aceitar, Anotações, Marcar como realizada) */
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-primario,
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-primario i { color: #fff !important; opacity: 1 !important; }
+
+/* "Marcar como realizada" e "Desmarcar consulta": dois botões suaves lado a lado */
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria {
+  display: grid !important; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;
+  margin-top: 12px !important; padding-top: 14px !important; border-top: 1px solid #F1ECFB !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria > button {
+  display: inline-flex !important; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; min-height: 42px; padding: 8px 10px !important; margin: 0 !important;
+  border-radius: 14px !important; font: inherit; font-size: .82rem !important; font-weight: 800 !important;
+  line-height: 1.2; text-align: center; white-space: normal; cursor: pointer;
+  text-decoration: none !important; box-shadow: none !important; transition: background .2s, border-color .2s;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria > button i { flex-shrink: 0; color: inherit !important; font-size: .95rem; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-concluir {
+  background: #ECF8F2 !important; color: #2F7A55 !important; border: 1.5px solid #CBEBDB !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-concluir:hover { background: #DFF3E9 !important; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria .cs-btn-recusar {
+  background: #FDF1F4 !important; color: #B3324F !important; border: 1.5px solid #F3D0D9 !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria .cs-btn-recusar:hover { background: #FBE4EA !important; }
+
+/* modo escuro */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria { border-top-color: rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-concluir {
+  background: rgba(52, 211, 153, .1) !important; color: #6EE7B7 !important; border-color: rgba(52, 211, 153, .3) !important;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria .cs-btn-recusar {
+  background: rgba(253, 164, 175, .08) !important; color: #FDA4AF !important; border-color: rgba(253, 164, 175, .3) !important;
+}
+/* ===== Modal "Questionário de bem-estar" mais bonito (12/11) ===== */
+:host .home-psi-page .qb-modal {
+  width: min(680px, calc(100vw - 32px)) !important; max-height: calc(100dvh - 48px) !important;
+  padding: 0 !important; overflow-y: auto !important; overscroll-behavior: contain;
+  border-radius: 28px !important; background: #fff !important; box-shadow: 0 30px 80px rgba(46, 28, 92, .28) !important;
+  scrollbar-width: thin; scrollbar-color: #DCD2F5 transparent;
+}
+/* topo em faixa colorida, com a foto redonda por cima */
+:host .home-psi-page .qb-modal-topo {
+  position: relative; display: flex !important; align-items: center !important; gap: 18px !important;
+  margin: 0 !important; padding: 28px 64px 24px 28px !important;
+  background: radial-gradient(circle at 90% 0%, rgba(255, 255, 255, .22), transparent 45%),
+              linear-gradient(135deg, #7C69A9 0%, #5B3D99 60%, #3E2A72 100%) !important;
+}
+:host .home-psi-page .qb-modal-topo img {
+  flex: 0 0 72px !important; width: 72px !important; height: 72px !important; max-width: none !important;
+  border-radius: 50% !important; object-fit: cover !important; aspect-ratio: 1 / 1;
+  background: #fff; border: 4px solid rgba(255, 255, 255, .9) !important; box-shadow: 0 8px 22px rgba(20, 10, 50, .25);
+}
+:host .home-psi-page .qb-modal-topo > div { min-width: 0; }
+:host .home-psi-page .qb-modal-topo span {
+  display: inline-block; margin-bottom: 6px; padding: 4px 10px; border-radius: 999px;
+  background: rgba(255, 255, 255, .18); color: #fff !important; font-size: .7rem !important; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+}
+:host .home-psi-page .qb-modal-topo h3 { margin: 0 0 4px !important; font-size: 1.35rem !important; font-weight: 800 !important; color: #fff !important; }
+:host .home-psi-page .qb-modal-topo small { display: block; font-size: .82rem !important; line-height: 1.45; color: rgba(255, 255, 255, .85) !important; }
+:host .home-psi-page .qb-modal-fechar {
+  position: absolute !important; top: 16px !important; right: 16px !important; z-index: 2;
+  width: 38px !important; height: 38px !important; border-radius: 50% !important; display: grid !important; place-items: center;
+  background: rgba(255, 255, 255, .2) !important; color: #fff !important; border: none !important;
+}
+:host .home-psi-page .qb-modal-fechar i { color: #fff !important; }
+:host .home-psi-page .qb-modal-fechar:hover { background: rgba(255, 255, 255, .32) !important; }
+
+/* alerta */
+:host .home-psi-page .qb-modal-alerta {
+  display: flex; gap: 12px; align-items: flex-start; margin: 20px 24px 0 !important; padding: 14px 16px !important;
+  border-radius: 18px !important; background: #FFF4E5 !important; border: 1px solid #FBD9A8 !important; color: #8A4B00 !important; font-size: .88rem;
+}
+:host .home-psi-page .qb-modal-alerta i { color: #E08A00 !important; margin-top: 2px; }
+
+/* respostas em grade de cartões */
+:host .home-psi-page .qb-modal-lista {
+  display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px !important;
+  list-style: none; margin: 0 !important; padding: 22px 24px 8px !important;
+}
+:host .home-psi-page .qb-modal-lista li {
+  position: relative; display: flex !important; flex-direction: column; gap: 6px;
+  margin: 0 !important; padding: 14px 16px 14px 18px !important; border-radius: 18px !important;
+  background: #FBF9FF !important; border: 1px solid #EEE8FA !important; border-left: 4px solid #B9A6E8 !important;
+}
+:host .home-psi-page .qb-modal-pergunta { font-size: .7rem !important; font-weight: 800 !important; letter-spacing: .06em; text-transform: uppercase; color: #8B7DB5 !important; }
+:host .home-psi-page .qb-modal-resposta { font-size: .98rem !important; font-weight: 700 !important; line-height: 1.4; color: #2A1B5C !important; }
+:host .home-psi-page .qb-modal-lista li.preocupa { background: #FFF3F5 !important; border-color: #F6D3DB !important; border-left-color: #E05A78 !important; }
+:host .home-psi-page .qb-modal-lista li.preocupa .qb-modal-resposta { color: #A3203F !important; }
+:host .home-psi-page .qb-modal-lista li.preocupa::after {
+  content: "Atenção"; position: absolute; top: 12px; right: 12px; padding: 3px 8px; border-radius: 999px;
+  background: #FDE2E8; color: #A3203F; font-size: .64rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+}
+
+/* nota de privacidade */
+:host .home-psi-page .qb-modal-nota {
+  display: flex; gap: 10px; align-items: flex-start; margin: 12px 24px 24px !important; padding: 14px 16px !important;
+  border-radius: 16px !important; background: #F4F0FC !important; color: #5B4A8F !important; font-size: .82rem !important; line-height: 1.5;
+}
+:host .home-psi-page .qb-modal-nota i { color: #7C69A9 !important; margin-top: 2px; }
+
+/* celular */
+@media (max-width: 600px) {
+  :host .home-psi-page .qb-modal-fundo { padding: 16px !important; align-items: center !important; }
+  :host .home-psi-page .qb-modal { border-radius: 24px !important; }
+  :host .home-psi-page .qb-modal-topo { flex-direction: column; text-align: center; padding: 26px 20px 22px !important; gap: 12px !important; }
+  :host .home-psi-page .qb-modal-topo img { flex-basis: auto !important; width: 76px !important; height: 76px !important; }
+  :host .home-psi-page .qb-modal-lista { grid-template-columns: minmax(0, 1fr); padding: 18px 16px 6px !important; }
+  :host .home-psi-page .qb-modal-alerta { margin: 16px 16px 0 !important; }
+  :host .home-psi-page .qb-modal-nota { margin: 10px 16px 18px !important; }
+}
+
+/* modo escuro */
+:host-context(body[data-theme="dark"]) .home-psi-page .qb-modal { background: #141A28 !important; box-shadow: 0 30px 80px rgba(0, 0, 0, .55) !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page .qb-modal-topo {
+  background: radial-gradient(circle at 90% 0%, rgba(255, 255, 255, .1), transparent 45%), linear-gradient(135deg, #4A3C78 0%, #3A2D66 60%, #2A2150 100%) !important;
+}
+:host-context(body[data-theme="dark"]) .home-psi-page .qb-modal-lista li { background: #1B2336 !important; border-color: rgba(255, 255, 255, .08) !important; border-left-color: #7C69A9 !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page .qb-modal-pergunta { color: #A99BD6 !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page .qb-modal-resposta { color: #F1ECFF !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page .qb-modal-lista li.preocupa { background: rgba(224, 90, 120, .1) !important; border-color: rgba(224, 90, 120, .3) !important; border-left-color: #F47A96 !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page .qb-modal-lista li.preocupa .qb-modal-resposta { color: #FDA4AF !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page .qb-modal-lista li.preocupa::after { background: rgba(224, 90, 120, .2); color: #FDA4AF; }
+:host-context(body[data-theme="dark"]) .home-psi-page .qb-modal-alerta { background: rgba(224, 138, 0, .12) !important; border-color: rgba(224, 138, 0, .35) !important; color: #FCD9A0 !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page .qb-modal-nota { background: rgba(196, 181, 253, .08) !important; color: #CFC7EA !important; }
+:host-context(body[data-theme="dark"]) .home-psi-page .qb-modal-nota i { color: #C4B5FD !important; }
