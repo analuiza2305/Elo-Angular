@@ -7255,3 +7255,59 @@ header.header .right-section > #notif-psi.notif-wrap.notif-wrap { display: flex 
 }
 :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .btn-contador i { color: #fff !important; }
 :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) .checkbox-container-psi { color: #E6DEFF !important; }
+
+/* ===== Consultas: botões lado a lado, sem estourar o cartão (12/11) ===== */
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-acoes {
+  display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; width: 100%;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-acoes > .cs-btn {
+  display: inline-flex !important; align-items: center; justify-content: center; gap: 8px;
+  width: 100% !important; min-width: 0 !important; height: 48px; padding: 0 12px !important; margin: 0 !important;
+  border-radius: 999px !important; font-size: .92rem !important; font-weight: 800 !important;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-acoes > .cs-btn i { position: static !important; margin: 0 !important; flex-shrink: 0; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-recusar-par {
+  background: #fff !important; color: #B3324F !important; border: 1.5px solid #F3C9D3 !important; box-shadow: none !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-recusar-par i { color: #B3324F !important; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-recusar-par:hover { background: #FDF1F4 !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-recusar-par {
+  background: transparent !important; color: #FDA4AF !important; border-color: rgba(253, 164, 175, .4) !important;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-recusar-par i { color: #FDA4AF !important; }
+/* ===== Consultas: ícones legíveis e ações secundárias mais bonitas (12/11) ===== */
+/* ícone branco nos botões roxos (Aceitar, Anotações, Marcar como realizada) */
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-primario,
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-primario i { color: #fff !important; opacity: 1 !important; }
+
+/* "Marcar como realizada" e "Desmarcar consulta": dois botões suaves lado a lado */
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria {
+  display: grid !important; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;
+  margin-top: 12px !important; padding-top: 14px !important; border-top: 1px solid #F1ECFB !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria > button {
+  display: inline-flex !important; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; min-height: 42px; padding: 8px 10px !important; margin: 0 !important;
+  border-radius: 14px !important; font: inherit; font-size: .82rem !important; font-weight: 800 !important;
+  line-height: 1.2; text-align: center; white-space: normal; cursor: pointer;
+  text-decoration: none !important; box-shadow: none !important; transition: background .2s, border-color .2s;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria > button i { flex-shrink: 0; color: inherit !important; font-size: .95rem; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-concluir {
+  background: #ECF8F2 !important; color: #2F7A55 !important; border: 1.5px solid #CBEBDB !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-concluir:hover { background: #DFF3E9 !important; }
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria .cs-btn-recusar {
+  background: #FDF1F4 !important; color: #B3324F !important; border: 1.5px solid #F3D0D9 !important;
+}
+:host :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria .cs-btn-recusar:hover { background: #FBE4EA !important; }
+
+/* modo escuro */
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria { border-top-color: rgba(255, 255, 255, .08) !important; }
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-btn-concluir {
+  background: rgba(52, 211, 153, .1) !important; color: #6EE7B7 !important; border-color: rgba(52, 211, 153, .3) !important;
+}
+:host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria .cs-btn-recusar {
+  background: rgba(253, 164, 175, .08) !important; color: #FDA4AF !important; border-color: rgba(253, 164, 175, .3) !important;
+}

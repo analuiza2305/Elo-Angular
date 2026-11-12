@@ -547,11 +547,9 @@
             </div>
 
             @if (consulta.status === 'Pendente') {
-              <div class="cs-acoes">
+              <div class="cs-acoes cs-acoes-pendente">
+                <button type="button" class="cs-btn cs-btn-outline cs-btn-recusar-par" (click)="recusarConsulta(consulta)"><i class="fa-solid fa-xmark"></i> Recusar</button>
                 <button type="button" class="cs-btn cs-btn-primario" (click)="aceitarConsulta(consulta)"><i class="fa-solid fa-check"></i> Aceitar</button>
-              </div>
-              <div class="cs-area-secundaria">
-                <button type="button" class="cs-btn-recusar" (click)="recusarConsulta(consulta)"><i class="fa-regular fa-circle-xmark"></i> Recusar pedido</button>
               </div>
             }
 
