@@ -14,6 +14,16 @@
     <div class="pc-kpi"><span class="pc-kpi-ic cor-verde"><i class="fa-solid fa-box-archive"></i></span><div><strong>{{ cursosEncerrados() }}</strong><small>cursos encerrados</small></div></div>
   </div>
 
+  <!-- Visão geral do alcance: quantas mães viram e quantas clicaram para se candidatar/inscrever -->
+  <div class="pc-alcance">
+    <div class="pc-alcance-tit">
+      <i class="fa-solid fa-chart-simple"></i>
+      <div><strong>Alcance das suas vagas e cursos</strong><small>Cada mãe conta uma vez por vaga ou curso</small></div>
+    </div>
+    <div class="pc-alcance-num"><strong>{{ totalViram() }}</strong><small><i class="fa-regular fa-eye"></i> {{ totalViram() === 1 ? 'mãe abriu os detalhes' : 'mães abriram os detalhes' }}</small></div>
+    <div class="pc-alcance-num"><strong>{{ totalClicaram() }}</strong><small><i class="fa-solid fa-arrow-pointer"></i> {{ totalClicaram() === 1 ? 'mãe clicou para se candidatar ou se inscrever' : 'mães clicaram para se candidatar ou se inscrever' }}</small></div>
+  </div>
+
   <div class="pc-barra">
     <div class="pc-abas" role="tablist">
       <button type="button" role="tab" class="pc-aba" [class.ativa]="subAba() === 'vagas'" [attr.aria-selected]="subAba() === 'vagas'" (click)="subAba.set('vagas')">
@@ -83,6 +93,18 @@
                   @if (formVaga.beneficios.includes(b)) { <i class="fa-solid fa-check"></i> } {{ b }}
                 </button>
               }
+              @for (b of beneficiosProprios(); track b) {
+                <span class="pc-chip sel pc-chip-proprio">
+                  <i class="fa-solid fa-check"></i> {{ b }}
+                  <button type="button" (click)="removerBeneficio(b)" [attr.aria-label]="'Remover ' + b"><i class="fa-solid fa-xmark"></i></button>
+                </span>
+              }
+            </div>
+            <div class="pc-novo-beneficio">
+              <input type="text" name="vNovoBen" [(ngModel)]="novoBeneficio" maxlength="40"
+                     placeholder="Outro benefício? Escreva aqui (ex: Folga no aniversário do filho)"
+                     (keydown.enter)="$event.preventDefault(); adicionarBeneficio()" aria-label="Novo benefício">
+              <button type="button" class="pc-btn-sec" (click)="adicionarBeneficio()" [disabled]="!novoBeneficio.trim()"><i class="fa-solid fa-plus"></i> Adicionar</button>
             </div>
           </section>
 
@@ -103,6 +125,9 @@
                 <input type="text" name="vLink" [(ngModel)]="formVaga.link" maxlength="300" placeholder="Link da vaga (https://...) ou e-mail do RH">
               </div>
             </label>
+            @if (statusLink(formVaga.link); as st) {
+              <p class="pc-link-status" [class.ok]="st.ok"><i class="fa-solid" [class.fa-circle-check]="st.ok" [class.fa-triangle-exclamation]="!st.ok"></i> {{ st.mensagem }}</p>
+            }
             <p class="pc-nota"><i class="fa-solid fa-circle-info"></i> O Elo Materno só divulga: o botão "Quero me candidatar" leva a mãe para o link ou e-mail que você informar.</p>
           </section>
         </div>
@@ -138,7 +163,9 @@
             <span class="pc-status" [class.on]="v.status === 'aberta'">{{ v.status === 'aberta' ? 'Aberta' : 'Encerrada' }}</span>
           </div>
           <div class="pc-item-acoes">
-            <a class="pc-numero pc-link" [href]="linkSeguro(v.link)" target="_blank" rel="noopener" title="Abrir o link da vaga"><i class="fa-solid fa-arrow-up-right-from-square"></i> Link da vaga</a>
+            <span class="pc-numero" title="Mães que abriram os detalhes da vaga"><i class="fa-regular fa-eye"></i> {{ metricaDe(v.id).viram }} viram</span>
+            <span class="pc-numero" title="Mães que clicaram em &quot;Quero me candidatar&quot;"><i class="fa-solid fa-arrow-pointer"></i> {{ metricaDe(v.id).clicaram }} clicaram</span>
+            <a class="pc-numero pc-link" [href]="linkSeguro(v.link)" target="_blank" rel="noopener noreferrer" title="Abrir o link da vaga"><i class="fa-solid fa-arrow-up-right-from-square"></i> Link da vaga</a>
             <span class="pc-espaco"></span>
             <button type="button" class="pc-icone" (click)="editarVaga(v)" title="Editar" aria-label="Editar vaga"><i class="fa-solid fa-pen"></i></button>
             <button type="button" class="pc-icone" (click)="alternarStatusVaga(v)" [title]="v.status === 'aberta' ? 'Encerrar vaga' : 'Reabrir vaga'" [attr.aria-label]="v.status === 'aberta' ? 'Encerrar vaga' : 'Reabrir vaga'">
@@ -212,6 +239,9 @@
                 <input type="text" name="cLink" [(ngModel)]="formCurso.link" maxlength="300" placeholder="https://...">
               </div>
             </label>
+            @if (statusLink(formCurso.link); as st) {
+              <p class="pc-link-status" [class.ok]="st.ok"><i class="fa-solid" [class.fa-circle-check]="st.ok" [class.fa-triangle-exclamation]="!st.ok"></i> {{ st.mensagem }}</p>
+            }
             <p class="pc-nota"><i class="fa-solid fa-circle-info"></i> O Elo Materno só divulga: o botão "Quero me inscrever" leva a mãe para esse link.</p>
           </section>
         </div>
@@ -245,7 +275,9 @@
             <span class="pc-status" [class.on]="c.status === 'ativo'">{{ c.status === 'ativo' ? 'Divulgando' : 'Encerrado' }}</span>
           </div>
           <div class="pc-item-acoes">
-            <a class="pc-numero pc-link" [href]="linkSeguro(c.link)" target="_blank" rel="noopener" title="Abrir o link de inscrição"><i class="fa-solid fa-arrow-up-right-from-square"></i> Link de inscrição</a>
+            <span class="pc-numero" title="Mães que abriram os detalhes do curso"><i class="fa-regular fa-eye"></i> {{ metricaDe(c.id).viram }} viram</span>
+            <span class="pc-numero" title="Mães que clicaram em &quot;Quero me inscrever&quot;"><i class="fa-solid fa-arrow-pointer"></i> {{ metricaDe(c.id).clicaram }} clicaram</span>
+            <a class="pc-numero pc-link" [href]="linkSeguro(c.link)" target="_blank" rel="noopener noreferrer" title="Abrir o link de inscrição"><i class="fa-solid fa-arrow-up-right-from-square"></i> Link de inscrição</a>
             <span class="pc-espaco"></span>
             <button type="button" class="pc-icone" (click)="editarCurso(c)" title="Editar" aria-label="Editar curso"><i class="fa-solid fa-pen"></i></button>
             <button type="button" class="pc-icone" (click)="alternarStatusCurso(c)" [title]="c.status === 'ativo' ? 'Encerrar divulgação' : 'Divulgar de novo'" [attr.aria-label]="c.status === 'ativo' ? 'Encerrar divulgação' : 'Divulgar de novo'">

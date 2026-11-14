@@ -254,11 +254,11 @@
                         </div>
                         <div>
                             <label for="tipoEvento">Categoria</label>
+                            <!-- mesmas categorias do filtro que as mães usam na página Eventos -->
                             <select id="tipoEvento" required>
-                                <option value="psicologo">Psicólogo</option>
-                                <option value="apoio">Apoio</option>
-                                <option value="oficinas">Oficinas</option>
-                                <option value="juridico">Jurídico</option>
+                                @for (cat of categoriasEvento; track cat.chave) {
+                                    <option [value]="cat.chave">{{ cat.nome }}</option>
+                                }
                             </select>
                         </div>
                     </div>
@@ -279,9 +279,12 @@
                 <aside class="modal-preview" aria-label="Prévia do evento">
                     <span class="preview-label">Prévia</span>
                     <div class="event evento-card preview-card" id="prevEvCard">
+                        <!-- imagem de capa que a empresa informou (ou um espaço reservado) -->
+                        <img id="prevEvImg" class="prev-ev-capa" alt="" hidden>
+                        <div class="prev-ev-capa prev-ev-capa-vazia" id="prevEvThumb"><i class="fa-regular fa-image"></i><span>A imagem de capa aparece aqui</span></div>
                         <div class="evento-card-header">
                             <strong id="prevEvTitulo">Título do evento</strong>
-                            <span class="evento-tipo-tag tipo-psicologo" id="prevEvTipo">psicólogo</span>
+                            <span class="evento-tipo-tag" id="prevEvTipo" style="background:#2d2d7a">Palestras</span>
                         </div>
                         <p id="prevEvDesc" class="prev-desc">A descrição aparece aqui.</p>
                         <div class="prev-meta"><i class="fa-regular fa-clock"></i> <span id="prevEvData">Escolha a data</span></div>
@@ -327,7 +330,7 @@
             </button>
             <button type="button" class="menu-btn" role="tab" data-target="calendario" aria-selected="false">
                 <i class="fa-regular fa-calendar"></i>
-                <span>Calendário</span>
+                <span>Eventos</span>
             </button>
             <button type="button" class="menu-btn" role="tab" data-target="forum" aria-selected="false">
                 <i class="fa-solid fa-people-group"></i>
@@ -390,8 +393,8 @@
                     <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-file-lines"></i></div>
                     <div class="stat-info">
                         <span class="stat-number" id="statPosts">–</span>
-                        <span class="stat-label">Posts Publicados</span>
-                        <span class="stat-delta" id="statPostsDelta"></span>
+                        <span class="stat-label">Postagens na Comunidade</span>
+                        <span class="stat-hint" id="statPostsDelta"></span>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -405,17 +408,16 @@
                 <div class="stat-card">
                     <div class="stat-icon stat-icon-coral"><i class="fa-solid fa-people-group"></i></div>
                     <div class="stat-info">
-                        <span class="stat-number" id="statMaes">–</span>
-                        <span class="stat-label">Mães inscritas</span>
-                        <span class="stat-delta" id="statMaesDelta"></span>
+                        <span class="stat-number" id="statInscricoes">–</span>
+                        <span class="stat-label">Inscrições nos seus eventos</span>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-book-open"></i></div>
+                    <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-hand-holding-heart"></i></div>
                     <div class="stat-info">
-                        <span class="stat-number" id="statArtigos">–</span>
-                        <span class="stat-label">Postagens Publicadas</span>
-                        <span class="stat-delta" id="statArtigosDelta"></span>
+                        <span class="stat-number" id="statAlcance">–</span>
+                        <span class="stat-label">Mães alcançadas</span>
+                        <span class="stat-hint">Mães diferentes que interagiram com a sua empresa</span>
                     </div>
                 </div>
             </div>
@@ -439,7 +441,7 @@
                                 <span class="dash-panel-ic"><i class="fa-regular fa-calendar"></i></span>
                                 <div><h3>Próximos eventos</h3><p>Os encontros que você marcou com as mães</p></div>
                             </div>
-                            <button class="dash-see-more" data-target="calendario">Ver calendário</button>
+                            <button class="dash-see-more" data-target="calendario">Ver eventos</button>
                         </div>
                         <div id="proximosEventosList" class="dash-list">
                             <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
@@ -493,7 +495,7 @@
             <div class="cab-pagina">
                 <span class="cab-icone"><i class="fa-regular fa-calendar"></i></span>
                 <div class="cab-texto">
-                    <h2 class="page-title">Calendário de eventos</h2>
+                    <h2 class="page-title">Eventos</h2>
                     <p class="page-subtitle">Crie eventos para as mães e acompanhe tudo o que você já publicou.</p>
                 </div>
             </div>
@@ -577,10 +579,9 @@
 
                             <div class="pcal-rodape">
                                 <div class="pcal-legenda">
-                                    <span><i style="background:#2d2d7a"></i> Psicólogo</span>
-                                    <span><i style="background:#e0524f"></i> Apoio</span>
-                                    <span><i style="background:#4caf6b"></i> Oficinas</span>
-                                    <span><i style="background:#37c1d1"></i> Jurídico</span>
+                                    @for (cat of categoriasEvento; track cat.chave) {
+                                        <span><i [style.background]="cat.cor"></i> {{ cat.nome }}</span>
+                                    }
                                 </div>
                                 <button type="button" class="pcal-link" (click)="irParaHoje()">Hoje</button>
                             </div>
@@ -785,7 +786,7 @@
                 <span class="cab-icone"><i class="fa-solid fa-chart-pie"></i></span>
                 <div class="cab-texto">
                     <h2 class="page-title">Relatórios</h2>
-                    <p class="page-subtitle">Acompanhe o alcance das suas postagens, eventos e da sua participação no fórum.</p>
+                    <p class="page-subtitle">Acompanhe o alcance das suas postagens na Comunidade, dos seus eventos e das suas vagas e cursos.</p>
                 </div>
                 <button class="quick-action-btn qa-purple cab-acao" id="exportarRelatorioBtn"><i class="fa-solid fa-download"></i> Exportar</button>
             </div>
@@ -795,7 +796,8 @@
                     <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-file-lines"></i></div>
                     <div class="stat-info">
                         <span class="stat-number" id="repArtigos">–</span>
-                        <span class="stat-label">Postagens publicadas</span>
+                        <span class="stat-label">Postagens na Comunidade</span>
+                        <span class="stat-hint" id="repArtigosDetalhe">Posts, conteúdos educacionais e dicas</span>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -803,27 +805,30 @@
                     <div class="stat-info">
                         <span class="stat-number" id="repEventos">–</span>
                         <span class="stat-label">Eventos realizados</span>
+                        <span class="stat-hint">Eventos que já aconteceram</span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon stat-icon-coral"><i class="fa-solid fa-people-group"></i></div>
                     <div class="stat-info">
                         <span class="stat-number" id="repParticipantes">–</span>
-                        <span class="stat-label">Participantes alcançados</span>
+                        <span class="stat-label">Mães alcançadas</span>
+                        <span class="stat-hint">Mães diferentes que se inscreveram em eventos, salvaram postagens, curtiram tópicos ou clicaram em vagas e cursos</span>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-user-plus"></i></div>
+                    <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-briefcase"></i></div>
                     <div class="stat-info">
                         <span class="stat-number" id="repNovosMembros">–</span>
-                        <span class="stat-label">Novos membros</span>
+                        <span class="stat-label">Interesse em Carreiras</span>
+                        <span class="stat-hint">Cliques em "quero me candidatar" ou "quero me inscrever" nas suas vagas e cursos</span>
                     </div>
                 </div>
             </div>
 
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3>Postagens publicadas por mês</h3>
+                    <h3>Postagens na Comunidade por mês</h3>
                     <canvas id="chartArtigos"></canvas>
                 </div>
                 <div class="chart-card">
@@ -831,7 +836,7 @@
                     <canvas id="chartEventos"></canvas>
                 </div>
                 <div class="chart-card">
-                    <h3>Participação no fórum</h3>
+                    <h3>De onde vem o seu alcance</h3>
                     <canvas id="chartForum"></canvas>
                 </div>
             </div>
@@ -867,6 +872,9 @@
 
                         <label>Cidade</label>
                         <input type="text" id="cfgCidade" placeholder="Cidade">
+
+                        <label>Site da empresa <span class="foto-hint" style="display:inline;">(links de vagas e cursos precisam ser deste site ou de uma plataforma de vagas conhecida)</span></label>
+                        <input type="text" id="cfgSite" placeholder="www.suaempresa.com.br">
 
                         <button type="submit" class="quick-action-btn qa-purple" style="margin-top:10px;">Salvar alterações</button>
                         <span id="cfgSalvarMsg"></span>
@@ -961,7 +969,7 @@
                             <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-file-lines"></i></div>
                             <div class="stat-info">
                                 <span class="stat-number" id="perfilArtigosCount">–</span>
-                                <span class="stat-label">Postagens publicadas</span>
+                                <span class="stat-label">Postagens na Comunidade</span>
                             </div>
                         </div>
                         <div class="stat-card">
@@ -975,14 +983,14 @@
                             <div class="stat-icon stat-icon-coral"><i class="fa-solid fa-people-group"></i></div>
                             <div class="stat-info">
                                 <span class="stat-number" id="perfilUsuariasCount">–</span>
-                                <span class="stat-label">Usuárias alcançadas</span>
+                                <span class="stat-label">Mães alcançadas</span>
                             </div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-icon stat-icon-blue"><i class="fa-regular fa-comment-dots"></i></div>
+                            <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-briefcase"></i></div>
                             <div class="stat-info">
-                                <span class="stat-number" id="perfilForumCount">–</span>
-                                <span class="stat-label">Participações no fórum</span>
+                                <span class="stat-number" id="perfilCarreirasCount">–</span>
+                                <span class="stat-label">Interesse em Carreiras</span>
                             </div>
                         </div>
                     </div>

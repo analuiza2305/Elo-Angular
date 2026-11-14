@@ -46,6 +46,7 @@ import { ArtigoInd } from '../artigo-ind/artigo-ind';
 import { Eventos } from '../eventos/eventos';
 import { DivulgacaoService } from '../../services/divulgacao';
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+import { CATEGORIAS_EVENTO, categoriaDoEvento, infoCategoriaEvento } from '../../services/eventos-categorias';
 /**
  * Página do Parceiro (dashboard, calendário, fórum, artigos, relatórios,
  * configurações e perfil).
@@ -266,9 +267,23 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
 
   /** Lixeira de um artigo da empresa: usa a mesma confirmação do painel. */
   pedirExclusaoArtigo(id: string): void {
+    void this.pedirExclusao('artigo', id);
+  }
+
+  /**
+   * Confirmação de exclusão (artigo ou evento) com a caixa de alerta padrão do site:
+   * botões arredondados, tema escuro e teclado funcionando.
+   */
+  private async pedirExclusao(tipo: 'artigo' | 'evento', id: string): Promise<void> {
+    const ok = await this.alerta.confirmar('Essa ação não pode ser desfeita.', {
+      titulo: tipo === 'evento' ? 'Excluir este evento?' : 'Excluir esta postagem?',
+      textoOk: 'Excluir',
+      perigo: true,
+    });
+    if (!ok) return;
     this.itemParaExcluir = id;
-    this.tipoParaExcluir = 'artigo';
-    this.confirmModal?.classList.remove('hidden');
+    this.tipoParaExcluir = tipo;
+    await this.confirmarExclusao();
   }
   filtroMeus = signal<'proximos' | 'encerrados' | 'todos'>('proximos');
   eventoDetalhe = signal<any | null>(null);
@@ -334,14 +349,9 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
 
   private chartsInstanciados: Record<string, Chart | undefined> = {};
 
-  private confirmModal: HTMLDivElement | null = null;
 
-  private readonly TIPO_LABEL: Record<string, string> = {
-    psicologo: 'Psicólogo',
-    apoio: 'Apoio',
-    oficinas: 'Oficinas',
-    juridico: 'Jurídico',
-  };
+  /** Categorias de evento (as mesmas do filtro da página Eventos das mães). */
+  readonly categoriasEvento = CATEGORIAS_EVENTO;
 
   private readonly CATEGORIA_COR: Record<string, string> = {
     legislativos: '#e63946',
@@ -375,25 +385,6 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   // =============================================================
   private initPagina(): void {
     this.inicializarTema();
-
-    this.confirmModal = document.createElement('div');
-    this.confirmModal.className = 'modal hidden';
-    this.confirmModal.innerHTML = `
-      <div class="modal-content" style="max-width:400px;text-align:center;">
-        <h3>Tem certeza que deseja excluir?</h3>
-        <p>Essa ação não pode ser desfeita.</p>
-        <div style="display:flex;gap:10px;justify-content:center;margin-top:15px;">
-          <button id="confirmDelete" style="background:#d9534f;">Excluir</button>
-          <button id="cancelDelete" style="background:#aaa;">Cancelar</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(this.confirmModal);
-    this.confirmModal.querySelector('#confirmDelete')?.addEventListener('click', () => this.confirmarExclusao());
-    this.confirmModal.querySelector('#cancelDelete')?.addEventListener('click', () => {
-      this.confirmModal?.classList.add('hidden');
-      this.itemParaExcluir = null;
-    });
 
     // Fecha qualquer modal ao clicar fora do conteúdo (backdrop) ou pressionar Esc
     document.addEventListener('click', (e) => {
@@ -702,23 +693,118 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   // =============================================================
   private async carregarDashboardStats(): Promise<void> {
     try {
-      const artigosSnap = await getDocs(query(collection(db, 'artigos'), where('postadoPor', '==', this.nomeEmpresaAtual)));
-      const totalArtigos = artigosSnap.size;
-      const totalPosts = artigosSnap.docs.filter((d) => d.data()['categoria'] === 'posts').length;
+      const artigos = await this.buscarArtigosDaEmpresa();
+      this.setText('statPosts', artigos.length);
+      this.setText('statPostsDelta', this.resumoCategorias(artigos));
 
-      const eventosSnap = await getDocs(query(collection(db, 'eventos'), where('enviadoPor', '==', this.nomeEmpresaAtual)));
-      const totalEventos = eventosSnap.size;
+      // mesma lista usada no calendário e nos relatórios (por parceiroId + nome)
+      this.setText('statEventos', this.eventosParceiro.filter((ev) => !ev.removido).length);
 
-      const usuariosSnap = await getDocs(query(collection(db, 'usuarios'), where('tipo', '==', 'mae')));
-      const totalMaes = usuariosSnap.size;
-
-      this.setText('statPosts', totalPosts);
-      this.setText('statEventos', totalEventos);
-      this.setText('statMaes', totalMaes);
-      this.setText('statArtigos', totalArtigos);
+      const alcance = await this.calcularAlcance(artigos);
+      this.setText('statInscricoes', alcance.inscricoesEventos);
+      this.setText('statAlcance', alcance.maesUnicas);
     } catch (err) {
       console.error('Erro ao carregar estatísticas do dashboard:', err);
     }
+  }
+
+  // =============================================================
+  // MÉTRICAS — uma conta só, usada no dashboard, nos relatórios e
+  // em "Minha Empresa" (assim os números sempre batem entre as telas)
+  // =============================================================
+
+  /**
+   * Postagens da empresa na Comunidade (coleção 'artigos').
+   * Busca pelo parceiroId (não muda) E pelo nome da empresa (postagens antigas,
+   * de antes de existir o parceiroId, ou feitas antes de trocar o nome), sem duplicar.
+   * As removidas pela moderação não entram, igual na Comunidade.
+   */
+  private async buscarArtigosDaEmpresa(): Promise<any[]> {
+    const consultas: Promise<QuerySnapshot<DocumentData>>[] = [];
+    if (this.uidAtual) consultas.push(getDocs(query(collection(db, 'artigos'), where('parceiroId', '==', this.uidAtual))));
+    if (this.nomeEmpresaAtual) consultas.push(getDocs(query(collection(db, 'artigos'), where('postadoPor', '==', this.nomeEmpresaAtual))));
+
+    const porId = new Map<string, any>();
+    const resultados = await Promise.allSettled(consultas);
+    resultados.forEach((r) => {
+      if (r.status === 'rejected') { console.error('Erro ao buscar postagens da empresa:', r.reason); return; }
+      r.value.forEach((d) => {
+        if (!(d.data() as any)?.['moderacao']?.removido) porId.set(d.id, { id: d.id, ...d.data() });
+      });
+    });
+    return Array.from(porId.values());
+  }
+
+  /** "2 posts · 1 dica" — mostra de que tipo são as postagens da Comunidade. */
+  private resumoCategorias(artigos: any[]): string {
+    const nomes: Record<string, [string, string]> = {
+      posts: ['post', 'posts'], educacionais: ['educacional', 'educacionais'], dicas: ['dica', 'dicas'],
+    };
+    const cont: Record<string, number> = {};
+    artigos.forEach((a) => {
+      const cat = nomes[a['categoria']] ? a['categoria'] : 'posts';
+      cont[cat] = (cont[cat] || 0) + 1;
+    });
+    return Object.keys(nomes)
+      .filter((cat) => cont[cat])
+      .map((cat) => `${cont[cat]} ${cont[cat] === 1 ? nomes[cat][0] : nomes[cat][1]}`)
+      .join(' · ');
+  }
+
+  /**
+   * Alcance da empresa = mães DIFERENTES que interagiram com algo dela:
+   *  - se inscreveram em um evento dela          (usuarios/{uid}.eventosInscritos)
+   *  - salvaram uma postagem dela na Comunidade  (usuarios/{uid}.favoritos)
+   *  - curtiram um tópico dela no fórum          (posts/{id}/likes/{uid})
+   *  - clicaram em "quero me candidatar/inscrever" numa vaga ou curso dela
+   *                                              (vagas|cursos/{id}/interessados/{uid})
+   * Cada parte tem o próprio try/catch: se uma falhar, as outras continuam.
+   */
+  private async calcularAlcance(artigos: any[]): Promise<{
+    maesUnicas: number; inscricoesEventos: number; favoritos: number; curtidasForum: number; interessesCarreiras: number;
+  }> {
+    const maes = new Set<string>();
+    let inscricoesEventos = 0, favoritos = 0, curtidasForum = 0, interessesCarreiras = 0;
+
+    const idsEventos = new Set(this.eventosParceiro.map((ev) => ev.id));
+    const idsArtigos = new Set(artigos.map((a) => a.id));
+
+    // 1) inscrições em eventos + postagens salvas (as duas ficam no perfil da mãe)
+    try {
+      const maesSnap = await getDocs(query(collection(db, 'usuarios'), where('tipo', '==', 'mae')));
+      maesSnap.forEach((u) => {
+        const d = u.data() as any;
+        const inscricoes = ((d['eventosInscritos'] || []) as any[]).filter((e) => idsEventos.has(e?.id)).length;
+        const salvos = ((d['favoritos'] || []) as string[]).filter((id) => idsArtigos.has(id)).length;
+        inscricoesEventos += inscricoes;
+        favoritos += salvos;
+        if (inscricoes || salvos) maes.add(u.id);
+      });
+    } catch (err) { console.warn('Alcance: inscrições/favoritos', err); }
+
+    // 2) curtidas nos tópicos da empresa no fórum
+    try {
+      const postsSnap = await getDocs(query(collection(db, 'posts'), where('autorId', '==', 'parc_' + this.uidAtual)));
+      for (const p of postsSnap.docs) {
+        const likes = await getDocs(collection(db, 'posts', p.id, 'likes'));
+        curtidasForum += likes.size;
+        likes.forEach((l) => maes.add(l.id));
+      }
+    } catch (err) { console.warn('Alcance: curtidas no fórum', err); }
+
+    // 3) interesse nas vagas e cursos (Carreiras)
+    for (const colecao of ['vagas', 'cursos']) {
+      try {
+        const snap = await getDocs(query(collection(db, colecao), where('parceiroId', '==', this.uidAtual)));
+        for (const item of snap.docs) {
+          const interessados = await getDocs(collection(db, colecao, item.id, 'interessados'));
+          interessesCarreiras += interessados.size;
+          interessados.forEach((i) => maes.add(i.id));
+        }
+      } catch (err) { console.warn('Alcance: ' + colecao, err); }
+    }
+
+    return { maesUnicas: maes.size, inscricoesEventos, favoritos, curtidasForum, interessesCarreiras };
   }
 
   // =============================================================
@@ -792,8 +878,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     const artigosLista = document.getElementById('artigosRecentesList');
     if (artigosLista) {
       try {
-        const snap = await getDocs(query(collection(db, 'artigos'), where('postadoPor', '==', this.nomeEmpresaAtual)));
-        const artigos = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as any);
+        const artigos = await this.buscarArtigosDaEmpresa();
         artigos.sort((a, b) => this.toDate(b['datahorapost']).getTime() - this.toDate(a['datahorapost']).getTime());
         const topArtigos = artigos.slice(0, 3);
 
@@ -1236,9 +1321,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       this.aplicarEscopoAngular(card);
 
       card.querySelector('.delete-btn')?.addEventListener('click', () => {
-        this.itemParaExcluir = d.id;
-        this.tipoParaExcluir = 'artigo';
-        this.confirmModal?.classList.remove('hidden');
+        void this.pedirExclusao('artigo', d.id);
       });
 
       if (art['link']) {
@@ -1290,15 +1373,29 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
 
     const atualizarPrevia = () => {
       const set = (id: string, t: string) => { const el = document.getElementById(id); if (el) el.textContent = t; };
-      const tipo = val('tipoEvento') || 'psicologo';
-      const nomesTipo: Record<string, string> = { psicologo: 'psicólogo', apoio: 'apoio', oficinas: 'oficinas', juridico: 'jurídico' };
+      const cat = infoCategoriaEvento(val('tipoEvento'));
       set('prevEvTitulo', val('tituloEvento').trim() || 'Título do evento');
       set('prevEvDesc', val('descricaoEvento').trim() || 'A descrição aparece aqui.');
       set('prevEvLocal', val('localEvento').trim() || 'Local do evento');
       const d = val('dataEvento');
       set('prevEvData', d ? new Date(d).toLocaleString('pt-BR', { dateStyle: 'full', timeStyle: 'short' }) : 'Escolha a data');
       const tag = document.getElementById('prevEvTipo');
-      if (tag) { tag.textContent = nomesTipo[tipo]; tag.className = 'evento-tipo-tag tipo-' + tipo; }
+      if (tag) { tag.textContent = cat.nome; tag.style.background = cat.cor; }
+
+      // capa: mostra a imagem que a empresa colocou; se não carregar, volta o espaço reservado
+      const capa = val('capaEvento').trim();
+      const img = document.getElementById('prevEvImg') as HTMLImageElement | null;
+      const thumb = document.getElementById('prevEvThumb');
+      if (img && thumb) {
+        if (capa) {
+          img.onerror = () => { img.hidden = true; thumb.hidden = false; };
+          img.onload = () => { img.hidden = false; thumb.hidden = true; };
+          if (img.getAttribute('src') !== capa) img.src = capa;
+          else if (img.complete && img.naturalWidth) { img.hidden = false; thumb.hidden = true; }
+        } else {
+          img.onerror = null; img.removeAttribute('src'); img.hidden = true; thumb.hidden = false;
+        }
+      }
     };
 
     const carregarRascunho = () => {
@@ -1349,7 +1446,9 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         data: Timestamp.fromDate(dataEv),
         local: val('localEvento').trim(),
         capa: val('capaEvento').trim(),
-        tipo: val('tipoEvento'),
+        // 'categoria' é o que a página Eventos das mães filtra; 'tipo' fica igual por compatibilidade
+        categoria: infoCategoriaEvento(val('tipoEvento')).chave,
+        tipo: infoCategoriaEvento(val('tipoEvento')).chave,
       };
       const editandoId = this.eventoEditandoId;
 
@@ -1409,8 +1508,9 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
           data: quando,
           encerrado: quando.getTime() < agora,
           removido: !!data?.['moderacao']?.removido,
-          tipoLabel: this.TIPO_LABEL[data['tipo']] || 'Evento',
-          cor: this.corDoTipo(data['tipo']),
+          categoria: categoriaDoEvento(data),
+          tipoLabel: infoCategoriaEvento(categoriaDoEvento(data)).nome,
+          cor: infoCategoriaEvento(categoriaDoEvento(data)).cor,
           dataCurta: quando.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', ''),
           dataLonga: quando.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }),
           hora: quando.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
@@ -1487,10 +1587,8 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   }
 
   excluirEventoDetalhe(ev: any): void {
-    this.itemParaExcluir = ev.id;
-    this.tipoParaExcluir = 'evento';
     this.fecharDetalheEvento();
-    this.confirmModal?.classList.remove('hidden');
+    void this.pedirExclusao('evento', ev.id);
   }
 
   /** Abre o modal de evento já preenchido para editar */
@@ -1503,7 +1601,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     set('dataEvento', this.paraDatetimeLocal(ev.data));
     set('localEvento', ev.local || '');
     set('capaEvento', ev.capa || '');
-    set('tipoEvento', ev.tipo || 'psicologo');
+    set('tipoEvento', ev.categoria || categoriaDoEvento(ev));
     this.prepararModalEvento(true);
   }
 
@@ -1535,15 +1633,11 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     const msg = document.getElementById('eventMsg');
     if (msg) msg.textContent = '';
     if (editando) {
-      ['tituloEvento', 'descricaoEvento', 'dataEvento', 'localEvento', 'tipoEvento'].forEach((id) =>
+      ['tituloEvento', 'descricaoEvento', 'dataEvento', 'localEvento', 'capaEvento', 'tipoEvento'].forEach((id) =>
         document.getElementById(id)?.dispatchEvent(new Event('input')),
       );
       this.abrirModal(document.getElementById('eventModal'));
     }
-  }
-
-  private corDoTipo(tipo: string): string {
-    return ({ psicologo: '#2d2d7a', apoio: '#e0524f', oficinas: '#4caf6b', juridico: '#37c1d1' } as Record<string, string>)[tipo] || '#7a5fe8';
   }
 
   private renderProximosEventosDashboard(): void {
@@ -1593,7 +1687,6 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     } catch (err) {
       console.error('Erro ao excluir:', err);
     } finally {
-      this.confirmModal?.classList.add('hidden');
       this.itemParaExcluir = null;
       this.tipoParaExcluir = '';
     }
@@ -1617,10 +1710,13 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     document.getElementById('exportarRelatorioBtn')?.addEventListener('click', () => {
       const linhas = [
         ['Métrica', 'Valor'],
-        ['Postagens publicadas', document.getElementById('repArtigos')?.textContent || '0'],
+        ['Postagens na Comunidade', document.getElementById('repArtigos')?.textContent || '0'],
         ['Eventos realizados', document.getElementById('repEventos')?.textContent || '0'],
-        ['Participantes alcançados', document.getElementById('repParticipantes')?.textContent || '0'],
-        ['Novos membros', document.getElementById('repNovosMembros')?.textContent || '0'],
+        ['Mães alcançadas (sem repetir)', document.getElementById('repParticipantes')?.textContent || '0'],
+        ['Interesse em Carreiras (cliques em vagas e cursos)', document.getElementById('repNovosMembros')?.textContent || '0'],
+        ['Inscrições nos eventos', String(this.ultimoAlcance?.inscricoesEventos ?? 0)],
+        ['Postagens salvas pelas mães', String(this.ultimoAlcance?.favoritos ?? 0)],
+        ['Curtidas nos tópicos do fórum', String(this.ultimoAlcance?.curtidasForum ?? 0)],
       ];
       const csv = linhas.map((l) => l.join(';')).join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1633,36 +1729,25 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  /** Último alcance calculado (usado no CSV exportado). */
+  private ultimoAlcance: Awaited<ReturnType<HomeParc['calcularAlcance']>> | null = null;
+
   private async carregarRelatorios(): Promise<void> {
     try {
-      const artigosSnap = await getDocs(query(collection(db, 'artigos'), where('postadoPor', '==', this.nomeEmpresaAtual)));
-      const artigos = artigosSnap.docs.map((d) => d.data() as any);
+      const artigos = await this.buscarArtigosDaEmpresa();
 
       this.setText('repArtigos', artigos.length);
-      this.setText('repEventos', this.eventosParceiro.length);
+      this.setText('repArtigosDetalhe', this.resumoCategorias(artigos) || 'Nenhuma ainda');
+      this.setText('repEventos', this.eventosParceiro.filter((ev) => ev.encerrado && !ev.removido).length);
 
-      const postsSnap = await getDocs(query(collection(db, 'posts'), where('autorId', '==', 'parc_' + this.uidAtual)));
-      let totalLikes = 0;
-      let totalComentarios = 0;
-      const comentaristasUnicos = new Set<string>();
-
-      for (const postDoc of postsSnap.docs) {
-        const post = postDoc.data() as any;
-        totalLikes += post['likes'] || 0;
-        const comentariosSnap = await getDocs(collection(db, 'posts', postDoc.id, 'comentarios'));
-        totalComentarios += comentariosSnap.size;
-        comentariosSnap.forEach((c) => {
-          const autorId = (c.data() as any)['autorId'];
-          if (autorId) comentaristasUnicos.add(autorId);
-        });
-      }
-
-      this.setText('repParticipantes', totalLikes + totalComentarios);
-      this.setText('repNovosMembros', comentaristasUnicos.size);
+      const alcance = await this.calcularAlcance(artigos);
+      this.ultimoAlcance = alcance;
+      this.setText('repParticipantes', alcance.maesUnicas);
+      this.setText('repNovosMembros', alcance.interessesCarreiras);
 
       this.renderChartArtigosPorMes(artigos);
       this.renderChartEventosPorMes(this.eventosParceiro);
-      this.renderChartParticipacaoForum(postsSnap.size, totalComentarios, totalLikes);
+      this.renderChartOrigemAlcance(alcance);
     } catch (err) {
       console.error('Erro ao carregar relatórios:', err);
     }
@@ -1702,7 +1787,8 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private renderChartParticipacaoForum(discussoes: number, comentarios: number, curtidas: number): void {
+  /** De onde vêm as interações que formam o alcance da empresa. */
+  private renderChartOrigemAlcance(a: { inscricoesEventos: number; favoritos: number; curtidasForum: number; interessesCarreiras: number }): void {
     const canvas = document.getElementById('chartForum') as HTMLCanvasElement | null;
     if (!canvas) return;
 
@@ -1710,8 +1796,11 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     this.chartsInstanciados['forum'] = new Chart(canvas, {
       type: 'doughnut',
       data: {
-        labels: ['Discussões', 'Comentários', 'Curtidas'],
-        datasets: [{ data: [discussoes, comentarios, curtidas], backgroundColor: ['#7a5fe8', '#bfa8f5', '#e6ddfb'] }],
+        labels: ['Inscrições em eventos', 'Postagens salvas', 'Curtidas no fórum', 'Cliques em Carreiras'],
+        datasets: [{
+          data: [a.inscricoesEventos, a.favoritos, a.curtidasForum, a.interessesCarreiras],
+          backgroundColor: ['#f1b93f', '#7a5fe8', '#bfa8f5', '#5aa9e6'],
+        }],
       },
       options: { maintainAspectRatio: false, plugins: { legend: { position: 'right' } } },
     });
@@ -1731,6 +1820,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
           email: (document.getElementById('cfgEmail') as HTMLInputElement).value.trim(),
           telefone: (document.getElementById('cfgTelefone') as HTMLInputElement).value.trim(),
           cidade: (document.getElementById('cfgCidade') as HTMLInputElement).value.trim(),
+          site: (document.getElementById('cfgSite') as HTMLInputElement).value.trim(),
         };
         await updateDoc(doc(db, 'parceiros', this.parceiroDocId as string), dadosAtualizados);
         if (dadosAtualizados.nomeFantasia) {
@@ -1803,6 +1893,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     this.setValue('cfgEmail', this.dadosParceiroAtual['email'] || '');
     this.setValue('cfgTelefone', this.dadosParceiroAtual['telefone'] || '');
     this.setValue('cfgCidade', this.dadosParceiroAtual['cidade'] || '');
+    this.setValue('cfgSite', this.dadosParceiroAtual['site'] || '');
 
     const foto = this.dadosParceiroAtual['fotoURL'] || './img/logo_icon.png';
     const preview = document.getElementById('cfgFotoPreview') as HTMLImageElement | null;
@@ -1881,22 +1972,13 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     if (logo) logo.src = this.dadosParceiroAtual['fotoURL'] || './img/logo_icon.png';
 
     try {
-      const artigosSnap = await getDocs(query(collection(db, 'artigos'), where('postadoPor', '==', this.nomeEmpresaAtual)));
-      const artigos = artigosSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as any);
-
-      const postsSnap = await getDocs(query(collection(db, 'posts'), where('autorId', '==', 'parc_' + this.uidAtual)));
-      let totalLikes = 0;
-      let totalComentarios = 0;
-      for (const postDoc of postsSnap.docs) {
-        totalLikes += (postDoc.data() as any)['likes'] || 0;
-        const comentariosSnap = await getDocs(collection(db, 'posts', postDoc.id, 'comentarios'));
-        totalComentarios += comentariosSnap.size;
-      }
+      const artigos = await this.buscarArtigosDaEmpresa();
+      const alcance = await this.calcularAlcance(artigos);
 
       this.setText('perfilArtigosCount', artigos.length);
-      this.setText('perfilEventosCount', this.eventosParceiro.length);
-      this.setText('perfilUsuariasCount', totalLikes + totalComentarios);
-      this.setText('perfilForumCount', postsSnap.size);
+      this.setText('perfilEventosCount', this.eventosParceiro.filter((ev) => ev.encerrado && !ev.removido).length);
+      this.setText('perfilUsuariasCount', alcance.maesUnicas);
+      this.setText('perfilCarreirasCount', alcance.interessesCarreiras);
 
       artigos.sort((a, b) => this.toDate(b['datahorapost']).getTime() - this.toDate(a['datahorapost']).getTime());
       const listaArtigos = document.getElementById('perfilArtigosList');

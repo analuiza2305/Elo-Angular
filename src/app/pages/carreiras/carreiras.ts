@@ -2,8 +2,8 @@ import { Component, OnDestroy, OnInit, PLATFORM_ID, computed, inject, signal } f
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { collection, doc, getDoc, getDocs, limit, onSnapshot, query, Unsubscribe, where } from 'firebase/firestore';
-import { db } from '../../core/firebase';
+import { collection, doc, getDoc, getDocs, limit, onSnapshot, query, serverTimestamp, setDoc, Unsubscribe, where } from 'firebase/firestore';
+import { auth, db } from '../../core/firebase';
 import { HeaderComponent } from '../../components/header/header';
 import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 import {
@@ -156,4 +156,37 @@ export class Carreiras implements OnInit, OnDestroy {
   }
 
   ehEmail(link: string): boolean { return linkSeguro(link).startsWith('mailto:'); }
+
+  /** Abre os detalhes e conta a visualização (a empresa vê quantas mães abriram). */
+  abrirVaga(v: Vaga): void {
+    this.vagaAberta.set(v);
+    this.registrar('vagas', v.id, 'visualizacoes', v.parceiroId);
+  }
+
+  abrirCurso(c: Curso): void {
+    this.cursoAberto.set(c);
+    this.registrar('cursos', c.id, 'visualizacoes', c.parceiroId);
+  }
+
+  /**
+   * Grava vagas|cursos/{id}/{sub}/{uid}. Um documento por mãe: abrir ou clicar
+   * várias vezes conta uma vez só. A própria empresa vendo a vaga não conta.
+   */
+  private registrar(colecao: 'vagas' | 'cursos', id: string, sub: 'visualizacoes' | 'interessados', dono = ''): void {
+    const uid = auth.currentUser?.uid;
+    if (!uid || !id || uid === dono) return;
+    setDoc(doc(db, colecao, id, sub, uid), { em: serverTimestamp() })
+      .catch((e) => console.warn('Não foi possível registrar (' + sub + '):', e));
+  }
+
+  /**
+   * A mãe clicou em "quero me candidatar/inscrever": registra o interesse para a
+   * métrica de alcance do parceiro (vagas|cursos/{id}/interessados/{uid}).
+   * Um documento por mãe, então clicar várias vezes conta uma vez só.
+   * Não atrapalha o clique: o link abre normalmente mesmo se a gravação falhar.
+   */
+  registrarInteresse(colecao: 'vagas' | 'cursos', id: string): void {
+    const item = colecao === 'vagas' ? this.vagaAberta() : this.cursoAberto();
+    this.registrar(colecao, id, 'interessados', item?.parceiroId || '');
+  }
 }

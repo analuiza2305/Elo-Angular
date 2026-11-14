@@ -470,6 +470,37 @@ i {
 
 :host-context(body[data-theme="dark"]) .fr-excluir { color: #f0a6c2; }
 
+.fr-editar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 999px;
+  background: var(--fr-lilas);
+  color: var(--fr-roxo);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fr-editar:hover { background: var(--fr-lilas-forte); }
+
+.fr-editado {
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--fr-suave);
+}
+
+.fr-composer-aviso-edicao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--fr-suave);
+}
+
 .fr-post-lateral {
   display: flex;
   flex-direction: column;
@@ -898,7 +929,10 @@ button.fr-acao:hover,
 }
 
 .fr-composer-titulo {
-  margin: 8px 0 6px;
+  /* linha separando o título do texto da mensagem */
+  margin: 8px 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--fr-borda);
   resize: none;
   overflow: hidden;
   line-height: 1.35;

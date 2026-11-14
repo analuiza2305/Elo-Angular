@@ -10,6 +10,7 @@ import { collection, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore'
 import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 import { prioridadeVisibilidade, visibilidadeEfetiva } from '../../services/divulgacao';
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+import { categoriaDoEvento, infoCategoriaEvento } from '../../services/eventos-categorias';
 @Component({
   selector: 'app-eventos',
   standalone: true,
@@ -83,7 +84,7 @@ export class Eventos implements OnInit {
       this.isLoading.set(true);
       const snap = await getDocs(collection(db, "eventos"));
       const lista: any[] = [];
-      
+
       snap.forEach(docSnap => {
         const data = docSnap.data();
         if (data?.['moderacao']?.removido) return; // removido pela moderação
@@ -100,8 +101,8 @@ export class Eventos implements OnInit {
         }
 
         if (dataObj && !isNaN(dataObj.getTime())) {
-          dataFormatada = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) + 
-                          ' às ' + 
+          dataFormatada = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) +
+                          ' às ' +
                           dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
           dia = String(dataObj.getDate()).padStart(2, '0');
@@ -113,7 +114,9 @@ export class Eventos implements OnInit {
         lista.push({
           id: docSnap.id,
           ...data,
-          categoria: data['categoria'] || 'Evento',
+          // mesma lista de categorias do painel do parceiro (eventos antigos são convertidos)
+          categoria: categoriaDoEvento(data),
+          categoriaNome: infoCategoriaEvento(categoriaDoEvento(data)).nome,
           // evento que já passou perde o destaque pago e vai para o fim da lista
           visibilidade: encerrado ? 'basico' : visibilidadeEfetiva(data),
           encerrado,
@@ -162,7 +165,7 @@ export class Eventos implements OnInit {
   ordenarEventos(tipo: string) {
     this.tipoOrdenacao.set(tipo);
     this.textoOrdenacao.set(
-      tipo === 'recentes' ? 'Mais recentes' : 
+      tipo === 'recentes' ? 'Mais recentes' :
       tipo === 'antigos' ? 'Mais antigos' : 'Ordem alfabética'
     );
     this.isDropdownOpen.set(false);
@@ -243,7 +246,7 @@ export class Eventos implements OnInit {
 
       const novasInscricoes = [...this.userInscritos(), novoEventoSalvar];
       await updateDoc(userRef, { eventosInscritos: novasInscricoes });
-      
+
       this.userInscritos.set(novasInscricoes);
       this.fecharModais();
       this.abrirAviso('Sucesso!', 'Sua inscrição foi realizada com sucesso.');
@@ -256,7 +259,7 @@ export class Eventos implements OnInit {
   cancelarInscricao() {
     const user = this.currentUser();
     const evento = this.eventoSelecionado();
-    
+
     if (!user) {
       this.abrirAviso('Atenção', 'Você precisa estar logada para realizar essa ação.');
       return;
@@ -278,8 +281,8 @@ export class Eventos implements OnInit {
 
           this.userInscritos.set(listaAtualizada);
           this.eventoSelecionado.set(null);
-          this.fecharModais(); 
-          
+          this.fecharModais();
+
           setTimeout(() => {
             this.abrirAviso('Inscrição Cancelada', 'Sua inscrição foi cancelada com sucesso!');
           }, 300);

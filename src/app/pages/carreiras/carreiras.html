@@ -106,7 +106,7 @@
     } @else {
       <div class="car-grid">
         @for (v of vagasFiltradas(); track v.id) {
-          <article class="car-vaga" (click)="vagaAberta.set(v)" tabindex="0" (keydown.enter)="vagaAberta.set(v)">
+          <article class="car-vaga" (click)="abrirVaga(v)" tabindex="0" (keydown.enter)="abrirVaga(v)">
             <div class="car-vaga-topo">
               @if (fotoDe(v); as foto) {
                 <img class="car-logo car-logo-foto" [src]="foto" [alt]="'Logo de ' + v.empresa" (error)="fotoFalhou(foto)">
@@ -150,7 +150,7 @@
     } @else {
       <div class="car-grid">
         @for (c of cursosFiltrados(); track c.id) {
-          <article class="car-curso" (click)="cursoAberto.set(c)" tabindex="0" (keydown.enter)="cursoAberto.set(c)">
+          <article class="car-curso" (click)="abrirCurso(c)" tabindex="0" (keydown.enter)="abrirCurso(c)">
             <div class="car-curso-capa" [class]="'car-curso-capa cor-' + infoArea(c.area).cor">
               <i class="fa-solid" [class]="'fa-solid ' + infoArea(c.area).icone"></i>
               <div class="car-curso-tags">
@@ -238,7 +238,7 @@
 
       <footer class="car-mrodape">
         @if (v.link) {
-          <a class="car-btn" [href]="linkSeguro(v.link)" target="_blank" rel="noopener">
+          <a class="car-btn" [href]="linkSeguro(v.link)" target="_blank" rel="noopener" (click)="registrarInteresse('vagas', v.id)">
             {{ ehEmail(v.link) ? 'Enviar currículo por e-mail' : 'Quero me candidatar' }} <i class="fa-solid fa-arrow-up-right-from-square"></i>
           </a>
         } @else {
@@ -301,7 +301,7 @@
 
       <footer class="car-mrodape">
         @if (c.link) {
-          <a class="car-btn" [href]="linkSeguro(c.link)" target="_blank" rel="noopener">
+          <a class="car-btn" [href]="linkSeguro(c.link)" target="_blank" rel="noopener" (click)="registrarInteresse('cursos', c.id)">
             Quero me inscrever <i class="fa-solid fa-arrow-up-right-from-square"></i>
           </a>
         } @else {
