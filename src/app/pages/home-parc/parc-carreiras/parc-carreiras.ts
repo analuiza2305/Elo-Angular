@@ -3,14 +3,17 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { onAuthStateChanged, Unsubscribe as AuthUnsub } from 'firebase/auth';
 import {
-  addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, onSnapshot, query, serverTimestamp,
+  addDoc, collection, deleteDoc, doc, getCountFromServer, getDoc, getDocs, limit, onSnapshot, query, serverTimestamp,
   Unsubscribe, updateDoc, where,
 } from 'firebase/firestore';
 import { auth, db } from '../../../core/firebase';
 import {
   AREAS_CARREIRA, BENEFICIOS_MAE, Curso, FORMATOS_CURSO, MODALIDADES, NIVEIS_CURSO, REGIMES, Vaga,
-  cursoDeDoc, infoArea, linkSeguro, tempoDesde, vagaDeDoc,
+  ResultadoLink, cursoDeDoc, infoArea, linkSeguro, tempoDesde, vagaDeDoc, verificarLinkCarreira,
 } from '../../../services/carreiras';
+
+/** Quantas mães abriram os detalhes e quantas clicaram no link de uma vaga/curso. */
+interface MetricaItem { viram: number; clicaram: number; }
 
 type FormVaga = Omit<Vaga, 'id' | 'empresa' | 'empresaFoto' | 'parceiroId' | 'criadoEm' | 'status'>;
 type FormCurso = Omit<Curso, 'id' | 'instituicao' | 'empresaFoto' | 'parceiroId' | 'criadoEm' | 'status'>;
@@ -58,6 +61,18 @@ export class ParcCarreirasComponent implements OnInit, OnDestroy {
   private uid = '';
   private nomeEmpresa = '';
   private fotoEmpresa = '';
+  /** Site e e-mail da empresa: usados para conferir os links de vagas e cursos. */
+  private siteEmpresa = '';
+  private emailEmpresa = '';
+
+  /** Benefício que a empresa está digitando (além das sugestões da plataforma). */
+  novoBeneficio = '';
+  readonly MAX_BENEFICIOS = 12;
+
+  /** Alcance de cada vaga/curso (id → métricas) e o total. */
+  metricas = signal<Record<string, MetricaItem>>({});
+  totalViram = computed(() => Object.values(this.metricas()).reduce((t, m) => t + m.viram, 0));
+  totalClicaram = computed(() => Object.values(this.metricas()).reduce((t, m) => t + m.clicaram, 0));
   private unsubs: (Unsubscribe | AuthUnsub)[] = [];
   private timerAviso: any;
 
@@ -77,10 +92,12 @@ export class ParcCarreirasComponent implements OnInit, OnDestroy {
       this.unsubs.push(onSnapshot(query(collection(db, 'vagas'), where('parceiroId', '==', user.uid)), (snap) => {
         this.vagas.set(ordenar(snap.docs.map((d) => vagaDeDoc(d.id, d.data()))));
         this.carregando.set(false);
+        void this.carregarMetricas('vagas', snap.docs.map((d) => d.id));
       }, (e) => { console.error('Vagas do parceiro:', e); this.carregando.set(false); }));
 
       this.unsubs.push(onSnapshot(query(collection(db, 'cursos'), where('parceiroId', '==', user.uid)), (snap) => {
         this.cursos.set(ordenar(snap.docs.map((d) => cursoDeDoc(d.id, d.data()))));
+        void this.carregarMetricas('cursos', snap.docs.map((d) => d.id));
       }, (e) => console.error('Cursos do parceiro:', e)));
     }));
   }
@@ -99,6 +116,8 @@ export class ParcCarreirasComponent implements OnInit, OnDestroy {
         d = q.empty ? null : q.docs[0].data();
       }
       this.fotoEmpresa = d?.fotoURL || d?.avatar || '';
+      this.siteEmpresa = d?.site || '';
+      this.emailEmpresa = d?.email || auth.currentUser?.email || '';
       return d?.nomeEmpresa || d?.nome || auth.currentUser?.displayName || 'Parceiro';
     } catch {
       return auth.currentUser?.displayName || 'Parceiro';
@@ -111,9 +130,31 @@ export class ParcCarreirasComponent implements OnInit, OnDestroy {
     this.timerAviso = setTimeout(() => this.aviso.set(null), 3800);
   }
 
-  private linkValido(v: string): boolean {
-    const t = (v || '').trim();
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t) || /^(https?:\/\/)?[^\s.]+\.[^\s]{2,}/i.test(t);
+  /** Confere o link de candidatura/inscrição (ver verificarLinkCarreira em services/carreiras). */
+  statusLink(link: string): ResultadoLink | null {
+    if (!(link || '').trim()) return null;
+    return verificarLinkCarreira(link, { site: this.siteEmpresa, email: this.emailEmpresa });
+  }
+
+  /**
+   * Conta, para cada vaga/curso, quantas mães abriram os detalhes (visualizacoes)
+   * e quantas clicaram no link (interessados). Um documento por mãe em cada subcoleção.
+   */
+  private async carregarMetricas(colecao: 'vagas' | 'cursos', ids: string[]): Promise<void> {
+    const contar = async (id: string, sub: string) => {
+      try { return (await getCountFromServer(collection(db, colecao, id, sub))).data().count; }
+      catch { return 0; } // sem permissão (regras antigas): mostra 0
+    };
+    const novas: Record<string, MetricaItem> = {};
+    await Promise.all(ids.map(async (id) => {
+      const [viram, clicaram] = await Promise.all([contar(id, 'visualizacoes'), contar(id, 'interessados')]);
+      novas[id] = { viram, clicaram };
+    }));
+    this.metricas.update((m) => ({ ...m, ...novas }));
+  }
+
+  metricaDe(id: string): MetricaItem {
+    return this.metricas()[id] || { viram: 0, clicaram: 0 };
   }
 
   // ---------------- vagas ----------------
@@ -125,6 +166,7 @@ export class ParcCarreirasComponent implements OnInit, OnDestroy {
 
   novaVaga(): void {
     this.formVaga = this.vagaVazia();
+    this.novoBeneficio = '';
     this.editandoVagaId.set(null);
     this.mostrarFormVaga.set(true);
   }
@@ -152,11 +194,37 @@ export class ParcCarreirasComponent implements OnInit, OnDestroy {
     this.formVaga.beneficios = l.includes(b) ? l.filter((x) => x !== b) : [...l, b];
   }
 
+  /** Benefícios escritos pela empresa (os que não estão na lista de sugestões). */
+  beneficiosProprios(): string[] {
+    return this.formVaga.beneficios.filter((b) => !this.beneficiosMae.includes(b));
+  }
+
+  adicionarBeneficio(): void {
+    const texto = this.novoBeneficio.trim().replace(/\s+/g, ' ');
+    if (!texto) return;
+    if (texto.length > 40) { this.avisar('Escreva o benefício em até 40 caracteres.', 'erro'); return; }
+    if (this.formVaga.beneficios.length >= this.MAX_BENEFICIOS) { this.avisar(`Escolha até ${this.MAX_BENEFICIOS} benefícios.`, 'erro'); return; }
+    const igual = (a: string) => a.toLowerCase() === texto.toLowerCase();
+    const sugestao = this.beneficiosMae.find(igual);
+    if (sugestao) {
+      // já existe nas sugestões: só marca ela
+      if (!this.formVaga.beneficios.includes(sugestao)) this.formVaga.beneficios = [...this.formVaga.beneficios, sugestao];
+    } else if (!this.formVaga.beneficios.some(igual)) {
+      this.formVaga.beneficios = [...this.formVaga.beneficios, texto];
+    }
+    this.novoBeneficio = '';
+  }
+
+  removerBeneficio(b: string): void {
+    this.formVaga.beneficios = this.formVaga.beneficios.filter((x) => x !== b);
+  }
+
   async salvarVaga(): Promise<void> {
     const f = this.formVaga;
     if (!f.titulo.trim()) { this.avisar('Dê um título para a vaga.', 'erro'); return; }
     if (!f.descricao.trim()) { this.avisar('Escreva uma descrição para a vaga.', 'erro'); return; }
-    if (!this.linkValido(f.link)) { this.avisar('Informe o link ou o e-mail onde a mãe se candidata.', 'erro'); return; }
+    const linkVaga = verificarLinkCarreira(f.link, { site: this.siteEmpresa, email: this.emailEmpresa });
+    if (!linkVaga.ok) { this.avisar(linkVaga.mensagem, 'erro'); return; }
     if (!this.uid || this.salvando()) return;
     this.salvando.set(true);
     const dados = {
@@ -215,7 +283,8 @@ export class ParcCarreirasComponent implements OnInit, OnDestroy {
   async salvarCurso(): Promise<void> {
     const f = this.formCurso;
     if (!f.titulo.trim()) { this.avisar('Dê um nome para o curso.', 'erro'); return; }
-    if (!this.linkValido(f.link)) { this.avisar('Informe o link de inscrição do curso.', 'erro'); return; }
+    const linkCurso = verificarLinkCarreira(f.link, { site: this.siteEmpresa, email: this.emailEmpresa });
+    if (!linkCurso.ok) { this.avisar(linkCurso.mensagem, 'erro'); return; }
     if (!this.uid || this.salvando()) return;
     this.salvando.set(true);
     const dados = {

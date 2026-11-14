@@ -280,3 +280,47 @@ i { color: inherit; }
 .pc-aviso.erro > i { color: #c23b38; }
 :host-context(body[data-theme="dark"]) .pc-aviso { background: #141a26; color: #ece4ff; }
 @media (max-width: 640px) { .pc-aviso { top: 72px; right: 12px; left: 12px; max-width: none; } }
+
+/* ---------- benefício escrito pela empresa ---------- */
+.pc-chip-proprio { cursor: default; padding-right: 6px; }
+.pc-chip-proprio button {
+  display: grid; place-items: center; width: 22px; height: 22px; border: none; border-radius: 50%;
+  background: transparent; color: inherit; cursor: pointer; font-size: .75rem;
+}
+.pc-chip-proprio button:hover { background: rgba(168, 51, 106, .12); }
+.pc-novo-beneficio { display: flex; gap: 8px; margin-top: 12px; }
+.pc-novo-beneficio input {
+  flex: 1; min-width: 0; font: inherit; font-size: .9rem; padding: 10px 14px; border-radius: 13px;
+  border: 1.5px solid var(--p-borda); background: var(--p-campo); color: var(--p-texto); outline: none;
+}
+.pc-novo-beneficio input:focus { border-color: #8B72D6; box-shadow: 0 0 0 4px rgba(139, 114, 214, .14); }
+.pc-novo-beneficio .pc-btn-sec { white-space: nowrap; }
+.pc-novo-beneficio .pc-btn-sec:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ---------- conferência do link ---------- */
+.pc-link-status { display: flex; gap: 8px; margin: 8px 0 0; font-size: .82rem; line-height: 1.45; font-weight: 600; color: #B4235A; }
+.pc-link-status i { margin-top: 3px; }
+.pc-link-status.ok { color: #17714F; }
+:host-context(body[data-theme="dark"]) .pc-link-status { color: #F7A8C8; }
+:host-context(body[data-theme="dark"]) .pc-link-status.ok { color: #6EE7B7; }
+
+/* ---------- visão geral do alcance ---------- */
+.pc-alcance {
+  display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 16px; align-items: center;
+  margin-bottom: 24px; padding: 18px 22px; border-radius: 20px;
+  background: var(--p-card); border: 1px solid var(--p-borda); box-shadow: var(--p-sombra);
+}
+.pc-alcance-tit { display: flex; align-items: center; gap: 12px; }
+.pc-alcance-tit > i { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; background: #EDE6FF; color: #6C4BBF; }
+.pc-alcance-tit div { display: flex; flex-direction: column; gap: 2px; }
+.pc-alcance-tit strong { color: var(--p-texto); font-size: .98rem; }
+.pc-alcance-tit small, .pc-alcance-num small { color: var(--p-suave); font-size: .8rem; line-height: 1.35; }
+.pc-alcance-num { display: flex; flex-direction: column; gap: 2px; padding-left: 16px; border-left: 1px solid var(--p-borda); }
+.pc-alcance-num strong { font-size: 1.6rem; color: var(--p-roxo); line-height: 1.1; }
+:host-context(body[data-theme="dark"]) .pc-alcance-tit > i { background: rgba(157, 143, 231, .18); color: #C4B5FD; }
+@media (max-width: 760px) {
+  .pc-alcance { grid-template-columns: 1fr 1fr; }
+  .pc-alcance-tit { grid-column: 1 / -1; }
+  .pc-alcance-tit + .pc-alcance-num { padding-left: 0; border-left: none; }
+  .pc-novo-beneficio { flex-direction: column; }
+}

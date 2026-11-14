@@ -1,7 +1,7 @@
 @if (!embutido) { <app-header tipo="mae"></app-header> }
 
 <main class="eventos-container">
-    
+
     <!-- 1. HERO COM IMAGEM DE FUNDO E TEXTOS -->
     <section class="eventos-hero-banner">
         <div class="hero-content">
@@ -40,7 +40,7 @@
             <button class="btn-ordenar" (click)="toggleDropdownCategoria($event)">
                 <i class="fa-solid fa-filter"></i> Categoria: {{ categoriaSelecionada() | titlecase }} <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
             </button>
-            
+
             <ul class="dropdown-menu-ordenacao" [class.hidden]="!isDropdownCatOpen()">
                 <li (click)="filtrarCategoria('Todos')"><i class="fa-solid fa-calendar-days"></i> Todos</li>
                 <li (click)="filtrarCategoria('palestras')"><i class="fa-solid fa-microphone"></i> Palestras</li>
@@ -55,7 +55,7 @@
             <button class="btn-ordenar" (click)="toggleDropdownOrdenacao($event)">
                 <i class="fa-solid fa-sliders"></i> {{ textoOrdenacao() }} <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
             </button>
-            
+
             <ul class="dropdown-menu-ordenacao" [class.hidden]="!isDropdownOpen()">
                 <li (click)="ordenarEventos('recentes')"><i class="fa-solid fa-arrow-down-wide-short"></i> Mais recentes</li>
                 <li (click)="ordenarEventos('antigos')"><i class="fa-solid fa-arrow-up-short-wide"></i> Mais antigos</li>
@@ -76,10 +76,10 @@
                     @if (evento.capa) {
                         <div class="evento-cover-container">
                             <img [src]="evento.capa" [alt]="evento.titulo" class="evento-cover">
-                            
+
                             <!-- Categoria Dinâmica no Canto Superior Esquerdo -->
                             <span class="categoria-badge">
-                                <i class="fa-solid fa-bookmark"></i> {{ evento.categoria || 'Evento' }}
+                                <i class="fa-solid fa-bookmark"></i> {{ evento.categoriaNome || 'Evento' }}
                             </span>
                             @if (evento.visibilidade && evento.visibilidade !== 'basico') {
                                 <span class="vis-selo vis-selo-capa" [class.premium]="evento.visibilidade === 'premium'">
@@ -115,7 +115,7 @@
                             </div>
                         }
                         <p class="evento-descricao">{{ evento.descricao }}</p>
-                        
+
                         <div class="evento-acoes">
                             @if (evento.encerrado) {
                                 <button class="btn-inscrever encerrado" (click)="abrirDetalhes(evento)">
@@ -164,7 +164,7 @@
                     <img [src]="eventoSelecionado().capa" [alt]="eventoSelecionado().titulo">
                 }
                 <div class="evm-capa-chips">
-                    <span class="evm-chip"><i class="fa-solid fa-bookmark"></i> {{ eventoSelecionado()?.categoria || 'Evento' }}</span>
+                    <span class="evm-chip"><i class="fa-solid fa-bookmark"></i> {{ eventoSelecionado()?.categoriaNome || 'Evento' }}</span>
                     @if (eventoSelecionado()?.visibilidade && eventoSelecionado()?.visibilidade !== 'basico') {
                         <span class="evm-chip evm-chip-vis" [class.premium]="eventoSelecionado()?.visibilidade === 'premium'">
                             <i class="fa-solid" [class.fa-crown]="eventoSelecionado()?.visibilidade === 'premium'" [class.fa-star]="eventoSelecionado()?.visibilidade !== 'premium'"></i>
@@ -242,7 +242,7 @@
         <div class="modal-content modal-aviso-box" (click)="$event.stopPropagation()">
             <h2 class="modal-titulo" style="margin-bottom: 12px;">{{ avisoInfo().titulo }}</h2>
             <p class="modal-descricao" style="margin-bottom: 24px;">{{ avisoInfo().mensagem }}</p>
-            
+
             @if (avisoInfo().isConfirm) {
                 <div style="display: flex; gap: 12px; justify-content: center;">
                     <button class="btn-cancelar" style="background: rgba(157, 143, 231, 0.2); color: inherit;" (click)="fecharModais()">Não, Voltar</button>

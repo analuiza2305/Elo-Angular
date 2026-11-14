@@ -45,6 +45,8 @@ export class ForumComponent implements OnInit {
   showNewPostModal = signal<boolean>(false);
   showConfirmModal = signal<boolean>(false);
   postParaExcluirId = signal<string | null>(null);
+  /** Quando preenchido, o modal de publicação está editando este post (e não criando um novo). */
+  editandoPost = signal<any | null>(null);
   novoPostForm = { titulo: '', conteudo: '', anonimo: false, categoria: 'Desabafos' };
   publicando = signal<boolean>(false);
 
@@ -181,7 +183,17 @@ export class ForumComponent implements OnInit {
 
         let jaCurtiu = false;
         let totalComentarios = 0;
+        // "ehMeu": o post é de quem está logada? Nos anônimos o autorId é só 'anonimo',
+        // então a dona é descoberta pelo vínculo privado em `postsAutores/{postId}`.
+        let ehMeu = !!user && p['autorId'] === this.meuAutorId();
         const promisesExtras = [];
+        if (user && p['autorId'] === 'anonimo' && !this.embutido) {
+          promisesExtras.push(
+            getDoc(doc(db, 'postsAutores', postId)).then(vinculo => {
+              ehMeu = vinculo.exists() && vinculo.data()['uid'] === user.uid;
+            }).catch(() => {}) // sem permissão de leitura = não é dela
+          );
+        }
         if (user) {
           promisesExtras.push(
             getDoc(doc(db, 'posts', postId, 'likes', user.uid)).then(likeSnap => {
@@ -205,7 +217,8 @@ export class ForumComponent implements OnInit {
             ? p['data'].toDate().toLocaleString('pt-BR', { dateStyle: 'medium', timeStyle: 'short' })
             : 'Agora',
           jaCurtiu,
-          totalComentarios
+          totalComentarios,
+          ehMeu
         };
       }));
 
@@ -222,12 +235,52 @@ export class ForumComponent implements OnInit {
 
   abrirModalNovoPost() {
     const cat = this.categoriaSelecionada();
+    this.editandoPost.set(null);
     this.novoPostForm = { titulo: '', conteudo: '', anonimo: false, categoria: cat !== 'Todos' ? cat : 'Desabafos' };
+    this.showNewPostModal.set(true);
+  }
+
+  /** Abre o mesmo modal de publicação, já preenchido, para editar um post da própria usuária. */
+  abrirModalEdicao(post: any, event: Event) {
+    event.stopPropagation();
+    this.editandoPost.set(post);
+    this.novoPostForm = {
+      titulo: post.titulo || '',
+      conteudo: post.conteudo || '',
+      anonimo: post.autorId === 'anonimo', // o anonimato não muda na edição
+      categoria: post.categoria || 'Desabafos'
+    };
     this.showNewPostModal.set(true);
   }
 
   fecharModalNovoPost() {
     this.showNewPostModal.set(false);
+    this.editandoPost.set(null);
+  }
+
+  /** Botão "Publicar" do modal: cria um post novo ou salva a edição. */
+  enviarFormulario() {
+    if (this.editandoPost()) { this.salvarEdicao(); } else { this.criarPostagem(); }
+  }
+
+  async salvarEdicao() {
+    const post = this.editandoPost();
+    if (!post || !this.podePublicar() || this.publicando()) return;
+    this.publicando.set(true);
+    try {
+      await updateDoc(doc(db, 'posts', post.id), {
+        titulo: this.novoPostForm.titulo.trim(),
+        conteudo: this.novoPostForm.conteudo.trim(),
+        categoria: this.novoPostForm.categoria,
+        editadoEm: serverTimestamp()
+      });
+      this.fecharModalNovoPost();
+      await this.carregarPosts();
+    } catch (err) {
+      console.error('Erro ao editar post:', err);
+    } finally {
+      this.publicando.set(false);
+    }
   }
 
   podePublicar() {
@@ -318,7 +371,16 @@ export class ForumComponent implements OnInit {
     const id = this.postParaExcluirId();
     if (!id) return;
     try {
-      await deleteDoc(doc(db, 'posts', id));
+      const post = this.posts().find(p => p.id === id);
+      if (post?.autorId === 'anonimo') {
+        // Post anônimo: apaga junto o vínculo privado com a autora (mesma gravação)
+        const lote = writeBatch(db);
+        lote.delete(doc(db, 'posts', id));
+        lote.delete(doc(db, 'postsAutores', id));
+        await lote.commit();
+      } else {
+        await deleteDoc(doc(db, 'posts', id));
+      }
       this.showConfirmModal.set(false);
       this.postParaExcluirId.set(null);
       await this.carregarPosts();

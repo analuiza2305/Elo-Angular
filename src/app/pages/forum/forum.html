@@ -95,10 +95,16 @@
                                     @if (post.categoria) {
                                         <span class="fr-tag">{{ post.categoria }}</span>
                                     }
-                                    @if (currentUser() && meuAutorId() !== post.autorId) {
+                                    @if (post.editadoEm) {
+                                        <span class="fr-editado">editado</span>
+                                    }
+                                    @if (currentUser() && !post.ehMeu) {
                                         <app-denunciar tipo="post" [alvoId]="post.id" [alvoTitulo]="post.titulo" [alvoDono]="post.autorNomeFinal"></app-denunciar>
                                     }
-                                    @if (currentUser() && meuAutorId() === post.autorId) {
+                                    @if (post.ehMeu) {
+                                        <button type="button" class="fr-editar" (click)="abrirModalEdicao(post, $event)">
+                                            <i class="fa-regular fa-pen-to-square"></i> Editar
+                                        </button>
                                         <button type="button" class="fr-excluir" (click)="confirmarExclusao(post.id, $event)">
                                             <i class="fa-regular fa-trash-can"></i> Excluir
                                         </button>
@@ -196,9 +202,9 @@
 @if (showNewPostModal()) {
     <div class="fr-modal" (click)="fecharModalNovoPost()">
         <!-- O próprio card do tópico: o que a mãe digita já aparece como vai ficar publicado -->
-        <form class="fr-composer" role="dialog" aria-modal="true" aria-label="Nova publicação" (click)="$event.stopPropagation()" (submit)="$event.preventDefault(); criarPostagem()">
+        <form class="fr-composer" role="dialog" aria-modal="true" [attr.aria-label]="editandoPost() ? 'Editar publicação' : 'Nova publicação'" (click)="$event.stopPropagation()" (submit)="$event.preventDefault(); enviarFormulario()">
             <div class="fr-composer-topo">
-                <span class="fr-composer-rotulo"><i class="fa-solid fa-pen"></i> Nova publicação</span>
+                <span class="fr-composer-rotulo"><i class="fa-solid fa-pen"></i> {{ editandoPost() ? 'Editar publicação' : 'Nova publicação' }}</span>
                 <button type="button" class="fr-composer-fechar" aria-label="Fechar" (click)="fecharModalNovoPost()"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
@@ -210,7 +216,7 @@
                         <img [src]="novoPostForm.anonimo ? './img/account_icon.png' : minhaFoto()" alt="" class="fr-composer-avatar-mini">
                         <strong>{{ novoPostForm.anonimo ? 'Anônimo' : meuNome() }}</strong>
                         <span class="fr-post-ponto">•</span>
-                        <span>agora</span>
+                        <span>{{ editandoPost() ? 'editando' : 'agora' }}</span>
                         @if (novoPostForm.anonimo) {
                             <span class="fr-composer-anon-badge"><i class="fa-solid fa-user-secret"></i> sua identidade fica oculta</span>
                         }
@@ -262,7 +268,11 @@
             </div>
 
             <div class="fr-composer-rodape">
-                @if (!embutido) {
+                @if (editandoPost()) {
+                <span class="fr-composer-aviso-edicao">
+                    @if (novoPostForm.anonimo) { <i class="fa-solid fa-user-secret"></i> Continua publicada como anônima }
+                </span>
+                } @else if (!embutido) {
                 <label class="fr-switch">
                     <input type="checkbox" [(ngModel)]="novoPostForm.anonimo" name="anonimo">
                     <span class="fr-switch-trilho" aria-hidden="true"></span>
@@ -273,7 +283,9 @@
                 <div class="fr-composer-acoes">
                     <button type="button" class="fr-btn-secundario" (click)="fecharModalNovoPost()">Cancelar</button>
                     <button type="submit" class="fr-btn-primario" [disabled]="!podePublicar() || publicando()">
-                        @if (publicando()) { Publicando... } @else { <i class="fa-solid fa-paper-plane"></i> Publicar }
+                        @if (publicando()) { {{ editandoPost() ? 'Salvando...' : 'Publicando...' }} }
+                        @else if (editandoPost()) { <i class="fa-solid fa-check"></i> Salvar alterações }
+                        @else { <i class="fa-solid fa-paper-plane"></i> Publicar }
                     </button>
                 </div>
             </div>

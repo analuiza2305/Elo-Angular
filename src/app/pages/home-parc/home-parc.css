@@ -4331,6 +4331,17 @@ header .profile-img {
   margin-top: 2px;
 }
 
+/* explicação curta do que o número significa */
+.stat-hint {
+  display: block;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #8a8199;
+  margin-top: 4px;
+}
+
+:host-context(body[data-theme="dark"]) .stat-hint { color: #b8b0d6; }
+
 /* -------- Dashboard columns -------- */
 .dashboard-columns {
   display: grid;
@@ -7311,6 +7322,16 @@ header .profile-img {
   width: 100% !important; margin: 0 !important; background: #ffffff !important; border: 1px solid #EEE7FB !important;
   border-radius: 20px !important; padding: 18px !important; box-shadow: 0 10px 26px rgba(108, 75, 191, .1) !important; text-align: left;
 }
+:host #eventModal .prev-ev-capa {
+  display: block; width: calc(100% + 36px); height: 150px; margin: -18px -18px 14px !important;
+  object-fit: cover; border: none !important; border-radius: 20px 20px 0 0 !important;
+}
+:host #eventModal img.prev-ev-capa[hidden], :host #eventModal .prev-ev-capa-vazia[hidden] { display: none !important; }
+:host #eventModal .prev-ev-capa-vazia {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  background: linear-gradient(135deg, #E9DFFF, #F9E3F0); color: #9F84E6; font-size: 1.8rem;
+}
+:host #eventModal .prev-ev-capa-vazia span { font-size: .78rem; font-weight: 700; }
 :host #postModal .draft-status, :host #eventModal .draft-status { margin: 0; font-size: .8rem; color: #8B7DB5; text-align: center; min-height: 1em; }
 
 @media (max-width: 760px) {
