@@ -27,6 +27,7 @@ import { Perfil } from './pages/perfil/perfil';
 import { AgendaMae } from './pages/agenda-mae/agenda-mae';
 import { PerfilProfissionalComponent } from './pages/perfil-profissional/perfil-profissional';
 import { ArtigoIndProfissional } from './pages/artigo-ind-profissional/artigo-ind-profissional';
+import { DocumentoLegal } from './pages/documento-legal/documento-legal';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -35,6 +36,8 @@ export const routes: Routes = [
   { path: 'cadastro', component: Cadastro },
   { path: 'verificar-email', component: VerificarEmail },
   { path: 'cadastro-profissional', component: CadastroProfissional },
+  { path: 'termos-de-uso', component: DocumentoLegal, data: { documento: 'termos' } },
+  { path: 'politica-de-privacidade', component: DocumentoLegal, data: { documento: 'privacidade' } },
   { path: 'home-adv', component: HomeAdv },
   { path: 'home-psi', component: HomePsi },
   { path: 'home-mae', component: HomeMaeComponent },

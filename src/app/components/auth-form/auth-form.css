@@ -482,3 +482,45 @@ body[data-theme="dark"] .esqueci-senha-link a {
 :host-context(body[data-theme="dark"]) .campo-nascimento label { color: #4B2C82; }
 :host-context(body[data-theme="dark"]) .campo-nascimento input[type="date"] { color: #F5F0FF; color-scheme: dark; }
 :host-context(body[data-theme="dark"]) .aviso-idade { color: #5B4A93; }
+
+/* =========================================================
+   OLHO DA SENHA + LINKS DOS TERMOS (emily-termoseolho)
+   ========================================================= */
+.btn-olho {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  margin-left: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #583E8E;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.btn-olho:hover,
+.btn-olho:focus-visible {
+  opacity: 1;
+  background: rgba(104, 68, 176, 0.08);
+}
+
+.btn-olho:focus-visible {
+  outline: 2px solid #6844b0;
+  outline-offset: 1px;
+}
+
+.aceite-termos a {
+  color: #4B2C82;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+:host-context(body[data-theme="dark"]) .btn-olho { color: #c4b5fd; }
+:host-context(body[data-theme="dark"]) .aceite-termos a { color: #c4b5fd; }
+.btn-olho i { color: inherit; }

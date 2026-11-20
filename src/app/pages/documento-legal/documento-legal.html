@@ -1,0 +1,116 @@
+<app-header tipo="landing"></app-header>
+
+<main class="dl-pagina" id="conteudo-principal" data-no-reveal>
+  <div class="dl-container">
+
+    <button type="button" class="dl-voltar" (click)="voltar()">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      <span>Voltar</span>
+    </button>
+
+    <!-- Troca entre os dois documentos -->
+    <nav class="dl-abas" aria-label="Escolha o documento">
+      <a routerLink="/termos-de-uso" [class.ativa]="chave() === 'termos'"
+         [attr.aria-current]="chave() === 'termos' ? 'page' : null">
+        <i class="fa-solid fa-file-contract" aria-hidden="true"></i>
+        <span>Termos de Uso</span>
+      </a>
+      <a routerLink="/politica-de-privacidade" [class.ativa]="chave() === 'privacidade'"
+         [attr.aria-current]="chave() === 'privacidade' ? 'page' : null">
+        <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
+        <span>Privacidade</span>
+      </a>
+    </nav>
+
+    <!-- Título + ferramentas de leitura -->
+    <header class="dl-cabecalho">
+      <div>
+        <h1>{{ tituloCurto() }}</h1>
+        <p class="dl-data">
+          <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+          Atualizado em {{ doc().atualizacao }}
+        </p>
+      </div>
+
+      <div class="dl-ferramentas" role="group" aria-label="Ferramentas de leitura">
+        @if (vozDisponivel()) {
+          <button type="button" class="dl-btn" [class.ativo]="lendo()" (click)="alternarLeitura()"
+                  [attr.aria-pressed]="lendo()">
+            <i class="fa-solid" [class.fa-volume-high]="!lendo()" [class.fa-stop]="lendo()" aria-hidden="true"></i>
+            <span>{{ lendo() ? 'Parar' : 'Ouvir' }}</span>
+          </button>
+        }
+        <button type="button" class="dl-btn dl-btn-letra" (click)="diminuirLetra()" [disabled]="!podeDiminuir()"
+                aria-label="Diminuir o tamanho da letra">A−</button>
+        <button type="button" class="dl-btn dl-btn-letra" (click)="aumentarLetra()" [disabled]="!podeAumentar()"
+                aria-label="Aumentar o tamanho da letra">A+</button>
+      </div>
+    </header>
+
+    <!-- Resumo em linguagem simples -->
+    @if (resumo(); as r) {
+      <section class="dl-resumo" aria-labelledby="dl-resumo-titulo" [style.font-size.rem]="tamanhoFonte()">
+        <h2 id="dl-resumo-titulo" class="dl-resumo-titulo">
+          <i class="fa-solid fa-heart" aria-hidden="true"></i> O mais importante, em poucas palavras
+        </h2>
+        <ul class="dl-cartoes">
+          @for (item of r.itens; track $index) {
+            <li class="dl-cartao">
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+              <p>@for (parte of item; track $index) {<span [class.dl-b]="parte.b">{{ parte.t }}</span>}</p>
+            </li>
+          }
+        </ul>
+        <p class="dl-resumo-nota">Este resumo ajuda a entender, mas não substitui o texto completo logo abaixo.</p>
+      </section>
+    }
+
+    <div class="dl-layout">
+      <!-- Sumário: abre e fecha (fechado no celular) -->
+      <details class="dl-sumario" [open]="sumarioAberto()" (toggle)="alternarSumario($event)">
+        <summary>
+          <i class="fa-solid fa-list" aria-hidden="true"></i>
+          <span>Ir para uma parte</span>
+          <i class="fa-solid fa-chevron-down dl-seta" aria-hidden="true"></i>
+        </summary>
+        <ol>
+          @for (s of sumario(); track s.id) {
+            <li><a [href]="'#' + s.id" (click)="irPara(s.id, $event)">{{ s.texto }}</a></li>
+          }
+        </ol>
+      </details>
+
+      <!-- Texto completo -->
+      <article class="dl-texto" #texto [style.font-size.rem]="tamanhoFonte()">
+        @for (bloco of blocos(); track $index) {
+          @if (bloco.tipo === 'h1') {
+            <h2 class="dl-h1" [id]="bloco.id">{{ bloco.texto }}</h2>
+          } @else if (bloco.tipo === 'h2') {
+            <h3 class="dl-h2">{{ bloco.texto }}</h3>
+          } @else {
+            <p [class.dl-item]="bloco.tipo !== 'p'" [class.dl-subitem]="bloco.tipo === 'b2'">@for (parte of bloco.partes; track $index) {<span [class.dl-b]="parte.b">{{ parte.t }}</span>}</p>
+          }
+        }
+
+        <aside class="dl-ajuda">
+          <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+          <p>Ficou com alguma dúvida? Escreva para <a href="mailto:eloomaterno@gmail.com">eloomaterno&#64;gmail.com</a>.
+            A gente explica com calma.</p>
+        </aside>
+
+        <button type="button" class="dl-voltar dl-voltar-fim" (click)="voltar()">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+          <span>Voltar para onde eu estava</span>
+        </button>
+      </article>
+    </div>
+  </div>
+
+  @if (mostrarTopo()) {
+    <button type="button" class="dl-topo" (click)="voltarAoTopo()" aria-label="Voltar ao topo da página">
+      <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+    </button>
+  }
+</main>
+
+<app-footer></app-footer>

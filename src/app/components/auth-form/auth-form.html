@@ -95,12 +95,23 @@
     <div class="senha-linha">
       <div class="input-group">
         <i class="fa fa-lock icon"></i>
-        <input type="password" placeholder="Senha:" [(ngModel)]="senha" name="senha" required>
+        <input [type]="mostrarSenha() ? 'text' : 'password'" placeholder="Senha:" [(ngModel)]="senha" name="senha" required
+               [attr.autocomplete]="acao === 'login' ? 'current-password' : 'new-password'">
+        <button type="button" class="btn-olho" (click)="mostrarSenha.set(!mostrarSenha())"
+                [attr.aria-label]="mostrarSenha() ? 'Ocultar senha' : 'Mostrar senha'"
+                [attr.aria-pressed]="mostrarSenha()" [title]="mostrarSenha() ? 'Ocultar senha' : 'Mostrar senha'">
+          <i class="fa-regular" [class.fa-eye]="!mostrarSenha()" [class.fa-eye-slash]="mostrarSenha()"></i>
+        </button>
       </div>
       @if (acao === 'cadastro') {
         <div class="input-group">
           <i class="fa fa-lock icon"></i>
-          <input type="password" placeholder="Repita a senha:" [(ngModel)]="senha2" name="senha2" required>
+          <input [type]="mostrarSenha2() ? 'text' : 'password'" placeholder="Repita a senha:" [(ngModel)]="senha2" name="senha2" required autocomplete="new-password">
+          <button type="button" class="btn-olho" (click)="mostrarSenha2.set(!mostrarSenha2())"
+                  [attr.aria-label]="mostrarSenha2() ? 'Ocultar senha' : 'Mostrar senha'"
+                  [attr.aria-pressed]="mostrarSenha2()" [title]="mostrarSenha2() ? 'Ocultar senha' : 'Mostrar senha'">
+            <i class="fa-regular" [class.fa-eye]="!mostrarSenha2()" [class.fa-eye-slash]="mostrarSenha2()"></i>
+          </button>
         </div>
       }
     </div>
@@ -111,11 +122,15 @@
       </p>
     }
 
-    @if (acao === 'cadastro' && publico === 'profissional') {
+    @if (acao === 'cadastro') {
       <div class="aceite-termos">
         <input type="checkbox" id="termos" [(ngModel)]="termos" name="termos">
-        <label for="termos"> Li e aceito os termos de parceria e declaro ter 18 anos ou mais</label>
-        <p>Receba apoio, visibilidade e participe de nossa rede de impacto social.</p>
+        <label for="termos"> Li e aceito os
+          <a href="/termos-de-uso" target="_blank" rel="noopener">Termos de Uso</a> e a
+          <a href="/politica-de-privacidade" target="_blank" rel="noopener">Política de Privacidade</a>@if (publico === 'profissional') { e declaro ter 18 anos ou mais}</label>
+        @if (publico === 'profissional') {
+          <p>Receba apoio, visibilidade e participe de nossa rede de impacto social.</p>
+        }
       </div>
     }
 
