@@ -5,6 +5,7 @@ import { filter, map } from 'rxjs';
 import { AlertaComponent } from './components/alerta/alerta';
 import { FooterSimplesComponent } from './components/footer-simples/footer-simples';
 import { CpfObrigatorioComponent } from './components/cpf-obrigatorio/cpf-obrigatorio';
+import { AvisoTermosComponent } from './components/aviso-termos/aviso-termos';
 import { AnimacoesService } from './core/services/animacoes.service';
 
 // Telas sem o footer simples: landing page (tem o footer completo), autenticação e videochamada (tela cheia)
@@ -17,12 +18,14 @@ const ROTAS_SEM_FOOTER = new Set([
   'cadastro-profissional',
   'verificar-email',
   'videochamada',
+  'termos-de-uso', // documentos legais têm o footer completo, igual à landing
+  'politica-de-privacidade',
 ]);
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, AlertaComponent, FooterSimplesComponent, CpfObrigatorioComponent],
+  imports: [RouterOutlet, AlertaComponent, FooterSimplesComponent, CpfObrigatorioComponent, AvisoTermosComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })

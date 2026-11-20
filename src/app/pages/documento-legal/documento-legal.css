@@ -1,0 +1,408 @@
+/* =========================================================
+   DOCUMENTOS LEGAIS (/termos-de-uso e /politica-de-privacidade)
+   Visual limpo, texto alinhado à esquerda, letras e áreas de toque grandes.
+   ========================================================= */
+:host {
+  --dl-texto: #3a3550;
+  --dl-suave: #6b6385;
+  --dl-titulo: #4B2C82;
+  --dl-roxo: #6844b0;
+  --dl-roxo-claro: #7c69a9;
+  --dl-fundo: #F9F7FF;
+  --dl-card: #ffffff;
+  --dl-borda: #ECE4FB;
+  --dl-destaque: #F3EEFE;
+  --dl-foco: #6844b0;
+  /* Altura do header fixo + respiro (o header tem 80px no computador e ~111px no celular). */
+  --dl-topo-header: 120px;
+  display: block;
+}
+
+:host-context(body[data-theme="dark"]) {
+  --dl-texto: #ddd6f3;
+  --dl-suave: #b3a9d4;
+  --dl-titulo: #efe7ff;
+  --dl-roxo: #c4b5fd;
+  --dl-roxo-claro: #c4b5fd;
+  --dl-fundo: var(--bg-color, #0f1420);
+  --dl-card: #141a26;
+  --dl-borda: rgba(255, 255, 255, 0.1);
+  --dl-destaque: #1b2336;
+  --dl-foco: #c4b5fd;
+}
+
+.dl-pagina {
+  padding: calc(var(--dl-topo-header) + 24px) 20px 72px;
+  background: var(--dl-fundo);
+  color: var(--dl-texto);
+}
+
+.dl-container {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* O site pinta todo <i> de roxo; aqui o ícone segue a cor do botão/texto onde está
+   (branco nos botões roxos). Os ícones decorativos têm cor própria mais abaixo. */
+.dl-pagina i { color: inherit; }
+
+/* Foco bem visível para quem navega pelo teclado */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--dl-foco);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+/* ---------- botão voltar ---------- */
+.dl-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  margin-bottom: 16px;
+  padding: 0 20px 0 16px;
+  border: 1px solid var(--dl-borda);
+  border-radius: 999px;
+  background: var(--dl-card);
+  color: var(--dl-titulo);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.dl-voltar:hover { background: var(--dl-destaque); }
+.dl-voltar:hover i { transform: translateX(-3px); }
+.dl-voltar i { transition: transform 0.15s ease; }
+
+.dl-voltar-fim {
+  margin: 24px 0 0;
+  background: var(--dl-roxo);
+  border-color: var(--dl-roxo);
+  color: #ffffff;
+}
+
+.dl-voltar-fim:hover { background: var(--dl-roxo); filter: brightness(0.92); }
+:host-context(body[data-theme="dark"]) .dl-voltar-fim { color: #141a26; }
+
+/* ---------- abas Termos | Privacidade ---------- */
+.dl-abas {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 6px;
+  margin-bottom: 28px;
+  border-radius: 999px;
+  border: 1px solid var(--dl-borda);
+  background: var(--dl-card);
+}
+
+.dl-abas a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 22px;
+  border-radius: 999px;
+  color: var(--dl-titulo);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.dl-abas a:hover { background: var(--dl-destaque); }
+
+.dl-abas a.ativa {
+  background: var(--dl-roxo);
+  color: #ffffff;
+}
+
+:host-context(body[data-theme="dark"]) .dl-abas a.ativa { color: #141a26; }
+
+/* ---------- título + ferramentas ---------- */
+.dl-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.dl-cabecalho h1 {
+  margin: 0 0 6px;
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  line-height: 1.2;
+  color: var(--dl-titulo);
+}
+
+.dl-data {
+  margin: 0;
+  color: var(--dl-suave);
+  font-size: 0.95rem;
+}
+
+.dl-data i { margin-right: 6px; }
+
+.dl-ferramentas {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--dl-borda);
+  border-radius: 14px;
+  background: var(--dl-card);
+  color: var(--dl-titulo);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.dl-btn:hover:not(:disabled) { background: var(--dl-destaque); }
+.dl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.dl-btn.ativo { background: var(--dl-roxo); border-color: var(--dl-roxo); color: #ffffff; }
+:host-context(body[data-theme="dark"]) .dl-btn.ativo { color: #141a26; }
+.dl-btn-letra { padding: 0 14px; font-size: 1rem; }
+
+/* ---------- resumo em cartões ---------- */
+.dl-resumo {
+  margin-bottom: 32px;
+  padding: 24px;
+  border-radius: 24px;
+  background: var(--dl-destaque);
+}
+
+.dl-resumo-titulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px !important;
+  font-size: 1.15em !important;
+  color: var(--dl-titulo);
+}
+
+.dl-resumo-titulo i { color: var(--dl-roxo); }
+
+.dl-cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dl-cartao {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--dl-card);
+  line-height: 1.6;
+}
+
+.dl-cartao i {
+  flex-shrink: 0;
+  margin-top: 0.3em;
+  color: var(--dl-roxo);
+  font-size: 1.1rem;
+}
+
+.dl-cartao p { margin: 0; }
+
+.dl-resumo-nota {
+  margin: 14px 0 0;
+  color: var(--dl-suave);
+  font-size: 0.88rem;
+}
+
+/* ---------- sumário + texto ---------- */
+.dl-layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.dl-sumario {
+  position: sticky;
+  top: var(--dl-topo-header);
+  max-height: calc(100vh - var(--dl-topo-header) - 24px);
+  overflow-y: auto;
+  border-radius: 18px;
+  border: 1px solid var(--dl-borda);
+  background: var(--dl-card);
+}
+
+.dl-sumario summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 18px;
+  font-weight: 700;
+  color: var(--dl-titulo);
+  cursor: pointer;
+  list-style: none;
+}
+
+.dl-sumario summary::-webkit-details-marker { display: none; }
+.dl-seta { margin-left: auto; transition: transform 0.2s ease; }
+.dl-sumario[open] .dl-seta { transform: rotate(180deg); }
+
+.dl-sumario ol {
+  margin: 0;
+  padding: 0 10px 12px;
+  list-style: none;
+}
+
+.dl-sumario a {
+  display: block;
+  padding: 9px 10px;
+  border-radius: 10px;
+  color: var(--dl-texto);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.dl-sumario a:hover { background: var(--dl-destaque); color: var(--dl-titulo); }
+
+.dl-texto {
+  padding: 36px 40px;
+  border-radius: 24px;
+  border: 1px solid var(--dl-borda);
+  background: var(--dl-card);
+  line-height: 1.8;
+  text-align: left;
+}
+
+/* Linhas com no máximo ~70 caracteres: mais fáceis de acompanhar */
+.dl-texto p,
+.dl-texto h2,
+.dl-texto h3 { max-width: 70ch; }
+
+.dl-texto p { margin: 0 0 16px; }
+
+/* O site fixa <p> em 15px (e 0.95rem no celular); aqui o texto segue o A− / A+. */
+.dl-texto p,
+.dl-cartao p,
+.dl-resumo-nota { font-size: 1em !important; }
+
+.dl-resumo-nota { font-size: 0.9em !important; }
+
+.dl-b { font-weight: 700; color: var(--dl-titulo); }
+
+.dl-h1 {
+  margin: 44px 0 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--dl-borda);
+  font-size: 1.3em !important;
+  line-height: 1.3;
+  color: var(--dl-titulo);
+  scroll-margin-top: calc(var(--dl-topo-header) + 8px);
+}
+
+.dl-texto > .dl-h1:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+
+.dl-h2 {
+  margin: 28px 0 10px;
+  font-size: 1.1em !important;
+  color: var(--dl-titulo);
+}
+
+/* itens de lista (marcador desenhado no CSS) */
+.dl-item {
+  position: relative;
+  padding-left: 24px;
+  margin-bottom: 10px !important;
+}
+
+.dl-item::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 0.75em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--dl-roxo-claro);
+}
+
+.dl-subitem { margin-left: 24px; }
+.dl-subitem::before { background: transparent; border: 1.5px solid var(--dl-roxo-claro); }
+
+/* ---------- caixa de ajuda no fim ---------- */
+.dl-ajuda {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-top: 40px;
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: var(--dl-destaque);
+}
+
+.dl-ajuda i { margin-top: 5px; color: var(--dl-roxo); font-size: 1.2rem; }
+.dl-ajuda p { margin: 0 !important; }
+.dl-ajuda a { color: var(--dl-roxo); font-weight: 600; }
+
+/* ---------- voltar ao topo ---------- */
+.dl-topo {
+  position: fixed;
+  right: 20px;
+  bottom: 96px; /* acima do botão do VLibras */
+  z-index: 900;
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 50%;
+  background: var(--dl-roxo);
+  color: #ffffff;
+  font-size: 1.1rem;
+  box-shadow: 0 8px 24px rgba(75, 44, 130, 0.3);
+  cursor: pointer;
+}
+
+:host-context(body[data-theme="dark"]) .dl-topo { color: #141a26; }
+
+/* ---------- tablet e celular ---------- */
+@media (max-width: 900px) {
+  :host { --dl-topo-header: 120px; }
+  .dl-pagina { padding: calc(var(--dl-topo-header) + 12px) 16px 48px; }
+  .dl-abas { display: grid; width: 100%; }
+  .dl-voltar-fim { width: 100%; justify-content: center; }
+  .dl-abas a { padding: 0 12px; }
+  .dl-layout { grid-template-columns: 1fr; gap: 16px; }
+  .dl-sumario { position: static; max-height: none; }
+  .dl-texto { padding: 24px 20px; }
+  .dl-resumo { padding: 18px; border-radius: 20px; }
+  .dl-cabecalho { align-items: flex-start; }
+}
+
+@media (max-width: 400px) {
+  .dl-abas a { font-size: 0.88rem; gap: 6px; }
+  .dl-ferramentas { width: 100%; }
+  .dl-ferramentas .dl-btn:first-child { flex: 1; }
+  .dl-texto { padding: 20px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; scroll-behavior: auto !important; }
+}
