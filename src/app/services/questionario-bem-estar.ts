@@ -41,6 +41,9 @@ export const PERGUNTAS_BEM_ESTAR: PerguntaBemEstar[] = [
       { valor: 'bebe', rotulo: 'Bebê de até 1 ano' },
       { valor: 'pequena', rotulo: 'Criança de 1 a 5 anos' },
       { valor: 'maior', rotulo: 'Criança maior' },
+      { valor: 'varios', rotulo: 'Tenho filhos de idades diferentes' },
+      { valor: 'planejando', rotulo: 'Quero engravidar / estou planejando' },
+      { valor: 'outra', rotulo: 'Outra situação' },
     ],
   },
   {

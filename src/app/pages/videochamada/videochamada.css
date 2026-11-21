@@ -822,3 +822,25 @@
 /* Ajuste 02/11 (auditoria de contraste): verde-água mais escuro para o texto branco */
 .btn-entrar-sala { background: linear-gradient(135deg, #0F766E, #115E59); }
 .btn-entrar-sala i { color: #FFFFFF !important; }
+
+/* =========================================================
+   PRESENÇA NA SALA + AVISO DE CHEGADA (reunião 21/11)
+========================================================= */
+.status-presenca {
+  display: flex; align-items: center; gap: 10px; margin: 14px 0 6px; padding: 12px 14px;
+  border-radius: 14px; background: #F4F1FA; color: #5E5675; font-size: .95rem; line-height: 1.4;
+}
+.status-presenca.presente { background: #EAF7EF; color: #1E7A46; font-weight: 700; }
+.status-presenca.presente i { font-size: .6rem; animation: vc-pisca 1.2s ease-in-out infinite; }
+@keyframes vc-pisca { 50% { opacity: .25; } }
+
+.aviso-entrada {
+  position: fixed; top: 84px; left: 50%; transform: translateX(-50%); z-index: 50;
+  display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px;
+  background: #1E7A46; color: #FFFFFF; font-weight: 700; box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
+  animation: vc-desce .3s ease;
+}
+@keyframes vc-desce { from { opacity: 0; transform: translate(-50%, -10px); } }
+
+.tema-escuro .status-presenca { background: rgba(255, 255, 255, .06); color: #C9C2DA; }
+.tema-escuro .status-presenca.presente { background: rgba(126, 226, 168, .12); color: #7EE2A8; }

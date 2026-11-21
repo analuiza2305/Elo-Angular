@@ -6,7 +6,7 @@
 
   <div class="qb-coluna">
     <button type="button" class="qb-voltar" (click)="voltar()">
-      <i class="fa-solid fa-chevron-left"></i> Meu perfil
+      <i class="fa-solid fa-chevron-left"></i> {{ rotuloVoltar() }}
     </button>
 
     @if (carregando()) {
@@ -35,7 +35,9 @@
             </div>
           </div>
         }
-        <button type="button" class="qb-btn qb-btn-primario" (click)="voltar()">Voltar para o meu perfil</button>
+        <button type="button" class="qb-btn qb-btn-primario" (click)="voltar()">
+          {{ vindoDoAgendamento() ? 'Continuar para o agendamento' : 'Voltar para o meu perfil' }}
+        </button>
       </div>
     } @else if (modo() === 'resumo') {
       <!-- Já respondeu: mostra as respostas e a opção de atualizar -->
@@ -170,7 +172,7 @@
             }
           </ul>
 
-          <label class="qb-consentimento">
+          <label class="qb-consentimento" [class.qb-consentimento-alerta]="pediuConsentimento() && !consentimento()">
             <input type="checkbox" [checked]="consentimento()" (change)="consentimento.set(!consentimento())">
             <span class="qb-check"><i class="fa-solid fa-check"></i></span>
             <span>Autorizo que <b>somente</b> as psicólogas com quem eu tiver consulta vejam estas respostas.</span>
@@ -180,7 +182,7 @@
             <button type="button" class="qb-btn qb-btn-fantasma" (click)="jaRespondido() && passo() === perguntas.length ? cancelarAtualizacao() : anterior()">
               <i class="fa-solid fa-arrow-left"></i> {{ jaRespondido() ? 'Cancelar' : 'Voltar' }}
             </button>
-            <button type="button" class="qb-btn qb-btn-primario" [disabled]="salvando() || !consentimento()" (click)="enviar()">
+            <button type="button" class="qb-btn qb-btn-primario" [disabled]="salvando()" (click)="enviar()">
               {{ salvando() ? 'Enviando…' : (jaRespondido() ? 'Atualizar respostas' : 'Enviar respostas') }}
             </button>
           </nav>

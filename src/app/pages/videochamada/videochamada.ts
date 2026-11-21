@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild, inject, PLATFORM_ID, Inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { collection, doc, getDoc, getDocs, limit, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, limit, onSnapshot, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
 import { auth, db } from '../../core/firebase';
 
 declare var JitsiMeetExternalAPI: any;
@@ -66,6 +66,15 @@ export class VideochamadaComponent implements OnInit, OnDestroy {
   private preparacao?: Promise<DadosChamada>;
   private scriptCarregadoDe = '';
 
+  // ---------- Presença na sala (quem já entrou) ----------
+  /** A outra pessoa (profissional para a mãe, mãe para a profissional) já está na chamada. */
+  outraParteNaSala = false;
+  /** Aviso rápido dentro da chamada, ex.: "A profissional entrou". */
+  avisoEntrada = '';
+  private avisoTimer: any;
+  private unsubPresenca?: () => void;
+  private estouNaSala = false;
+
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -93,9 +102,78 @@ export class VideochamadaComponent implements OnInit, OnDestroy {
     await this.carregarDetalhesConsulta();
     this.cdr.detectChanges();
 
+    // Fica de olho se a outra pessoa já entrou (avisa a mãe quando a profissional chega)
+    this.ouvirPresenca();
+    // Fechou a aba no meio da chamada: tenta marcar que saiu
+    window.addEventListener('pagehide', this.aoSairDaPagina);
+
     // Busca o token e baixa o Jitsi enquanto a pessoa ainda está na sala de espera
     this.preparacao = this.prepararChamada();
     this.preparacao.catch(() => { /* o erro aparece ao clicar em Entrar */ });
+  }
+
+  private ouvirPresenca() {
+    this.unsubPresenca?.();
+    this.unsubPresenca = onSnapshot(doc(db, 'Consultas', this.consultaId), (snap) => {
+      const d: any = snap.data() || {};
+      const campo = this.ehProfissional ? 'maeNaSala' : 'profissionalNaSala';
+      const agora = !!d[campo];
+      if (agora && !this.outraParteNaSala) this.notificarChegada();
+      this.outraParteNaSala = agora;
+      this.cdr.detectChanges();
+    }, () => { /* sem permissão: segue sem o aviso */ });
+  }
+
+  /** Som curto + vibração + notificação do navegador (se ela tiver deixado). */
+  private notificarChegada() {
+    const quem = this.ehProfissional ? 'A mãe' : (this.detalhesConsulta?.outraParteNome || 'A profissional');
+    const texto = this.ehProfissional ? `${quem} já está na sala de espera.` : `${quem} entrou na chamada e está te esperando.`;
+    this.mostrarAvisoEntrada(texto);
+    try { navigator.vibrate?.([200, 100, 200]); } catch { /* sem vibração */ }
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.6);
+    } catch { /* navegador bloqueou o som */ }
+    try {
+      if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+        new Notification('Elo Materno', { body: texto, icon: './img/iconelogo.svg' });
+      }
+    } catch { /* sem notificações */ }
+  }
+
+  private mostrarAvisoEntrada(texto: string) {
+    this.avisoEntrada = texto;
+    clearTimeout(this.avisoTimer);
+    this.avisoTimer = setTimeout(() => { this.avisoEntrada = ''; this.cdr.detectChanges(); }, 8000);
+    this.cdr.detectChanges();
+  }
+
+  /** Grava no banco que eu estou (ou saí) da sala. Se as regras não deixarem, só segue. */
+  private async marcarPresenca(naSala: boolean) {
+    if (!this.consultaId || this.estouNaSala === naSala) return;
+    this.estouNaSala = naSala;
+    const prefixo = this.ehProfissional ? 'profissional' : 'mae';
+    const dados: any = { [`${prefixo}NaSala`]: naSala };
+    if (naSala) dados[`${prefixo}EntrouEm`] = serverTimestamp();
+    try {
+      await updateDoc(doc(db, 'Consultas', this.consultaId), dados);
+    } catch (e) {
+      console.warn('Presença na sala não gravada (confira as regras do Firestore):', e);
+    }
+  }
+
+  /** Pede permissão de notificação na sala de espera (só pergunta uma vez). */
+  pedirNotificacao() {
+    try {
+      if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+    } catch { /* ignore */ }
   }
 
   alternarTema() {
@@ -230,6 +308,7 @@ export class VideochamadaComponent implements OnInit, OnDestroy {
   }
 
   async entrarNaChamada() {
+    this.pedirNotificacao();
     this.emSalaDeEspera = false;
     this.isLoading = true;
     this.aguardandoLiberacao = false;
@@ -332,6 +411,7 @@ export class VideochamadaComponent implements OnInit, OnDestroy {
     this.fallbackTimeout = setTimeout(() => this.finalizarLoading(), 12000);
 
     this.api.addListener('videoConferenceJoined', () => {
+      this.marcarPresenca(true);
       this.aguardandoLiberacao = false;
       this.setProgresso(100, 'Tudo pronto!');
       setTimeout(() => this.finalizarLoading(), 300);
@@ -357,7 +437,11 @@ export class VideochamadaComponent implements OnInit, OnDestroy {
       this.cameraDesligada = e.muted;
       this.cdr.detectChanges();
     });
-    this.api.addListener('participantJoined', () => this.atualizarParticipantes());
+    this.api.addListener('participantJoined', (e: any) => {
+      this.atualizarParticipantes();
+      const nome = e?.displayName || (this.ehProfissional ? 'A mãe' : 'A profissional');
+      this.mostrarAvisoEntrada(`${nome} entrou na chamada.`);
+    });
     this.api.addListener('participantLeft', () => this.atualizarParticipantes());
     this.api.addListener('videoConferenceLeft', () => this.encerrarChamada());
     this.api.addListener('readyToClose', () => this.encerrarChamada());
@@ -437,6 +521,7 @@ export class VideochamadaComponent implements OnInit, OnDestroy {
   }
 
   private limpar() {
+    this.marcarPresenca(false);
     clearInterval(this.timerInterval);
     clearTimeout(this.fallbackTimeout);
     if (this.api) {
@@ -445,7 +530,12 @@ export class VideochamadaComponent implements OnInit, OnDestroy {
     }
   }
 
+  private aoSairDaPagina = () => this.marcarPresenca(false);
+
   ngOnDestroy() {
+    window.removeEventListener('pagehide', this.aoSairDaPagina);
+    this.unsubPresenca?.();
+    clearTimeout(this.avisoTimer);
     this.limpar();
   }
 }

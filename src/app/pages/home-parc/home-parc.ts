@@ -540,6 +540,30 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       .replaceAll("'", '&#39;');
   }
 
+  /** Nome que as mães veem na Comunidade e nos eventos: nome fantasia primeiro, nunca a razão social. */
+  private nomePublico(): string {
+    return this.nomeExibicao(this.dadosParceiroAtual) || this.nomeEmpresaAtual;
+  }
+
+  /**
+   * Postagens e eventos antigos foram gravados com a razão social. Ao abrir o painel (e ao salvar
+   * Configurações), troca o nome exibido pelo nome fantasia nos itens desta empresa.
+   */
+  private async sincronizarNomePublico(): Promise<void> {
+    const nome = this.nomePublico();
+    if (!this.uidAtual || !nome) return;
+    for (const [colecao, campo] of [['artigos', 'postadoPor'], ['eventos', 'enviadoPor']] as const) {
+      try {
+        const snap = await getDocs(query(collection(db, colecao), where('parceiroId', '==', this.uidAtual)));
+        await Promise.all(snap.docs
+          .filter((d) => d.data()[campo] !== nome)
+          .map((d) => updateDoc(d.ref, { [campo]: nome }).catch((e) => console.warn(`Nome não atualizado em ${colecao}/${d.id}:`, e))));
+      } catch (e) {
+        console.warn(`Não foi possível atualizar o nome nas publicações (${colecao}):`, e);
+      }
+    }
+  }
+
   private nomeExibicao(dados: any): string {
     const fantasia = (dados?.['nomeFantasia'] || '').trim();
     if (fantasia) return fantasia;
@@ -663,6 +687,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
           if (this.dadosParceiroAtual['fotoURL'] && sidebarAvatar) sidebarAvatar.src = this.dadosParceiroAtual['fotoURL'];
           if (sidebarNomeEmpresa) sidebarNomeEmpresa.textContent = this.sanitize(this.nomeExibicao(this.dadosParceiroAtual));
           this.nomeEmpresaMenu.set(this.nomeExibicao(this.dadosParceiroAtual) || 'Minha Empresa');
+          this.sincronizarNomePublico();
           if (this.dadosParceiroAtual['fotoURL']) this.fotoEmpresaMenu.set(this.dadosParceiroAtual['fotoURL']);
           void this.mostrarSeloApoiador(user.uid);
 
@@ -1216,7 +1241,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         link: val('link').trim(),
         // Empresa não publica artigo legislativo (conteúdo jurídico é dos advogados)
         categoria: ['posts', 'educacionais', 'dicas'].includes(val('categoria')) ? val('categoria') : 'posts',
-        postadoPor: this.nomeEmpresaAtual,
+        postadoPor: this.nomePublico(),
         datahorapost: new Date(),
         custoMoedas: 0,
         parceiroId: this.uidAtual,
@@ -1459,7 +1484,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         } else {
           await addDoc(collection(db, 'eventos'), {
             ...dados,
-            enviadoPor: this.nomeEmpresaAtual,
+            enviadoPor: this.nomePublico(),
             parceiroId: this.uidAtual,
             ...(await this.visibilidadeDaPublicacao()),
           });
@@ -1832,6 +1857,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         }
         this.dadosParceiroAtual = { ...this.dadosParceiroAtual, ...dadosAtualizados };
         this.nomeEmpresaAtual = dadosAtualizados.nomeEmpresa || this.nomeEmpresaAtual;
+        this.sincronizarNomePublico();
         const heroBoasVindas = document.getElementById('heroBoasVindas');
         if (heroBoasVindas) {
           heroBoasVindas.innerHTML = `Olá, ${this.sanitize(this.nomeExibicao(this.dadosParceiroAtual))}! <img src="./img/selinho-ver.svg" class="verificado-icon" alt="Parceiro verificado" width="24" height="24" style="width:24px;height:24px;min-width:24px;max-width:24px;flex:0 0 24px;margin:0;">`;

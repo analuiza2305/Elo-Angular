@@ -1,0 +1,36 @@
+@if (aberto()) {
+  <div class="gp-fundo" (click)="fechar()">
+    <section class="gp-modal" role="dialog" aria-modal="true" aria-labelledby="gp-titulo" (click)="$event.stopPropagation()">
+      <div class="gp-topo">
+        <span class="gp-contador">Passo {{ passo() + 1 }} de {{ passos.length }}</span>
+        <button type="button" class="gp-fechar" (click)="fechar()" aria-label="Fechar o guia"><i class="ph-light ph-x"></i></button>
+      </div>
+      <div class="gp-progresso" aria-hidden="true">
+        @for (p of passos; track $index) { <span [class.feito]="$index <= passo()"></span> }
+      </div>
+
+      @let atual = passos[passo()];
+      <div class="gp-icone"><i [class]="atual.icone"></i></div>
+      <h2 id="gp-titulo">{{ atual.titulo }}</h2>
+      <p class="gp-texto">{{ atual.texto }}</p>
+
+      <div class="gp-acoes">
+        @if (passo() > 0) {
+          <button type="button" class="gp-sec" (click)="voltar()"><i class="ph-light ph-arrow-left"></i> Voltar</button>
+        } @else {
+          <button type="button" class="gp-sec" (click)="fechar()">Agora não</button>
+        }
+        <button type="button" class="gp-pri" (click)="proximo()">
+          @if (passo() < passos.length - 1) { Próximo <i class="ph-light ph-arrow-right"></i> } @else { Entendi! <i class="ph-bold ph-check"></i> }
+        </button>
+      </div>
+
+      <label class="gp-nao-mostrar">
+        <input type="checkbox" [checked]="naoMostrar()" (change)="naoMostrar.set($any($event.target).checked)">
+        <span class="gp-check" aria-hidden="true"><i class="ph-bold ph-check"></i></span>
+        Não mostrar este guia de novo
+      </label>
+      <p class="gp-dica">Você pode abrir de novo quando quiser pelo botão <strong>"Como funciona"</strong>.</p>
+    </section>
+  </div>
+}

@@ -15,6 +15,7 @@ import {
 import { doc, getDoc, updateDoc, deleteDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
 import { PERGUNTAS_BEM_ESTAR, rotuloDaResposta } from '../../services/questionario-bem-estar';
+import { OPCOES_SUPORTE, PreferenciaSuporte, salvarPreferenciaLocal } from '../../services/preferencia-suporte';
 
 @Component({
   selector: 'app-perfil',
@@ -140,6 +141,30 @@ export class Perfil implements OnInit {
     }
   }
 
+  // ---------- Tipo de ajuda para usar o site (IA ou guias) ----------
+  readonly opcoesSuporte = OPCOES_SUPORTE;
+  readonly preferenciaSuporte = signal<PreferenciaSuporte>('manual');
+  readonly salvandoSuporte = signal(false);
+
+  async mudarPreferenciaSuporte(valor: PreferenciaSuporte) {
+    const user = this.currentUser();
+    if (!user || valor === this.preferenciaSuporte() || this.salvandoSuporte()) return;
+    const anterior = this.preferenciaSuporte();
+    this.preferenciaSuporte.set(valor);
+    this.salvandoSuporte.set(true);
+    try {
+      await updateDoc(doc(db, 'usuarios', user.uid), { preferenciaSuporte: valor });
+      salvarPreferenciaLocal(valor);
+      this.alerta.sucesso(valor === 'ia' ? 'Você vai receber ajuda do assistente virtual.' : 'Os guias passo a passo vão aparecer nas telas.', 'Preferência salva');
+    } catch (e) {
+      console.error('Erro ao salvar a preferência de suporte:', e);
+      this.preferenciaSuporte.set(anterior);
+      this.alerta.erro('Não foi possível salvar agora. Tente de novo.');
+    } finally {
+      this.salvandoSuporte.set(false);
+    }
+  }
+
   ngOnInit() {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -160,6 +185,11 @@ export class Perfil implements OnInit {
       const docSnap = await getDoc(doc(db, 'usuarios', uid));
       if (docSnap.exists()) {
         this.userData.set(docSnap.data());
+        const pref = docSnap.data()['preferenciaSuporte'];
+        if (pref === 'ia' || pref === 'manual') {
+          this.preferenciaSuporte.set(pref);
+          salvarPreferenciaLocal(pref);
+        }
       }
     } catch (err) {
       console.error(err);

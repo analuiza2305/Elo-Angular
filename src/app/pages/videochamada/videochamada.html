@@ -102,6 +102,17 @@
             <div class="dica"><i class="fa-solid fa-lock"></i> Sala privada: só os participantes desta consulta entram.</div>
           </div>
 
+          <!-- Quem já está na sala (espera mútua) -->
+          <div class="status-presenca stagger s4" [class.presente]="outraParteNaSala" role="status">
+            @if (outraParteNaSala) {
+              <i class="fa-solid fa-circle"></i>
+              {{ ehProfissional ? 'A mãe já está esperando. Pode entrar!' : (detalhesConsulta?.outraParteNome || 'A profissional') + ' já entrou e está te esperando!' }}
+            } @else {
+              <i class="fa-regular fa-clock"></i>
+              {{ ehProfissional ? 'A mãe ainda não entrou.' : 'A profissional ainda não entrou. Você será avisada aqui quando ela chegar.' }}
+            }
+          </div>
+
           <button class="btn-entrar-sala stagger s5" (click)="entrarNaChamada()">
             <i class="fa-solid fa-door-open"></i> Entrar na Chamada
             <span class="shine"></span>
@@ -110,6 +121,13 @@
         </div>
       </div>
     </div>
+
+    <!-- Aviso de chegada (dentro e fora da chamada) -->
+    @if (avisoEntrada) {
+      <div class="aviso-entrada" role="alert">
+        <i class="fa-solid fa-user-check"></i> {{ avisoEntrada }}
+      </div>
+    }
 
     <!-- CHAMADA: sempre no DOM (só fica oculta na sala de espera), assim o
          #jitsiContainer existe desde o início e nunca chega undefined -->

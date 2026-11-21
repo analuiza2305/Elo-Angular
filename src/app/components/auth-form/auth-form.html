@@ -59,7 +59,7 @@
             <input type="text" [(ngModel)]="numeroDocumento" name="numeroDocumento" [placeholder]="'Digite o número do ' + tipoDocumento.toUpperCase()" (blur)="onNumeroDocumentoBlur()" required>
           </div>
           @if (tipoDocumento === 'cnpj' && razaoSocialCarregando()) {
-            <p class="cnpj-hint">Buscando razão social na Receita Federal...</p>
+            <p class="cnpj-hint">Buscando o nome da empresa na Receita Federal...</p>
           }
         }
       </div>
@@ -90,17 +90,37 @@
         </div>
         <small class="aviso-idade"><i class="fa fa-circle-info"></i> O EloMaterno é exclusivo para maiores de 18 anos.</small>
       </div>
+
+      <!-- Tipo de ajuda para usar o site (pode trocar depois no perfil) -->
+      <fieldset class="campo-suporte">
+        <legend>Como você prefere aprender a usar o site?</legend>
+        <div class="suporte-opcoes">
+          @for (o of opcoesSuporte; track o.valor) {
+            <label class="suporte-opcao" [class.ativa]="preferenciaSuporte === o.valor">
+              <input type="radio" name="preferenciaSuporte" [value]="o.valor" [(ngModel)]="preferenciaSuporte">
+              <i [class]="o.icone" aria-hidden="true"></i>
+              <span><strong>{{ o.titulo }}</strong><small>{{ o.texto }}</small></span>
+            </label>
+          }
+        </div>
+        <small class="aviso-idade"><i class="fa fa-circle-info"></i> Você pode mudar isso quando quiser em Meu perfil.</small>
+      </fieldset>
     }
 
     <div class="senha-linha">
       <div class="input-group">
         <i class="fa fa-lock icon"></i>
-        <input type="password" placeholder="Senha:" [(ngModel)]="senha" name="senha" required>
+        <input [type]="verSenha() ? 'text' : 'password'" placeholder="Senha:" [(ngModel)]="senha" name="senha" required>
+        <button type="button" class="olho-senha" (click)="verSenha.set(!verSenha())"
+                [attr.aria-label]="verSenha() ? 'Esconder a senha' : 'Mostrar a senha'" [attr.aria-pressed]="verSenha()">
+          <i class="ph" [class.ph-eye]="!verSenha()" [class.ph-eye-slash]="verSenha()"></i>
+          <span>{{ verSenha() ? 'Esconder' : 'Ver' }}</span>
+        </button>
       </div>
       @if (acao === 'cadastro') {
         <div class="input-group">
           <i class="fa fa-lock icon"></i>
-          <input type="password" placeholder="Repita a senha:" [(ngModel)]="senha2" name="senha2" required>
+          <input [type]="verSenha() ? 'text' : 'password'" placeholder="Repita a senha:" [(ngModel)]="senha2" name="senha2" required>
         </div>
       }
     </div>

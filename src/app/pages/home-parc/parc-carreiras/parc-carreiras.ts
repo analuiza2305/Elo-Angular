@@ -118,7 +118,7 @@ export class ParcCarreirasComponent implements OnInit, OnDestroy {
       this.fotoEmpresa = d?.fotoURL || d?.avatar || '';
       this.siteEmpresa = d?.site || '';
       this.emailEmpresa = d?.email || auth.currentUser?.email || '';
-      return d?.nomeEmpresa || d?.nome || auth.currentUser?.displayName || 'Parceiro';
+      return (d?.nomeFantasia || '').trim() || d?.nomeEmpresa || d?.nome || auth.currentUser?.displayName || 'Parceiro';   // nome fantasia primeiro
     } catch {
       return auth.currentUser?.displayName || 'Parceiro';
     }

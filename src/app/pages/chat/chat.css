@@ -643,3 +643,7 @@
 :host-context(body[data-theme="dark"]) .user-list li .user-name { color: #2D1E4E !important; }
 :host-context(body[data-theme="dark"]) .user-list li .last-message { color: #5A4E7A !important; }
 :host-context(body[data-theme="dark"]) .user-list li img { background: #FFFFFF; }
+
+/* Botão do tutorial do chat */
+.sidebar-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.btn-como-chat { border: none; background: none; cursor: pointer; color: inherit; font-size: 1.15rem; padding: 4px; line-height: 1; }

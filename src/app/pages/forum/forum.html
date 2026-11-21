@@ -26,6 +26,14 @@
 
         <!-- COLUNA PRINCIPAL: BUSCA, FILTROS E TÓPICOS -->
         <section class="fr-main">
+            @if (!embutido) {
+            <!-- Escrever em destaque, no topo (o botão flutuante ficava escondido no celular) -->
+            <button type="button" class="fr-escrever" (click)="abrirModalNovoPost()">
+                <span class="fr-escrever-icone"><i class="ph-light ph-pencil-simple-line"></i></span>
+                <span class="fr-escrever-texto"><strong>Escrever no fórum</strong><small>Faça uma pergunta ou conte como você está</small></span>
+                <i class="ph ph-caret-right" aria-hidden="true"></i>
+            </button>
+            }
             <div class="fr-painel">
             <form class="fr-busca" (submit)="$event.preventDefault()" role="search">
                 <div class="fr-busca-campo">
@@ -167,8 +175,8 @@
                 <span class="fr-ajuda-icone" aria-hidden="true"><i class="fa-solid fa-hand-holding-heart"></i></span>
                 <div>
                     <h3>Precisa de ajuda profissional?</h3>
-                    <p>Agende uma consultoria gratuita com nossas especialistas.</p>
-                    <a routerLink="/consultoria" class="fr-btn-primario">Ver consultorias</a>
+                    <p>Marque uma consulta gratuita com nossas especialistas.</p>
+                    <a routerLink="/consultoria" class="fr-btn-primario">Marcar consulta</a>
                 </div>
             </div>
             }
@@ -231,10 +239,8 @@
                         name="titulo"
                         rows="1"
                         maxlength="120"
-                        placeholder="Dê um título para a sua conversa"
-                        aria-label="Título"
-                        autofocus
-                        required></textarea>
+                        placeholder="Título (se quiser)"
+                        aria-label="Título (opcional)"></textarea>
 
                     <textarea
                         #campoTexto
@@ -243,8 +249,9 @@
                         (input)="ajustarAltura(campoTexto)"
                         name="conteudo"
                         rows="3"
-                        placeholder="Escreva com calma, aqui é um espaço seguro..."
+                        placeholder="Escreva aqui o que você quer contar ou perguntar..."
                         aria-label="Mensagem"
+                        autofocus
                         required></textarea>
 
                     <div class="fr-composer-temas fr-so-desktop" role="radiogroup" aria-label="Tema">

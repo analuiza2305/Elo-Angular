@@ -1018,3 +1018,118 @@
         background: transparent !important;
     }
 }
+
+/* =========================================================
+   ÁREA DA MÃE NO CELULAR: barra fixa embaixo + aviso na tela
+   ========================================================= */
+.mae-barra, .mae-sino-topo { display: none; }
+
+@media (max-width: 900px) {
+  /* o menu sai do topo e vai para a barra de baixo, perto do polegar */
+  .top-header .mae-menu-topo { display: none !important; }
+
+  .mae-sino-topo {
+    display: inline-flex; align-items: center; gap: 8px; position: relative;
+    height: 44px; padding: 0 16px 0 14px; border-radius: 999px;
+    border: 1.5px solid #E4DAFA; background: #fff; color: #4B2C82;
+    font: inherit; font-weight: 800; font-size: 1rem; cursor: pointer;
+  }
+  .mae-sino-topo i { font-size: 1.15rem; }
+  .mae-sino-topo .notif-badge { position: absolute; top: -6px; right: -6px; }
+
+  .mae-barra {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 2000;
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    background: #ffffff; border-top: 1px solid #ECE4FB;
+    box-shadow: 0 -8px 24px rgba(62, 42, 114, .08);
+  }
+  .mae-barra-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    min-height: 60px; padding: 4px 2px; border: none; border-radius: 16px; background: transparent;
+    color: #6B6290; text-decoration: none; font: inherit; font-size: .82rem; font-weight: 800; cursor: pointer;
+  }
+  .mae-barra-item i { font-size: 1.35rem; }
+  .mae-barra-item.ativo { background: #F1EBFE; color: #4B2C82; }
+}
+
+:host-context(body[data-theme="dark"]) .mae-barra { background: #111827; border-top-color: rgba(255,255,255,.1); }
+:host-context(body[data-theme="dark"]) .mae-barra-item { color: #B9B0D8; }
+:host-context(body[data-theme="dark"]) .mae-barra-item.ativo { background: rgba(185,163,238,.16); color: #F1ECFF; }
+:host-context(body[data-theme="dark"]) .mae-sino-topo { background: #1a2133; border-color: rgba(255,255,255,.12); color: #E6DEFF; }
+
+/* aviso que aparece por cima da tela */
+.mae-toast {
+  position: fixed; top: 84px; right: 20px; z-index: 5000; width: min(420px, calc(100vw - 24px));
+  display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center;
+  padding: 14px 14px 14px 16px; border-radius: 20px; background: #ffffff;
+  border: 1.5px solid #E4DAFA; box-shadow: 0 18px 40px rgba(62, 42, 114, .22);
+  font-family: 'Nunito', sans-serif; animation: maeToast .35s ease;
+}
+@keyframes maeToast { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+.mae-toast-icone {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: #E7F7EF; color: #2F7A55; font-size: 1.2rem;
+}
+.mae-toast-icone.recusada { background: #FDECEF; color: #B3324F; }
+.mae-toast-texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mae-toast-texto strong { color: #2A1B5C; font-size: 1.02rem; }
+.mae-toast-texto span { color: #5B5280; font-size: .95rem; line-height: 1.4; }
+.mae-toast-acoes { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.mae-toast-ver {
+  border: none; border-radius: 999px; padding: 9px 14px; background: #5B3D99; color: #fff;
+  font: inherit; font-weight: 800; font-size: .9rem; cursor: pointer; white-space: nowrap;
+}
+.mae-toast-fechar { border: none; background: transparent; color: #8B7DB5; font-size: 1.1rem; cursor: pointer; padding: 4px 8px; }
+@media (max-width: 900px) {
+  .mae-toast { top: 76px; right: 12px; }
+}
+:host-context(body[data-theme="dark"]) .mae-toast { background: #1a2133; border-color: rgba(255,255,255,.12); }
+:host-context(body[data-theme="dark"]) .mae-toast-texto strong { color: #F1ECFF; }
+:host-context(body[data-theme="dark"]) .mae-toast-texto span { color: #CFC8E6; }
+@media (max-width: 900px) {
+  /* a gaveta rola até o fim sem ficar atrás da barra de baixo */
+  .top-header .mobile-drawer { padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important; }
+}
+/* ícones Phosphor na barra de baixo e no sino */
+.mae-barra-item i { font-size: 1.6rem !important; }
+.mae-sino-topo i { font-size: 1.3rem !important; }
+.mae-toast-fechar i { font-size: 1.2rem; }
+
+/* =========================================================
+   RESULTADOS DA BARRA DE PESQUISA (reunião 21/11)
+========================================================= */
+.search-box { position: relative; }
+.search-box input[type="search"]::-webkit-search-cancel-button { cursor: pointer; }
+.busca-painel {
+  position: absolute; top: calc(100% + 8px); left: 0; z-index: 1200;
+  width: min(420px, 90vw); max-height: 70vh; overflow-y: auto;
+  padding: 8px; border-radius: 16px; background: #FFFFFF;
+  border: 1px solid #E6DEF7; box-shadow: 0 18px 40px rgba(60, 40, 110, .18);
+  text-align: left;
+}
+.busca-grupo {
+  display: block; padding: 10px 10px 4px; font-size: .72rem; font-weight: 800;
+  letter-spacing: .06em; text-transform: uppercase; color: #8C7FB0;
+}
+.busca-item {
+  width: 100%; display: flex; align-items: flex-start; gap: 12px; padding: 9px 10px;
+  border: none; border-radius: 10px; background: transparent; cursor: pointer;
+  font-family: inherit; text-align: left; color: #3E2A6E;
+}
+.busca-item:hover, .busca-item.ativo { background: #F4F0FC; }
+.busca-item > i { margin-top: 3px; width: 18px; text-align: center; color: #7C5FCB; }
+.busca-textos { display: flex; flex-direction: column; min-width: 0; }
+.busca-textos strong { font-size: .95rem; font-weight: 700; }
+.busca-textos small {
+  font-size: .82rem; color: #6E6788; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 330px;
+}
+.busca-vazio { margin: 0; padding: 14px 12px; color: #6E6788; font-size: .92rem; }
+
+:host-context(body[data-theme="dark"]) .busca-painel { background: #161C29; border-color: rgba(255,255,255,.1); }
+:host-context(body[data-theme="dark"]) .busca-item { color: #EDE6FF; }
+:host-context(body[data-theme="dark"]) .busca-item:hover,
+:host-context(body[data-theme="dark"]) .busca-item.ativo { background: rgba(157,143,231,.14); }
+:host-context(body[data-theme="dark"]) .busca-item > i { color: #CDBBFF; }
+:host-context(body[data-theme="dark"]) .busca-textos small,
+:host-context(body[data-theme="dark"]) .busca-vazio { color: #A9A2BE; }

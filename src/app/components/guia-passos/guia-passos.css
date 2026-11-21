@@ -1,0 +1,70 @@
+.gp-fundo {
+  --gp-roxo: #583E8E; --gp-texto: #2A1B5C; --gp-suave: #5B5280; --gp-card: #FDFBFF; --gp-borda: #E6DDF8;
+  position: fixed; inset: 0; z-index: 9500; display: grid; place-items: center; padding: 16px;
+  background: rgba(46, 35, 80, .45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  font-family: 'Nunito', sans-serif; animation: gpFade .25s ease both;
+}
+.gp-modal, .gp-modal * { box-sizing: border-box; }
+.gp-modal {
+  width: 100%; max-width: 460px; padding: 22px 24px 20px; border-radius: 28px;
+  background: var(--gp-card);
+  box-shadow: 0 30px 80px rgba(46, 35, 80, .28), 0 0 0 1px var(--gp-borda); color: var(--gp-texto);
+  animation: gpSobe .4s cubic-bezier(.2, .9, .3, 1.1) both;
+}
+.gp-topo { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.gp-contador { font-size: 1rem; font-weight: 800; color: var(--gp-roxo); }
+.gp-fechar {
+  width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; display: grid; place-items: center;
+  background: rgba(124, 105, 169, .12); color: var(--gp-roxo); font-size: 1.05rem;
+}
+.gp-progresso { display: flex; gap: 6px; margin-bottom: 22px; }
+.gp-progresso span { flex: 1; height: 6px; border-radius: 999px; background: var(--gp-borda); transition: background .3s; }
+.gp-progresso span.feito { background: #7C5FCB; }
+.gp-icone {
+  width: 84px; height: 84px; margin: 4px 0 16px; border-radius: 26px; display: grid; place-items: center;
+  background: #EFE8FD; font-size: 2.6rem;
+}
+.gp-icone i { color: #5B3D99 !important; }
+.gp-modal h2 { margin: 0 0 8px; font-size: 1.6rem; line-height: 1.2; color: var(--gp-texto); }
+.gp-texto { margin: 0; font-size: 1.15rem; line-height: 1.6; color: var(--gp-texto); min-height: 3.2em; }
+.gp-acoes { display: flex; gap: 12px; margin-top: 24px; }
+.gp-sec, .gp-pri {
+  height: 56px; border: none; border-radius: 16px; cursor: pointer; font: inherit; font-size: 1.08rem; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.gp-sec { padding: 0 20px; background: rgba(124, 105, 169, .12); color: var(--gp-roxo); }
+.gp-pri { flex: 1; background: #5B3D99; color: #fff; box-shadow: 0 10px 24px rgba(91, 61, 153, .22); }
+.gp-pri i { color: #fff !important; }
+.gp-sec:focus-visible, .gp-pri:focus-visible, .gp-fechar:focus-visible { outline: 3px solid #B9A8F5; outline-offset: 3px; }
+
+.gp-nao-mostrar {
+  display: flex; align-items: center; gap: 10px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--gp-borda);
+  font-size: 1rem; font-weight: 700; color: var(--gp-texto); cursor: pointer;
+}
+.gp-nao-mostrar input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.gp-check {
+  width: 26px; height: 26px; flex-shrink: 0; border-radius: 8px; border: 2px solid #B9A3EE; background: #fff;
+  display: grid; place-items: center; color: transparent; font-size: .8rem; transition: background .2s;
+}
+.gp-nao-mostrar input:checked + .gp-check { background: #5B3D99; border-color: #5B3D99; color: #fff; }
+.gp-nao-mostrar input:focus-visible + .gp-check { outline: 3px solid #B9A8F5; outline-offset: 2px; }
+.gp-dica { margin: 8px 0 0; font-size: .92rem; color: var(--gp-suave); line-height: 1.5; }
+
+:host-context(body[data-theme="dark"]) .gp-fundo { --gp-roxo: #CDBFF5; --gp-texto: #F4F1FF; --gp-suave: #B8B0D6; --gp-card: #171B2D; --gp-borda: rgba(255,255,255,.12); background: rgba(5,7,14,.7); }
+:host-context(body[data-theme="dark"]) .gp-check { background: #1F2438; }
+
+@keyframes gpFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes gpSobe { from { opacity: 0; transform: translateY(24px) scale(.97); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 560px) {
+  .gp-fundo { align-items: end; padding: 0; }
+  .gp-modal { max-width: none; border-radius: 28px 28px 0 0; padding: 20px 18px calc(18px + env(safe-area-inset-bottom)); }
+}
+.gp-check i { opacity: 0; color: #fff !important; transition: opacity .15s; }
+.gp-nao-mostrar input:checked + .gp-check i { opacity: 1; }
+.gp-icone { width: 92px; height: 92px; border-radius: 30px; }
+.gp-sec i, .gp-pri i { font-size: 1.15rem; }
+.gp-fechar i { font-size: 1.2rem; }
+.gp-check i { font-size: .95rem; }
+:host-context(body[data-theme="dark"]) .gp-icone { background: rgba(185,163,238,.16); }
+:host-context(body[data-theme="dark"]) .gp-icone i { color: #E6DEFF !important; }

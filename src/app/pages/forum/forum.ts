@@ -269,7 +269,7 @@ export class ForumComponent implements OnInit {
     this.publicando.set(true);
     try {
       await updateDoc(doc(db, 'posts', post.id), {
-        titulo: this.novoPostForm.titulo.trim(),
+        titulo: this.tituloFinal(),
         conteudo: this.novoPostForm.conteudo.trim(),
         categoria: this.novoPostForm.categoria,
         editadoEm: serverTimestamp()
@@ -283,8 +283,17 @@ export class ForumComponent implements OnInit {
     }
   }
 
+  /** O título é opcional: só a mensagem é obrigatória. */
   podePublicar() {
-    return !!this.novoPostForm.titulo.trim() && !!this.novoPostForm.conteudo.trim();
+    return !!this.novoPostForm.conteudo.trim();
+  }
+
+  /** Sem título, usa o começo da mensagem (até 60 letras). */
+  private tituloFinal(): string {
+    const t = this.novoPostForm.titulo.trim();
+    if (t) return t;
+    const texto = this.novoPostForm.conteudo.trim().replace(/\s+/g, ' ');
+    return texto.length > 60 ? texto.slice(0, 57).trimEnd() + '...' : texto;
   }
 
   // Faz o campo de texto crescer conforme a mãe escreve
@@ -318,7 +327,7 @@ export class ForumComponent implements OnInit {
         autorId,
         autorNome,
         autorFoto,
-        titulo: this.novoPostForm.titulo,
+        titulo: this.tituloFinal(),
         conteudo: this.novoPostForm.conteudo,
         likes: 0,
         respondido: false,

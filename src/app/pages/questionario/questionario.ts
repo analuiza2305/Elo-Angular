@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { auth, db } from '../../core/firebase';
@@ -31,7 +31,14 @@ import {
 })
 export class QuestionarioComponent implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private alerta = inject(AlertaService);
+
+  /** Veio da tela de agendamento (?voltar=agendar): ao terminar, volta para marcar a consulta. */
+  readonly vindoDoAgendamento = signal(false);
+  readonly rotuloVoltar = computed(() => (this.vindoDoAgendamento() ? 'Voltar para o agendamento' : 'Meu perfil'));
+  /** Ela tentou enviar sem marcar a autorização: destaca a caixa. */
+  readonly pediuConsentimento = signal(false);
 
   readonly perguntas = PERGUNTAS_BEM_ESTAR;
 
@@ -54,6 +61,7 @@ export class QuestionarioComponent implements OnInit {
   readonly mostrarApoio = computed(() => respostaDeRisco(this.respostas()));
 
   ngOnInit(): void {
+    this.vindoDoAgendamento.set(this.route.snapshot.queryParamMap.get('voltar') === 'agendar');
     onAuthStateChanged(auth, async (user) => {
       if (!user) { this.router.navigate(['/login']); return; }
       this.uid = user.uid;
@@ -185,6 +193,8 @@ export class QuestionarioComponent implements OnInit {
       return;
     }
     if (!this.consentimento()) {
+      this.pediuConsentimento.set(true);
+      document.querySelector('.qb-consentimento')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       this.alerta.aviso('Para enviar, marque que autoriza as psicólogas das suas consultas a ver suas respostas.');
       return;
     }
@@ -220,6 +230,6 @@ export class QuestionarioComponent implements OnInit {
   }
 
   voltar() {
-    this.router.navigate(['/perfil']);
+    this.router.navigate([this.vindoDoAgendamento() ? '/consultas-lista-psi' : '/perfil']);
   }
 }

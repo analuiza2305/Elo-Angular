@@ -2211,3 +2211,112 @@ body[data-theme="dark"] .estado-vazio p { color: #C7BBEB !important; }
 :host-context(body[data-theme="dark"]) .estado-vazio i { color: #C4B5FD !important; }
 :host-context(body[data-theme="dark"]) .estado-vazio h2 { color: #F5F0FF !important; }
 :host-context(body[data-theme="dark"]) .estado-vazio p { color: #C7BBEB !important; }
+/* =========================================================
+   CHAMADA EM DESTAQUE + ABAS VISÍVEIS (teste com mães, 18/11)
+   ========================================================= */
+.cs-chamada-box {
+  margin: 16px 0 6px; padding: 16px; border-radius: 20px;
+  background: #EAF8F1; border: 1.5px solid #BFE6D2; text-align: center;
+}
+.btn-entrar-chamada {
+  width: 100%; min-height: 60px; display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  border: none; border-radius: 18px; cursor: pointer;
+  background: #2E8B5E; color: #fff;
+  font: inherit; font-size: 1.2rem; font-weight: 800;
+  box-shadow: 0 14px 30px rgba(35, 127, 83, .32);
+  animation: csPulso 2.4s ease-in-out infinite;
+}
+.btn-entrar-chamada i { color: #fff !important; font-size: 1.3rem; }
+@keyframes csPulso { 0%, 100% { box-shadow: 0 14px 30px rgba(35,127,83,.32), 0 0 0 0 rgba(47,163,107,.35); } 50% { box-shadow: 0 14px 30px rgba(35,127,83,.32), 0 0 0 10px rgba(47,163,107,0); } }
+.cs-chamada-box p { margin: 10px 0 0 !important; font-size: 1rem !important; color: #22603F !important; font-weight: 700; }
+
+.cs-espera-box {
+  display: flex; gap: 12px; align-items: flex-start; margin: 16px 0 6px; padding: 14px 16px;
+  border-radius: 18px; background: #FFF6E8; border: 1.5px solid #F4DDB5;
+}
+.cs-espera-box i { color: #B3601F; font-size: 1.3rem; margin-top: 2px; }
+.cs-espera-box p { margin: 0 !important; font-size: 1rem !important; line-height: 1.5; color: #6B4A1E !important; }
+
+.cs-vazio-btn {
+  display: inline-flex; align-items: center; gap: 10px; margin-top: 18px; padding: 0 24px; min-height: 54px;
+  border-radius: 999px; background: #5B3D99; color: #fff !important; font-weight: 800; font-size: 1.05rem; text-decoration: none;
+}
+.cs-vazio-btn i { color: #fff !important; }
+
+.consultas-container .titulos p { font-size: 1.05rem !important; line-height: 1.55; }
+.consulta-info-label { font-size: .95rem !important; }
+.consulta-info-value { font-size: 1.05rem !important; }
+.consulta-card h3 { font-size: 1.2rem !important; }
+
+/* celular: as 3 abas viram botões lado a lado (antes era uma lista escondida) */
+@media (max-width: 768px) {
+  .consultas-container .tabs {
+    display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 6px !important;
+    flex-direction: row !important; padding: 6px !important; border-radius: 18px !important;
+  }
+  .consultas-container .tabs > .consulta-tab-btn {
+    width: 100% !important; height: auto !important; min-height: 52px !important; padding: 6px 4px !important;
+    flex-direction: column; gap: 3px; font-size: .92rem !important; line-height: 1.15;
+  }
+  .mobile-tabs-dropdown { display: none !important; }
+}
+
+:host-context(body[data-theme="dark"]) .cs-chamada-box { background: rgba(47,163,107,.12); border-color: rgba(47,163,107,.35); }
+:host-context(body[data-theme="dark"]) .cs-chamada-box p { color: #9BE2BE !important; }
+:host-context(body[data-theme="dark"]) .cs-espera-box { background: rgba(244,180,90,.1); border-color: rgba(244,180,90,.3); }
+:host-context(body[data-theme="dark"]) .cs-espera-box p { color: #F4D9B0 !important; }
+
+/* perfil e mensagem viram botões secundários (a chamada é o principal) */
+.consulta-acoes .btn-detalhes,
+.consulta-acoes .btn-chat {
+  flex: 1 1 0 !important; height: 52px !important; min-height: 52px; border-radius: 16px !important;
+  background: #fff !important; color: #4B2C82 !important; border: 1.5px solid #DCD0F7 !important;
+  box-shadow: none !important; font-size: 1rem !important; font-weight: 800 !important;
+}
+.consulta-acoes .btn-detalhes i, .consulta-acoes .btn-chat i { color: #4B2C82 !important; }
+.btn-cancelar-consulta { font-size: .98rem !important; min-height: 44px; }
+:host-context(body[data-theme="dark"]) .consulta-acoes .btn-detalhes,
+:host-context(body[data-theme="dark"]) .consulta-acoes .btn-chat { background: transparent !important; color: #E6DEFF !important; border-color: rgba(255,255,255,.18) !important; }
+:host-context(body[data-theme="dark"]) .consulta-acoes .btn-detalhes i,
+:host-context(body[data-theme="dark"]) .consulta-acoes .btn-chat i { color: #E6DEFF !important; }
+
+.consultas-container .consulta-acoes { flex-direction: row !important; flex-wrap: nowrap !important; gap: 10px !important; }
+.consulta-acoes .btn-detalhes, .consulta-acoes .btn-chat { width: auto !important; padding: 0 10px !important; white-space: nowrap; }
+
+/* =========================================================
+   VOLTAR, REAGENDAR E PROFISSIONAL NA SALA (reunião 21/11)
+========================================================= */
+.cs-btn-voltar {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-bottom: 14px; padding: 9px 16px; border-radius: 999px;
+  border: 1px solid #d1c4e9; background: #ffffff; color: #5b3d99;
+  font-family: inherit; font-weight: 700; font-size: .95rem; cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+.cs-btn-voltar:hover { background: #f8f6ff; border-color: #5b3d99; }
+
+.btn-reagendar {
+  flex: 1; min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 10px 14px; border-radius: 12px; border: none; cursor: pointer;
+  background: #5b3d99; color: #ffffff; font-family: inherit; font-weight: 700; font-size: .92rem;
+  transition: background .2s ease, transform .2s ease;
+}
+.btn-reagendar:hover { background: #4a2b82; transform: translateY(-2px); }
+
+.cs-prof-na-sala {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: #1E7A46 !important; font-weight: 700;
+}
+.cs-prof-na-sala i { font-size: .6rem; animation: cs-pisca 1.2s ease-in-out infinite; }
+@keyframes cs-pisca { 50% { opacity: .25; } }
+
+:host-context(body[data-theme="dark"]) .cs-btn-voltar { background: transparent; color: #E6DEFF; border-color: rgba(255,255,255,.18); }
+:host-context(body[data-theme="dark"]) .cs-btn-voltar:hover { background: rgba(157, 143, 231, .12); }
+:host-context(body[data-theme="dark"]) .btn-reagendar { background: #6C4BBF; }
+:host-context(body[data-theme="dark"]) .cs-prof-na-sala { color: #7EE2A8 !important; }
+
+.cs-como-chat {
+  align-self: flex-start; margin-top: 8px; padding: 4px 2px; border: none; background: none; cursor: pointer;
+  color: #5b3d99; font-family: inherit; font-weight: 700; font-size: .9rem; text-decoration: underline;
+}
+:host-context(body[data-theme="dark"]) .cs-como-chat { color: #CDBBFF; }

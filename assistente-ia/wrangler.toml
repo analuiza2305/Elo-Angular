@@ -1,0 +1,18 @@
+# Worker do assistente virtual (IA) do Elo Materno.
+# É separado do Worker da videochamada: se algo der errado aqui, a chamada continua funcionando.
+name = "elo-materno-assistente"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[vars]
+FIREBASE_PROJECT_ID = "elo-materno"
+# Sites que podem conversar com o assistente (separe por vírgula)
+ALLOWED_ORIGINS = "http://localhost:4200,https://elomaterno.netlify.app"
+# Modelo do Gemini. "gemini-flash-latest" aponta sempre para o Flash mais novo.
+# Se um dia der erro de modelo, troque pelo nome que aparece no Google AI Studio.
+GEMINI_MODELO = "gemini-flash-latest"
+# Quantas perguntas cada mãe pode fazer por dia (protege a cota grátis)
+LIMITE_DIARIO = "30"
+
+# A chave do Gemini NÃO fica aqui (este arquivo vai para o GitHub). Ela vai como segredo:
+#   npx wrangler secret put GEMINI_API_KEY

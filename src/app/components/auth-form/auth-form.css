@@ -482,3 +482,31 @@ body[data-theme="dark"] .esqueci-senha-link a {
 :host-context(body[data-theme="dark"]) .campo-nascimento label { color: #4B2C82; }
 :host-context(body[data-theme="dark"]) .campo-nascimento input[type="date"] { color: #F5F0FF; color-scheme: dark; }
 :host-context(body[data-theme="dark"]) .aviso-idade { color: #5B4A93; }
+
+/* olho na senha (teste com mães, 18/11) */
+.olho-senha {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+  min-height: 36px; padding: 0 10px; margin-left: 6px; border: none; border-radius: 10px;
+  background: #F1EBFE; color: #4B2C82; font: inherit; font-size: .9rem; font-weight: 800; cursor: pointer;
+}
+.olho-senha i { color: #4B2C82; }
+.input-group input { font-size: 16px; }
+:host-context(body[data-theme="dark"]) .olho-senha { background: rgba(185,163,238,.16); color: #E6DEFF; }
+:host-context(body[data-theme="dark"]) .olho-senha i { color: #E6DEFF; }
+
+/* Escolha do tipo de suporte (IA ou guias) no cadastro da mãe */
+.campo-suporte { border: none; margin: 4px 0 8px; padding: 0; text-align: left; display: flex; flex-direction: column; gap: 8px; }
+.campo-suporte legend { font-size: .82rem; font-weight: 800; color: #4B2C82; padding: 0 0 6px 4px; }
+.suporte-opcoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 480px) { .suporte-opcoes { grid-template-columns: 1fr; } }
+.suporte-opcao {
+  display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 14px; cursor: pointer;
+  border: 1.5px solid #E1D8F3; background: #FFFFFF; transition: border-color .2s ease, background .2s ease;
+}
+.suporte-opcao input { position: absolute; opacity: 0; pointer-events: none; }
+.suporte-opcao > i { color: #7C5FCB; margin-top: 3px; }
+.suporte-opcao span { display: flex; flex-direction: column; gap: 2px; }
+.suporte-opcao strong { font-size: .9rem; color: #2D1E4E; }
+.suporte-opcao small { font-size: .78rem; color: #6E6788; line-height: 1.35; }
+.suporte-opcao.ativa { border-color: #7C5FCB; background: #F6F1FF; }
+.suporte-opcao:focus-within { box-shadow: 0 0 0 3px rgba(124, 95, 203, .25); }

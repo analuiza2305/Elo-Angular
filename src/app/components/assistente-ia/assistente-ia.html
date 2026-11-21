@@ -1,0 +1,66 @@
+@if (visivel()) {
+  <!-- Botão flutuante (canto esquerdo: o direito é do VLibras) -->
+  <button type="button" class="ai-botao" [class.aberto]="aberto()" (click)="alternar()"
+          [attr.aria-expanded]="aberto()" aria-controls="ai-janela"
+          [attr.aria-label]="aberto() ? 'Fechar assistente' : 'Abrir assistente virtual'">
+    @if (aberto()) {
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    } @else {
+      <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+      <span class="ai-botao-texto">Dúvidas? Fale com a Elo</span>
+    }
+  </button>
+
+  @if (aberto()) {
+    <section class="ai-janela" id="ai-janela" role="dialog" aria-label="Assistente virtual Elo">
+      <header class="ai-topo">
+        <span class="ai-avatar" aria-hidden="true"><i class="fa-solid fa-robot"></i></span>
+        <div class="ai-topo-texto">
+          <strong>Elo, assistente do site</strong>
+          <small>Ajuda a usar o Elo Materno</small>
+        </div>
+        <button type="button" class="ai-icone" (click)="limparConversa()" title="Começar de novo" aria-label="Começar conversa de novo">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+        <button type="button" class="ai-icone" (click)="fechar()" title="Fechar" aria-label="Fechar assistente">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+
+      <div class="ai-lista" #lista aria-live="polite">
+        @for (m of mensagens(); track $index) {
+          <div class="ai-msg" [class.mae]="m.autor === 'mae'" [class.apoio]="m.origem === 'apoio'">
+            <p>{{ m.texto }}</p>
+            @if (m.link) {
+              <button type="button" class="ai-link" (click)="irPara(m.link.rota)">
+                Ir para {{ m.link.rotulo }} <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            }
+            @if (m.origem === 'faq') { <small class="ai-origem">Resposta das perguntas frequentes</small> }
+          </div>
+        }
+        @if (pensando()) {
+          <div class="ai-msg ai-digitando" aria-label="A Elo está escrevendo"><span></span><span></span><span></span></div>
+        }
+        @if (mensagens().length <= 1) {
+          <div class="ai-sugestoes">
+            @for (s of sugestoes; track s) {
+              <button type="button" (click)="enviar(s)">{{ s }}</button>
+            }
+          </div>
+        }
+      </div>
+
+      <form class="ai-form" (submit)="$event.preventDefault(); enviar()">
+        <textarea #campo rows="1" maxlength="600" placeholder="Escreva sua dúvida…" aria-label="Sua dúvida"
+                  [value]="texto()" (input)="texto.set($any($event.target).value)" (keydown)="teclou($event)"></textarea>
+        <button type="submit" class="ai-enviar" [disabled]="!texto().trim() || pensando()" aria-label="Enviar">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
+      <p class="ai-aviso">
+        <i class="fa-solid fa-lock"></i> Não escreva CPF, endereço ou senha. A Elo é uma IA e pode errar; ela não substitui a psicóloga nem a advogada.
+      </p>
+    </section>
+  }
+}

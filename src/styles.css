@@ -13570,3 +13570,25 @@ html body[data-theme="dark"] :is(app-forum .fr-hero-texto, app-carreiras .car-he
   color: #D9D3EE !important;
 }
 html body[data-theme="dark"] app-forum .fr-hero-texto .fr-hero-destaque.fr-hero-destaque { color: #C4B5FD !important; }
+/* =========================================================
+   ÁREA DA MÃE: LEITURA FÁCIL (teste com mães, 18/11)
+   Letras maiores, campos que não dão zoom no iPhone e espaço
+   para a barra de menu de baixo no celular.
+   ========================================================= */
+body.area-mae main p,
+body.area-mae main li { line-height: 1.6; }
+
+body.area-mae main input,
+body.area-mae main select,
+body.area-mae main textarea { font-size: max(16px, 1rem) !important; }
+
+@media (max-width: 900px) {
+  body.area-mae { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  body.area-mae main p { font-size: max(1rem, 16px); }
+  body.area-mae main h1 { font-size: clamp(1.6rem, 7vw, 2rem); }
+  body.area-mae main button,
+  body.area-mae main .btn,
+  body.area-mae main a[class*="btn"] { min-height: 46px; }
+  /* o botão flutuante global de menu some: o menu está na barra de baixo */
+  body.area-mae > .menu-toggle { display: none !important; }
+}
