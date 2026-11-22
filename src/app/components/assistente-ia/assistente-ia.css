@@ -1,4 +1,4 @@
-/* Assistente virtual "Elo" — botão flutuante e janela de conversa */
+/* Assistente virtual "Elô" (coruja mascote) — botão flutuante e janela de conversa */
 :host { position: fixed; left: 18px; bottom: 18px; z-index: 1500; font-family: 'Nunito', 'Inter', sans-serif; }
 
 .ai-botao {
@@ -91,3 +91,47 @@
 :host-context(body[data-theme="dark"]) .ai-form { border-color: rgba(255,255,255,.08); }
 :host-context(body[data-theme="dark"]) .ai-form textarea { background: #0F141E; color: #EDE6FF; border-color: rgba(255,255,255,.15); }
 :host-context(body[data-theme="dark"]) .ai-enviar { background: #6C4BBF; }
+
+/* =========================================================
+   ELÔ, A CORUJA
+========================================================= */
+/* Botão flutuante com o rostinho da Elô */
+.ai-botao { padding-left: 7px; }
+.ai-botao-avatar {
+  display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%;
+  background: #FFFFFF; box-shadow: 0 2px 6px rgba(42, 27, 92, .2);
+}
+
+/* Topo roxo como na folha da mascote */
+.ai-topo {
+  padding: 14px 14px 14px 16px; border-bottom: none;
+  background: linear-gradient(135deg, #7C5FCB 0%, #5B3D99 100%);
+}
+.ai-avatar { width: 50px; height: 50px; background: #FFFFFF; box-shadow: 0 4px 10px rgba(42, 27, 92, .25); }
+.ai-topo-texto strong { color: #FFFFFF; font-family: 'Poppins', sans-serif; font-size: 1.1rem; }
+.ai-topo-texto { min-width: 0; }
+.ai-topo-texto small {
+  display: flex; align-items: center; gap: 6px; color: #E6DEFF; font-size: .78rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ai-online { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #4ADE9B; box-shadow: 0 0 0 2px rgba(74, 222, 155, .3); }
+.ai-icone { color: #FFFFFF; }
+.ai-icone:hover { background: rgba(255, 255, 255, .16); }
+
+/* Elô inteira no começo da conversa */
+.ai-boas-vindas { display: grid; place-items: center; padding: 6px 0 2px; }
+
+/* Respostas com o rostinho ao lado */
+.ai-linha { display: flex; align-items: flex-end; gap: 8px; align-self: flex-start; max-width: 94%; }
+.ai-linha .ai-msg { max-width: none; background: #FFFFFF; border: 1px solid #ECE4FA; box-shadow: 0 4px 12px rgba(91, 61, 153, .06); }
+.ai-linha .ai-msg.apoio { background: #FFF1F4; border-color: #F5C2CF; }
+.ai-msg-avatar { margin-bottom: 2px; }
+.ai-lista { background: #FBF9FF; }
+
+/* Tema escuro */
+:host-context(body[data-theme="dark"]) .ai-topo { background: linear-gradient(135deg, #5B3D99 0%, #3F2A70 100%); }
+:host-context(body[data-theme="dark"]) .ai-topo-texto strong { color: #FFFFFF; }
+:host-context(body[data-theme="dark"]) .ai-icone { color: #FFFFFF; }
+:host-context(body[data-theme="dark"]) .ai-lista { background: #121722; }
+:host-context(body[data-theme="dark"]) .ai-linha .ai-msg { background: #1E2535; border-color: rgba(255, 255, 255, .08); box-shadow: none; }
+:host-context(body[data-theme="dark"]) .ai-linha .ai-msg.apoio { background: #2A1820; border-color: #5A2A3A; }

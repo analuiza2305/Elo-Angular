@@ -6,15 +6,17 @@ import {
   AssistenteIndisponivel, LimiteAtingido, LIMITE_DIARIO_LOCAL, MensagemAssistente, RESPOSTA_APOIO,
   contarUso, linkCitado, pareceCrise, perguntarParaIa, responderPeloFaq, usoDeHoje,
 } from '../../services/assistente-ia';
+import { EloCorujaComponent, ExpressaoElo } from '../elo-coruja/elo-coruja';
 
 /**
- * Botão flutuante "Elo" + janela de conversa com o assistente virtual.
+ * Botão flutuante da Elô (a coruja mascote) + janela de conversa com o assistente virtual.
  * Fica dentro do header da mãe, então aparece em todas as telas dela,
  * mas só para quem escolheu "Assistente virtual (IA)" no cadastro ou no perfil.
  */
 @Component({
   selector: 'app-assistente-ia',
   standalone: true,
+  imports: [EloCorujaComponent],
   templateUrl: './assistente-ia.html',
   styleUrls: ['./assistente-ia.css'],
 })
@@ -43,7 +45,7 @@ export class AssistenteIaComponent implements OnInit {
   private readonly BOAS_VINDAS: MensagemAssistente = {
     autor: 'assistente',
     origem: 'ia',
-    texto: 'Oi! Eu sou a Elo, a assistente do site. Posso te ajudar a encontrar as coisas por aqui: marcar consulta, entrar na chamada, usar o fórum… O que você quer fazer?',
+    texto: 'Oi, eu sou a Elô 💜 Tô aqui pra te ajudar a usar o EloMaterno, no seu tempo. Posso te ajudar a marcar consulta, entrar na chamada, usar o fórum… O que você quer fazer?',
   };
 
   ngOnInit() {
@@ -64,6 +66,18 @@ export class AssistenteIaComponent implements OnInit {
   }
 
   fechar() { this.aberto.set(false); }
+
+  /**
+   * Cara da Elô ao lado de cada resposta (mesmas expressões da folha da mascote):
+   * acolhendo quando a mãe conta algo difícil, piscadinha nas dicas das perguntas
+   * frequentes e "oi" na mensagem de boas-vindas.
+   */
+  expressaoDa(m: MensagemAssistente): ExpressaoElo {
+    if (m.origem === 'apoio') return 'acolhendo';
+    if (m.texto === this.BOAS_VINDAS.texto) return 'oi';
+    if (m.origem === 'faq') return 'piscadinha';
+    return 'normal';
+  }
 
   limparConversa() {
     this.mensagens.set([this.BOAS_VINDAS]);
@@ -129,7 +143,8 @@ export class AssistenteIaComponent implements OnInit {
   private rolarParaFim(focar = false) {
     setTimeout(() => {
       const el = this.lista?.nativeElement;
-      if (el) el.scrollTop = el.scrollHeight;
+      // Só com a mensagem de boas-vindas, fica no topo para a Elô aparecer inteira
+      if (el) el.scrollTop = this.mensagens().length <= 1 ? 0 : el.scrollHeight;
       if (focar) this.campo?.nativeElement.focus();
     }, 30);
   }

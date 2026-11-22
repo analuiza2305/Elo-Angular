@@ -1,0 +1,34 @@
+:host { display: inline-block; flex-shrink: 0; line-height: 0; }
+.elo { width: 100%; height: 100%; overflow: visible; }
+
+/* Movimentos leves */
+.animada .asa-aceno { transform-origin: 150px 128px; animation: elo-acenar 1.6s ease-in-out infinite; }
+.animada .tracos-aceno { animation: elo-piscar-tracos 1.6s ease-in-out infinite; }
+.animada .balao { transform-origin: 160px 36px; animation: elo-flutuar 2.4s ease-in-out infinite; }
+.animada .coracao { transform-origin: 160px 44px; animation: elo-bater 1.4s ease-in-out infinite; }
+.animada .olhos { transform-origin: 100px 92px; animation: elo-piscar 5s infinite; }
+
+@keyframes elo-acenar {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-14deg); }
+}
+@keyframes elo-piscar-tracos {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .35; }
+}
+@keyframes elo-flutuar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes elo-bater {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+@keyframes elo-piscar {
+  0%, 94%, 100% { transform: scaleY(1); }
+  97% { transform: scaleY(.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animada * { animation: none !important; }
+}
