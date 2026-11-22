@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, signal, inject, ElementRef, ViewChild } from '@angular/core';
+import { GuiaPassosComponent, PassoGuia } from '../../components/guia-passos/guia-passos';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -26,7 +27,7 @@ import { avisarMensagemChat } from '../../services/avisos-profissional';
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent],
+  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, GuiaPassosComponent],
   templateUrl: './chat.html',
   styleUrls: ['./chat.css']
 })
@@ -37,6 +38,14 @@ export class Chat implements OnInit, OnDestroy {
   @ViewChild('caixaMensagens') caixaMensagens?: ElementRef<HTMLDivElement>;
   private readonly LIMITE_AUDIO_SEG = 60;   // áudio vai em base64 no documento (limite de 1 MB do Firestore)
   private timerAudio: any = null;
+
+  /** Mesmo tutorial que aparece em "Minhas consultas" (lembra se ela pediu para não mostrar). */
+  readonly passosGuiaChat: PassoGuia[] = [
+    { icone: 'ph-light ph-chat-circle-text', titulo: 'Sua consulta foi confirmada!', texto: 'Agora você pode conversar com a profissional pelo chat, antes e depois da consulta. Toque em "Mandar mensagem" no cartão da consulta.' },
+    { icone: 'ph-light ph-user-list', titulo: 'Escolha com quem falar', texto: 'Na tela do chat, a lista da esquerda mostra as profissionais das suas consultas. Toque no nome para abrir a conversa.' },
+    { icone: 'ph-light ph-paper-plane-tilt', titulo: 'Escreva ou mande áudio', texto: 'Digite embaixo e toque em enviar. Se preferir, toque no microfone para gravar um áudio (até 1 minuto) e toque de novo para enviar.' },
+    { icone: 'ph-light ph-bell', titulo: 'Aviso de resposta', texto: 'Quando ela responder, aparece um número na conversa e um aviso no sino lá em cima. O chat não substitui a consulta por vídeo.' },
+  ];
 
   currentUser = signal<any>(null);
   usuariosLista = signal<any[]>([]);

@@ -1,3 +1,4 @@
+import { OPCOES_SUPORTE, PreferenciaSuporte, salvarPreferenciaLocal } from '../../services/preferencia-suporte';
 import { Component, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -34,6 +35,9 @@ export class AuthFormComponent {
   tipoDocumento = '';
   numeroDocumento = '';
   termos = false;
+  /** Como a mãe quer ser ajudada a usar o site (dá para trocar depois no perfil). */
+  preferenciaSuporte: PreferenciaSuporte = 'manual';
+  readonly opcoesSuporte = OPCOES_SUPORTE;
   /** Olho da senha: mostra/oculta o que foi digitado. */
   mostrarSenha = signal(false);
   mostrarSenha2 = signal(false);
@@ -52,6 +56,8 @@ export class AuthFormComponent {
   // Preenchimento automático da Razão Social via API pública de CNPJ (BrasilAPI)
   razaoSocialCarregando = signal(false);
   private razaoSocialEncontrada = '';
+  /** Nome fantasia (o nome que as mães conhecem). É ele que aparece na Comunidade, não a razão social. */
+  private nomeFantasiaEncontrado = '';
 
   constructor(
     private router: Router,
@@ -121,7 +127,9 @@ export class AuthFormComponent {
         const dados = await resposta.json();
         if (dados?.razao_social) {
           this.razaoSocialEncontrada = dados.razao_social;
-          this.nome = dados.razao_social;
+          this.nomeFantasiaEncontrado = String(dados.nome_fantasia || '').trim();
+          // Preenche com o nome fantasia (mais conhecido); sem ele, usa a razão social
+          this.nome = this.nomeFantasiaEncontrado || dados.razao_social;
         }
       } else {
         console.warn('CNPJ não encontrado na Receita Federal (BrasilAPI):', resposta.status);
@@ -289,9 +297,11 @@ export class AuthFormComponent {
           await setDoc(doc(db, 'usuarios', uid), {
             nome: this.nome, email: this.email, telefone: '', tipo: 'mae', avatar: null, emailVerificado: false, criadoEm: serverTimestamp(),
             dataNascimento: this.dataNascimentoTimestamp(), maiorDeIdade: true, aceiteTermos: this.registroAceite(),
+            preferenciaSuporte: this.preferenciaSuporte,
             extras: { login_load: { mae: true, parceiro: false, advogado: false, psicologo: false }, consult_load: false, termos_load: false, fonte_number: 1, dark_mode: false, espacamento_number: 1, filtro_daltonismo: 'Filtros_daltonismo', leitura_voz: false, letras_destaque: false, mascara_leitura: false }
           });
 
+          salvarPreferenciaLocal(this.preferenciaSuporte);
           // Antes o cadastro ia direto pra /home-mae. Agora a mãe precisa
           // confirmar o e-mail com um código antes de conseguir entrar.
           try {
@@ -320,7 +330,7 @@ export class AuthFormComponent {
           await setDoc(doc(db, 'psicologos', uid), { nome: this.nome, email: this.email, crp: this.numeroDocumento, tipo: 'psicologo', status: 'pendente', avatar: avatarGerado, uid, criadoEm: serverTimestamp(), aceiteTermos: this.registroAceite() });
         } else if (this.tipoDocumento === 'cnpj') {
           tipoPerfil = 'parceiro'; rotaDestino = '/home-parc';
-          await setDoc(doc(db, 'parceiros', uid), { nome: this.nome, nomeEmpresa: this.nome, razaoSocial: this.razaoSocialEncontrada || this.nome, email: this.email, cnpj: this.numeroDocumento, tipo: 'parceiro', status: 'pendente', avatar: null, uid, criadoEm: serverTimestamp(), aceiteTermos: this.registroAceite() });
+          await setDoc(doc(db, 'parceiros', uid), { nome: this.nome, nomeEmpresa: this.nome, nomeFantasia: this.nomeFantasiaEncontrado || (this.nome !== this.razaoSocialEncontrada ? this.nome : ''), razaoSocial: this.razaoSocialEncontrada || this.nome, email: this.email, cnpj: this.numeroDocumento, tipo: 'parceiro', status: 'pendente', avatar: null, uid, criadoEm: serverTimestamp(), aceiteTermos: this.registroAceite() });
         }
 
         await setDoc(doc(db, 'usuarios', uid), {
@@ -463,6 +473,7 @@ export class AuthFormComponent {
         await setDoc(ref, {
           nome: result.user.displayName, email: result.user.email, telefone: '', tipo: 'mae', avatar: null,
           dataNascimento: this.dataNascimentoTimestamp(), maiorDeIdade: true, aceiteTermos: this.registroAceite(),
+          preferenciaSuporte: this.preferenciaSuporte,
           extras: { login_load: { mae: true, parceiro: false, advogado: false, psicologo: false }, consult_load: false, termos_load: false, fonte_number: 1, dark_mode: false, espacamento_number: 1, filtro_daltonismo: 'Filtros_daltonismo', leitura_voz: false, letras_destaque: false, mascara_leitura: false }
         });
       } else {

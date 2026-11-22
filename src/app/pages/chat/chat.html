@@ -3,7 +3,12 @@
 <main class="chat-wrapper">
   <!-- COLUNA ESQUERDA: LISTA DE CONTATOS -->
   <aside class="chat-sidebar">
-    <div class="sidebar-header">Profissionais Vinculados</div>
+    <div class="sidebar-header">
+      Profissionais Vinculados
+      <button type="button" class="btn-como-chat" (click)="guiaChat.abrir()" title="Como usar o chat" aria-label="Como usar o chat">
+        <i class="fa-regular fa-circle-question"></i>
+      </button>
+    </div>
     <ul id="userList" class="user-list">
       @for (usuario of usuariosLista(); track usuario.uid) {
         <li (click)="openChatWith(usuario.uid, { nome: usuario.nome, avatar: usuario.avatar })">
@@ -94,3 +99,5 @@
     </form>
   </section>
 </main>
+
+<app-guia-passos #guiaChat chave="chat-consulta" [passos]="passosGuiaChat"></app-guia-passos>

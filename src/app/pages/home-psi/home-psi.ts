@@ -21,6 +21,7 @@ import { carregarIdsFavoritosPsi, definirFavoritoPsi } from '../../services/arti
 import { PERGUNTAS_BEM_ESTAR, PerguntaBemEstar, rotuloDaResposta, respostaDeRisco } from '../../services/questionario-bem-estar';
 
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+import { encerrarAutomaticamente, motivoEncerramentoAutomatico, textoEncerramento } from '../../services/prazos-consulta';
 type SecaoHomePsi = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos';
 type AbaConsultas = 'Pendentes' | 'Agendadas' | 'Realizadas' | 'Negadas';
 type CategoriaArtigo = 'posts' | 'legislativos' | 'educacionais' | 'dicas';
@@ -655,7 +656,16 @@ export class HomePsi implements OnInit, OnDestroy {
           const dataObj: Date | null = raw['Datahora']?.toDate ? raw['Datahora'].toDate() : raw['Datahora'] ? new Date(raw['Datahora']) : null;
           const idDaMae = raw['maeId'] || raw['Mae'];
           const mae = this.cacheMaes.get(idDaMae) || { nome: 'Paciente', avatar: './img/avatar_usuario.png' };
-          const statusRaw = String(raw['status'] || 'pendente').toLowerCase();
+          let statusRaw = String(raw['status'] || 'pendente').toLowerCase();
+          // Passou do prazo (2 dias sem confirmar / 15 min sem ninguém entrar): fecha e devolve o horário se ainda for futuro
+          const motivoAuto = motivoEncerramentoAutomatico(raw);
+          if (motivoAuto) {
+            statusRaw = 'negado';
+            raw['motivoCancelamento'] = textoEncerramento(motivoAuto);
+            encerrarAutomaticamente(d.id, motivoAuto).then((ok) => {
+              if (ok && motivoAuto === 'sem-confirmacao' && dataObj && dataObj.getTime() > Date.now()) this.liberarHorario(dataObj);
+            });
+          }
           return {
             id: d.id,
             maeId: idDaMae,

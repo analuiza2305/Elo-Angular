@@ -14,8 +14,8 @@
   <section class="ct-botoes">
     <button type="button" class="ct-botao ct-botao-principal" (click)="agendar()">
       <span class="ct-botao-icone"><i class="fa-regular fa-calendar-plus"></i></span>
-      <strong>Agendar consultoria</strong>
-      <small>Psicologia ou orientação jurídica</small>
+      <strong>Marcar consulta</strong>
+      <small>Escolha a psicóloga ou advogada e o horário</small>
     </button>
 
     <button type="button" class="ct-botao" (click)="minhasConsultas()">
@@ -24,31 +24,16 @@
         @if (proximas() > 0) { <em>{{ proximas() }}</em> }
       </span>
       <strong>Minhas consultas</strong>
-      <small>Veja e entre nas suas consultas</small>
+      <small>Veja seus horários e entre na chamada</small>
     </button>
 
-    <button type="button" class="ct-botao" (click)="abrirComoFunciona()">
+    <button type="button" class="ct-botao" (click)="guia.abrir()">
       <span class="ct-botao-icone"><i class="fa-regular fa-lightbulb"></i></span>
       <strong>Como funciona</strong>
-      <small>Do agendamento à conversa</small>
+      <small>Entenda em 4 passos, bem rápido</small>
     </button>
   </section>
 
-  <!-- ===== MODAL COMO FUNCIONA ===== -->
-  @if (comoFuncionaAberto()) {
-    <div class="ct-modal-fundo" (click)="fecharComoFunciona()">
-      <div class="ct-modal" role="dialog" aria-modal="true" aria-labelledby="ct-modal-titulo" (click)="$event.stopPropagation()">
-        <button type="button" class="ct-fechar" aria-label="Fechar" (click)="fecharComoFunciona()"><i class="fa-solid fa-xmark"></i></button>
-        <h2 id="ct-modal-titulo">Como funciona</h2>
-        <ol class="ct-passos">
-          <li><span><i class="fa-solid fa-user-doctor"></i></span><div><strong>Escolha a profissional</strong><small>Psicóloga ou advogada. Veja o perfil e as avaliações.</small></div></li>
-          <li><span><i class="fa-regular fa-calendar"></i></span><div><strong>Marque o horário</strong><small>Ela confirma o pedido.</small></div></li>
-          <li><span><i class="fa-regular fa-clipboard"></i></span><div><strong>Conte como você está</strong><small>Com a psicóloga, um questionário de 2 minutos.</small></div></li>
-          <li><span><i class="fa-solid fa-video"></i></span><div><strong>Entre na chamada</strong><small>Você recebe lembrete por e-mail.</small></div></li>
-        </ol>
-        <p class="ct-modal-nota">A consultoria é um atendimento breve. Não substitui uma terapia contínua nem o acompanhamento de um processo na Justiça.</p>
-        <button type="button" class="ct-modal-btn" (click)="agendar()">Agendar consultoria</button>
-      </div>
-    </div>
-  }
+  <!-- ===== COMO FUNCIONA: o mesmo slide de passos da página inicial ===== -->
+  <app-guia-passos #guia chave="consultas" [passos]="passosComoFunciona"></app-guia-passos>
 </main>

@@ -103,6 +103,22 @@
           }
         </section>
 
+        <section class="content-box suporte-box">
+          <h2>Ajuda para usar o site</h2>
+          <p class="bem-estar-texto">Escolha como prefere tirar dúvidas sobre o Elo Materno. Dá para trocar quando quiser.</p>
+          <div class="suporte-opcoes-perfil" role="radiogroup" aria-label="Tipo de ajuda">
+            @for (o of opcoesSuporte; track o.valor) {
+              <button type="button" class="suporte-opcao-perfil" role="radio"
+                      [class.ativa]="preferenciaSuporte() === o.valor" [attr.aria-checked]="preferenciaSuporte() === o.valor"
+                      [disabled]="salvandoSuporte()" (click)="mudarPreferenciaSuporte(o.valor)">
+                <i [class]="o.icone" aria-hidden="true"></i>
+                <span><strong>{{ o.titulo }}</strong><small>{{ o.texto }}</small></span>
+                @if (preferenciaSuporte() === o.valor) { <i class="fa-solid fa-circle-check suporte-marcado" aria-hidden="true"></i> }
+              </button>
+            }
+          </div>
+        </section>
+
         <section class="content-box">
           <h2>Minhas interações no fórum</h2>
           @if (interacaoRecente()) {

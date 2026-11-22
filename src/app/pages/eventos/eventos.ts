@@ -49,6 +49,16 @@ export class Eventos implements OnInit {
     return lista.filter((e: any) => e.categoria?.toLowerCase() === cat.toLowerCase());
   });
 
+  /** Só os eventos que ainda vão acontecer ficam no topo. */
+  eventosAtivos = computed(() => this.eventosFiltrados().filter((e: any) => !e.encerrado));
+  /** Eventos que já aconteceram ficam guardados num bloco separado, que a mãe abre se quiser. */
+  eventosEncerrados = computed(() => this.eventosFiltrados().filter((e: any) => e.encerrado));
+  mostrarEncerrados = signal<boolean>(false);
+
+  toggleEncerrados() {
+    this.mostrarEncerrados.update(v => !v);
+  }
+
   ngOnInit() {
     onAuthStateChanged(auth, async (user) => {
       if (user) {

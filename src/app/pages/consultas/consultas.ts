@@ -1,23 +1,40 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, inject, ViewChild } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
+import { GuiaPassosComponent, PassoGuia } from '../../components/guia-passos/guia-passos';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, getDocs, collection, query, where, onSnapshot, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { AlertaService } from '../../core/services/alerta.service';
 import { avisarProfissional } from '../../services/avisos-profissional';
+import {
+  encerrarAutomaticamente, limiteParaEntrar, motivoEncerramentoAutomatico, prazoConfirmacao, textoEncerramento,
+  MINUTOS_DE_TOLERANCIA,
+} from '../../services/prazos-consulta';
 
 @Component({
   selector: 'app-consultas',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, GuiaPassosComponent],
   templateUrl: './consultas.html',
   styleUrls: ['./consultas.css']
 })
 export class ConsultasComponent implements OnInit {
   private router = inject(Router);
+  private location = inject(Location);
   private readonly alerta = inject(AlertaService);
+  readonly minutosTolerancia = MINUTOS_DE_TOLERANCIA;
+
+  /** Tutorial do chat: abre sozinho quando a mãe tem uma consulta confirmada. */
+  @ViewChild('guiaChat') guiaChat?: GuiaPassosComponent;
+  private guiaChatVerificado = false;
+  readonly passosGuiaChat: PassoGuia[] = [
+    { icone: 'ph-light ph-chat-circle-text', titulo: 'Sua consulta foi confirmada!', texto: 'Agora você pode conversar com a profissional pelo chat, antes e depois da consulta. Toque em "Mandar mensagem" no cartão da consulta.' },
+    { icone: 'ph-light ph-user-list', titulo: 'Escolha com quem falar', texto: 'Na tela do chat, a lista da esquerda mostra as profissionais das suas consultas. Toque no nome para abrir a conversa.' },
+    { icone: 'ph-light ph-paper-plane-tilt', titulo: 'Escreva ou mande áudio', texto: 'Digite embaixo e toque em enviar. Se preferir, toque no microfone para gravar um áudio (até 1 minuto) e toque de novo para enviar.' },
+    { icone: 'ph-light ph-bell', titulo: 'Aviso de resposta', texto: 'Quando ela responder, aparece um número na conversa e um aviso no sino lá em cima. O chat não substitui a consulta por vídeo.' },
+  ];
 
   currentUser = signal<any>(null);
 
@@ -55,6 +72,19 @@ export class ConsultasComponent implements OnInit {
     this.abaAtiva.set(aba);
   }
 
+  /** Volta para a tela anterior (ou para o início, se ela abriu o link direto). */
+  voltar() {
+    if (window.history.length > 1) this.location.back();
+    else this.router.navigate(['/home-mae']);
+  }
+
+  /** Consulta que não aconteceu: leva para marcar de novo, já filtrando pelo mesmo profissional. */
+  reagendar(c: any) {
+    const queryParams: any = { tipo: c.tipoProf || 'psicologo' };
+    if (c.profissionalNome) queryParams.busca = c.profissionalNome;
+    this.router.navigate(['/consultas-lista-psi'], { queryParams });
+  }
+
   ouvirConsultasDaMae(uidMae: string) {
     const q = query(collection(db, "Consultas"), where("maeId", "==", uidMae));
 
@@ -66,6 +96,16 @@ export class ConsultasComponent implements OnInit {
 
       for (const snapDoc of snapshot.docs) {
         const raw = { id: snapDoc.id, ...snapDoc.data() } as any;
+
+        // Passou do prazo? Fecha sozinha (2 dias sem confirmação ou 15 min depois do horário sem ninguém entrar).
+        const motivoAuto = motivoEncerramentoAutomatico(raw);
+        if (motivoAuto) {
+          encerrarAutomaticamente(raw.id, motivoAuto);
+          raw.status = 'negado';
+          raw.canceladoPor = 'sistema';
+          raw.encerradaAutomaticamente = true;
+          raw.motivoCancelamento = textoEncerramento(motivoAuto);
+        }
 
         // NOVO CONTRATO DE DADOS DA SPRINT 2
         let profissionalId = raw.profissionalId || raw.Psicologo || raw.Advogado;
@@ -93,13 +133,18 @@ export class ConsultasComponent implements OnInit {
 
         const dataFormatada = this.formatDataHora(raw.Datahora);
 
+        const prazo = raw.status === 'pendente' ? prazoConfirmacao(raw) : null;
+        const limite = limiteParaEntrar(raw);
         const consultaObj = {
           ...raw,
           profissionalId,
           tipoProf,
           profissionalNome,
           profissionalFoto,
-          dataFormatada
+          dataFormatada,
+          prazoConfirmacaoTexto: prazo ? this.formatDataHora(prazo) : '',
+          limiteEntradaTexto: limite ? limite.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
+          profissionalNaSala: !!raw.profissionalNaSala,
         };
 
         if (["pendente", "aceito"].includes(raw.status)) {
@@ -112,6 +157,10 @@ export class ConsultasComponent implements OnInit {
       }
 
       this.consultasAgendadas.set(agendadas);
+      if (!this.guiaChatVerificado && agendadas.some((c) => c.status === 'aceito')) {
+        this.guiaChatVerificado = true;
+        setTimeout(() => this.guiaChat?.abrirSeDeve(), 700);
+      }
       this.consultasRealizadas.set(realizadas);
       this.consultasCanceladas.set(canceladas);
     });
@@ -152,10 +201,10 @@ export class ConsultasComponent implements OnInit {
   }
 
   gerarBadge(status: string): string {
-    if (status === "pendente") return '<span class="badge badge-pendente">Pendente</span>';
-    if (status === "aceito") return '<span class="badge badge-aceito">Agendada</span>';
+    if (status === "pendente") return '<span class="badge badge-pendente">Esperando confirmação</span>';
+    if (status === "aceito") return '<span class="badge badge-aceito">Confirmada</span>';
     if (status === "realizado") return '<span class="badge badge-realizado">Realizada</span>';
-    if (status === "negado") return '<span class="badge badge-negado">Negada</span>';
+    if (status === "negado") return '<span class="badge badge-negado">Cancelada</span>';
     return "";
   }
 

@@ -1323,3 +1323,143 @@ body {
   .fp-rodape { padding: 14px 18px 18px; }
   .fp-pills { grid-template-columns: 1fr; }
 }
+
+/* =========================================================
+   MARCAR EM 3 PASSOS (teste com mães, 18/11)
+   ========================================================= */
+.card:has(.agendar-passos) { align-items: stretch; }
+.card:has(.agendar-passos) .prof-schedule { justify-content: flex-start !important; }
+.card:has(.agendar-passos) .prof-info { align-items: center; }
+
+.agendar-passos { display: flex; flex-direction: column; gap: 22px; width: 100%; min-width: 0; }
+.ap-passo { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.ap-titulo {
+  display: flex; align-items: center; gap: 10px; margin: 0 !important;
+  font-size: 1.05rem !important; font-weight: 800; color: #2A1B5C; line-height: 1.2;
+}
+.ap-num {
+  width: 28px; height: 28px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%;
+  background: #5B3D99; color: #fff; font-size: .92rem; font-weight: 800;
+}
+
+/* dias */
+.ap-dias { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ap-dias-lista {
+  display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none;
+  padding: 2px; min-width: 0; flex: 1;
+}
+.ap-dias-lista::-webkit-scrollbar { display: none; }
+.ap-dia {
+  flex: 0 0 auto; width: 78px; height: 72px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border-radius: 18px; border: 1.5px solid #E4DAFA; background: #fff; color: #2A1B5C; cursor: pointer; font: inherit;
+  transition: border-color .2s, background .2s, transform .2s;
+}
+.ap-dia:hover { border-color: #B9A3EE; transform: translateY(-1px); }
+.ap-dia-semana { font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #6B6290; }
+.ap-dia-data { font-size: 1.1rem; font-weight: 800; }
+.ap-dia.ativo { background: #5B3D99; border-color: #5B3D99; color: #fff; box-shadow: 0 10px 22px rgba(91, 61, 153, .3); }
+.ap-dia.ativo .ap-dia-semana { color: #E6DCFF; }
+.ap-seta {
+  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  border: 1.5px solid #E4DAFA; background: #fff; color: #5B3D99; cursor: pointer; font-size: 1.1rem;
+}
+
+/* horários */
+.ap-horas { display: flex; flex-wrap: wrap; gap: 10px; }
+.ap-hora {
+  min-width: 88px; height: 50px; padding: 0 16px; border-radius: 14px; cursor: pointer;
+  border: 1.5px solid #E4DAFA; background: #fff; color: #2A1B5C; font: inherit; font-size: 1.05rem; font-weight: 800;
+  transition: border-color .2s, background .2s;
+}
+.ap-hora:hover { border-color: #B9A3EE; }
+.ap-hora.ativo { background: #5B3D99; border-color: #5B3D99; color: #fff; box-shadow: 0 10px 22px rgba(91, 61, 153, .3); }
+.ap-vazio { margin: 0 !important; color: #6B6290; font-size: 1rem !important; }
+
+/* confirmar */
+.ap-confirmar {
+  width: 100%; min-height: 58px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  border-radius: 18px; cursor: pointer; font: inherit; font-size: 1.1rem; font-weight: 800;
+  border: 2px dashed #CDBDF2; background: #F7F3FF; color: #5B3D99;
+  transition: background .2s, box-shadow .2s;
+}
+.ap-confirmar i { font-size: 1.3rem; }
+.ap-confirmar.pronto {
+  border: none; background: #5B3D99; color: #fff;
+  box-shadow: 0 14px 30px rgba(75, 44, 130, .32);
+}
+.ap-confirmar.pronto:hover { box-shadow: 0 18px 36px rgba(75, 44, 130, .4); }
+
+.profile-link { font-size: 1rem !important; font-weight: 800 !important; }
+
+/* modo escuro */
+:host-context(body[data-theme="dark"]) .ap-titulo { color: #F1ECFF; }
+:host-context(body[data-theme="dark"]) .ap-num { background: #8B72D6; }
+:host-context(body[data-theme="dark"]) .ap-dia,
+:host-context(body[data-theme="dark"]) .ap-hora,
+:host-context(body[data-theme="dark"]) .ap-seta { background: #1a2133; border-color: rgba(255,255,255,.14); color: #F1ECFF; }
+:host-context(body[data-theme="dark"]) .ap-dia-semana { color: #B9B0D8; }
+:host-context(body[data-theme="dark"]) .ap-dia.ativo,
+:host-context(body[data-theme="dark"]) .ap-hora.ativo { background: #7C5FCB; border-color: #7C5FCB; color: #fff; }
+:host-context(body[data-theme="dark"]) .ap-confirmar:not(.pronto) { background: rgba(185,163,238,.08); border-color: rgba(185,163,238,.35); color: #E6DEFF; }
+
+@media (max-width: 768px) {
+  .page-header h1 { font-size: 1.9rem !important; }
+  .page-header p { font-size: 1.05rem !important; }
+  .tipo-chip { min-height: 46px; font-size: 1rem !important; }
+  .card h3 { font-size: 1.25rem !important; }
+  .card .role { font-size: 1rem !important; }
+  .ap-seta { display: none; }
+  .ap-hora { flex: 1 1 calc(33% - 10px); min-width: 0; }
+}
+.ap-confirmar i { color: inherit !important; } .ap-confirmar.pronto i { color: #fff !important; }
+.card .role-id { white-space: nowrap; } .card .role { flex-wrap: wrap; row-gap: 2px; }
+
+/* =========================================================
+   QUESTIONÁRIO ANTES DE AGENDAR + PERFIL NO MODAL (reunião 21/11)
+========================================================= */
+.convite-questionario {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  margin: 0 0 22px; padding: 16px 20px; border-radius: 18px;
+  background: linear-gradient(135deg, #F4EEFF, #FFF0F5); border: 1px solid #E3D7FA;
+}
+.cq-icone {
+  width: 46px; height: 46px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center;
+  background: #FFFFFF; color: #7C5FCB; font-size: 1.4rem;
+}
+.cq-texto { flex: 1; min-width: 220px; }
+.cq-texto strong { display: block; color: #3E2A6E; font-size: 1.02rem; }
+.cq-texto p { margin: 4px 0 0; color: #5E5675; font-size: .94rem; }
+.cq-btn {
+  padding: 11px 20px; border-radius: 999px; border: none; cursor: pointer;
+  background: #5B3D99; color: #FFFFFF; font-family: inherit; font-weight: 700; font-size: .95rem;
+}
+.cq-btn:hover { background: #4A2B82; }
+
+.sobre-prof-mini { margin: 14px 0 6px; display: flex; flex-direction: column; gap: 10px; }
+.spm-linha { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.spm-nota, .spm-selo {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px;
+  background: #F4F0FC; color: #5B3D99; font-size: .85rem; font-weight: 700;
+}
+.spm-nota i { color: #F2B230; }
+.spm-nota small { font-weight: 500; opacity: .8; }
+.spm-selo { background: #EAF7EF; color: #1E7A46; }
+.spm-bio { margin: 0; color: #4E4864; font-size: .93rem; line-height: 1.5; }
+
+.aviso-questionario-modal {
+  display: flex; gap: 10px; align-items: flex-start; margin: 8px 0 14px; padding: 12px 14px;
+  border-radius: 12px; background: #FFF6E5; color: #7A5300; font-size: .9rem; line-height: 1.45;
+}
+.aviso-questionario-modal i { font-size: 1.2rem; margin-top: 1px; }
+.aviso-questionario-modal a { color: #5B3D99; font-weight: 700; }
+
+:host-context(body[data-theme="dark"]) .convite-questionario { background: #1A2030; border-color: rgba(255,255,255,.12); }
+:host-context(body[data-theme="dark"]) .cq-icone { background: #241D3D; color: #CDBBFF; }
+:host-context(body[data-theme="dark"]) .cq-texto strong { color: #EDE6FF; }
+:host-context(body[data-theme="dark"]) .cq-texto p,
+:host-context(body[data-theme="dark"]) .spm-bio { color: #C9C2DA; }
+:host-context(body[data-theme="dark"]) .cq-btn { background: #6C4BBF; }
+:host-context(body[data-theme="dark"]) .spm-nota { background: rgba(157,143,231,.14); color: #E5DCFF; }
+:host-context(body[data-theme="dark"]) .spm-selo { background: rgba(126,226,168,.12); color: #7EE2A8; }
+:host-context(body[data-theme="dark"]) .aviso-questionario-modal { background: #2E2614; color: #F3D58A; }
+:host-context(body[data-theme="dark"]) .aviso-questionario-modal a { color: #CDBBFF; }

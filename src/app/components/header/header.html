@@ -313,7 +313,7 @@
               <nav class="header-nav desktop-nav">
                   <a routerLink="/home-mae" routerLinkActive="ativo" class="nav-item">Início</a>
                   <a routerLink="/forum" routerLinkActive="ativo" class="nav-item">Fórum</a>
-                  <a routerLink="/consultoria" routerLinkActive="ativo" class="nav-item">Consultorias</a>
+                  <a routerLink="/consultoria" routerLinkActive="ativo" class="nav-item">Consultas</a>
                   <a routerLink="/eventos" routerLinkActive="ativo" class="nav-item">Eventos</a>
                   <a routerLink="/artigos" routerLinkActive="ativo" class="nav-item">Comunidade</a>
                   <a routerLink="/carreiras" routerLinkActive="ativo" class="nav-item">Carreiras</a>
@@ -322,9 +322,37 @@
 
           <!-- DIREITA DESKTOP: Pesquisa, Chat, Acessibilidade, Tema, Perfil -->
           <div class="right-section desktop-right">
-              <div class="search-box">
+              <div class="search-box" role="search">
                   <i class="fa fa-search icon-search-left"></i>
-                  <input type="text" placeholder="Pesquisar na comunidade...">
+                  <input type="search" placeholder="Pesquisar no Elo..." aria-label="Pesquisar no site"
+                         autocomplete="off" [value]="termoBusca()"
+                         (input)="aoDigitarBusca($any($event.target).value)"
+                         (focus)="termoBusca().length >= 2 && buscaAberta.set(true)"
+                         (keydown)="teclaBusca($event)" (blur)="aoSairDaBusca()"
+                         [attr.aria-expanded]="buscaAberta()" aria-controls="busca-resultados">
+
+                  @if (buscaAberta() && termoBusca().trim().length >= 2) {
+                    <div class="busca-painel" id="busca-resultados" role="listbox">
+                      @if (buscando() && !resultadosBusca().length) {
+                        <p class="busca-vazio">Procurando…</p>
+                      } @else {
+                        @for (r of resultadosBusca(); track r.rota + r.titulo + $index; let i = $index) {
+                          @if (inicioDeGrupo(i)) { <span class="busca-grupo">{{ rotuloTipo[r.tipo] }}</span> }
+                          <button type="button" class="busca-item" role="option" [class.ativo]="indiceBusca() === i"
+                                  [attr.aria-selected]="indiceBusca() === i"
+                                  (mousedown)="$event.preventDefault()" (click)="abrirResultado(r)">
+                            <i [class]="iconeTipo[r.tipo]" aria-hidden="true"></i>
+                            <span class="busca-textos">
+                              <strong>{{ r.titulo }}</strong>
+                              @if (r.detalhe) { <small>{{ r.detalhe }}</small> }
+                            </span>
+                          </button>
+                        } @empty {
+                          <p class="busca-vazio">Nada encontrado para "{{ termoBusca() }}". Tente outra palavra.</p>
+                        }
+                      }
+                    </div>
+                  }
               </div>
 
               <a routerLink="/agenda-mae" routerLinkActive="ativo" class="header-icon-btn" title="Agenda" aria-label="Agenda"><i class="fa-regular fa-calendar"></i></a>
@@ -416,8 +444,16 @@
               </div>
           </div>
 
+          <!-- CELULAR: sino de avisos no topo (o menu fica na barra de baixo) -->
+          <button type="button" class="mae-sino-topo" (click)="abrirAvisosCelular($event)"
+                  [attr.aria-label]="naoLidas() ? 'Avisos, ' + naoLidas() + ' novos' : 'Avisos'">
+            <i class="ph-light ph-bell"></i>
+            <span class="mae-sino-texto">Avisos</span>
+            @if (naoLidas() > 0) { <span class="notif-badge" aria-hidden="true">{{ naoLidas() > 9 ? '9+' : naoLidas() }}</span> }
+          </button>
+
           <!-- BOTÃO HAMBÚRGUER (APENAS NO MOBILE) -->
-          <button class="menu-toggle" aria-label="Abrir menu" (click)="toggleMobileMenu()">
+          <button class="menu-toggle mae-menu-topo" aria-label="Abrir menu" (click)="toggleMobileMenu()">
             <i class="fa" [class.fa-bars]="!isMobileMenuOpen" [class.fa-xmark]="isMobileMenuOpen"></i>
             @if (naoLidas() > 0 && !isMobileMenuOpen) { <span class="notif-badge" aria-hidden="true">{{ naoLidas() > 9 ? '9+' : naoLidas() }}</span> }
           </button>
@@ -451,16 +487,16 @@
                       <i class="fa-solid fa-users"></i> Fórum
                   </a>
                   <a routerLink="/consultoria" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
-                      <i class="fa-solid fa-heart-pulse"></i> Consultorias
+                      <i class="fa-solid fa-user-doctor"></i> Consultas com profissionais
                   </a>
                   <a routerLink="/agenda-mae" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
-                      <i class="fa-solid fa-calendar-days"></i> Agenda
+                      <i class="fa-solid fa-calendar-days"></i> Minha agenda
                   </a>
                   <a routerLink="/eventos" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
                       <i class="fa-solid fa-bullhorn"></i> Eventos
                   </a>
                   <a routerLink="/artigos" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
-                      <i class="fa-solid fa-book-open"></i> Comunidade
+                      <i class="fa-solid fa-book-open"></i> Comunidade (dicas e textos)
                   </a>
                   <a routerLink="/carreiras" (click)="toggleMobileMenu()" routerLinkActive="ativo" class="mobile-link">
                       <i class="fa-solid fa-briefcase"></i> Carreiras
@@ -546,6 +582,43 @@
           </nav>
       </div>
   </header>
+
+  <!-- CELULAR: barra fixa embaixo com o que a mãe mais usa (fica no lugar do polegar) -->
+  <nav class="mae-barra" aria-label="Menu principal">
+    <a routerLink="/home-mae" routerLinkActive="ativo" class="mae-barra-item">
+      <i class="ph-light ph-house"></i><span>Início</span>
+    </a>
+    <a routerLink="/consultoria" routerLinkActive="ativo" class="mae-barra-item">
+      <i class="ph-light ph-stethoscope"></i><span>Consultas</span>
+    </a>
+    <a routerLink="/forum" routerLinkActive="ativo" class="mae-barra-item">
+      <i class="ph-light ph-chats-circle"></i><span>Fórum</span>
+    </a>
+    <a routerLink="/agenda-mae" routerLinkActive="ativo" class="mae-barra-item">
+      <i class="ph-light ph-calendar-blank"></i><span>Agenda</span>
+    </a>
+    <button type="button" class="mae-barra-item" [class.ativo]="isMobileMenuOpen" (click)="toggleMobileMenu()" aria-label="Abrir o menu com todas as opções">
+      <i class="ph-light ph-list"></i><span>Menu</span>
+    </button>
+  </nav>
+
+  <!-- AVISO NA TELA: quando chega notificação nova (consulta confirmada, recusada...) -->
+  @if (avisoNaTela(); as n) {
+    <div class="mae-toast" role="status" aria-live="polite">
+      <span class="mae-toast-icone" [class.recusada]="n.tipo === 'consulta_recusada'"><i [class]="iconeNotificacao(n.tipo)"></i></span>
+      <div class="mae-toast-texto">
+        <strong>{{ n.titulo }}</strong>
+        <span>{{ n.mensagem }}</span>
+      </div>
+      <div class="mae-toast-acoes">
+        @if (n.link) { <button type="button" class="mae-toast-ver" (click)="abrirAvisoNaTela(n)">Ver agora</button> }
+        <button type="button" class="mae-toast-fechar" (click)="fecharAvisoNaTela()" aria-label="Fechar aviso"><i class="ph ph-x"></i></button>
+      </div>
+    </div>
+  }
+
+  <!-- Assistente virtual (só aparece para quem escolheu "Assistente virtual (IA)") -->
+  <app-assistente-ia></app-assistente-ia>
 }
 
 <!-- AVISO DE MODERAÇÃO (mãe): advertência exige "li e estou ciente"; post removido é só um aviso -->

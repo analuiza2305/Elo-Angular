@@ -9,6 +9,9 @@ import { LembreteService } from '../../services/lembrete';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { Idioma } from '../../core/i18n/translations';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { buscarNoSite, ResultadoBusca, ROTULO_TIPO, ICONE_TIPO } from '../../services/busca-geral';
+import { salvarPreferenciaLocal } from '../../services/preferencia-suporte';
+import { AssistenteIaComponent } from '../assistente-ia/assistente-ia';
 
 /** Aviso gravado em `notificacoes` (ex.: o profissional confirmou ou recusou a consulta). */
 export interface Notificacao {
@@ -30,7 +33,7 @@ export interface Notificacao {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TranslatePipe],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TranslatePipe, AssistenteIaComponent],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
@@ -75,6 +78,39 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
   naoLidas = computed(() => this.notificacoes().filter((n) => !n.lida).length);
+
+  // --- AVISO NA TELA (toast) ---
+  // A notificação nova aparece por cima da tela, em vez de ficar escondida no sino.
+  avisoNaTela = signal<Notificacao | null>(null);
+  private avisosJaMostrados = new Set<string>();
+  private timerAviso: any = null;
+
+  private mostrarAvisoNovo(lista: Notificacao[]) {
+    if (this.tipo !== 'mae' || !isPlatformBrowser(this.platformId)) return;
+    if (!this.avisosJaMostrados.size) {
+      try { JSON.parse(sessionStorage.getItem('avisosMostrados') || '[]').forEach((id: string) => this.avisosJaMostrados.add(id)); } catch { /* sem storage */ }
+    }
+    // só avisos não lidos dos últimos 3 dias que ainda não apareceram nesta visita
+    const limite = Date.now() - 3 * 24 * 60 * 60 * 1000;
+    const nova = lista.find((n) => !n.lida && !n.exigeCiencia && !this.avisosJaMostrados.has(n.id) && (n.criadoEm?.getTime() ?? Date.now()) > limite);
+    if (!nova) return;
+    this.avisosJaMostrados.add(nova.id);
+    try { sessionStorage.setItem('avisosMostrados', JSON.stringify([...this.avisosJaMostrados])); } catch { /* sem storage */ }
+    this.avisoNaTela.set(nova);
+    clearTimeout(this.timerAviso);
+    this.timerAviso = setTimeout(() => this.avisoNaTela.set(null), 15000);
+  }
+
+  fecharAvisoNaTela() { clearTimeout(this.timerAviso); this.avisoNaTela.set(null); }
+
+  abrirAvisoNaTela(n: Notificacao) { this.fecharAvisoNaTela(); this.abrirNotificacao(n); }
+
+  /** Sino do topo no celular: abre o menu já com os avisos abertos. */
+  abrirAvisosCelular(event: Event) {
+    event.stopPropagation();
+    this.isMobileMenuOpen = true;
+    this.isNotifOpen = true;
+  }
   isNotifOpen = false;
   private unsubNotificacoes: Unsubscribe | null = null;
   private unsubAuth: (() => void) | null = null;
@@ -109,6 +145,72 @@ export class HeaderComponent implements OnInit, OnDestroy {
   @Input() abasAdmPermitidas: string[] | null = null;
   podeAbaAdm(aba: string): boolean { return !this.abasAdmPermitidas || this.abasAdmPermitidas.includes(aba); }
 
+  // --- BARRA DE PESQUISA (área da mãe) ---
+  termoBusca = signal('');
+  resultadosBusca = signal<ResultadoBusca[]>([]);
+  buscaAberta = signal(false);
+  buscando = signal(false);
+  indiceBusca = signal(-1);
+  readonly rotuloTipo = ROTULO_TIPO;
+  readonly iconeTipo = ICONE_TIPO;
+  private buscaTimer: any;
+  private buscaSeq = 0;
+
+  aoDigitarBusca(valor: string) {
+    this.termoBusca.set(valor);
+    this.indiceBusca.set(-1);
+    clearTimeout(this.buscaTimer);
+    if (valor.trim().length < 2) {
+      this.resultadosBusca.set([]);
+      this.buscando.set(false);
+      return;
+    }
+    this.buscando.set(true);
+    this.buscaAberta.set(true);
+    this.buscaTimer = setTimeout(async () => {
+      const seq = ++this.buscaSeq;
+      const res = await buscarNoSite(valor);
+      if (seq !== this.buscaSeq) return;   // chegou resposta de uma busca mais antiga
+      this.resultadosBusca.set(res);
+      this.buscando.set(false);
+    }, 250);
+  }
+
+  teclaBusca(ev: KeyboardEvent) {
+    const lista = this.resultadosBusca();
+    if (ev.key === 'ArrowDown') { ev.preventDefault(); this.indiceBusca.set(Math.min(this.indiceBusca() + 1, lista.length - 1)); }
+    else if (ev.key === 'ArrowUp') { ev.preventDefault(); this.indiceBusca.set(Math.max(this.indiceBusca() - 1, 0)); }
+    else if (ev.key === 'Enter') {
+      ev.preventDefault();
+      const r = lista[Math.max(this.indiceBusca(), 0)];
+      if (r) this.abrirResultado(r);
+    } else if (ev.key === 'Escape') { this.fecharBusca(); }
+  }
+
+  /** Mostra o título do grupo só no primeiro item de cada tipo. */
+  inicioDeGrupo(i: number): boolean {
+    const l = this.resultadosBusca();
+    return i === 0 || l[i - 1].tipo !== l[i].tipo;
+  }
+
+  abrirResultado(r: ResultadoBusca) {
+    this.fecharBusca();
+    this.termoBusca.set('');
+    this.resultadosBusca.set([]);
+    this.isMobileMenuOpen = false;
+    this.router.navigate([r.rota], { queryParams: r.queryParams || {} });
+  }
+
+  fecharBusca() {
+    this.buscaAberta.set(false);
+    this.indiceBusca.set(-1);
+  }
+
+  /** Fecha a lista depois de um instante (para o clique no resultado funcionar). */
+  aoSairDaBusca() {
+    setTimeout(() => this.fecharBusca(), 180);
+  }
+
   // Controles de Menus
   isMobileMenuOpen = false;
   isLoginDropdownOpen = false;
@@ -138,6 +240,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
+      document.body.classList.toggle('area-mae', this.tipo === 'mae');
       const savedTheme = localStorage.getItem('theme');
       this.isDarkMode = savedTheme === 'dark';
       this.applyTheme();
@@ -215,6 +318,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         lista.sort((a, b) => (b.criadoEm?.getTime() ?? Date.now()) - (a.criadoEm?.getTime() ?? Date.now()));
         this.todasNotificacoes.set(lista);
         this.notificacoes.set(lista.slice(0, 20));
+        this.mostrarAvisoNovo(lista);
       },
       (erro) => console.warn('Não foi possível carregar as notificações:', erro)
     );
@@ -288,6 +392,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private setUserData(data: any) {
     if (data['nome']) this.formatAndSetName(data['nome']);
     if (data['fotoURL'] || data['avatar']) this.userAvatar.set(data['fotoURL'] || data['avatar']);
+    if (this.tipo === 'mae') salvarPreferenciaLocal(data['preferenciaSuporte']);   // guias sabem se abrem sozinhos
   }
 
   private formatAndSetName(fullName: string) {

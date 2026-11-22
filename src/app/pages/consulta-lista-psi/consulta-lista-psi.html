@@ -5,20 +5,31 @@
   </a>
   <div class="hero-section">
     <div class="page-header">
-      <h1>Escolha quem vai te atender</h1>
-      <p>Encontre a profissional ideal para o que você precisa hoje.</p>
+      <h1>Marcar consulta</h1>
+      <p>Escolha quem vai te atender, o dia e o horário. É de graça.</p>
     </div>
     <div class="hero-image-wrapper">
       <img src="img/chrameconsultoria.jpg" alt="Ilustração Consultoria" class="hero-img">
     </div>
   </div>
 
+  @if (questionarioRespondido() === false) {
+    <section class="convite-questionario">
+      <span class="cq-icone"><i class="ph ph-heart"></i></span>
+      <div class="cq-texto">
+        <strong>Antes de marcar com uma psicóloga, conte como você está</strong>
+        <p>São 8 perguntas rápidas (uns 2 minutos). Assim ela já chega na conversa sabendo um pouco de você.</p>
+      </div>
+      <button type="button" class="cq-btn" (click)="irParaQuestionario()">Responder agora</button>
+    </section>
+  }
+
   <div class="search-bar-wrapper">
     <div class="search-bar">
       <i class="ph ph-magnifying-glass search-icon"></i>
       <input
         type="text"
-        placeholder="Pesquisar profissional (nome, especialidade, CRP/OAB...)"
+        placeholder="Buscar pelo nome ou assunto"
         [value]="termoBusca()"
         (input)="termoBusca.set($any($event.target).value)">
       <button class="filter-btn" title="Filtrar profissionais" (click)="abrirFiltros()">
@@ -112,7 +123,7 @@
               }
 
               <a href="#" (click)="$event.preventDefault(); verPerfil(prof)" class="profile-link">
-                Ver perfil completo <i class="ph ph-arrow-right"></i>
+                Ver mais sobre ela <i class="ph ph-arrow-right"></i>
               </a>
             </div>
           </div>
@@ -137,58 +148,50 @@
                 </button>
               }
             } @else {
-              <div class="schedule-available-container">
-                <div class="icon-box primary-box"><i class="ph ph-calendar-check"></i></div>
-
-                <div class="schedule-selection">
-                  <p class="section-label">Selecione uma data:</p>
-
-                  <div class="carousel-wrapper">
-                    @if (prof.datasDisponiveis.length > 5) {
-                      <button class="carousel-btn left" (click)="scrollDatas(scrollContainer, -1)">
-                        <i class="ph ph-caret-left"></i>
-                      </button>
+              <!-- Marcar em 3 passos numerados: dia, horário, botão -->
+              <div class="agendar-passos">
+                <div class="ap-passo">
+                  <p class="ap-titulo"><span class="ap-num">1</span> Escolha o dia</p>
+                  <div class="ap-dias">
+                    @if (prof.datasDisponiveis.length > 4) {
+                      <button class="ap-seta" aria-label="Ver dias anteriores" (click)="scrollDatas(scrollContainer, -1)"><i class="ph ph-caret-left"></i></button>
                     }
-
-                    <div class="date-scroll" #scrollContainer>
+                    <div class="ap-dias-lista" #scrollContainer>
                       @for (d of prof.datasDisponiveis; track d.key) {
-                        <button
-                          class="date-chip"
-                          [class.selected]="prof.dataSelecionada === d.key"
-                          (click)="selecionarData(prof, d.key)">
-                          <span class="day">{{ d.diaSemana }}</span>
-                          <span class="date">{{ d.diaMes }}</span>
+                        <button class="ap-dia" [class.ativo]="prof.dataSelecionada === d.key" [attr.aria-pressed]="prof.dataSelecionada === d.key" (click)="selecionarData(prof, d.key)">
+                          <span class="ap-dia-semana">{{ d.diaSemana }}</span>
+                          <span class="ap-dia-data">{{ d.diaMes }}</span>
                         </button>
                       }
                     </div>
-
-                    @if (prof.datasDisponiveis.length > 5) {
-                      <button class="carousel-btn right" (click)="scrollDatas(scrollContainer, 1)">
-                        <i class="ph ph-caret-right"></i>
-                      </button>
+                    @if (prof.datasDisponiveis.length > 4) {
+                      <button class="ap-seta" aria-label="Ver mais dias" (click)="scrollDatas(scrollContainer, 1)"><i class="ph ph-caret-right"></i></button>
                     }
                   </div>
+                </div>
 
-                  <p class="section-label">Horários disponíveis</p>
-                  <div class="time-selection-row">
-                    <div class="time-scroll">
-                      @if (horariosDaData(prof).length > 0) {
-                        @for (hora of horariosDaData(prof); track hora) {
-                          <button
-                            class="time-chip"
-                            [class.ativo]="prof.horarioSelecionado === hora"
-                            (click)="selecionarHorario(prof, hora)">
-                            {{ hora }}
-                          </button>
-                        }
-                      } @else {
-                        <p class="no-time-msg">Sem horários para esta data.</p>
+                <div class="ap-passo">
+                  <p class="ap-titulo"><span class="ap-num">2</span> Escolha o horário</p>
+                  <div class="ap-horas">
+                    @if (horariosDaData(prof).length > 0) {
+                      @for (hora of horariosDaData(prof); track hora) {
+                        <button class="ap-hora" [class.ativo]="prof.horarioSelecionado === hora" [attr.aria-pressed]="prof.horarioSelecionado === hora" (click)="selecionarHorario(prof, hora)">{{ hora }}</button>
                       }
-                    </div>
-                    <button class="btn-primary" (click)="abrirModal(prof)">
-                      <i class="ph ph-calendar-plus"></i> Agendar
-                    </button>
+                    } @else {
+                      <p class="ap-vazio">Sem horários neste dia. Escolha outro dia.</p>
+                    }
                   </div>
+                </div>
+
+                <div class="ap-passo">
+                  <p class="ap-titulo"><span class="ap-num">3</span> Confirme</p>
+                  <button class="ap-confirmar" [class.pronto]="prof.horarioSelecionado" (click)="abrirModal(prof)">
+                    @if (prof.horarioSelecionado) {
+                      <i class="ph ph-calendar-check"></i> Marcar consulta às {{ prof.horarioSelecionado }}
+                    } @else {
+                      <i class="ph ph-hand-pointing"></i> Escolha um horário acima
+                    }
+                  </button>
                 </div>
               </div>
             }
@@ -275,6 +278,31 @@
         </div>
       </div>
 
+      <!-- Conhecer a profissional antes de confirmar -->
+      <div class="sobre-prof-mini">
+        <div class="spm-linha">
+          @if (!modalInfo().reputacao?.novo) {
+            <span class="spm-nota"><i class="fa-solid fa-star"></i> {{ modalInfo().reputacao?.mediaTexto }} <small>({{ modalInfo().reputacao?.total }} avaliações)</small></span>
+          } @else {
+            <span class="spm-nota"><i class="fa-solid fa-seedling"></i> Novo na rede</span>
+          }
+          @if (modalInfo().reputacao?.bemAvaliado) {
+            <span class="spm-selo"><i class="fa-solid fa-award"></i> Bem avaliado pelas mães</span>
+          }
+        </div>
+        @if (modalInfo().biografia) {
+          <p class="spm-bio">{{ modalInfo().biografia.length > 260 ? (modalInfo().biografia | slice:0:260) + '…' : modalInfo().biografia }}</p>
+        }
+        @if (modalInfo().especializacoes?.length) {
+          <div class="tags-container">
+            @for (esp of modalInfo().especializacoes; track esp) { <span class="esp-tag">{{ esp }}</span> }
+          </div>
+        }
+        <a href="#" class="profile-link" (click)="$event.preventDefault(); verPerfil({ tipo: modalInfo().tipo, uid: modalInfo().uid }); fecharModal()">
+          Ver perfil completo <i class="ph ph-arrow-right"></i>
+        </a>
+      </div>
+
       <div class="datetime-badges">
         <div class="badge-item">
           <div class="badge-icon"><i class="ph ph-calendar-blank"></i></div>
@@ -302,6 +330,15 @@
           rows="3"
         ></textarea>
       </div>
+
+      @if (modalInfo().tipo === 'psicologo' && questionarioRespondido() === false) {
+        <div class="aviso-questionario-modal">
+          <i class="ph ph-clipboard-text"></i>
+          <span>Você ainda não respondeu o questionário de bem-estar. Ele ajuda a psicóloga a te conhecer.
+            <a href="#" (click)="$event.preventDefault(); fecharModal(); irParaQuestionario()">Responder antes (2 min)</a>
+          </span>
+        </div>
+      }
 
       <div class="modal-actions">
         <button class="btn-cancel" (click)="fecharModal()" [disabled]="salvando()">Cancelar</button>

@@ -1,13 +1,17 @@
 <app-header tipo="mae"></app-header>
 <main class="consultas-container">
+  <button type="button" class="cs-btn-voltar" (click)="voltar()" aria-label="Voltar para a tela anterior">
+    <i class="fa-solid fa-arrow-left"></i> Voltar
+  </button>
+
   <div class="consultas-header-top">
     <div class="titulos">
       <h1>Minhas consultas</h1>
-      <p>Acompanhe suas consultas e converse com os profissionais.</p>
+      <p>Aqui ficam seus horários. Na hora da consulta, toque em <strong>Entrar na chamada</strong>.</p>
     </div>
     <a routerLink="/consultas-lista-psi" class="fazer-outros-link">
       <button type="button" class="fazer-outros-btn">
-        <i class="fa-regular fa-calendar-plus"></i> Fazer outros agendamentos
+        <i class="fa-regular fa-calendar-plus"></i> Marcar nova consulta
       </button>
     </a>
   </div>
@@ -62,21 +66,45 @@
             </div>
             
             <!-- BOTÕES CORRIGIDOS -->
+            <!-- O que fazer agora: a chamada é o botão principal, grande e verde -->
+            @if (c.status === 'aceito') {
+              <div class="cs-chamada-box">
+                <button class="btn-entrar-chamada" [routerLink]="['/videochamada']" [queryParams]="{ id: c.id }">
+                  <i class="ph-light ph-video-camera"></i> Entrar na chamada
+                </button>
+                @if (c.profissionalNaSala) {
+                  <p class="cs-prof-na-sala"><i class="fa-solid fa-circle"></i> A profissional já está na sala te esperando!</p>
+                } @else {
+                  <p>Toque aqui no dia e na hora da consulta. Se ninguém entrar até {{ c.limiteEntradaTexto || minutosTolerancia + ' minutos depois' }}, ela é cancelada e você pode marcar de novo.</p>
+                }
+              </div>
+            } @else if (c.status === 'pendente') {
+              <div class="cs-espera-box">
+                <i class="ph-light ph-hourglass-medium"></i>
+                <p>
+                  <strong>Esperando a profissional confirmar.</strong> Você recebe um aviso na tela quando ela responder.
+                  @if (c.prazoConfirmacaoTexto) {
+                    <br><small>Se não houver resposta até {{ c.prazoConfirmacaoTexto }}, a consulta é cancelada e você pode escolher outro horário.</small>
+                  }
+                </p>
+              </div>
+            }
+
             <div class="consulta-acoes" style="display: flex; gap: 10px; margin-top: auto; flex-wrap: wrap;">
               @if (c.profissionalId) {
-                @if (c.status === 'aceito') {
-                  <button class="btn-videochamada" [routerLink]="['/videochamada']" [queryParams]="{ id: c.id }">
-                    <i class="fa-solid fa-video"></i> Chamada
-                  </button>
-                }
                 <button class="btn-detalhes" (click)="abrirDetalhesProfissional(c.profissionalId, c.tipoProf)">
-                  <i class="fa-regular fa-user"></i> Perfil
+                  <i class="fa-regular fa-user"></i> Ver perfil
                 </button>
                 <button class="btn-chat" (click)="abrirChat(c.profissionalId, c.tipoProf)">
-                  <i class="fa-regular fa-comment"></i> Chat
+                  <i class="fa-regular fa-comment"></i> Mandar mensagem
                 </button>
               }
             </div>
+            @if (c.status === 'aceito') {
+              <button type="button" class="cs-como-chat" (click)="guiaChat?.abrir()">
+                <i class="fa-regular fa-circle-question"></i> Como usar o chat?
+              </button>
+            }
 
 
             <div class="consulta-area-secundaria">
@@ -88,8 +116,9 @@
         }
       } @else {
         <div class="estado-vazio">
-          <h2>Você não tem consultas agendadas</h2>
-          <p>Estamos aqui para te ajudar, agende uma consulta para manter em dia o bem-estar.</p>
+          <h2>Você ainda não tem consultas marcadas</h2>
+          <p>Marque uma conversa com uma psicóloga ou advogada. É de graça.</p>
+          <a routerLink="/consultas-lista-psi" class="cs-vazio-btn"><i class="ph ph-calendar-plus"></i> Marcar consulta</a>
         </div>
       }
     </div>
@@ -131,7 +160,7 @@
               }
               @if (c.profissionalId) {
                 <button class="btn-chat" (click)="abrirChat(c.profissionalId, c.tipoProf)">
-                  <i class="fa-regular fa-comment"></i> Chat
+                  <i class="fa-regular fa-comment"></i> Mandar mensagem
                 </button>
               }
             </div>
@@ -174,6 +203,11 @@
                 <div class="consulta-info-text"><span class="consulta-info-label">Motivo do cancelamento</span><p class="consulta-info-value">{{ c.motivoCancelamento }}</p></div>
               </div>
             }
+            <div class="consulta-acoes">
+              <button class="btn-reagendar" (click)="reagendar(c)">
+                <i class="fa-regular fa-calendar-plus"></i> Marcar de novo
+              </button>
+            </div>
           </div>
         }
       } @else {
@@ -231,3 +265,5 @@
     </div>
   </div>
 }
+
+<app-guia-passos #guiaChat chave="chat-consulta" [passos]="passosGuiaChat" [abrirSozinho]="false"></app-guia-passos>

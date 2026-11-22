@@ -1108,3 +1108,19 @@ body[data-theme="dark"] .perfil-mae .perigo-icone { background: rgba(240, 108, 1
 body[data-theme="dark"] .perfil-mae .perigo-icone i { color: #FFB8C8 !important; }
 body[data-theme="dark"] .perfil-mae .modal-perigo h2 { color: #F4F1FF !important; }
 body[data-theme="dark"] .perfil-mae .modal-perigo .modal-subtitle { color: #D2C9EE !important; }
+
+/* Ajuda para usar o site (IA ou guias) */
+.suporte-opcoes-perfil { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+@media (max-width: 600px) { .suporte-opcoes-perfil { grid-template-columns: 1fr; } }
+.suporte-opcao-perfil {
+  position: relative; display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 16px;
+  border: 1.5px solid #E1D8F3; background: #FFFFFF; cursor: pointer; text-align: left; font-family: inherit; color: #2D1E4E;
+}
+.suporte-opcao-perfil > i:first-child { color: #7C5FCB; font-size: 1.1rem; margin-top: 2px; }
+.suporte-opcao-perfil span { display: flex; flex-direction: column; gap: 3px; }
+.suporte-opcao-perfil small { color: #6E6788; font-size: .85rem; line-height: 1.35; }
+.suporte-opcao-perfil.ativa { border-color: #7C5FCB; background: #F6F1FF; }
+.suporte-marcado { position: absolute; top: 10px; right: 12px; color: #7C5FCB; }
+body[data-theme="dark"] .suporte-opcao-perfil { background: #161C29; border-color: rgba(255,255,255,.12); color: #EDE6FF; }
+body[data-theme="dark"] .suporte-opcao-perfil.ativa { background: rgba(157,143,231,.14); border-color: #9D8FE7; }
+body[data-theme="dark"] .suporte-opcao-perfil small { color: #A9A2BE; }

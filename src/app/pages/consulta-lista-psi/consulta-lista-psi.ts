@@ -6,7 +6,7 @@ import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import {
   collection, getDocs, doc, arrayRemove, arrayUnion,
-  Timestamp, runTransaction, setDoc, deleteDoc, query, where, serverTimestamp
+  Timestamp, runTransaction, setDoc, deleteDoc, query, where, serverTimestamp, getDoc
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { carregarReputacoesDeTodos, Reputacao, REPUTACAO_VAZIA } from '../../services/reputacao';
@@ -25,6 +25,8 @@ interface Profissional {
   cargoLabel: string;
   area: string;
   especializacoes: string[];
+  especializacoesTodas: string[];
+  biografia: string;
   extrasCount: number;
   foto: string;
   reputacao: Reputacao;
@@ -71,6 +73,9 @@ export class ConsultaListaPsiComponent implements OnInit {
   /** "Avise-me quando houver horário": uids dos profissionais que a mãe pediu para ser avisada. */
   avisosPedidos = signal<Set<string>>(new Set());
   avisoSalvando = signal<string | null>(null);
+
+  /** A mãe já respondeu o questionário de bem-estar? (null = ainda verificando) */
+  questionarioRespondido = signal<boolean | null>(null);
 
   contagemTipo = computed(() => {
     const lista = this.profissionais();
@@ -124,8 +129,29 @@ export class ConsultaListaPsiComponent implements OnInit {
   ngOnInit() {
     const tipo = this.route.snapshot.queryParamMap.get('tipo');
     if (tipo === 'psicologo' || tipo === 'advogado') this.filtroTipo.set(tipo);
+    // "Marcar de novo" vem com o nome do profissional já na busca
+    const busca = this.route.snapshot.queryParamMap.get('busca');
+    if (busca) this.termoBusca.set(busca);
     this.carregarProfissionais();
-    onAuthStateChanged(auth, (user) => { if (user) this.carregarAvisos(user.uid); });
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return;
+      this.carregarAvisos(user.uid);
+      this.verificarQuestionario(user.uid);
+    });
+  }
+
+  /** O questionário de bem-estar agora é sugerido ANTES de marcar (antes ficava escondido no perfil). */
+  private async verificarQuestionario(uid: string) {
+    try {
+      const snap = await getDoc(doc(db, 'questionarios', uid));
+      this.questionarioRespondido.set(snap.exists());
+    } catch {
+      this.questionarioRespondido.set(null);   // sem permissão/conexão: não mostra o convite
+    }
+  }
+
+  irParaQuestionario() {
+    this.router.navigate(['/questionario'], { queryParams: { voltar: 'agendar' } });
   }
 
   // ---------- Avise-me quando houver horário ----------
@@ -263,6 +289,7 @@ export class ConsultaListaPsiComponent implements OnInit {
         const especializacoes = especializacoesTodas.slice(0, 3);
         const extrasCount = especializacoesTodas.length > 3 ? especializacoesTodas.length - 3 : 0;
         const foto = data.avatar || 'img/account_icon.png';
+        const biografia = String(data.biografia || data.sobreMim || data.sobre || '').trim();
         const uid = data.uid || snap.id;
 
         const disponibilidadeRaw = data.disponibilidade || [];
@@ -284,6 +311,8 @@ export class ConsultaListaPsiComponent implements OnInit {
           cargoLabel,
           area,
           especializacoes,
+          especializacoesTodas,
+          biografia,
           extrasCount,
           foto,
           reputacao: reputacoes.get(uid) || REPUTACAO_VAZIA,
@@ -315,10 +344,12 @@ export class ConsultaListaPsiComponent implements OnInit {
     );
   }
 
+  /** Tocar no horário já abre a confirmação, com o perfil da profissional para a mãe conhecer antes. */
   selecionarHorario(prof: Profissional, hora: string) {
     this.profissionais.update(lista =>
       lista.map(p => p.docId === prof.docId ? { ...p, horarioSelecionado: hora } : p)
     );
+    this.abrirModal({ ...prof, horarioSelecionado: hora });
   }
 
   horariosDaData(prof: Profissional): string[] {
@@ -326,7 +357,7 @@ export class ConsultaListaPsiComponent implements OnInit {
     return prof.disponibilidadeFormatada[prof.dataSelecionada] || [];
   }
 
-  verPerfil(prof: Profissional) {
+  verPerfil(prof: Pick<Profissional, 'tipo' | 'uid'>) {
     if (prof.tipo === 'psicologo') {
       this.router.navigate(['/perfil-psi'], { queryParams: { uid: prof.uid } });
     } else {
@@ -347,6 +378,10 @@ export class ConsultaListaPsiComponent implements OnInit {
       cargo: `${prof.cargoLabel} • ${prof.identificacao}`,
       area: prof.area,
       foto: prof.foto,
+      biografia: prof.biografia,
+      especializacoes: prof.especializacoesTodas,
+      reputacao: prof.reputacao,
+      premium: prof.premium,
       dataStr: prof.dataSelecionada,
       dataFormatada: `${this.formatarDiaSemana(prof.dataSelecionada)} ${this.formatarDiaMes(prof.dataSelecionada)}`,
       hora: prof.horarioSelecionado
@@ -434,9 +469,10 @@ export class ConsultaListaPsiComponent implements OnInit {
         evento: 'nova', profissionalId: info.uid, tipoProf: info.tipo,
         maeId: currentUser.uid, consultaId: consultaRef.id, quando: dataConsulta,
       });
-      this.alerta.sucesso('Você será avisada quando o profissional confirmar.', 'Consulta agendada!');
+      this.alerta.sucesso('Você será avisada quando o profissional confirmar. Ela aparece aqui em "Minhas consultas".', 'Consulta agendada!');
       this.fecharModal();
-      this.carregarProfissionais();
+      // Leva direto para "Minhas consultas": nos testes as mães não achavam a consulta marcada
+      this.router.navigate(['/consultas']);
     } catch (err: any) {
       console.error('Erro ao salvar consulta:', err);
       if (err?.message === 'HORARIO_OCUPADO') {

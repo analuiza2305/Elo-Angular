@@ -1284,3 +1284,33 @@ button.fr-acao:hover,
 :host-context(body[data-theme="dark"]) .fr-hero-texto h1 span { color: #C4B5FD !important; -webkit-text-fill-color: #C4B5FD !important; }
 :host-context(body[data-theme="dark"]) .fr-hero-texto p { color: #E2DCF5 !important; }
 :host-context(body[data-theme="dark"]) .fr-hero-texto .fr-hero-destaque { color: #D4C8FF !important; font-weight: 700; }
+
+/* =========================================================
+   ESCREVER EM DESTAQUE (teste com mães, 18/11)
+   ========================================================= */
+.fr-escrever {
+  display: flex; align-items: center; gap: 14px; width: 100%; margin: 0 0 16px;
+  padding: 16px 18px; border: none; border-radius: 22px; cursor: pointer; text-align: left;
+  background: #5B3D99; color: #fff; font: inherit;
+  box-shadow: 0 14px 30px rgba(75, 44, 130, .28);
+}
+.fr-escrever i { color: #fff !important; }
+.fr-escrever-icone { width: 50px; height: 50px; flex-shrink: 0; display: grid; place-items: center; border-radius: 16px; background: rgba(255,255,255,.18); font-size: 1.25rem; }
+.fr-escrever-texto { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.fr-escrever-texto strong { font-size: 1.2rem; font-weight: 800; }
+.fr-escrever-texto small { font-size: 1rem; color: #E9E1FF; }
+
+/* título opcional: a mensagem vem primeiro na cabeça da mãe */
+.fr-composer-titulo::placeholder { font-weight: 600; opacity: .7; }
+
+/* no celular o botão flutuante sobe para não ficar atrás da barra de menu */
+@media (max-width: 900px) {
+  .fr-fab { bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important; }
+}
+@media (max-width: 900px) {
+  /* com o botão "Escrever no fórum" no topo, o flutuante só atrapalhava a busca */
+  .fr-fab { display: none !important; }
+}
+
+/* o botão "Escrever no fórum" no topo substitui o flutuante */
+.fr-fab { display: none !important; }

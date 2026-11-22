@@ -1,3 +1,4 @@
+import { GuiaPassosComponent, PassoGuia } from '../../components/guia-passos/guia-passos';
 import { Component, HostListener, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -9,7 +10,7 @@ import { collection, doc, getDoc, getDocs, query, updateDoc, where } from 'fireb
 @Component({
   selector: 'app-consultoria',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent],
+  imports: [GuiaPassosComponent, CommonModule, RouterModule, HeaderComponent],
   templateUrl: './consultoria.html',
   styleUrls: ['./consultoria.css']
 })
@@ -20,6 +21,15 @@ export class Consultoria implements OnInit {
   /** Quantas consultas futuras a mãe já tem (aparece no botão "Minhas consultas"). */
   proximas = signal(0);
   comoFuncionaAberto = signal(false);
+
+  /** Slides do "Como funciona" (abre sozinho até a mãe marcar "não mostrar de novo"). */
+  passosComoFunciona: PassoGuia[] = [
+    { icone: 'ph-light ph-stethoscope', titulo: 'Escolha a profissional', texto: 'Psicóloga ou advogada. Veja o perfil e as avaliações de outras mães.' },
+    { icone: 'ph-light ph-calendar-blank', titulo: 'Marque o dia e o horário', texto: 'Ela confirma o pedido e um aviso aparece na sua tela.' },
+    { icone: 'ph-light ph-clipboard-text', titulo: 'Conte como você está', texto: 'Com a psicóloga, você responde um questionário rápido, de 2 minutos.' },
+    { icone: 'ph-light ph-video-camera', titulo: 'Entre na chamada', texto: 'Na hora marcada, abra "Minhas consultas" e toque no botão verde "Entrar na chamada".' },
+    { icone: 'ph-light ph-info', titulo: 'Bom saber', texto: 'A consulta é um atendimento breve e gratuito. Não substitui uma terapia contínua nem um processo na Justiça.' },
+  ];
 
   ngOnInit() {
     onAuthStateChanged(auth, async (user) => {

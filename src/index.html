@@ -38,10 +38,55 @@
         <div vw-plugin-wrapper>
             <div class="vw-plugin-top-wrapper"></div>
         </div>
+        <!-- Nosso botão de fechar: no celular o VLibras abria em tela cheia sem jeito de sair -->
+        <button type="button" class="vlibras-fechar" onclick="fecharVLibras()" aria-label="Fechar tradutor de Libras">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i> Fechar Libras
+        </button>
     </div>
-    
+
+    <style>
+        /* VLibras no celular: em vez de tela cheia, uma janela menor no canto,
+           e o resto do site continua usável (reunião 21/11). */
+        [vw] .vlibras-fechar { display: none; }
+        [vw] [vw-plugin-wrapper].active ~ .vlibras-fechar {
+            display: inline-flex; align-items: center; gap: 6px;
+            position: fixed; z-index: 2147483647; right: 10px; bottom: calc(min(58vh, 430px) + 16px);
+            padding: 8px 14px; border: none; border-radius: 999px;
+            background: #3E2A6E; color: #fff; font: 700 14px/1 'Nunito', sans-serif;
+            box-shadow: 0 6px 18px rgba(0,0,0,.25); cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            [vw].enabled:has([vw-plugin-wrapper].active) {
+                position: fixed !important; inset: auto 8px 8px auto !important;
+                width: min(260px, 70vw) !important; height: min(58vh, 430px) !important;
+                max-width: 70vw !important; transform: none !important; margin: 0 !important;
+            }
+            [vw] [vw-plugin-wrapper].active {
+                width: 100% !important; height: 100% !important; max-height: 100% !important;
+                border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.3);
+            }
+            [vw] [vw-access-button] { transform: scale(.85); transform-origin: right center; }
+        }
+    </style>
+
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-    <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+    <script>
+        // Se o VLibras não carregar (sem internet / site fora do ar), o resto do sistema segue normal.
+        try { new window.VLibras.Widget('https://vlibras.gov.br/app'); } catch (e) { console.warn('VLibras indisponível', e); }
+
+        /** Fecha o tradutor: usa o botão do próprio VLibras e, se não achar, fecha "na mão". */
+        function fecharVLibras() {
+            var nativo = document.querySelector('[vw] .vpw-header-btn-close, [vw] .vp-close, [vw] [class*="btn-close"]');
+            if (nativo) { nativo.click(); }
+            var wrapper = document.querySelector('[vw-plugin-wrapper]');
+            if (wrapper && wrapper.classList.contains('active')) {
+                wrapper.classList.remove('active');
+                var botao = document.querySelector('[vw-access-button]');
+                if (botao) botao.classList.add('active');
+            }
+        }
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') fecharVLibras(); });
+    </script>
 
     <!-- Service Worker -->
     <script>

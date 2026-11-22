@@ -151,7 +151,17 @@
 .qb-resumo-resposta { grid-area: r; font-size: .98rem; font-weight: 700; color: var(--q-texto); overflow-wrap: anywhere; }
 .qb-resumo i { grid-area: i; color: var(--q-suave); font-size: .85rem; }
 
-.qb-consentimento { position: relative; display: flex; gap: 12px; align-items: flex-start; margin-top: 22px; cursor: pointer; color: var(--q-texto); line-height: 1.5; font-size: .95rem; }
+.qb-consentimento {
+  position: relative; display: flex; gap: 12px; align-items: flex-start; margin-top: 22px; cursor: pointer;
+  color: var(--q-texto); line-height: 1.5; font-size: .95rem;
+  /* caixa bem visível: nos testes as mães não encontravam esse "aceite" no fim da revisão */
+  padding: 14px 16px; border: 1.5px dashed #CFC3EA; border-radius: 14px; background: #FBF9FF;
+}
+.qb-consentimento .qb-check { width: 26px; height: 26px; border-width: 2px; }
+.qb-consentimento-alerta { border-color: #E0718F; border-style: solid; background: #FFF3F6; animation: qb-chacoalha .35s ease 2; }
+@keyframes qb-chacoalha { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+:host-context(body[data-theme="dark"]) .qb-consentimento { background: #151B28; border-color: rgba(255, 255, 255, .18); }
+:host-context(body[data-theme="dark"]) .qb-consentimento-alerta { background: #2A1820; border-color: #F08AA7; }
 .qb-consentimento input { position: absolute; opacity: 0; pointer-events: none; }
 .qb-check {
   flex-shrink: 0; width: 24px; height: 24px; margin-top: 1px; border-radius: 8px; display: grid; place-items: center;
