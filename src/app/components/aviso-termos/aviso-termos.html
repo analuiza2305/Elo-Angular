@@ -1,0 +1,103 @@
+@if (faixaVisivel()) {
+  <section class="af-faixa" [class.saindo]="faixaSaindo()" role="region" aria-labelledby="af-titulo" data-no-reveal>
+    <button type="button" class="af-fechar" (click)="fecharFaixa()" aria-label="Fechar aviso de privacidade">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+
+    <div class="af-conteudo">
+      <span class="af-icone" aria-hidden="true">🍪</span>
+      <div class="af-texto">
+        <h2 id="af-titulo">Sua privacidade importa 💜</h2>
+        <p>
+          Usamos só os cookies necessários para o site funcionar, como lembrar seu login e suas preferências.
+          Sem propaganda e sem rastreamento. Para continuar, aceite os
+          <a routerLink="/termos-de-uso">Termos de Uso</a> e a
+          <a routerLink="/politica-de-privacidade">Política de Privacidade</a>.
+        </p>
+      </div>
+    </div>
+
+    <div class="af-botoes">
+      <button type="button" class="af-btn af-btn-sec" (click)="abrirDetalhes()">Entender melhor</button>
+      <button type="button" class="af-btn af-btn-pri" (click)="aceitarPelaFaixa()">Aceitar e continuar</button>
+    </div>
+  </section>
+}
+
+@if (visivel()) {
+  <div class="at-fundo" data-no-reveal>
+    <div class="at-caixa" #caixa role="dialog" aria-modal="true" tabindex="-1"
+         aria-labelledby="at-titulo" aria-describedby="at-intro" (keydown)="prenderFoco($event)">
+
+      <div class="at-topo">
+        <span class="at-marca"><img src="/img/logo_icon.png" alt="" class="at-logo" width="36" height="36"> elomaterno</span>
+        <div class="at-acoes">
+        @if (vozDisponivel()) {
+          <button type="button" class="at-ouvir" [class.ativo]="lendo()" (click)="alternarLeitura()" [attr.aria-pressed]="lendo()"
+                  [attr.aria-label]="lendo() ? 'Parar a leitura' : 'Ouvir este aviso em voz alta'">
+            <i class="fa-solid" [class.fa-volume-high]="!lendo()" [class.fa-stop]="lendo()" aria-hidden="true"></i>
+            {{ lendo() ? 'Parar' : 'Ouvir' }}
+          </button>
+        }
+        @if (abertaPelaFaixa()) {
+          <button type="button" class="at-fechar" (click)="fecharJanela()" aria-label="Fechar e voltar">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        }
+        </div>
+      </div>
+
+      <h2 id="at-titulo" class="at-titulo" data-ler>Boas-vindas ao EloMaterno 💜</h2>
+      <p id="at-intro" class="at-intro" data-ler>
+        Antes de começar, veja em poucas palavras como funciona e como cuidamos de você.
+      </p>
+
+      <ul class="at-lista">
+        <li>
+          <span class="at-icone" aria-hidden="true"><i class="fa-solid fa-hand-holding-heart"></i></span>
+          <p data-ler><strong>Apoio gratuito.</strong> As consultas com psicólogas(os) e advogadas(os) são de graça para as mães.</p>
+        </li>
+        <li>
+          <span class="at-icone" aria-hidden="true"><i class="fa-solid fa-lock"></i></span>
+          <p data-ler><strong>Seus dados protegidos.</strong> Não vendemos suas informações para ninguém.</p>
+        </li>
+        <li>
+          <span class="at-icone" aria-hidden="true"><i class="fa-solid fa-cookie-bite"></i></span>
+          <p data-ler><strong>Cookies só para funcionar.</strong> Guardamos no seu navegador apenas o necessário, como seu login e suas preferências. Sem propaganda e sem rastreamento.</p>
+        </li>
+        <li>
+          <span class="at-icone at-icone-alerta" aria-hidden="true"><i class="fa-solid fa-phone"></i></span>
+          <p data-ler><strong>Não é serviço de emergência.</strong> Se você estiver em perigo, ligue 188 (CVV), 190 (Polícia) ou 180 (Central da Mulher).</p>
+        </li>
+      </ul>
+
+      <p class="at-ler-mais">
+        <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
+        Quer ler tudo? Abra os
+        <a routerLink="/termos-de-uso">Termos de Uso</a> e a
+        <a routerLink="/politica-de-privacidade">Política de Privacidade</a>.
+      </p>
+
+      <div class="at-rodape">
+      <label class="at-aceite" [class.erro]="tentouSemMarcar()">
+        <input type="checkbox" [checked]="marcado()" (change)="alternarMarcado($event)"
+               [attr.aria-invalid]="tentouSemMarcar()" aria-describedby="at-erro">
+        <span class="at-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+        <span data-ler>Li e aceito os Termos de Uso, a Política de Privacidade e o uso de cookies essenciais.</span>
+      </label>
+
+      <p id="at-erro" class="at-erro" role="alert">
+        @if (tentouSemMarcar()) {
+          <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+          Para continuar, marque a caixa acima.
+        }
+      </p>
+
+      <button type="button" class="at-botao" [class.pronto]="marcado()" (click)="aceitar()">
+        Aceitar e continuar
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      </button>
+      </div>
+    </div>
+  </div>
+}

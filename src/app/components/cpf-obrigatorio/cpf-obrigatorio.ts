@@ -19,7 +19,7 @@ import { auth, db } from '../../core/firebase';
  */
 
 // Telas em que o modal não aparece (login, cadastro e verificação de e-mail)
-const ROTAS_LIVRES = new Set(['', 'login', 'login-profissional', 'cadastro', 'cadastro-profissional', 'verificar-email']);
+const ROTAS_LIVRES = new Set(['', 'login', 'login-profissional', 'cadastro', 'cadastro-profissional', 'verificar-email', 'termos-de-uso', 'politica-de-privacidade']);
 const PIMENTA = 'elo-materno::cpf::v1';
 
 @Component({

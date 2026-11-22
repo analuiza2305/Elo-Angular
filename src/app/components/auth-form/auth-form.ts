@@ -14,6 +14,7 @@ import {
 import { collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs, limit, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { auth, db } from '../../core/firebase';
 import { EmailVerificationService } from '../../core/services/email-verification.service';
+import { VERSAO_DOCUMENTOS_LEGAIS } from '../../pages/documento-legal/documentos-legais';
 
 @Component({
   selector: 'app-auth-form',
@@ -37,6 +38,9 @@ export class AuthFormComponent {
   /** Como a mãe quer ser ajudada a usar o site (dá para trocar depois no perfil). */
   preferenciaSuporte: PreferenciaSuporte = 'manual';
   readonly opcoesSuporte = OPCOES_SUPORTE;
+  /** Olho da senha: mostra/oculta o que foi digitado. */
+  mostrarSenha = signal(false);
+  mostrarSenha2 = signal(false);
   /** Data de nascimento (AAAA-MM-DD). Obrigatória no cadastro de mãe: a plataforma é só para maiores de 18. */
   dataNascimento = '';
   /** Maior data aceita no campo (hoje menos 18 anos). */
@@ -48,8 +52,6 @@ export class AuthFormComponent {
   errorMessage = signal('');
   successMessage = signal('');
   loading = signal(false);
-  /** Olho na senha: mostra o que foi digitado. */
-  verSenha = signal(false);
 
   // Preenchimento automático da Razão Social via API pública de CNPJ (BrasilAPI)
   razaoSocialCarregando = signal(false);
@@ -79,6 +81,11 @@ export class AuthFormComponent {
     let idade = hoje.getFullYear() - ano;
     if (hoje.getMonth() < mes - 1 || (hoje.getMonth() === mes - 1 && hoje.getDate() < dia)) idade--;
     return idade;
+  }
+
+  /** Prova do aceite dos Termos de Uso e da Política de Privacidade (LGPD): qual versão e quando. */
+  private registroAceite() {
+    return { versao: VERSAO_DOCUMENTOS_LEGAIS, aceitoEm: serverTimestamp() };
   }
 
   /** Confere a data de nascimento e devolve a mensagem de erro (ou '' se estiver tudo certo). */
@@ -238,8 +245,8 @@ export class AuthFormComponent {
     this.errorMessage.set('');
 
     if (this.acao === 'cadastro') {
-      if (!this.termos && this.publico === 'profissional') {
-        this.errorMessage.set('Você precisa aceitar os termos de parceria.');
+      if (!this.termos) {
+        this.errorMessage.set('Para se cadastrar, aceite os Termos de Uso e a Política de Privacidade.');
         return;
       }
       if (this.senha !== this.senha2) {
@@ -289,7 +296,7 @@ export class AuthFormComponent {
         if (this.publico === 'mae') {
           await setDoc(doc(db, 'usuarios', uid), {
             nome: this.nome, email: this.email, telefone: '', tipo: 'mae', avatar: null, emailVerificado: false, criadoEm: serverTimestamp(),
-            dataNascimento: this.dataNascimentoTimestamp(), maiorDeIdade: true,
+            dataNascimento: this.dataNascimentoTimestamp(), maiorDeIdade: true, aceiteTermos: this.registroAceite(),
             preferenciaSuporte: this.preferenciaSuporte,
             extras: { login_load: { mae: true, parceiro: false, advogado: false, psicologo: false }, consult_load: false, termos_load: false, fonte_number: 1, dark_mode: false, espacamento_number: 1, filtro_daltonismo: 'Filtros_daltonismo', leitura_voz: false, letras_destaque: false, mascara_leitura: false }
           });
@@ -316,14 +323,14 @@ export class AuthFormComponent {
         if (this.tipoDocumento === 'oab') {
           tipoPerfil = 'advogado'; rotaDestino = '/home-adv'; precisaAprovacao = true;
           avatarGerado = this.gerarAvatarAleatorio('oab');
-          await setDoc(doc(db, 'advogados', uid), { nome: this.nome, email: this.email, oab: this.numeroDocumento, tipo: 'advogado', status: 'pendente', avatar: avatarGerado, uid, criadoEm: serverTimestamp() });
+          await setDoc(doc(db, 'advogados', uid), { nome: this.nome, email: this.email, oab: this.numeroDocumento, tipo: 'advogado', status: 'pendente', avatar: avatarGerado, uid, criadoEm: serverTimestamp(), aceiteTermos: this.registroAceite() });
         } else if (this.tipoDocumento === 'crp') {
           tipoPerfil = 'psicologo'; rotaDestino = '/home-psi'; precisaAprovacao = true;
           avatarGerado = this.gerarAvatarAleatorio('crp');
-          await setDoc(doc(db, 'psicologos', uid), { nome: this.nome, email: this.email, crp: this.numeroDocumento, tipo: 'psicologo', status: 'pendente', avatar: avatarGerado, uid, criadoEm: serverTimestamp() });
+          await setDoc(doc(db, 'psicologos', uid), { nome: this.nome, email: this.email, crp: this.numeroDocumento, tipo: 'psicologo', status: 'pendente', avatar: avatarGerado, uid, criadoEm: serverTimestamp(), aceiteTermos: this.registroAceite() });
         } else if (this.tipoDocumento === 'cnpj') {
           tipoPerfil = 'parceiro'; rotaDestino = '/home-parc';
-          await setDoc(doc(db, 'parceiros', uid), { nome: this.nome, nomeEmpresa: this.nome, nomeFantasia: this.nomeFantasiaEncontrado || (this.nome !== this.razaoSocialEncontrada ? this.nome : ''), razaoSocial: this.razaoSocialEncontrada || this.nome, email: this.email, cnpj: this.numeroDocumento, tipo: 'parceiro', status: 'pendente', avatar: null, uid, criadoEm: serverTimestamp() });
+          await setDoc(doc(db, 'parceiros', uid), { nome: this.nome, nomeEmpresa: this.nome, nomeFantasia: this.nomeFantasiaEncontrado || (this.nome !== this.razaoSocialEncontrada ? this.nome : ''), razaoSocial: this.razaoSocialEncontrada || this.nome, email: this.email, cnpj: this.numeroDocumento, tipo: 'parceiro', status: 'pendente', avatar: null, uid, criadoEm: serverTimestamp(), aceiteTermos: this.registroAceite() });
         }
 
         await setDoc(doc(db, 'usuarios', uid), {
@@ -434,8 +441,12 @@ export class AuthFormComponent {
     if (this.loading()) return;
     this.errorMessage.set('');
 
-    // No cadastro, a data de nascimento vem antes da janela do Google
+    // No cadastro, a data de nascimento e o aceite dos Termos vêm antes da janela do Google
     if (this.acao === 'cadastro') {
+      if (!this.termos) {
+        this.errorMessage.set('Antes de continuar com o Google, aceite os Termos de Uso e a Política de Privacidade.');
+        return;
+      }
       const erroIdade = this.validarMaioridade();
       if (erroIdade) {
         this.errorMessage.set(erroIdade === 'Informe sua data de nascimento.'
@@ -461,7 +472,7 @@ export class AuthFormComponent {
         }
         await setDoc(ref, {
           nome: result.user.displayName, email: result.user.email, telefone: '', tipo: 'mae', avatar: null,
-          dataNascimento: this.dataNascimentoTimestamp(), maiorDeIdade: true,
+          dataNascimento: this.dataNascimentoTimestamp(), maiorDeIdade: true, aceiteTermos: this.registroAceite(),
           preferenciaSuporte: this.preferenciaSuporte,
           extras: { login_load: { mae: true, parceiro: false, advogado: false, psicologo: false }, consult_load: false, termos_load: false, fonte_number: 1, dark_mode: false, espacamento_number: 1, filtro_daltonismo: 'Filtros_daltonismo', leitura_voz: false, letras_destaque: false, mascara_leitura: false }
         });
