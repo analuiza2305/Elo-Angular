@@ -14,7 +14,14 @@
   @if (aberto()) {
     <section class="ai-janela" id="ai-janela" role="dialog" aria-label="Elô, assistente virtual">
       <header class="ai-topo">
-        <span class="ai-avatar"><app-elo-coruja [soRosto]="true" [tamanho]="44" [expressao]="pensando() ? 'pensando' : 'normal'"></app-elo-coruja></span>
+        <!-- Clicar na foto da Elô faz ela brincar (pulo, giro ou coraçõezinhos) -->
+        <button type="button" class="ai-avatar" [attr.data-brincadeira]="brincadeira()" (click)="brincar()"
+                aria-label="Foto da Elô (toque para ela brincar)" title="Oi! 💜">
+          <app-elo-coruja [soRosto]="true" [tamanho]="44" [expressao]="expressaoTopo()"></app-elo-coruja>
+          @if (brincadeira() === 'coracoes') {
+            <span class="ai-coracoes" aria-hidden="true"><i>💜</i><i>💗</i><i>💜</i></span>
+          }
+        </button>
         <div class="ai-topo-texto">
           <strong>Elô</strong>
           <small><span class="ai-online" aria-hidden="true"></span> online · sua ajudante no site</small>

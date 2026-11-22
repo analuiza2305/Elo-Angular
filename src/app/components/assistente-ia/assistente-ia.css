@@ -135,3 +135,59 @@
 :host-context(body[data-theme="dark"]) .ai-lista { background: #121722; }
 :host-context(body[data-theme="dark"]) .ai-linha .ai-msg { background: #1E2535; border-color: rgba(255, 255, 255, .08); box-shadow: none; }
 :host-context(body[data-theme="dark"]) .ai-linha .ai-msg.apoio { background: #2A1820; border-color: #5A2A3A; }
+
+/* =========================================================
+   BRINCADEIRA AO TOCAR NA FOTO DA ELÔ
+========================================================= */
+button.ai-avatar {
+  position: relative; flex-shrink: 0; padding: 0; border: none; cursor: pointer;
+  transition: transform .15s ease;
+}
+button.ai-avatar:hover { transform: scale(1.06); }
+button.ai-avatar:focus-visible { outline: 3px solid #F2B230; outline-offset: 3px; }
+
+/* 1º toque: pulinho com "amassadinha" */
+.ai-avatar[data-brincadeira="pulo"] { animation: elo-pulo .9s cubic-bezier(.3, 1.4, .5, 1) both; }
+@keyframes elo-pulo {
+  0%   { transform: translateY(0) scale(1, 1); }
+  15%  { transform: translateY(2px) scale(1.12, .86); }
+  40%  { transform: translateY(-12px) scale(.92, 1.1); }
+  60%  { transform: translateY(0) scale(1.1, .9); }
+  75%  { transform: translateY(-5px) scale(.97, 1.04); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+/* 2º toque: giro de 360° com piscadinha */
+.ai-avatar[data-brincadeira="giro"] { animation: elo-giro .9s cubic-bezier(.5, -0.3, .4, 1.3) both; }
+@keyframes elo-giro {
+  0%   { transform: rotate(0) scale(1); }
+  50%  { transform: rotate(200deg) scale(1.12); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* 3º toque: balancinho e coraçõezinhos subindo */
+.ai-avatar[data-brincadeira="coracoes"] { animation: elo-balanco 1s ease-in-out both; }
+@keyframes elo-balanco {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-10deg); }
+  40% { transform: rotate(8deg); }
+  60% { transform: rotate(-5deg); }
+  80% { transform: rotate(3deg); }
+}
+.ai-coracoes { position: absolute; inset: 0; pointer-events: none; }
+.ai-coracoes i {
+  position: absolute; left: 50%; bottom: 35%; font-style: normal; font-size: 15px; opacity: 0;
+  animation: elo-coracao 1.2s ease-out forwards;
+}
+.ai-coracoes i:nth-child(1) { --x: -26px; animation-delay: 0s; }
+.ai-coracoes i:nth-child(2) { --x: 2px;   animation-delay: .12s; font-size: 18px; }
+.ai-coracoes i:nth-child(3) { --x: 26px;  animation-delay: .24s; }
+@keyframes elo-coracao {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(.4); }
+  25%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--x)), -26px) scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-avatar[data-brincadeira], .ai-coracoes i { animation-duration: .01ms !important; }
+}
