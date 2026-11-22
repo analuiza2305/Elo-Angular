@@ -76,6 +76,13 @@ export class ConsultaListaPsiComponent implements OnInit {
 
   /** A mãe já respondeu o questionário de bem-estar? (null = ainda verificando) */
   questionarioRespondido = signal<boolean | null>(null);
+  /** "Agora não" no convite do questionário: esconde até ela abrir o site de novo. */
+  conviteFechado = signal(typeof sessionStorage !== 'undefined' && sessionStorage.getItem('eloConviteQuestionario') === 'fechado');
+
+  fecharConvite() {
+    this.conviteFechado.set(true);
+    try { sessionStorage.setItem('eloConviteQuestionario', 'fechado'); } catch { /* sem storage */ }
+  }
 
   contagemTipo = computed(() => {
     const lista = this.profissionais();
