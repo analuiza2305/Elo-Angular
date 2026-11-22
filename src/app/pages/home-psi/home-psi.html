@@ -15,9 +15,16 @@
           <i class="fa fa-universal-access" aria-hidden="true"></i>
         </button>
         <ul id="accessibility-menu" [class.hidden]="!accessibilityMenuOpen()">
-          <li (click)="aumentarFonte()"><i class="fa fa-plus-circle" aria-hidden="true"></i> Aumentar Fonte</li>
-          <li (click)="diminuirFonte()"><i class="fa fa-minus-circle" aria-hidden="true"></i> Diminuir Fonte</li>
-          <li (click)="redefinirAcessibilidade()"><i class="fa fa-undo" aria-hidden="true"></i> Redefinir</li>
+          <li appTeclado (click)="acc.aumentarFonte()"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> {{ 'acc_fonte_mais' | t }}</li>
+          <li appTeclado (click)="acc.diminuirFonte()"><i class="fa-solid fa-circle-minus" aria-hidden="true"></i> {{ 'acc_fonte_menos' | t }}</li>
+          <li appTeclado (click)="acc.alternarDaltonismo()"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{ 'acc_daltonismo' | t }}</li>
+          <li appTeclado (click)="acc.alternarLeitura()"><i class="fa-solid fa-ear-listen" aria-hidden="true"></i> {{ 'acc_voz' | t }}</li>
+          <li appTeclado (click)="acc.alternarMascara()"><i class="fa-solid fa-highlighter" aria-hidden="true"></i> {{ 'acc_mascara' | t }}</li>
+          <li appTeclado (click)="acc.alternarNegrito()"><i class="fa-solid fa-bold" aria-hidden="true"></i> {{ 'acc_negrito' | t }}</li>
+          <li appTeclado (click)="acc.alternarContraste()"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i> {{ 'acc_contraste' | t }}</li>
+          <li appTeclado (click)="acc.aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down" aria-hidden="true"></i> {{ 'acc_espaco_mais' | t }}</li>
+          <li appTeclado (click)="acc.diminuirEspacamento()"><i class="fa-solid fa-compress" aria-hidden="true"></i> {{ 'acc_espaco_menos' | t }}</li>
+          <li appTeclado (click)="acc.redefinir()"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> {{ 'acc_redefinir' | t }}</li>
         </ul>
       </div>
       <div class="theme-toggle" id="theme-toggle" (click)="toggleTheme()">

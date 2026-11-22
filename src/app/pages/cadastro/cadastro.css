@@ -55,7 +55,7 @@ i {
 
 .subtexto {
     color: #564286; 
-    font-size: 14px;
+    font-size: 0.875rem;
     margin-bottom: 20px;
 }
 
@@ -70,7 +70,7 @@ i {
 }
 
 .input-group .icon {
-    font-size: 16px;
+    font-size: 1rem;
     margin-right: 8px;
     color: #583E8E;
     width: 20px;
@@ -81,7 +81,7 @@ i {
     border: none;
     outline: none;
     width: 100%;
-    font-size: 14px;
+    font-size: 0.875rem;
     background: transparent;
     font-family: inherit;
     color: #333;
@@ -94,7 +94,7 @@ i {
     color: #fff;
     border: none;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 1rem;
     cursor: pointer;
     transition: 0.3s;
     font-weight: bold;
@@ -110,7 +110,7 @@ i {
     text-align: right;
     margin-top: -8px;
     margin-bottom: 15px;
-    font-size: 13px;
+    font-size: 0.8125rem;
 }
 
 .forgot a {
@@ -125,14 +125,14 @@ i {
 
 .divider-google {
     margin: 15px 0;
-    font-size: 14px;
+    font-size: 0.875rem;
     color: #583E8E;
     font-weight: bold;
 }
 
 .cad-link, .login-link {
     margin-top: 15px;
-    font-size: 13px;
+    font-size: 0.8125rem;
     color: #664F9F;
     line-height: 1.6;
 }
@@ -163,7 +163,7 @@ i {
 
 .aceite-termos label {
     color: #583E8E;
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: 600;
 }
 
@@ -179,7 +179,7 @@ i {
 
 .aceite-termos p {
     color: #593e8ee0;
-    font-size: 11px;
+    font-size: 0.6875rem;
     margin-top: 4px;
 }
 

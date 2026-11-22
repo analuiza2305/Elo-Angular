@@ -1,8 +1,11 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild, inject, PLATFORM_ID, Inject, ChangeDetectorRef } from '@angular/core';
+import { HostListener, Component, OnInit, OnDestroy, ElementRef, ViewChild, inject, PLATFORM_ID, Inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { collection, doc, getDoc, getDocs, limit, onSnapshot, query, serverTimestamp, updateDoc, where } from 'firebase/firestore';
 import { auth, db } from '../../core/firebase';
+import { AcessibilidadeService } from '../../core/services/acessibilidade.service';
+import { ClicavelTecladoDirective } from '../../core/directives/clicavel-teclado.directive';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 declare var JitsiMeetExternalAPI: any;
 
@@ -26,11 +29,13 @@ interface DadosChamada {
 @Component({
   selector: 'app-videochamada',
   standalone: true,
-  imports: [CommonModule],
+  imports: [ClicavelTecladoDirective, TranslatePipe, CommonModule],
   templateUrl: './videochamada.html',
   styleUrls: ['./videochamada.css']
 })
 export class VideochamadaComponent implements OnInit, OnDestroy {
+  /** Acessibilidade compartilhada por todas as telas (ver AcessibilidadeService). */
+  readonly acc = inject(AcessibilidadeService);
   // static: true → o container está fora de qualquer *ngIf, então já existe no ngOnInit
   @ViewChild('jitsiContainer', { static: true }) jitsiContainer!: ElementRef;
   private route = inject(ActivatedRoute);
@@ -174,6 +179,18 @@ export class VideochamadaComponent implements OnInit, OnDestroy {
     try {
       if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
     } catch { /* ignore */ }
+  }
+
+  accMenuAberto = false;
+
+  alternarMenuAcessibilidade(event: Event) {
+    event.stopPropagation();
+    this.accMenuAberto = !this.accMenuAberto;
+  }
+
+  @HostListener('document:click')
+  fecharMenuAcessibilidade() {
+    this.accMenuAberto = false;
   }
 
   alternarTema() {

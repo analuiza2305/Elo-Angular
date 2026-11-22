@@ -10,24 +10,24 @@
                 <span class="ft-desc">{{ 'footer_desc' | t }}</span>
 
                 <div class="ft-social">
-                    <a href="https://www.instagram.com/eloomaterno/" target="_blank" rel="noopener" aria-label="Instagram do EloMaterno">
+                    <a href="https://www.instagram.com/eloomaterno/" target="_blank" rel="noopener" [attr.aria-label]="'a11y_instagram' | t">
                         <i class="fa-brands fa-instagram"></i>
                     </a>
-                    <a href="mailto:eloomaterno@gmail.com" aria-label="Enviar e-mail para eloomaterno@gmail.com">
+                    <a href="mailto:eloomaterno@gmail.com" [attr.aria-label]="'a11y_email' | t">
                         <i class="fa-regular fa-envelope"></i>
                     </a>
                 </div>
             </div>
 
             <!-- Links -->
-            <nav class="ft-links" aria-label="Plataforma">
+            <nav class="ft-links" [attr.aria-label]="'a11y_nav_plataforma' | t">
                 <span class="ft-heading">{{ 'footer_plataforma' | t }}</span>
                 <a routerLink="/" fragment="consultorias">{{ 'footer_consultorias' | t }}</a>
                 <a routerLink="/" fragment="como-funciona">{{ 'footer_como_funciona' | t }}</a>
                 <a routerLink="/profissionais">{{ 'footer_profissionais' | t }}</a>
             </nav>
 
-            <nav class="ft-links" aria-label="Contato">
+            <nav class="ft-links" [attr.aria-label]="'a11y_nav_contato' | t">
                 <span class="ft-heading">{{ 'footer_contato' | t }}</span>
                 <a href="mailto:eloomaterno@gmail.com">eloomaterno&#64;gmail.com</a>
                 <a routerLink="/cadastro-profissional">{{ 'footer_voluntaria' | t }}</a>

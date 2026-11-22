@@ -47,6 +47,9 @@ import { Eventos } from '../eventos/eventos';
 import { DivulgacaoService } from '../../services/divulgacao';
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 import { CATEGORIAS_EVENTO, categoriaDoEvento, infoCategoriaEvento } from '../../services/eventos-categorias';
+import { AcessibilidadeService } from '../../core/services/acessibilidade.service';
+import { ClicavelTecladoDirective } from '../../core/directives/clicavel-teclado.directive';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 /**
  * Página do Parceiro (dashboard, calendário, fórum, artigos, relatórios,
  * configurações e perfil).
@@ -62,11 +65,13 @@ import { CATEGORIAS_EVENTO, categoriaDoEvento, infoCategoriaEvento } from '../..
 @Component({
   selector: 'app-home-parc',
   standalone: true,
-  imports: [CommonModule, RouterLink, ParcPlanosComponent, ParcDivulgacaoComponent, ParcCarreirasComponent, AnuncioEspacoComponent, ForumComponent, ComentResp, Artigos, ArtigoInd, Eventos],
+  imports: [ClicavelTecladoDirective, TranslatePipe, CommonModule, RouterLink, ParcPlanosComponent, ParcDivulgacaoComponent, ParcCarreirasComponent, AnuncioEspacoComponent, ForumComponent, ComentResp, Artigos, ArtigoInd, Eventos],
   templateUrl: './home-parc.html',
   styleUrl: './home-parc.css',
 })
 export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
+  /** Acessibilidade compartilhada por todas as telas (ver AcessibilidadeService). */
+  readonly acc = inject(AcessibilidadeService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly router = inject(Router);
   private readonly alerta = inject(AlertaService);
@@ -184,6 +189,18 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   }
   onHeroMouseLeave(): void { this.heroMouseX.set('50%'); this.heroMouseY.set('50%'); }
   acessCelularAberto = signal(false);
+  /** Menu de acessibilidade do topo (antes o botão não tinha nenhuma ação ligada). */
+  accMenuAberto = signal(false);
+
+  alternarMenuAcessibilidade(event: Event): void {
+    event.stopPropagation();
+    this.accMenuAberto.update((v) => !v);
+  }
+
+  @HostListener('document:click')
+  fecharMenuAcessibilidade(): void {
+    this.accMenuAberto.set(false);
+  }
   secaoAtiva = signal('dashboard');
   nomeEmpresaMenu = signal('Minha Empresa');
   fotoEmpresaMenu = signal('./img/logo_icon.png');
@@ -204,18 +221,6 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       { alvo: 'perfil', rotulo: 'Minha Empresa', icone: 'fa-regular fa-building' },
       { alvo: 'configuracoes', rotulo: 'Configurações', icone: 'fa-solid fa-gear' },
     ] },
-  ];
-  readonly opcoesAcessibilidade = [
-    { id: 'increase-font', rotulo: 'Aumentar Fonte', icone: 'fa-solid fa-circle-plus' },
-    { id: 'decrease-font', rotulo: 'Diminuir Fonte', icone: 'fa-solid fa-circle-minus' },
-    { id: 'colorblind-filter', rotulo: 'Filtros Daltonismo', icone: 'fa-solid fa-eye-slash' },
-    { id: 'screen-reader', rotulo: 'Leitura em Voz', icone: 'fa-solid fa-ear-listen' },
-    { id: 'reading-mask', rotulo: 'Máscara de leitura', icone: 'fa-solid fa-highlighter' },
-    { id: 'bold-text', rotulo: 'Letras destacadas', icone: 'fa-solid fa-bold' },
-    { id: 'high-contrast', rotulo: 'Alto contraste', icone: 'fa-solid fa-circle-half-stroke' },
-    { id: 'increase-line', rotulo: 'Aumentar Espaçamento', icone: 'fa-solid fa-arrows-up-down' },
-    { id: 'decrease-line', rotulo: 'Diminuir Espaçamento', icone: 'fa-solid fa-compress' },
-    { id: 'reset-accessibility', rotulo: 'Redefinir', icone: 'fa-solid fa-rotate-left' },
   ];
 
   get temaEscuroAtivo(): boolean {

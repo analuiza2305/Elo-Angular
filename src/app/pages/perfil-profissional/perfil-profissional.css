@@ -1125,3 +1125,10 @@ header.header-prof .logout-btn:hover {
 :host-context(body[data-theme="dark"]) .rep-nota-grande strong { color: #F1ECFF !important; }
 :host-context(body[data-theme="dark"]) .rep-nota-grande small { color: #CFC7EA !important; }
 :host-context(body[data-theme="dark"]) .rep-rodape { border-top-color: rgba(255, 255, 255, .08) !important; }
+
+/* Modo escuro: texto do estado vazio ("Profissional não encontrado") ficava roxo escuro no fundo escuro */
+:host-context(body[data-theme="dark"]) .empty-state h2,
+:host-context(body[data-theme="dark"]) .empty-state p,
+:host-context(body[data-theme="dark"]) .empty-state i {
+  color: #e9e1ff !important;
+}

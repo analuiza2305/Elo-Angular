@@ -9,6 +9,8 @@ import {
 import { ELOGIOS, MAX_ELOGIOS } from '../../services/reputacao';
 
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+import { AcessibilidadeService } from '../../core/services/acessibilidade.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 const NOTAS_TEXTO = ['', 'Muito ruim', 'Ruim', 'Regular', 'Boa', 'Excelente'];
 const ESCALA_MIN = 0.875;
 const ESCALA_MAX = 1.375;
@@ -17,11 +19,13 @@ const ESCALA_PASSO = 0.125;
 @Component({
   selector: 'app-pos-consulta',
   standalone: true,
-  imports: [CommonModule, FormsModule, AnuncioEspacoComponent],
+  imports: [TranslatePipe, CommonModule, FormsModule, AnuncioEspacoComponent],
   templateUrl: './pos-consulta.html',
   styleUrls: ['./pos-consulta.css']
 })
 export class PosConsultaComponent implements OnInit {
+  /** Acessibilidade compartilhada por todas as telas (ver AcessibilidadeService). */
+  readonly acc = inject(AcessibilidadeService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -381,6 +385,7 @@ export class PosConsultaComponent implements OnInit {
   }
 
   redefinirAcessibilidade() {
+    this.acc.redefinir();
     this.escalaFonte.set(1);
     this.altoContraste.set(false);
     this.aplicarFonte();

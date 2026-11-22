@@ -13592,3 +13592,102 @@ body.area-mae main textarea { font-size: max(16px, 1rem) !important; }
   /* o botão flutuante global de menu some: o menu está na barra de baixo */
   body.area-mae > .menu-toggle { display: none !important; }
 }
+
+/* =========================================
+   ACESSIBILIDADE GLOBAL (AcessibilidadeService)
+   Os filtros ficam no <html> para não quebrar elementos fixos.
+========================================= */
+
+/* Espaçamento entre linhas: vale para o texto de todas as telas */
+html.acc-espacamento body :is(p, li, dd, dt, td, th, blockquote, label, textarea, figcaption) {
+    line-height: var(--acc-line-height, 1.5) !important;
+}
+
+/* Alto contraste: o <html> é invertido; fotos e vídeos voltam às cores reais */
+html.acc-contraste img,
+html.acc-contraste video,
+html.acc-contraste iframe,
+html.acc-contraste picture,
+html.acc-contraste canvas,
+html.acc-contraste .perfil-avatar,
+html.acc-contraste [style*="background-image"] {
+    filter: invert(1) hue-rotate(180deg) !important;
+}
+
+/* A máscara de leitura continua escurecendo (e não clareando) com o contraste ligado */
+html.acc-contraste #reading-mask-overlay {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+/* Itens de menu que viraram focáveis pelo teclado: mostram onde está o foco */
+[appTeclado]:focus-visible,
+#accessibility-menu li:focus-visible,
+#language-menu li:focus-visible,
+.mobile-acc-sublist li:focus-visible {
+    outline: 3px solid #7c5cd6;
+    outline-offset: -3px;
+    border-radius: 6px;
+}
+
+/* Campos de login/cadastro: mostra claramente qual campo está com o foco (teclado e mouse) */
+.input-group:focus-within {
+    box-shadow: 0 0 0 3px rgba(124, 92, 214, 0.35) !important;
+    border-color: #6844b0 !important;
+}
+
+/* Links "Termos de Uso" / "Política de Privacidade" no cadastro: o cartão é claro
+   também no modo escuro, então o link precisa ser roxo escuro (antes ficava lilás claro, ilegível) */
+.aceite-termos a,
+body[data-theme="dark"] .aceite-termos a {
+    color: #4B2C82 !important;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+/* Fonte aumentada: os cabeçalhos quebram em mais de uma linha em vez de empurrar
+   itens para fora da tela ou ficarem um em cima do outro */
+html.acc-fonte-grande .top-header,
+html.acc-fonte-grande .header {
+    height: auto !important;
+    min-height: 0 !important;
+}
+html.acc-fonte-grande .top-header .header-container,
+html.acc-fonte-grande .header .header-content {
+    flex-wrap: wrap !important;
+    height: auto !important;
+    row-gap: 10px;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+/* Landing/profissionais no computador: o menu deixa de ficar "flutuando" no meio
+   (position absolute) e passa a ocupar o próprio espaço, sem ficar embaixo da logo */
+@media screen and (min-width: 993px) {
+    html.acc-fonte-grande .header-content .nav-links {
+        position: static !important;
+        transform: none !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 6px 20px !important;
+        flex: 1 1 auto;
+    }
+}
+html.acc-fonte-grande .top-header .left-section,
+html.acc-fonte-grande .top-header .right-section,
+html.acc-fonte-grande .header .nav-links,
+html.acc-fonte-grande .header .header-actions {
+    flex-wrap: wrap !important;
+    min-width: 0;
+    row-gap: 8px;
+}
+
+/* Com a fonte maior o cabeçalho da landing fica mais alto: em vez de "fixed" (que cobriria
+   o começo da página), ele entra no fluxo e continua grudado no topo ao rolar */
+html.acc-fonte-grande app-header:has(> header.header) {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+html.acc-fonte-grande app-header > header.header {
+    position: relative !important;
+}

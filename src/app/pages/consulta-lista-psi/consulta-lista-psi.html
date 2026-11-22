@@ -259,12 +259,12 @@
 
 <!-- MODAL DE AGENDAMENTO -->
 @if (showModal()) {
-  <div id="modalAgendamento" class="modal-wrapper">
+  <div id="modalAgendamento" class="modal-wrapper" role="dialog" aria-modal="true" aria-labelledby="tituloModalAgendamento">
     <div class="modal-overlay" (click)="fecharModal()"></div>
     <div class="modal-content premium-modal">
       <div class="modal-header-fancy">
-        <h2>Confirmar Agendamento</h2>
-        <button class="close-btn" (click)="fecharModal()"><i class="ph ph-x"></i></button>
+        <h2 id="tituloModalAgendamento">Confirmar Agendamento</h2>
+        <button type="button" class="close-btn" (click)="fecharModal()" aria-label="Fechar"><i class="ph ph-x" aria-hidden="true"></i></button>
       </div>
 
       <p class="modal-subtitle">Revise os dados da sua consulta abaixo.</p>
