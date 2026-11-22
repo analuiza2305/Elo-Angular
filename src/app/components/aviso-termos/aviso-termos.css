@@ -483,3 +483,138 @@
 .af-faixa i,
 .at-caixa i { color: inherit; }
 .at-ler-mais i { color: var(--at-roxo); }
+
+/* =========================================================
+   VISUAL NOVO DA JANELA DE BOAS-VINDAS
+   Cartão grande e arejado, cada item num cartãozinho branco
+   com o ícone num quadrado com sombra.
+   ========================================================= */
+:host {
+  --at-card-fim: #f8f5ff;
+  --at-destaque: #5b2fb0;
+  --at-sombra-icone: 0 6px 16px rgba(104, 68, 176, 0.14);
+}
+:host-context(body[data-theme="dark"]) {
+  --at-card-fim: #1b2336;
+  --at-destaque: #d6c9ff;
+  --at-sombra-icone: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.at-caixa {
+  max-width: 660px;
+  padding: 40px 44px 36px;
+  border-radius: 36px;
+  border: 1px solid var(--at-borda);
+  background: linear-gradient(180deg, var(--at-card) 0%, var(--at-card-fim) 100%);
+  box-shadow: 0 40px 90px rgba(32, 20, 60, 0.32);
+}
+
+.at-topo { margin-bottom: 22px; }
+.at-marca { gap: 12px; font-size: 1.4rem; font-weight: 700; }
+.at-logo { width: 52px; height: 52px; }
+
+.at-ouvir {
+  min-height: 52px;
+  padding: 0 24px;
+  border-color: var(--at-borda);
+  background: var(--at-card);
+  font-size: 1.02rem;
+  box-shadow: 0 6px 16px rgba(75, 44, 130, 0.1);
+}
+.at-fechar {
+  width: 52px;
+  height: 52px;
+  border-color: var(--at-borda);
+  background: var(--at-card);
+  font-size: 1.2rem;
+  box-shadow: 0 6px 16px rgba(75, 44, 130, 0.1);
+}
+
+.at-titulo {
+  margin: 0 0 10px !important;
+  font-family: var(--font-heading, 'Poppins', sans-serif);
+  font-size: 1.95rem !important;
+  font-weight: 800;
+}
+.at-intro { margin: 0 0 26px; max-width: 34em; font-size: 1.08rem; }
+
+.at-lista { gap: 16px; margin-bottom: 26px; }
+.at-lista li {
+  align-items: center;
+  gap: 22px;
+  padding: 20px 22px;
+  border: 1px solid var(--at-borda);
+  border-radius: 20px;
+  background: var(--at-card);
+}
+.at-lista p { font-size: 1.02rem; line-height: 1.7; }
+.at-lista strong { color: var(--at-destaque); }
+/* Os textos dos itens vêm traduzidos via [innerHTML]; o <strong> de dentro precisa do ::ng-deep */
+:host ::ng-deep .at-lista p strong { color: var(--at-destaque); font-weight: 700; }
+
+.at-icone {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--at-card);
+  box-shadow: var(--at-sombra-icone);
+  font-size: 1.55rem;
+}
+
+.at-ler-mais { margin-bottom: 22px; font-size: 1rem; }
+
+/* O rodapé (aceite + botão) continua preso embaixo, mas sem linha separando */
+.at-rodape {
+  bottom: -36px;
+  margin: 0 -44px -36px;
+  padding: 6px 44px 36px;
+  border-top: none;
+  background: var(--at-card-fim);
+}
+
+.at-aceite {
+  align-items: center;
+  gap: 22px;
+  padding: 20px 28px;
+  border: 1px solid var(--at-borda);
+  border-radius: 20px;
+  background: var(--at-card);
+  color: var(--at-texto);
+  font-weight: 500;
+  font-size: 1.05rem;
+}
+.at-aceite:hover { border-color: var(--at-roxo); }
+.at-check {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid #b9a7ec;
+  border-radius: 10px;
+  background: var(--at-card);
+}
+
+.at-erro { margin: 8px 0 12px; }
+
+.at-botao {
+  min-height: 62px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #b6a5e6 0%, #a593dd 100%);
+  font-size: 1.12rem;
+  box-shadow: 0 10px 24px rgba(104, 68, 176, 0.18);
+}
+.at-botao.pronto { background: linear-gradient(180deg, #8a6fdc 0%, #6844b0 100%); }
+.at-botao.pronto:hover { background: linear-gradient(180deg, #7c60d1 0%, #573899 100%); }
+:host-context(body[data-theme="dark"]) .at-botao { background: #3d3560; }
+:host-context(body[data-theme="dark"]) .at-botao.pronto { background: #c4b5fd; color: #141a26; }
+
+@media (max-width: 480px) {
+  .at-caixa { padding: 24px 18px 20px; border-radius: 26px 26px 0 0; }
+  .at-titulo { font-size: 1.45rem !important; }
+  .at-marca { font-size: 1.2rem; }
+  .at-logo { width: 42px; height: 42px; }
+  .at-ouvir { min-height: 46px; padding: 0 16px; }
+  .at-fechar { width: 46px; height: 46px; }
+  .at-lista li { gap: 14px; padding: 14px 14px; }
+  .at-icone { width: 50px; height: 50px; border-radius: 16px; font-size: 1.25rem; }
+  .at-rodape { bottom: -20px; margin: 0 -18px -20px; padding: 6px 18px 20px; }
+  .at-aceite { gap: 14px; padding: 14px 16px; }
+}

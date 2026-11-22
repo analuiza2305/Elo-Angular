@@ -157,6 +157,7 @@
   </form>
 
   @if (permitirGoogle) {
+    <div class="divisor-ou" aria-hidden="true"><span>ou</span></div>
     <button type="button" (click)="loginGoogle()" class="btn-google" [disabled]="loading()" [title]="acao === 'login' ? 'Entrar com o Google' : 'Cadastrar com o Google'">
       <span class="google-icon-text">G</span>
     </button>
