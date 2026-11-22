@@ -10,9 +10,22 @@
       </div>
 
       @let atual = passos[passo()];
-      <div class="gp-icone"><i [class]="atual.icone"></i></div>
-      <h2 id="gp-titulo">{{ atual.titulo }}</h2>
-      <p class="gp-texto">{{ atual.texto }}</p>
+      <div class="gp-corpo" [class.com-imagem]="!!atual.imagem">
+        @if (atual.imagem) {
+          <!-- Celular: imagem deitada em cima do texto. Computador: imagem em pé ao lado do texto. -->
+          <picture class="gp-imagem">
+            <source media="(max-width: 760px)" [attr.srcset]="'/img/guias/' + atual.imagem + '-celular.webp'">
+            <img [src]="'/img/guias/' + atual.imagem + '-desktop.webp'" alt="" width="640" height="600" decoding="async">
+          </picture>
+        }
+        <div class="gp-conteudo">
+          @if (!atual.imagem) {
+            <div class="gp-icone"><i [class]="atual.icone"></i></div>
+          }
+          <h2 id="gp-titulo">{{ atual.titulo }}</h2>
+          <p class="gp-texto">{{ atual.texto }}</p>
+        </div>
+      </div>
 
       <div class="gp-acoes">
         @if (passo() > 0) {

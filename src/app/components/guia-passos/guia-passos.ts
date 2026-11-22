@@ -2,7 +2,17 @@ import { Component, Input, OnInit, signal, PLATFORM_ID, inject, HostListener } f
 import { isPlatformBrowser } from '@angular/common';
 import { lerPreferenciaLocal } from '../../services/preferencia-suporte';
 
-export interface PassoGuia { icone: string; titulo: string; texto: string; }
+export interface PassoGuia {
+  icone: string;
+  titulo: string;
+  texto: string;
+  /**
+   * Nome da ilustração em public/img/guias (sem extensão). Existem duas versões:
+   * <nome>-desktop.webp (ao lado do texto) e <nome>-celular.webp (faixa em cima do texto).
+   * Sem imagem, o guia mostra só o ícone, como antes.
+   */
+  imagem?: string;
+}
 
 /**
  * Guia em slides (um passo por vez), usado na home e em Consultas.

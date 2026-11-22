@@ -184,10 +184,10 @@ export class HomeMaeComponent implements OnInit, OnDestroy {
   // Guia "como usar" (componente compartilhado com Consultas)
   @ViewChild('guia') guia?: GuiaPassosComponent;
   passosGuia: PassoGuia[] = [
-    { icone: 'ph-light ph-stethoscope', titulo: 'Marque uma consulta', texto: 'Toque em "Marcar uma consulta". Escolha a psicóloga ou advogada, o dia e o horário. É de graça.' },
-    { icone: 'ph ph-bell', titulo: 'Espere a confirmação', texto: 'A profissional confirma o seu pedido. Um aviso aparece na sua tela e no sino lá em cima.' },
-    { icone: 'ph-light ph-video-camera', titulo: 'Entre na chamada', texto: 'No dia e na hora marcados, abra "Minhas consultas" e toque no botão verde "Entrar na chamada".' },
-    { icone: 'ph-light ph-chats-circle', titulo: 'Converse com outras mães', texto: 'No fórum você pode perguntar, desabafar e ajudar outras mães. Pode até escrever sem mostrar seu nome.' },
+    { icone: 'ph-light ph-stethoscope', titulo: 'Marque uma consulta', texto: 'Toque em "Marcar uma consulta". Escolha a psicóloga ou advogada, o dia e o horário. É de graça.', imagem: 'marcar-consulta' },
+    { icone: 'ph ph-bell', titulo: 'Espere a confirmação', texto: 'A profissional confirma o seu pedido. Um aviso aparece na sua tela e no sino lá em cima.', imagem: 'confirmacao' },
+    { icone: 'ph-light ph-video-camera', titulo: 'Entre na chamada', texto: 'No dia e na hora marcados, abra "Minhas consultas" e toque no botão verde "Entrar na chamada".', imagem: 'entrar-chamada' },
+    { icone: 'ph-light ph-chats-circle', titulo: 'Converse com outras mães', texto: 'No fórum você pode perguntar, desabafar e ajudar outras mães. Pode até escrever sem mostrar seu nome.', imagem: 'forum' },
   ];
 
   /** Depois das boas-vindas, o guia abre sozinho (até a mãe marcar "não mostrar de novo"). */
