@@ -13691,3 +13691,29 @@ html.acc-fonte-grande app-header:has(> header.header) {
 html.acc-fonte-grande app-header > header.header {
     position: relative !important;
 }
+
+/* Login/cadastro no modo escuro: o cartão continua claro, então os elementos dentro dele
+   não podem usar as cores claras do modo escuro (que são para fundo escuro).
+   - opções OAB/CNPJ/CRP herdavam o branco do menu do cabeçalho (.dropdown-item) e sumiam
+   - o olho de mostrar senha ficava lilás claro
+   - a caixinha de aceite ficava preta (o navegador desenhava no esquema escuro) */
+body[data-theme="dark"] :is(.login-box, .cadastro-box) {
+    color-scheme: light;
+}
+body[data-theme="dark"] :is(.login-box, .cadastro-box) .dropdown-titulo {
+    color: #4B2C82 !important;
+}
+body[data-theme="dark"] :is(.login-box, .cadastro-box) .dropdown-item {
+    color: #4B2C82 !important;
+    font-weight: 600;
+}
+body[data-theme="dark"] :is(.login-box, .cadastro-box) .dropdown-item:hover,
+body[data-theme="dark"] :is(.login-box, .cadastro-box) .dropdown-item:focus-visible {
+    background: #f3efff !important;
+}
+body[data-theme="dark"] :is(.login-box, .cadastro-box) .btn-olho {
+    color: #6844b0 !important;
+}
+body[data-theme="dark"] :is(.login-box, .cadastro-box) input[type="checkbox"] {
+    accent-color: #583E8E;
+}
