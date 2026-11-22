@@ -618,3 +618,120 @@
   .at-rodape { bottom: -20px; margin: 0 -18px -20px; padding: 6px 18px 20px; }
   .at-aceite { gap: 14px; padding: 14px 16px; }
 }
+
+/* =========================================================
+   CABE TUDO NA TELA, SEM ROLAR
+   Itens em 2 colunas no computador e espaços mais enxutos.
+   Em telas baixas (notebook pequeno, celular) tudo encolhe mais um pouco.
+   ========================================================= */
+.at-caixa {
+  max-width: 780px;
+  padding: 26px 32px 24px;
+  border-radius: 32px;
+}
+
+.at-topo { margin-bottom: 10px; }
+.at-marca { font-size: 1.2rem; gap: 10px; }
+.at-logo { width: 42px; height: 42px; }
+.at-ouvir { min-height: 44px; padding: 0 18px; font-size: 0.95rem; }
+.at-fechar { width: 44px; height: 44px; font-size: 1.05rem; }
+
+.at-titulo { margin: 0 0 4px !important; font-size: 1.6rem !important; }
+.at-intro { margin: 0 0 16px; font-size: 1rem; line-height: 1.5; }
+
+.at-lista {
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.at-lista li {
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+}
+.at-lista p { font-size: 0.93rem; line-height: 1.5; }
+.at-icone {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  font-size: 1.2rem;
+}
+
+.at-ler-mais { margin-bottom: 12px; font-size: 0.93rem; }
+
+.at-rodape {
+  position: static;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+.at-aceite {
+  gap: 16px;
+  padding: 12px 18px;
+  border-radius: 16px;
+  font-size: 0.98rem;
+}
+.at-check { width: 28px; height: 28px; border-radius: 8px; }
+.at-erro { min-height: 1.2em; margin: 4px 0 8px; font-size: 0.88rem; }
+.at-botao { min-height: 52px; border-radius: 16px; font-size: 1.05rem; }
+
+/* Notebooks com pouca altura */
+@media (max-height: 700px) and (min-width: 701px) {
+  .at-caixa { padding: 20px 28px 18px; }
+  .at-titulo { font-size: 1.4rem !important; }
+  .at-intro { margin-bottom: 12px; font-size: 0.95rem; }
+  .at-lista { gap: 10px; margin-bottom: 10px; }
+  .at-lista li { padding: 10px 14px; }
+  .at-lista p { font-size: 0.88rem; line-height: 1.45; }
+  .at-icone { width: 40px; height: 40px; font-size: 1.05rem; }
+  .at-ler-mais { margin-bottom: 8px; }
+  .at-aceite { padding: 10px 16px; font-size: 0.93rem; }
+  .at-botao { min-height: 48px; }
+}
+
+/* Celular e telas estreitas: uma coluna, sem os ícones grandes */
+@media (max-width: 700px) {
+  .at-fundo { align-items: center; padding: 10px; }
+  .at-caixa {
+    max-height: calc(100dvh - 20px);
+    padding: 16px 16px 14px;
+    border-radius: 24px;
+  }
+  .at-topo { margin-bottom: 6px; }
+  .at-marca { font-size: 1.05rem; gap: 8px; }
+  .at-logo { width: 32px; height: 32px; }
+  .at-ouvir { min-height: 40px; padding: 0 14px; font-size: 0.88rem; }
+  .at-fechar { width: 40px; height: 40px; }
+  .at-titulo { font-size: 1.2rem !important; }
+  .at-intro { margin-bottom: 10px; font-size: 0.88rem; line-height: 1.4; }
+  .at-lista { grid-template-columns: 1fr; gap: 6px; margin-bottom: 8px; }
+  .at-lista li { gap: 10px; padding: 8px 12px; border-radius: 14px; align-items: center; }
+  .at-lista p { font-size: 0.82rem; line-height: 1.4; }
+  .at-icone { width: 32px; height: 32px; border-radius: 10px; font-size: 0.9rem; box-shadow: none; }
+  .at-ler-mais { margin-bottom: 8px; font-size: 0.82rem; }
+  .at-aceite { gap: 12px; padding: 10px 12px; font-size: 0.85rem; line-height: 1.4; }
+  .at-check { width: 24px; height: 24px; }
+  .at-erro { margin: 2px 0 6px; }
+  .at-botao { min-height: 48px; font-size: 1rem; }
+}
+
+/* Celular: ganha espaço tirando os ícones dos itens e juntando o "Ouvir" ao topo */
+@media (max-width: 700px) {
+  .at-icone { display: none; }
+  .at-lista li { padding: 8px 12px; }
+  .at-lista p { font-size: 0.8rem; line-height: 1.38; }
+  .at-titulo { font-size: 1.12rem !important; }
+  .at-intro { font-size: 0.84rem; margin-bottom: 8px; }
+  .at-ler-mais i { display: none; }
+}
+/* Celular de altura comum ou menor: o texto de introdução sai (os itens já explicam tudo) */
+@media (max-width: 700px) and (max-height: 740px) {
+  .at-intro { display: none; }
+  .at-lista { gap: 5px; }
+  .at-lista li { padding: 7px 10px; }
+  .at-lista p { font-size: 0.78rem; line-height: 1.35; }
+  .at-aceite { padding: 8px 12px; font-size: 0.8rem; }
+  .at-botao { min-height: 44px; }
+  .at-erro { min-height: 0.8em; margin: 2px 0 4px; }
+}
