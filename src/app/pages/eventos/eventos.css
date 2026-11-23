@@ -1201,17 +1201,12 @@ body.dark-theme .estado-vazio p,
   display: flex; align-items: center; gap: 10px; margin: 0;
   font-family: 'Poppins', sans-serif; font-size: 1.35rem; font-weight: 700; color: #2D1E4E;
 }
-.secao-eventos-ponto {
-  width: 10px; height: 10px; border-radius: 50%; background: #22B07D;
-  box-shadow: 0 0 0 4px rgba(34, 176, 125, .18);
-}
 .secao-eventos-contagem,
 .encerrados-contagem {
   display: inline-grid; place-items: center; min-width: 28px; height: 26px; padding: 0 9px;
   border-radius: 999px; font-family: 'Nunito', sans-serif; font-size: .85rem; font-weight: 800;
 }
 .secao-eventos-contagem { background: #EDE6FB; color: #4B2C82; }
-.secao-eventos-sub { margin: 4px 0 0 20px; color: #6E6788; font-size: .95rem; }
 
 /* Painel dos encerrados */
 .encerrados-painel {
@@ -1280,8 +1275,7 @@ body.dark-theme .estado-vazio p,
 
 @media (max-width: 640px) {
   .secao-eventos-titulo { font-size: 1.15rem; }
-  .secao-eventos-sub { margin-left: 0; }
-  .encerrados-cabecalho { flex-wrap: wrap; padding: 16px; gap: 12px; }
+    .encerrados-cabecalho { flex-wrap: wrap; padding: 16px; gap: 12px; }
   .encerrados-icone { width: 42px; height: 42px; border-radius: 14px; }
   .encerrados-acao { width: 100%; justify-content: center; }
   .encerrados-grid { padding: 4px 14px 18px; }
@@ -1290,8 +1284,7 @@ body.dark-theme .estado-vazio p,
 /* Tema escuro */
 :host-context(body[data-theme="dark"]) .secao-eventos-titulo { color: #F4F1FF; }
 :host-context(body[data-theme="dark"]) .secao-eventos-contagem { background: rgba(157, 143, 231, .18); color: #E5DCFF; }
-:host-context(body[data-theme="dark"]) .secao-eventos-sub { color: #B8B0D6; }
-:host-context(body[data-theme="dark"]) .encerrados-painel { background: #161C29; border-color: rgba(255, 255, 255, .08); }
+:host-context(body[data-theme="dark"]) :host-context(body[data-theme="dark"]) .encerrados-painel { background: #161C29; border-color: rgba(255, 255, 255, .08); }
 :host-context(body[data-theme="dark"]) .encerrados-painel.aberto { background: #141A26; box-shadow: none; }
 :host-context(body[data-theme="dark"]) .encerrados-cabecalho:hover { background: rgba(255, 255, 255, .03); }
 :host-context(body[data-theme="dark"]) .encerrados-icone { background: #1E2535; color: #A79FC4; box-shadow: none; }
