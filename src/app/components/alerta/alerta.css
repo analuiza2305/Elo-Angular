@@ -234,6 +234,9 @@
 @media (max-width: 420px) {
   .alerta-corpo { padding: 12px 20px 22px; }
   .alerta-acoes { flex-direction: column-reverse; }
+  /* Em coluna, o "flex: 1" fazia a altura virar zero + texto (botão fininho).
+     Aqui cada botão volta a ter a altura cheia e ocupa a largura toda. */
+  .alerta-btn { flex: none; width: 100%; height: auto; min-height: 50px; font-size: 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

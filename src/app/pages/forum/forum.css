@@ -1314,3 +1314,47 @@ button.fr-acao:hover,
 
 /* o botão "Escrever no fórum" no topo substitui o flutuante */
 .fr-fab { display: none !important; }
+
+/* =========================================
+   BOTÃO "PRECISA DE AJUDA PROFISSIONAL?" NO BANNER
+   (substitui o card que ficava na coluna lateral)
+========================================= */
+.fr-hero-btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  min-height: 50px;
+  padding: 0 8px 0 20px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #7C5CD6 0%, #5B3D99 100%);
+  color: #FFFFFF !important;
+  font-weight: 800;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(91, 61, 153, .28);
+  transition: transform .15s ease, filter .2s ease;
+}
+.fr-hero-btn i { color: #FFFFFF; }
+.fr-hero-btn-seta {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .2);
+  transition: transform .2s ease;
+}
+.fr-hero-btn-seta i { font-size: .85rem; }
+.fr-hero-btn:hover { filter: brightness(1.06); }
+.fr-hero-btn:hover .fr-hero-btn-seta { transform: translateX(3px); }
+.fr-hero-btn:active { transform: scale(.98); }
+.fr-hero-btn:focus-visible { outline: 3px solid #B9A8F5; outline-offset: 3px; }
+
+@media (min-width: 1024px) {
+  .fr-hero-btn { margin-top: clamp(14px, 1.6vw, 26px); font-size: clamp(.95rem, 1.05vw, 1.1rem); }
+}
+@media (max-width: 600px) {
+  .fr-hero-btn { align-self: stretch; justify-content: center; }
+}

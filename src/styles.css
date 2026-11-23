@@ -13717,3 +13717,17 @@ body[data-theme="dark"] :is(.login-box, .cadastro-box) .btn-olho {
 body[data-theme="dark"] :is(.login-box, .cadastro-box) input[type="checkbox"] {
     accent-color: #583E8E;
 }
+
+/* =========================================================
+   BOTÕES DE MODAIS NO CELULAR
+   Vários modais empilham os botões no celular (flex-direction: column),
+   mas os botões têm "flex: 1". Em coluna isso zera a altura e o botão fica
+   fininho. A altura mínima abaixo impede isso sem mudar o resto do layout.
+========================================================= */
+@media (max-width: 768px) {
+  :is(.alerta-acoes, .modal-actions, .modal-actions-footer, .bv-acoes, .consulta-acoes, .cs-acoes,
+      .dm-rodape, .card-actions, .pc-form-acoes, .pc-modal-rodape, .suspender-acoes, .mod-vis-acoes,
+      .cfg-form-acoes, .den-acoes, .evm-acoes, .modal-footer, .modal-botoes, .acoes-modal) > :is(button, a, .btn) {
+    min-height: 46px;
+  }
+}
