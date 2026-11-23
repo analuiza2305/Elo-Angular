@@ -2,13 +2,30 @@
 .elo { width: 100%; height: 100%; overflow: visible; }
 
 /* Movimentos leves */
-.animada .asa-aceno { transform-origin: 150px 128px; animation: elo-acenar 1.6s ease-in-out infinite; }
-.animada .tracos-aceno { animation: elo-piscar-tracos 1.6s ease-in-out infinite; }
+.animada .asa-aceno { transform-origin: 150px 128px; animation: elo-acenar 1.1s ease-in-out infinite; }
+.animada .tracos-aceno { animation: elo-piscar-tracos 1.1s ease-in-out infinite; }
+
+/* Asinhas paradas também mexem: um balancinho leve, como quem bate as asas devagar.
+   O ponto de giro fica no "ombro" (topo da asa). */
+.animada .asa-esq { transform-origin: 50px 114px; animation: elo-asa-esq 2.2s ease-in-out infinite; }
+.animada .asa-dir { transform-origin: 150px 114px; animation: elo-asa-dir 2.2s ease-in-out infinite; }
+/* Acenando, a outra asa acompanha no mesmo ritmo do aceno */
+.animada.exp-oi .asa-esq { animation-duration: 1.1s; }
 .animada .balao { transform-origin: 160px 36px; animation: elo-flutuar 2.4s ease-in-out infinite; }
 .animada .coracao { transform-origin: 160px 44px; animation: elo-bater 1.4s ease-in-out infinite; }
 .animada .olhos { transform-origin: 100px 92px; animation: elo-piscar 5s infinite; }
 
 @keyframes elo-acenar {
+  0%, 100% { transform: rotate(6deg); }
+  25% { transform: rotate(-22deg); }
+  50% { transform: rotate(4deg); }
+  75% { transform: rotate(-18deg); }
+}
+@keyframes elo-asa-esq {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(14deg); }
+}
+@keyframes elo-asa-dir {
   0%, 100% { transform: rotate(0deg); }
   50% { transform: rotate(-14deg); }
 }

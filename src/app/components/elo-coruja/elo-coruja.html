@@ -22,7 +22,9 @@
 
     <!-- asa esquerda -->
     @if (expressao !== 'acolhendo') {
-      <ellipse cx="42" cy="146" rx="14" ry="36" transform="rotate(12 42 146)" fill="#6A4DC0" />
+      <g class="asa-esq">
+        <ellipse cx="42" cy="146" rx="14" ry="36" transform="rotate(12 42 146)" fill="#6A4DC0" />
+      </g>
     }
 
     <!-- corpo -->
@@ -44,7 +46,9 @@
       </g>
       <path class="tracos-aceno" d="M182 58 q8 4 6 12 M190 50 q10 6 8 16" fill="none" stroke="#9D8FE7" stroke-width="3" stroke-linecap="round" />
     } @else {
-      <ellipse cx="158" cy="146" rx="14" ry="36" transform="rotate(-12 158 146)" fill="#6A4DC0" />
+      <g class="asa-dir">
+        <ellipse cx="158" cy="146" rx="14" ry="36" transform="rotate(-12 158 146)" fill="#6A4DC0" />
+      </g>
     }
 
     <!-- olhos -->
