@@ -15,22 +15,22 @@
     </section>
 
     <!-- 2. BARRA DE FILTROS COM DOIS DROPDOWNS -->
-    <div class="eventos-filtros-bar">
+    <div class="eventos-filtros-bar elo-filtros-barra">
         <!-- Filtros em pílulas (Visíveis no Computador) -->
-        <div class="filtros-pulas desktop-only-filtros">
-            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'Todos'" (click)="filtrarCategoria('Todos')">
+        <div class="filtros-pulas desktop-only-filtros elo-filtros" role="group" aria-label="Filtrar eventos">
+            <button type="button" class="filtro-btn elo-filtro" [class.active]="categoriaSelecionada() === 'Todos'" (click)="filtrarCategoria('Todos')">
                 <i class="fa-solid fa-calendar-days"></i> Todos
             </button>
-            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'palestras'" (click)="filtrarCategoria('palestras')">
+            <button type="button" class="filtro-btn elo-filtro" [class.active]="categoriaSelecionada() === 'palestras'" (click)="filtrarCategoria('palestras')">
                 <i class="fa-solid fa-microphone"></i> Palestras
             </button>
-            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'oficinas'" (click)="filtrarCategoria('oficinas')">
+            <button type="button" class="filtro-btn elo-filtro" [class.active]="categoriaSelecionada() === 'oficinas'" (click)="filtrarCategoria('oficinas')">
                 <i class="fa-solid fa-cookie"></i> Oficinas
             </button>
-            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'encontros'" (click)="filtrarCategoria('encontros')">
+            <button type="button" class="filtro-btn elo-filtro" [class.active]="categoriaSelecionada() === 'encontros'" (click)="filtrarCategoria('encontros')">
                 <i class="fa-solid fa-users"></i> Encontros
             </button>
-            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'atividades'" (click)="filtrarCategoria('atividades')">
+            <button type="button" class="filtro-btn elo-filtro" [class.active]="categoriaSelecionada() === 'atividades'" (click)="filtrarCategoria('atividades')">
                 <i class="fa-solid fa-heart"></i> Atividades
             </button>
         </div>
@@ -52,7 +52,7 @@
 
         <!-- Dropdown de Ordenação -->
         <div class="ordenacao-dropdown-wrapper">
-            <button class="btn-ordenar" (click)="toggleDropdownOrdenacao($event)">
+            <button type="button" class="btn-ordenar elo-ordenar" (click)="toggleDropdownOrdenacao($event)">
                 <i class="fa-solid fa-sliders"></i> {{ textoOrdenacao() }} <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
             </button>
 

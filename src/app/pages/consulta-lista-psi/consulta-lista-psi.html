@@ -27,16 +27,18 @@
       </button>
     </div>
 
-    <div class="tipo-filtros" role="group" aria-label="Tipo de profissional">
-      <button type="button" class="tipo-chip" [class.ativo]="filtroTipo() === 'todos'" [attr.aria-pressed]="filtroTipo() === 'todos'" (click)="filtroTipo.set('todos')">
-        Todos <span>{{ contagemTipo().todos }}</span>
+    <div class="tipo-filtros elo-filtros-barra">
+      <div class="elo-filtros" role="group" aria-label="Tipo de profissional">
+      <button type="button" class="tipo-chip elo-filtro" [class.ativo]="filtroTipo() === 'todos'" [attr.aria-pressed]="filtroTipo() === 'todos'" (click)="filtroTipo.set('todos')">
+        <i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Todos <span>{{ contagemTipo().todos }}</span>
       </button>
-      <button type="button" class="tipo-chip" [class.ativo]="filtroTipo() === 'psicologo'" [attr.aria-pressed]="filtroTipo() === 'psicologo'" (click)="filtroTipo.set('psicologo')">
-        Psicólogos <span>{{ contagemTipo().psicologo }}</span>
+      <button type="button" class="tipo-chip elo-filtro" [class.ativo]="filtroTipo() === 'psicologo'" [attr.aria-pressed]="filtroTipo() === 'psicologo'" (click)="filtroTipo.set('psicologo')">
+        <i class="fa-solid fa-brain" aria-hidden="true"></i> Psicólogos <span>{{ contagemTipo().psicologo }}</span>
       </button>
-      <button type="button" class="tipo-chip" [class.ativo]="filtroTipo() === 'advogado'" [attr.aria-pressed]="filtroTipo() === 'advogado'" (click)="filtroTipo.set('advogado')">
-        Advogados <span>{{ contagemTipo().advogado }}</span>
+      <button type="button" class="tipo-chip elo-filtro" [class.ativo]="filtroTipo() === 'advogado'" [attr.aria-pressed]="filtroTipo() === 'advogado'" (click)="filtroTipo.set('advogado')">
+        <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Advogados <span>{{ contagemTipo().advogado }}</span>
       </button>
+      </div>
     </div>
   </div>
 

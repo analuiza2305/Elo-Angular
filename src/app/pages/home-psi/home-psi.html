@@ -382,17 +382,17 @@
         </button>
       </div>
 
-      <div class="artigos-filter-bar">
-        <div class="artigos-categorias">
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'todos'" (click)="filtrarArtigos('todos')"><i class="fa-solid fa-border-all"></i> Todos</button>
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'favoritos'" (click)="filtrarArtigos('favoritos')"><i class="fa-solid fa-bookmark"></i> Favoritos</button>
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'legislativos'" (click)="filtrarArtigos('legislativos')"><i class="fa-solid fa-scale-balanced"></i> Legislativos</button>
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'educacionais'" (click)="filtrarArtigos('educacionais')"><i class="fa-solid fa-graduation-cap"></i> Educacionais</button>
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'dicas'" (click)="filtrarArtigos('dicas')"><i class="fa-solid fa-lightbulb"></i> Dicas</button>
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'posts'" (click)="filtrarArtigos('posts')"><i class="fa-regular fa-newspaper"></i> Posts</button>
-          <button class="cat-btn" [class.active]="filtroArtigo() === 'meus'" (click)="filtrarArtigos('meus')"><i class="fa-solid fa-user-pen"></i> Minhas postagens</button>
+      <div class="artigos-filter-bar elo-filtros-barra">
+        <div class="artigos-categorias elo-filtros" role="group" aria-label="Filtrar artigos">
+          <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'todos'" (click)="filtrarArtigos('todos')"><i class="fa-solid fa-border-all"></i> Todos</button>
+          <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'favoritos'" (click)="filtrarArtigos('favoritos')"><i class="fa-solid fa-bookmark"></i> Favoritos</button>
+          <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'legislativos'" (click)="filtrarArtigos('legislativos')"><i class="fa-solid fa-scale-balanced"></i> Legislativos</button>
+          <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'educacionais'" (click)="filtrarArtigos('educacionais')"><i class="fa-solid fa-graduation-cap"></i> Educacionais</button>
+          <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'dicas'" (click)="filtrarArtigos('dicas')"><i class="fa-solid fa-lightbulb"></i> Dicas</button>
+          <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'posts'" (click)="filtrarArtigos('posts')"><i class="fa-regular fa-newspaper"></i> Posts</button>
+          <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'meus'" (click)="filtrarArtigos('meus')"><i class="fa-solid fa-user-pen"></i> Minhas postagens</button>
         </div>
-        <button class="btn-sort" type="button" (click)="alternarOrdemArtigos()">
+        <button class="btn-sort elo-ordenar" type="button" (click)="alternarOrdemArtigos()">
           <i class="fa-solid fa-sliders"></i> {{ ordemArtigos() === 'recentes' ? 'Mais recentes' : 'Mais antigos' }}
         </button>
       </div>

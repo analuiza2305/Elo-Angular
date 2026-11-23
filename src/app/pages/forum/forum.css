@@ -1358,3 +1358,30 @@ button.fr-acao:hover,
 @media (max-width: 600px) {
   .fr-hero-btn { align-self: stretch; justify-content: center; }
 }
+
+/* Sem a coluna lateral (versão da mãe): a lista ocupa a largura toda */
+.fr-layout.sem-lateral { grid-template-columns: minmax(0, 1fr); }
+
+/* Barra de filtros dentro do painel de busca: só um respiro acima */
+.fr-toolbar.elo-filtros-barra { margin: 16px 0 0 !important; }
+.fr-toolbar .elo-ordenar { position: relative; }
+.fr-toolbar .elo-ordenar > i { position: static !important; transform: none !important; }
+.fr-toolbar .elo-ordenar { flex: none !important; }
+
+/* Celular: o botão "Precisa de ajuda profissional?" desce para cima da ilustração das mães */
+@media (max-width: 600px) {
+  .fr-hero { position: relative; }
+  .fr-hero-texto { padding-bottom: 16px; }
+  .fr-hero-btn {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    z-index: 2;
+    margin: 0;
+    justify-content: space-between;
+    min-height: 54px;
+    padding: 0 8px 0 18px;
+    box-shadow: 0 12px 28px rgba(60, 36, 120, .35);
+  }
+}

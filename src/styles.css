@@ -13731,3 +13731,138 @@ body[data-theme="dark"] :is(.login-box, .cadastro-box) input[type="checkbox"] {
     min-height: 46px;
   }
 }
+
+/* =========================================================
+   PADRÃO DE FILTROS DO SITE (igual à página de Artigos)
+   Barra branca arredondada; filtros em texto com ícone; o escolhido
+   fica numa pílula roxa; "ordenar" numa pílula com borda, à direita.
+   No celular a barra continua igual: os filtros deslizam para o lado
+   e o "ordenar" vai para a linha de baixo.
+
+   Uso:
+     <div class="elo-filtros-barra">
+       <div class="elo-filtros"> <button class="elo-filtro" [class.active]="...">…</button> … </div>
+       <button class="elo-ordenar">…</button>      (opcional)
+     </div>
+========================================================= */
+body .elo-filtros-barra {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 14px !important;
+    margin-bottom: 35px;
+    padding: 12px 20px !important;
+    background: #FFFFFF !important;
+    border: 1px solid rgba(132, 113, 177, 0.1) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 6px 20px rgba(115, 93, 163, 0.03) !important;
+}
+body .elo-filtros-barra .elo-filtros {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    min-width: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+body .elo-filtros-barra .elo-filtros::-webkit-scrollbar { display: none; }
+
+body .elo-filtro {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-shrink: 0;
+    height: auto !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    border-radius: 50px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #4B2C82 !important;
+    font-family: 'Nunito', sans-serif !important;
+    font-size: 0.9rem !important;
+    font-weight: 700 !important;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+body .elo-filtro i { color: inherit !important; }
+body .elo-filtro:hover { background: rgba(124, 105, 169, 0.08) !important; color: #4B2C82 !important; }
+body .elo-filtro:is(.active, .ativo) {
+    background: #4B2C82 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 14px rgba(75, 44, 130, 0.22) !important;
+}
+body .elo-filtro:focus-visible { outline: 3px solid #B9A8F5 !important; outline-offset: 2px; }
+/* Contador dentro do filtro (ex.: "Psicólogos 11") */
+body .elo-filtro > span {
+    display: inline-grid; place-items: center;
+    min-width: 22px; height: 20px; padding: 0 7px;
+    border-radius: 999px; background: #F1ECFB !important; color: #6E5AA8 !important;
+    font-size: 0.75rem; font-weight: 800;
+}
+body .elo-filtro:is(.active, .ativo) > span { background: rgba(255, 255, 255, 0.22) !important; color: #FFFFFF !important; }
+
+/* Botão/seletor de ordenação */
+body .elo-filtros-barra .elo-ordenar {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-shrink: 0;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 10px 18px !important;
+    border: 1px solid rgba(132, 113, 177, 0.2) !important;
+    border-radius: 50px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #4B2C82 !important;
+    font-family: 'Nunito', sans-serif !important;
+    font-size: 0.9rem !important;
+    font-weight: 700 !important;
+    cursor: pointer;
+}
+body .elo-filtros-barra .elo-ordenar:hover { background: rgba(124, 105, 169, 0.06) !important; }
+body .elo-filtros-barra .elo-ordenar i { color: inherit !important; }
+body .elo-filtros-barra .elo-ordenar select {
+    field-sizing: content;
+    border: none !important; background: transparent !important; box-shadow: none !important;
+    padding: 0 !important; margin: 0 !important; height: auto !important; min-height: 0 !important;
+    color: inherit !important; font: inherit !important; cursor: pointer; appearance: none; -webkit-appearance: none;
+}
+
+/* Celular e tablet: filtros deslizando numa linha; ordenar embaixo */
+@media (max-width: 900px) {
+    body .elo-filtros-barra {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        padding: 10px 12px !important;
+        border-radius: 22px !important;
+        margin-bottom: 24px;
+    }
+    body .elo-filtros-barra .elo-filtros { scroll-snap-type: x proximity; padding-bottom: 2px !important; }
+    body .elo-filtro { scroll-snap-align: start; padding: 10px 16px !important; }
+    body .elo-filtros-barra .elo-ordenar { align-self: flex-start; }
+    /* Os menus antigos "Categoria: ..." do celular não são mais necessários */
+    body .elo-filtros-barra .mobile-only-categorias,
+    body .elo-filtros-barra .fr-so-mobile { display: none !important; }
+    body .elo-filtros-barra .desktop-only-filtros,
+    body .elo-filtros-barra .fr-so-desktop { display: flex !important; }
+}
+
+/* Tema escuro */
+body[data-theme="dark"] .elo-filtros-barra {
+    background: #1A2030 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: none !important;
+}
+body[data-theme="dark"] .elo-filtro { color: #C9C2DA !important; }
+body[data-theme="dark"] .elo-filtro:hover { background: rgba(255, 255, 255, 0.06) !important; color: #FFFFFF !important; }
+body[data-theme="dark"] .elo-filtro:is(.active, .ativo) { background: #7C5FCB !important; color: #FFFFFF !important; }
+body[data-theme="dark"] .elo-filtro > span { background: rgba(255, 255, 255, 0.1) !important; color: #E5DCFF !important; }
+body[data-theme="dark"] .elo-filtros-barra .elo-ordenar { border-color: rgba(255, 255, 255, 0.14) !important; color: #D9CCFF !important; }

@@ -25,22 +25,22 @@
     }
 
     <!-- 2. BARRA DE FILTROS E ORDENAÇÃO -->
-    <div class="artigos-filtros-bar">
+    <div class="artigos-filtros-bar elo-filtros-barra">
         <!-- Filtros normais (Exibidos no Computador) -->
-        <div class="filtros-pulas desktop-only-filtros">
-            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'Todos'" (click)="filtrarCategoria('Todos')">
+        <div class="filtros-pulas desktop-only-filtros elo-filtros" role="group" aria-label="Filtrar artigos">
+            <button type="button" class="filtro-btn elo-filtro" [class.active]="categoriaSelecionada() === 'Todos'" (click)="filtrarCategoria('Todos')">
                 <i class="fa-solid fa-table-cells-large"></i> Todos
             </button>
-            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'legislativos'" (click)="filtrarCategoria('legislativos')">
+            <button type="button" class="filtro-btn elo-filtro" [class.active]="categoriaSelecionada() === 'legislativos'" (click)="filtrarCategoria('legislativos')">
                 <i class="fa-solid fa-scale-balanced"></i> Legislativos
             </button>
-            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'educacionais'" (click)="filtrarCategoria('educacionais')">
+            <button type="button" class="filtro-btn elo-filtro" [class.active]="categoriaSelecionada() === 'educacionais'" (click)="filtrarCategoria('educacionais')">
                 <i class="fa-solid fa-graduation-cap"></i> Educacionais
             </button>
-            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'dicas'" (click)="filtrarCategoria('dicas')">
+            <button type="button" class="filtro-btn elo-filtro" [class.active]="categoriaSelecionada() === 'dicas'" (click)="filtrarCategoria('dicas')">
                 <i class="fa-solid fa-lightbulb"></i> Dicas
             </button>
-            <button class="filtro-btn" [class.active]="categoriaSelecionada() === 'posts'" (click)="filtrarCategoria('posts')">
+            <button type="button" class="filtro-btn elo-filtro" [class.active]="categoriaSelecionada() === 'posts'" (click)="filtrarCategoria('posts')">
                 <i class="fa-solid fa-newspaper"></i> Posts
             </button>
         </div>
@@ -62,7 +62,7 @@
 
         <!-- Dropdown de Ordenação Funcional -->
         <div class="ordenacao-dropdown-wrapper">
-            <button class="btn-ordenar" (click)="toggleDropdownOrdenacao($event)">
+            <button type="button" class="btn-ordenar elo-ordenar" (click)="toggleDropdownOrdenacao($event)">
                 <i class="fa-solid fa-sliders"></i> {{ textoOrdenacao() }} <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
             </button>
             

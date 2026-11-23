@@ -1198,10 +1198,10 @@ body {
 :host-context(body[data-theme="dark"]) .date-chip.selected .date { color: #1A1530 !important; }
 
 /* Contadores dos filtros */
-.tipo-chip.ativo { background: #6A55A0 !important; border-color: #6A55A0 !important; }
+/* Os filtros seguem o padrão do site (.elo-filtro em styles.css); aqui só o contador */
 .tipo-chip.ativo, .tipo-chip.ativo span { color: #FFFFFF !important; }
 .tipo-chip:not(.ativo) span { color: #5B4A93; }
-.tipo-chip.ativo span { background: rgba(26, 21, 48, 0.28) !important; }
+.tipo-chip.ativo span { background: rgba(255, 255, 255, 0.22) !important; }
 
 /* ===== Banner no modo escuro: texto claro (11/11) ===== */
 :host-context(body[data-theme="dark"]) .hero-section .page-header h1 {

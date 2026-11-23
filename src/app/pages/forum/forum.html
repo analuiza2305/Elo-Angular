@@ -28,7 +28,7 @@
         <img src="/img/forum-hero-maes.webp" alt="Ilustração de quatro mães conversando e sorrindo" class="fr-hero-arte" width="880" height="740">
     </section>
 
-    <div class="fr-layout">
+    <div class="fr-layout" [class.sem-lateral]="!embutido">
 
         <!-- COLUNA PRINCIPAL: BUSCA, FILTROS E TÓPICOS -->
         <section class="fr-main">
@@ -54,34 +54,27 @@
                 <button type="submit" class="fr-busca-btn"><i class="fa-solid fa-magnifying-glass"></i> <span>Buscar</span></button>
             </form>
 
-            <div class="fr-toolbar">
-                <!-- Temas: pílulas no desktop, dropdown no celular -->
-                <div class="fr-filtros fr-so-desktop" role="group" aria-label="Filtrar por tema">
-                    <button type="button" class="fr-filtro" [class.ativo]="categoriaSelecionada() === 'Todos'" [attr.aria-pressed]="categoriaSelecionada() === 'Todos'" (click)="filtrarPorCategoria('Todos')">Todos</button>
+            <div class="fr-toolbar elo-filtros-barra">
+                <!-- Temas: mesmo padrão de filtros do site (no celular deslizam para o lado) -->
+                <div class="fr-filtros elo-filtros" role="group" aria-label="Filtrar por tema">
+                    <button type="button" class="fr-filtro elo-filtro" [class.ativo]="categoriaSelecionada() === 'Todos'" [attr.aria-pressed]="categoriaSelecionada() === 'Todos'" (click)="filtrarPorCategoria('Todos')">
+                        <i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Todos
+                    </button>
                     @for (cat of categorias; track cat.nome) {
-                        <button type="button" class="fr-filtro" [class.ativo]="categoriaSelecionada() === cat.nome" [attr.aria-pressed]="categoriaSelecionada() === cat.nome" (click)="filtrarPorCategoria(cat.nome)">{{ cat.nome }}</button>
+                        <button type="button" class="fr-filtro elo-filtro" [class.ativo]="categoriaSelecionada() === cat.nome" [attr.aria-pressed]="categoriaSelecionada() === cat.nome" (click)="filtrarPorCategoria(cat.nome)">
+                            <i [class]="cat.icone" aria-hidden="true"></i> {{ cat.nome }}
+                        </button>
                     }
                 </div>
 
-                <label class="fr-select fr-so-mobile">
-                    <i class="fa-solid fa-tags"></i>
-                    <select [ngModel]="categoriaSelecionada()" (ngModelChange)="filtrarPorCategoria($event)" name="tema" aria-label="Filtrar por tema">
-                        <option value="Todos">Todos os temas</option>
-                        @for (cat of categorias; track cat.nome) {
-                            <option [value]="cat.nome">{{ cat.nome }}</option>
-                        }
-                    </select>
-                    <i class="fa-solid fa-chevron-down fr-select-seta"></i>
-                </label>
-
-                <label class="fr-select">
-                    <i class="fa-solid fa-arrow-down-wide-short"></i>
+                <label class="fr-select elo-ordenar">
+                    <i class="fa-solid fa-sliders" aria-hidden="true"></i>
                     <select [ngModel]="ordenacao()" (ngModelChange)="ordenarPor($event)" name="ordenacao" aria-label="Ordenar tópicos">
                         <option value="recentes">Mais recentes</option>
                         <option value="curtidos">Mais curtidos</option>
                         <option value="comentados">Mais comentados</option>
                     </select>
-                    <i class="fa-solid fa-chevron-down fr-select-seta"></i>
+                    <i class="fa-solid fa-chevron-down fr-select-seta" aria-hidden="true" style="font-size: .8rem"></i>
                 </label>
             </div>
             </div>
@@ -165,9 +158,9 @@
             }
         </section>
 
-        <!-- COLUNA LATERAL -->
+        <!-- COLUNA LATERAL: só na versão da empresa ("Explorar por tema" saiu; os temas ficam nos filtros) -->
+        @if (embutido) {
         <aside class="fr-aside">
-            @if (embutido) {
             <div class="fr-card fr-ajuda">
                 <span class="fr-ajuda-icone" aria-hidden="true"><i class="fa-solid fa-building"></i></span>
                 <div>
@@ -176,27 +169,8 @@
                     <button type="button" class="fr-btn-primario" (click)="abrirModalNovoPost()">Nova publicação</button>
                 </div>
             </div>
-            }
-
-            <div class="fr-card">
-                <h3 class="fr-card-titulo">Explorar por tema</h3>
-                <ul class="fr-temas">
-                    @for (cat of categorias; track cat.nome) {
-                        <li>
-                            <button type="button" class="fr-tema" [class.ativo]="categoriaSelecionada() === cat.nome" [attr.aria-pressed]="categoriaSelecionada() === cat.nome" (click)="filtrarPorCategoria(categoriaSelecionada() === cat.nome ? 'Todos' : cat.nome)">
-                                <span class="fr-tema-icone"><i [class]="cat.icone"></i></span>
-                                <span class="fr-tema-texto">
-                                    <strong>{{ cat.nome }}</strong>
-                                    <small>{{ cat.descricao }}</small>
-                                </span>
-                                <i class="fa-solid fr-tema-seta" [class.fa-chevron-right]="categoriaSelecionada() !== cat.nome" [class.fa-xmark]="categoriaSelecionada() === cat.nome" aria-hidden="true"></i>
-                            </button>
-                        </li>
-                    }
-                </ul>
-            </div>
-
         </aside>
+        }
     </div>
 </main>
 
