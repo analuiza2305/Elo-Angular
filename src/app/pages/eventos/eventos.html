@@ -70,6 +70,18 @@
             <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         </div>
     } @else {
+        <!-- PRÓXIMOS EVENTOS -->
+        <header class="secao-eventos-topo">
+            <div>
+                <h2 class="secao-eventos-titulo">
+                    <span class="secao-eventos-ponto" aria-hidden="true"></span>
+                    Próximos eventos
+                    <span class="secao-eventos-contagem">{{ eventosAtivos().length }}</span>
+                </h2>
+                <p class="secao-eventos-sub">Inscreva-se e o evento aparece no seu calendário.</p>
+            </div>
+        </header>
+
         <div class="eventos-grid">
             @for (evento of eventosAtivos(); track evento.id) {
                 <ng-container *ngTemplateOutlet="cardEvento; context: { $implicit: evento }"></ng-container>
@@ -90,21 +102,27 @@
             }
         </div>
 
-        <!-- EVENTOS QUE JÁ ACONTECERAM (separados e escondidos por padrão) -->
+        <!-- EVENTOS QUE JÁ ACONTECERAM: painel separado, fechado por padrão -->
         @if (eventosEncerrados().length) {
-            <section class="eventos-encerrados-bloco">
-                <button type="button" class="btn-ver-encerrados" (click)="toggleEncerrados()" [attr.aria-expanded]="mostrarEncerrados()">
-                    <i class="fa-regular fa-calendar-check"></i>
-                    {{ mostrarEncerrados() ? 'Esconder eventos que já aconteceram' : 'Ver eventos que já aconteceram (' + eventosEncerrados().length + ')' }}
-                    <i class="fa-solid" [class.fa-chevron-down]="!mostrarEncerrados()" [class.fa-chevron-up]="mostrarEncerrados()"></i>
+            <section class="encerrados-painel" [class.aberto]="mostrarEncerrados()" aria-labelledby="encerrados-titulo">
+                <button type="button" class="encerrados-cabecalho" (click)="toggleEncerrados()"
+                        [attr.aria-expanded]="mostrarEncerrados()" aria-controls="encerrados-lista">
+                    <span class="encerrados-icone" aria-hidden="true"><i class="fa-regular fa-calendar-check"></i></span>
+                    <span class="encerrados-textos">
+                        <span id="encerrados-titulo" class="encerrados-titulo">
+                            Eventos que já aconteceram
+                            <span class="encerrados-contagem">{{ eventosEncerrados().length }}</span>
+                        </span>
+                        <span class="encerrados-sub">Ficam aqui só para consulta. As inscrições estão encerradas.</span>
+                    </span>
+                    <span class="encerrados-acao">
+                        {{ mostrarEncerrados() ? 'Esconder' : 'Ver todos' }}
+                        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </span>
                 </button>
 
                 @if (mostrarEncerrados()) {
-                    <p class="aviso-eventos-passados">
-                        <i class="fa-solid fa-circle-info"></i>
-                        Estes eventos já aconteceram. Eles ficam aqui só para consulta, e as inscrições estão encerradas.
-                    </p>
-                    <div class="eventos-grid">
+                    <div id="encerrados-lista" class="eventos-grid encerrados-grid">
                         @for (evento of eventosEncerrados(); track evento.id) {
                             <ng-container *ngTemplateOutlet="cardEvento; context: { $implicit: evento }"></ng-container>
                         }
@@ -129,6 +147,9 @@
                             <i class="fa-solid" [class.fa-crown]="evento.visibilidade === 'premium'" [class.fa-star]="evento.visibilidade !== 'premium'"></i>
                             {{ evento.visibilidade === 'premium' ? 'Premium' : 'Destaque' }}
                         </span>
+                    }
+                    @if (evento.encerrado) {
+                        <span class="selo-ja-aconteceu"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Já aconteceu</span>
                     }
                     <!-- Bloco de Data Flutuante -->
                     <div class="calendar-date-box">
