@@ -28,7 +28,7 @@
     </div>
 
     <div class="tipo-filtros elo-filtros-barra">
-      <div class="elo-filtros" role="group" aria-label="Tipo de profissional">
+      <div class="elo-filtros" appFiltrosDropdown role="group" aria-label="Tipo de profissional">
       <button type="button" class="tipo-chip elo-filtro" [class.ativo]="filtroTipo() === 'todos'" [attr.aria-pressed]="filtroTipo() === 'todos'" (click)="filtroTipo.set('todos')">
         <i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Todos <span>{{ contagemTipo().todos }}</span>
       </button>

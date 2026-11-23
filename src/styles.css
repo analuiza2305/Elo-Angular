@@ -13736,12 +13736,11 @@ body[data-theme="dark"] :is(.login-box, .cadastro-box) input[type="checkbox"] {
    PADRÃO DE FILTROS DO SITE (igual à página de Artigos)
    Barra branca arredondada; filtros em texto com ícone; o escolhido
    fica numa pílula roxa; "ordenar" numa pílula com borda, à direita.
-   No celular a barra continua igual: os filtros deslizam para o lado
-   e o "ordenar" vai para a linha de baixo.
+   No celular os filtros viram um dropdown (diretiva appFiltrosDropdown).
 
    Uso:
      <div class="elo-filtros-barra">
-       <div class="elo-filtros"> <button class="elo-filtro" [class.active]="...">…</button> … </div>
+       <div class="elo-filtros" appFiltrosDropdown> <button class="elo-filtro" [class.active]="...">…</button> … </div>
        <button class="elo-ordenar">…</button>      (opcional)
      </div>
 ========================================================= */
@@ -13835,24 +13834,105 @@ body .elo-filtros-barra .elo-ordenar select {
     color: inherit !important; font: inherit !important; cursor: pointer; appearance: none; -webkit-appearance: none;
 }
 
-/* Celular e tablet: filtros deslizando numa linha; ordenar embaixo */
+/* Botão do dropdown (criado pela diretiva appFiltrosDropdown): só aparece no celular */
+body .elo-filtros-gatilho { display: none; }
+
+/* =========================================================
+   FILTROS EM DROPDOWN (celular e tablet, até 900px)
+   [ 🔲 Todos  ▾ ]  [ Mais recentes ▾ ]
+   Ao tocar, a lista abre num cartão embaixo da barra.
+   ========================================================= */
 @media (max-width: 900px) {
     body .elo-filtros-barra {
-        flex-direction: column !important;
-        align-items: stretch !important;
+        position: relative;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
         gap: 10px !important;
         padding: 10px 12px !important;
         border-radius: 22px !important;
         margin-bottom: 24px;
+        overflow: visible !important;
     }
-    body .elo-filtros-barra .elo-filtros { scroll-snap-type: x proximity; padding-bottom: 2px !important; }
-    body .elo-filtro { scroll-snap-align: start; padding: 10px 16px !important; }
-    body .elo-filtros-barra .elo-ordenar { align-self: flex-start; }
     /* Os menus antigos "Categoria: ..." do celular não são mais necessários */
     body .elo-filtros-barra .mobile-only-categorias,
     body .elo-filtros-barra .fr-so-mobile { display: none !important; }
-    body .elo-filtros-barra .desktop-only-filtros,
-    body .elo-filtros-barra .fr-so-desktop { display: flex !important; }
+
+    body .elo-filtros-gatilho {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1 1 120px;
+        min-width: 0;
+        min-height: 44px;
+        padding: 8px 16px 8px 18px;
+        border: 1px solid rgba(75, 44, 130, 0.22);
+        border-radius: 50px;
+        background: #F4F0FC;
+        color: #4B2C82;
+        font-family: 'Nunito', sans-serif;
+        font-size: 0.92rem;
+        font-weight: 800;
+        text-align: left;
+        cursor: pointer;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    body .elo-filtros-gatilho:focus-visible { outline: 3px solid #B9A8F5; outline-offset: 2px; }
+    body .elo-filtros-gatilho.aberto { border-color: #4B2C82; box-shadow: 0 0 0 3px rgba(75, 44, 130, 0.12); }
+    body .elo-filtros-gatilho i { color: inherit !important; }
+    body .elo-filtros-gatilho-rotulo {
+        display: inline-flex; align-items: center; gap: 8px; flex: 1; min-width: 0;
+        overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    /* contador (ex.: "Psicólogos 11") dentro do botão */
+    body .elo-filtros-gatilho-rotulo > span {
+        display: inline-grid; place-items: center; min-width: 22px; height: 20px; padding: 0 7px;
+        border-radius: 999px; background: #FFFFFF; color: #4B2C82; font-size: .75rem; font-weight: 800;
+    }
+    body .elo-filtros-gatilho-seta { font-size: .8rem; transition: transform .2s ease; }
+    body .elo-filtros-gatilho.aberto .elo-filtros-gatilho-seta { transform: rotate(180deg); }
+
+    /* A lista: escondida até abrir; depois vira um cartão flutuante */
+    body .elo-filtros-barra.tem-dropdown .elo-filtros {
+        display: none !important;
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        z-index: 60;
+        flex-direction: column !important;
+        gap: 4px !important;
+        padding: 8px !important;
+        max-height: min(60vh, 420px);
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        background: #FFFFFF;
+        border: 1px solid rgba(132, 113, 177, 0.18);
+        border-radius: 20px;
+        box-shadow: 0 18px 40px rgba(45, 30, 78, 0.18);
+        animation: elo-filtros-abre .18s ease;
+    }
+    body .elo-filtros-barra.tem-dropdown .elo-filtros.aberto { display: flex !important; }
+    body .elo-filtros-barra.tem-dropdown .elo-filtro {
+        width: 100%;
+        justify-content: flex-start !important;
+        padding: 12px 16px !important;
+        min-height: 46px;
+        border-radius: 14px !important;
+    }
+    body .elo-filtros-barra.tem-dropdown .elo-filtro > span { margin-left: auto; }
+
+    body .elo-filtros-barra.tem-dropdown .elo-filtro:is(.active, .ativo) { box-shadow: none !important; }
+
+    body .elo-filtros-barra .elo-ordenar { flex: 0 0 auto !important; min-height: 44px !important; align-self: center; }
+    /* algumas páginas embrulham o ordenar numa div com width: 100% */
+    body .elo-filtros-barra > :has(.elo-ordenar):not(.elo-filtros) { flex: 0 0 auto !important; width: auto !important; }
+}
+@keyframes elo-filtros-abre { from { opacity: 0; transform: translateY(-6px); } }
+@media (max-width: 380px) {
+    /* tela bem estreita: ordenar vai pra linha de baixo, ocupando a largura */
+    body .elo-filtros-barra > :has(.elo-ordenar):not(.elo-filtros) { flex: 1 1 100% !important; }
+    body .elo-filtros-barra .elo-ordenar { flex: 1 1 100% !important; width: 100% !important; justify-content: center; }
 }
 
 /* Tema escuro */
@@ -13866,3 +13946,106 @@ body[data-theme="dark"] .elo-filtro:hover { background: rgba(255, 255, 255, 0.06
 body[data-theme="dark"] .elo-filtro:is(.active, .ativo) { background: #7C5FCB !important; color: #FFFFFF !important; }
 body[data-theme="dark"] .elo-filtro > span { background: rgba(255, 255, 255, 0.1) !important; color: #E5DCFF !important; }
 body[data-theme="dark"] .elo-filtros-barra .elo-ordenar { border-color: rgba(255, 255, 255, 0.14) !important; color: #D9CCFF !important; }
+body[data-theme="dark"] .elo-filtros-gatilho { background: #241B38; border-color: rgba(205, 187, 255, 0.3); color: #EDE6FF; }
+body[data-theme="dark"] .elo-filtros-gatilho.aberto { border-color: #9C88D9; box-shadow: 0 0 0 3px rgba(156, 136, 217, 0.2); }
+body[data-theme="dark"] .elo-filtros-gatilho-rotulo > span { background: rgba(255, 255, 255, 0.12); color: #EDE6FF; }
+@media (max-width: 900px) {
+    body[data-theme="dark"] .elo-filtros-barra.tem-dropdown .elo-filtros {
+        background: #1A2030; border-color: rgba(255, 255, 255, 0.1); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    }
+}
+
+/* =========================================================
+   HEADER DA MÃE EM NOTEBOOK (901px a 1440px)
+   Vai encolhendo por etapas pra nunca passar da tela:
+   1) nome da usuária com reticências / só a foto
+   2) busca vira um botão redondo que abre ao clicar
+   3) links mais justos e logo só com o ícone
+   ========================================================= */
+@media (min-width: 901px) {
+  .top-header .user-dropdown-btn .user-name {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .top-header .right-section.desktop-right { min-width: 0 !important; }
+}
+
+@media (min-width: 901px) and (max-width: 1380px) {
+  .top-header .user-dropdown-btn .user-name { max-width: 96px; }
+}
+@media (min-width: 901px) and (max-width: 1180px) {
+  .top-header .user-dropdown-btn .user-name { display: none !important; }
+  .top-header .user-dropdown-btn { padding: 4px 10px 4px 4px !important; gap: 6px !important; }
+}
+
+@media (min-width: 901px) and (max-width: 1280px) {
+  .top-header .search-box {
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+    cursor: pointer;
+    transition: width .25s ease, margin .25s ease, box-shadow .2s ease;
+    z-index: 5;
+  }
+  .top-header .search-box .icon-search-left {
+    position: absolute !important;
+    left: 0; width: 42px; top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+    margin: 0 !important;
+    pointer-events: none;
+  }
+  .top-header .search-box input {
+    position: absolute !important;
+    inset: 0;
+    width: 100% !important;
+    height: 100%;
+    padding: 0 !important;
+    border-radius: 50px;
+    color: transparent !important;
+    cursor: pointer;
+  }
+  .top-header .search-box input::placeholder { color: transparent !important; }
+
+  /* Aberta: cresce pra esquerda por cima dos links, sem empurrar nada */
+  .top-header .search-box:focus-within {
+    width: 260px !important;
+    max-width: 260px !important;
+    margin-left: -218px !important;
+    box-shadow: 0 8px 24px rgba(75, 44, 130, .18);
+    background: #fff !important;
+  }
+  .top-header .search-box:focus-within input {
+    padding: 0 14px 0 40px !important;
+    color: #2D1E4E !important;
+    cursor: text;
+  }
+  .top-header .search-box:focus-within input::placeholder { color: #7A6A9A !important; }
+  body[data-theme="dark"] .top-header .search-box:focus-within { background: #241B38 !important; }
+  body[data-theme="dark"] .top-header .search-box:focus-within input { color: #F3EEFF !important; }
+  body[data-theme="dark"] .top-header .search-box:focus-within input::placeholder { color: #B9A9DC !important; }
+
+  .top-header .right-section.desktop-right { gap: 8px !important; }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .top-header .header-container { padding: 0 16px !important; gap: 10px !important; }
+  .top-header .left-section { gap: 10px !important; }
+  .top-header .desktop-nav .nav-item { padding: 6px 7px !important; font-size: .82rem !important; }
+  .top-header .right-section.desktop-right { gap: 6px !important; }
+  .top-header .header-icon-btn,
+  .top-header .search-box { width: 38px !important; min-width: 38px !important; height: 38px !important; }
+  .top-header .search-box:not(:focus-within) { max-width: 38px !important; }
+  .top-header .search-box .icon-search-left { width: 38px; }
+}
+
+@media (min-width: 901px) and (max-width: 1100px) {
+  .top-header .logo-area .company-name { display: none !important; }
+}

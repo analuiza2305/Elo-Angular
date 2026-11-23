@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, signal, inject, computed } from '@angular/core';
+import { FiltrosDropdownDirective } from '../../core/directives/filtros-dropdown.directive';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DenunciarComponent } from '../../components/denunciar/denunciar';
@@ -14,7 +15,7 @@ import { categoriaDoEvento, infoCategoriaEvento } from '../../services/eventos-c
 @Component({
   selector: 'app-eventos',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent, AnuncioEspacoComponent],
+  imports: [FiltrosDropdownDirective, CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent, AnuncioEspacoComponent],
   templateUrl: './eventos.html',
   styleUrls: ['./eventos.css']
 })

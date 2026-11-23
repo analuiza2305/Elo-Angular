@@ -27,7 +27,7 @@
     <!-- 2. BARRA DE FILTROS E ORDENAÇÃO -->
     <div class="artigos-filtros-bar elo-filtros-barra">
         <!-- Filtros normais (Exibidos no Computador) -->
-        <div class="filtros-pulas desktop-only-filtros elo-filtros" role="group" aria-label="Filtrar artigos">
+        <div class="filtros-pulas desktop-only-filtros elo-filtros" appFiltrosDropdown role="group" aria-label="Filtrar artigos">
             <button type="button" class="filtro-btn elo-filtro" [class.active]="categoriaSelecionada() === 'Todos'" (click)="filtrarCategoria('Todos')">
                 <i class="fa-solid fa-table-cells-large"></i> Todos
             </button>

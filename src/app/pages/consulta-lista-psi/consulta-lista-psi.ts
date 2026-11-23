@@ -1,4 +1,5 @@
 import { Component, HostListener, OnInit, signal, computed, inject } from '@angular/core';
+import { FiltrosDropdownDirective } from '../../core/directives/filtros-dropdown.directive';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -42,7 +43,7 @@ interface Profissional {
 @Component({
   selector: 'app-consulta-lista-psi',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, HeaderComponent],
+  imports: [FiltrosDropdownDirective, CommonModule, FormsModule, RouterModule, HeaderComponent],
   templateUrl: './consulta-lista-psi.html',
   styleUrls: ['./consulta-lista-psi.css']
 })

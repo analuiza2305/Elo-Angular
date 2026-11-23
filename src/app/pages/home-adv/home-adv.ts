@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit, signal, computed, Inject, PLATFORM_ID, inject } from '@angular/core';
+import { FiltrosDropdownDirective } from '../../core/directives/filtros-dropdown.directive';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -93,7 +94,7 @@ const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', catego
 @Component({
   selector: 'app-home-adv',
   standalone: true,
-  imports: [ClicavelTecladoDirective, TranslatePipe, CommonModule, FormsModule, RouterModule, AnuncioEspacoComponent],
+  imports: [FiltrosDropdownDirective, ClicavelTecladoDirective, TranslatePipe, CommonModule, FormsModule, RouterModule, AnuncioEspacoComponent],
   templateUrl: './home-adv.html',
   styleUrls: ['./home-adv.css', './home-adv-premium.css'],
 })

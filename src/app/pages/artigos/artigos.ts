@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, signal, computed, inject } from '@angular/core';
+import { FiltrosDropdownDirective } from '../../core/directives/filtros-dropdown.directive';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
@@ -14,7 +15,7 @@ import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-
 @Component({
   selector: 'app-artigos',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SelosAutorComponent, AnuncioEspacoComponent],
+  imports: [FiltrosDropdownDirective, CommonModule, RouterModule, HeaderComponent, SelosAutorComponent, AnuncioEspacoComponent],
   templateUrl: './artigos.html',
   styleUrls: ['./artigos.css']
 })

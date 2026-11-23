@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, signal, inject } from '@angular/core';
+import { FiltrosDropdownDirective } from '../../core/directives/filtros-dropdown.directive';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -17,7 +18,7 @@ const POSTS_POR_PAGINA = 8;
 @Component({
   selector: 'app-forum',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, DenunciarComponent, SelosAutorComponent, AnuncioEspacoComponent],
+  imports: [FiltrosDropdownDirective, CommonModule, RouterModule, FormsModule, HeaderComponent, DenunciarComponent, SelosAutorComponent, AnuncioEspacoComponent],
   templateUrl: './forum.html',
   styleUrls: ['./forum.css']
 })

@@ -17,7 +17,7 @@
     <!-- 2. BARRA DE FILTROS COM DOIS DROPDOWNS -->
     <div class="eventos-filtros-bar elo-filtros-barra">
         <!-- Filtros em pílulas (Visíveis no Computador) -->
-        <div class="filtros-pulas desktop-only-filtros elo-filtros" role="group" aria-label="Filtrar eventos">
+        <div class="filtros-pulas desktop-only-filtros elo-filtros" appFiltrosDropdown role="group" aria-label="Filtrar eventos">
             <button type="button" class="filtro-btn elo-filtro" [class.active]="categoriaSelecionada() === 'Todos'" (click)="filtrarCategoria('Todos')">
                 <i class="fa-solid fa-calendar-days"></i> Todos
             </button>

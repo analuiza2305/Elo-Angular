@@ -56,7 +56,7 @@
 
             <div class="fr-toolbar elo-filtros-barra">
                 <!-- Temas: mesmo padrão de filtros do site (no celular deslizam para o lado) -->
-                <div class="fr-filtros elo-filtros" role="group" aria-label="Filtrar por tema">
+                <div class="fr-filtros elo-filtros" appFiltrosDropdown role="group" aria-label="Filtrar por tema">
                     <button type="button" class="fr-filtro elo-filtro" [class.ativo]="categoriaSelecionada() === 'Todos'" [attr.aria-pressed]="categoriaSelecionada() === 'Todos'" (click)="filtrarPorCategoria('Todos')">
                         <i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Todos
                     </button>

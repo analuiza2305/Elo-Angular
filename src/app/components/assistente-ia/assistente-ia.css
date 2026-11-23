@@ -192,3 +192,50 @@ button.ai-avatar:focus-visible { outline: 3px solid #F2B230; outline-offset: 3px
 @media (prefers-reduced-motion: reduce) {
   .ai-avatar[data-brincadeira], .ai-coracoes i { animation-duration: .01ms !important; }
 }
+
+/* =========================================================
+   CONTRASTE DOS BOTÕES
+   O styles.css pinta todo <i> com a cor de destaque (roxo médio),
+   e aí os ícones sumiam em cima do roxo. Aqui eles herdam a cor do botão.
+========================================================= */
+.ai-botao i, .ai-janela i { color: inherit; }
+
+/* Recomeçar / fechar: círculo claro no topo roxo */
+.ai-icone {
+  display: inline-grid; place-items: center; flex-shrink: 0;
+  width: 36px; height: 36px; font-size: 1rem;
+  background: rgba(255, 255, 255, .18); border: 1px solid rgba(255, 255, 255, .35); color: #FFFFFF;
+}
+.ai-icone:hover { background: rgba(255, 255, 255, .3); }
+.ai-icone:focus-visible { outline: 3px solid #F2B230; outline-offset: 2px; }
+
+/* Botão redondo da Elô aberto (X) */
+.ai-botao.aberto > i { color: #FFFFFF; font-size: 1.3rem; }
+
+/* Enviar: desativado fica claro mas com o ícone visível, em vez de "apagado" */
+.ai-enviar { display: inline-grid; place-items: center; flex-shrink: 0; font-size: 1rem; transition: background .15s ease; }
+.ai-enviar:hover:not(:disabled) { background: #4B2C82; }
+.ai-enviar:disabled { opacity: 1; background: #E6DEF7; color: #5B3D99; }
+.ai-enviar:focus-visible { outline: 3px solid #F2B230; outline-offset: 2px; }
+
+/* Sugestões e "ir para": roxo mais forte e borda visível */
+.ai-sugestoes button, .ai-link { color: #4B2C82; border-color: #B9A6E3; background: #FFFFFF; }
+.ai-sugestoes button:hover, .ai-link:hover { background: #4B2C82; color: #FFFFFF; border-color: #4B2C82; }
+.ai-sugestoes button:focus-visible, .ai-link:focus-visible { outline: 3px solid #F2B230; outline-offset: 2px; }
+
+/* Textos pequenos mais legíveis */
+.ai-aviso, .ai-origem { color: #6B5F86; }
+.ai-form textarea::placeholder { color: #7A6A9A; }
+
+/* Tema escuro */
+:host-context(body[data-theme="dark"]) .ai-icone { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .3); color: #FFFFFF; }
+:host-context(body[data-theme="dark"]) .ai-enviar { background: #7C5FCB; color: #FFFFFF; }
+:host-context(body[data-theme="dark"]) .ai-enviar:hover:not(:disabled) { background: #9378E0; }
+:host-context(body[data-theme="dark"]) .ai-enviar:disabled { background: #2A3142; color: #C9BCF0; }
+:host-context(body[data-theme="dark"]) .ai-sugestoes button,
+:host-context(body[data-theme="dark"]) .ai-link { background: #1E2535; color: #E3D9FF; border-color: rgba(205, 187, 255, .45); }
+:host-context(body[data-theme="dark"]) .ai-sugestoes button:hover,
+:host-context(body[data-theme="dark"]) .ai-link:hover { background: #7C5FCB; color: #FFFFFF; border-color: #7C5FCB; }
+:host-context(body[data-theme="dark"]) .ai-aviso,
+:host-context(body[data-theme="dark"]) .ai-origem { color: #B3A8CC; }
+:host-context(body[data-theme="dark"]) .ai-form textarea::placeholder { color: #9C90B8; }
