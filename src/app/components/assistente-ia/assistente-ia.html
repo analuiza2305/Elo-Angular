@@ -35,12 +35,12 @@
       </header>
 
       <div class="ai-lista" #lista aria-live="polite">
-        <!-- Começo da conversa: a Elô inteira, acenando -->
-        @if (mensagens().length <= 1) {
-          <div class="ai-boas-vindas">
-            <app-elo-coruja expressao="oi" [tamanho]="112"></app-elo-coruja>
-          </div>
-        }
+        <!-- A Elô inteira no topo da conversa (role para cima para ver).
+             Ela tem easter eggs: toque nos olhos, barriga, asas, cachecol, orelhas, bico e pezinhos;
+             segure para um abraço; 5 toques rápidos = modo noite; 10 = ela fica tontinha. -->
+        <div class="ai-boas-vindas">
+          <app-elo-coruja [expressao]="mensagens().length <= 1 ? 'oi' : 'normal'" [tamanho]="112" [interativa]="true"></app-elo-coruja>
+        </div>
 
         @for (m of mensagens(); track $index) {
           @if (m.autor === 'mae') {

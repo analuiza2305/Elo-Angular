@@ -49,3 +49,109 @@
 @media (prefers-reduced-motion: reduce) {
   .animada * { animation: none !important; }
 }
+
+/* =========================================================
+   EASTER EGGS (só quando [interativa]="true")
+========================================================= */
+:host { position: relative; }
+:host(.interativa) { cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
+:host(.interativa:focus-visible) { outline: 3px solid #B9A8F5; outline-offset: 6px; border-radius: 24px; }
+:host(:not(.interativa)) .zona { pointer-events: none; }
+:host(.interativa) .zona { cursor: pointer; }
+
+/* Balãozinho de fala (aparece ao lado da cabeça) */
+.fala {
+  position: absolute;
+  left: 82%;
+  top: 2%;
+  z-index: 2;
+  width: max-content;
+  max-width: 190px;
+  padding: 8px 12px;
+  border-radius: 16px 16px 16px 4px;
+  background: #FFFFFF;
+  border: 1.5px solid #E3DAF6;
+  box-shadow: 0 8px 20px rgba(91, 61, 153, .16);
+  color: #3B1F78;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  animation: elo-fala .28s cubic-bezier(.3, 1.5, .5, 1) both;
+  pointer-events: none;
+}
+@keyframes elo-fala {
+  from { opacity: 0; transform: translateY(6px) scale(.85); }
+  to { opacity: 1; transform: none; }
+}
+:host-context(body[data-theme="dark"]) .fala { background: #1E2535; border-color: rgba(255, 255, 255, .1); color: #F4F1FF; }
+
+/* Cócegas: ela treme rindo */
+.ef-cocegas .corpo-todo { transform-origin: 100px 200px; animation: elo-cocegas .5s ease-in-out 3; }
+@keyframes elo-cocegas {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-5deg) translateX(-2px); }
+  40% { transform: rotate(5deg) translateX(2px); }
+  60% { transform: rotate(-4deg); }
+  80% { transform: rotate(3deg); }
+}
+.ef-cocegas .bochecha { animation: elo-corar .5s ease-in-out 3; }
+@keyframes elo-corar { 50% { opacity: 1; transform: scale(1.25); transform-box: fill-box; transform-origin: center; } }
+
+/* Cachecol: a pontinha balança */
+.ef-cachecol .ponta-cachecol { transform-origin: 120px 140px; animation: elo-cachecol .45s ease-in-out 4; }
+@keyframes elo-cachecol {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(16deg); }
+}
+
+/* Orelhas: as duas mexem */
+.ef-orelhas .orelha-esq { transform-origin: 64px 58px; animation: elo-orelha-esq .3s ease-in-out 4; }
+.ef-orelhas .orelha-dir { transform-origin: 136px 58px; animation: elo-orelha-dir .3s ease-in-out 4; }
+@keyframes elo-orelha-esq { 50% { transform: rotate(-16deg); } }
+@keyframes elo-orelha-dir { 50% { transform: rotate(16deg); } }
+
+/* Pulinho (bico e pezinhos) */
+.ef-pulo .corpo-todo { transform-origin: 100px 205px; animation: elo-pulinho .8s cubic-bezier(.3, 1.4, .5, 1) 2; }
+@keyframes elo-pulinho {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  20% { transform: translateY(2px) scale(1.08, .9); }
+  50% { transform: translateY(-18px) scale(.95, 1.06); }
+  75% { transform: translateY(0) scale(1.05, .95); }
+}
+
+/* Tontinha: balança e as estrelas giram em volta da cabeça */
+.ef-tonta .corpo-todo { transform-origin: 100px 205px; animation: elo-tonta 1s ease-in-out 3; }
+@keyframes elo-tonta {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+.ef-tonta .orbita { transform-origin: 100px 40px; animation: elo-orbita 1.2s linear infinite; }
+@keyframes elo-orbita { to { transform: rotate(360deg); } }
+.ef-tonta .espiral { transform-box: fill-box; transform-origin: center; animation: elo-orbita .9s linear infinite; }
+
+/* Modo noite: estrelinhas piscando */
+.ef-noite .noite { animation: elo-fala .5s ease both; }
+.ef-noite .estrela { transform-box: fill-box; transform-origin: center; animation: elo-cintilar 1.4s ease-in-out infinite; }
+.ef-noite .e2 { animation-delay: .3s; }
+.ef-noite .e3 { animation-delay: .6s; }
+.ef-noite .e4 { animation-delay: .9s; }
+@keyframes elo-cintilar {
+  0%, 100% { opacity: .35; transform: scale(.7); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* Abraço: coraçõezinhos subindo */
+.coracoes-abraco path { transform-box: fill-box; transform-origin: center; animation: elo-subir 1.6s ease-out infinite; opacity: 0; }
+.coracoes-abraco .c2 { animation-delay: .35s; }
+.coracoes-abraco .c3 { animation-delay: .7s; }
+@keyframes elo-subir {
+  0% { opacity: 0; transform: translateY(10px) scale(.6); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-28px) scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [class*="ef-"] *, .fala { animation: none !important; }
+}

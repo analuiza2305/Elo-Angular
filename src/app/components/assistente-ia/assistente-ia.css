@@ -119,7 +119,8 @@
 .ai-icone:hover { background: rgba(255, 255, 255, .16); }
 
 /* Elô inteira no começo da conversa */
-.ai-boas-vindas { display: grid; place-items: center; padding: 6px 0 2px; }
+/* A Elô fica um pouco à esquerda para o balãozinho de fala caber à direita */
+.ai-boas-vindas { display: flex; justify-content: flex-start; padding: 6px 0 2px 64px; }
 
 /* Respostas com o rostinho ao lado */
 .ai-linha { display: flex; align-items: flex-end; gap: 8px; align-self: flex-start; max-width: 94%; }
