@@ -1164,3 +1164,25 @@
 :host-context(body[data-theme="dark"]) .avisos-cel-topo { border-color: rgba(255, 255, 255, .08); }
 :host-context(body[data-theme="dark"]) .avisos-cel-topo strong { color: #F5F0FF; }
 :host-context(body[data-theme="dark"]) .avisos-cel-fechar { background: #232B40; border-color: rgba(255, 255, 255, .14); color: #E6DEFF; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.link-destaque:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.link-destaque:not(#_s1):not(#_s2) i { color: inherit !important; }
+.link-destaque:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+#accessibility-menu:not(#_s1):not(#_s2) {
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+}
+/* ===== FIM ESTÉTICA SOFT ===== */

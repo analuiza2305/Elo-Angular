@@ -14049,3 +14049,199 @@ body[data-theme="dark"] .elo-filtros-gatilho-rotulo > span { background: rgba(25
 @media (min-width: 901px) and (max-width: 1100px) {
   .top-header .logo-area .company-name { display: none !important; }
 }
+
+/* =========================================================
+   ESTÉTICA SOFT (botões, avisos, selos, painéis) — 23/11
+   Card branco com degradê leve da cor do aviso, borda clarinha,
+   sombra lilás difusa e ícone em quadradinho tingido.
+   As regras de cada item ficam no fim do CSS de cada tela
+   (procure por "ESTÉTICA SOFT"); aqui só as cores, para o
+   modo escuro trocar tudo de uma vez.
+   ========================================================= */
+:root {
+  --soft-base: #FFFFFF;
+  --soft-borda: rgba(255, 255, 255, .95);
+  --soft-borda-linha: rgba(132, 113, 177, .10);
+  --soft-sombra: 0 12px 32px rgba(124, 95, 203, .10), 0 2px 6px rgba(124, 95, 203, .05);
+  --soft-sombra-pequena: 0 4px 12px rgba(124, 95, 203, .10);
+  --soft-sombra-hover: 0 16px 36px rgba(124, 95, 203, .16), 0 2px 6px rgba(124, 95, 203, .06);
+  --soft-brilho: inset 0 1px 0 rgba(255, 255, 255, .9);
+  --soft-titulo: #2D1E4E;
+  --soft-texto: #6B5E8E;
+
+  --soft-verde-fim: #EEF9F3;    --soft-verde-tile: #D8F1E4;    --soft-verde-cor: #2F7A55;    --soft-verde-forte: linear-gradient(135deg, #5DBE92, #2F8A63);
+  --soft-laranja-fim: #FFF6EA;  --soft-laranja-tile: #FCE6C8;  --soft-laranja-cor: #A85F1C;  --soft-laranja-forte: linear-gradient(135deg, #F2A65A, #C9742E);
+  --soft-rosa-fim: #FFF1F5;     --soft-rosa-tile: #FADAE4;     --soft-rosa-cor: #B4405F;     --soft-rosa-forte: linear-gradient(135deg, #E886A6, #B4405F);
+  --soft-vermelho-fim: #FFF0F2; --soft-vermelho-tile: #FBD9DE; --soft-vermelho-cor: #B4374A; --soft-vermelho-forte: linear-gradient(135deg, #E57C8A, #B4374A);
+  --soft-lilas-fim: #F3EEFD;    --soft-lilas-tile: #E6DDF8;    --soft-lilas-cor: #5B3D99;    --soft-lilas-forte: linear-gradient(135deg, #8B72C8, #5B3D99);
+  --soft-azul-fim: #EFF4FF;     --soft-azul-tile: #DCE6FB;     --soft-azul-cor: #2F5DA8;
+  --soft-amarelo-fim: #FFF9E6;  --soft-amarelo-tile: #FAEDBF;  --soft-amarelo-cor: #876410;
+}
+body[data-theme="dark"] {
+  --soft-base: #1B2336;
+  --soft-borda: rgba(255, 255, 255, .07);
+  --soft-borda-linha: rgba(255, 255, 255, .08);
+  --soft-sombra: 0 12px 30px rgba(0, 0, 0, .35);
+  --soft-sombra-pequena: 0 4px 12px rgba(0, 0, 0, .3);
+  --soft-sombra-hover: 0 16px 36px rgba(0, 0, 0, .45);
+  --soft-brilho: inset 0 1px 0 rgba(255, 255, 255, .06);
+  --soft-titulo: #F4F1FF;
+  --soft-texto: #C0B6DC;
+
+  --soft-verde-fim: rgba(52, 211, 153, .12);    --soft-verde-tile: rgba(52, 211, 153, .2);    --soft-verde-cor: #7EE2B8;
+  --soft-laranja-fim: rgba(251, 176, 85, .12);  --soft-laranja-tile: rgba(251, 176, 85, .2);  --soft-laranja-cor: #F7C27D;
+  --soft-rosa-fim: rgba(244, 143, 177, .12);    --soft-rosa-tile: rgba(244, 143, 177, .2);    --soft-rosa-cor: #F5A3BD;
+  --soft-vermelho-fim: rgba(248, 113, 113, .12);--soft-vermelho-tile: rgba(248, 113, 113, .2);--soft-vermelho-cor: #FCA5A5;
+  --soft-lilas-fim: rgba(157, 143, 231, .14);   --soft-lilas-tile: rgba(157, 143, 231, .24);  --soft-lilas-cor: #CDBFF5;
+  --soft-azul-fim: rgba(96, 165, 250, .12);     --soft-azul-tile: rgba(96, 165, 250, .2);     --soft-azul-cor: #93C5FD;
+  --soft-amarelo-fim: rgba(250, 204, 21, .12);  --soft-amarelo-tile: rgba(250, 204, 21, .2);  --soft-amarelo-cor: #FDE68A;
+}
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.btn-favoritar:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.btn-favoritar:not(#_s1):not(#_s2) i { color: inherit !important; }
+.btn-favoritar:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.btn-chat:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.btn-chat:not(#_s1):not(#_s2) i { color: inherit !important; }
+.btn-chat:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.btn-mobile-logout:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-vermelho-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-vermelho-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.btn-mobile-logout:not(#_s1):not(#_s2) i { color: inherit !important; }
+.btn-mobile-logout:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-vermelho-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.mobile-acc-btn:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-azul-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-azul-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.mobile-acc-btn:not(#_s1):not(#_s2) i { color: inherit !important; }
+.mobile-acc-btn:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-azul-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.drawer-close:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.drawer-close:not(#_s1):not(#_s2) i { color: inherit !important; }
+.drawer-close:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.home-psi-page .menu-toggle:not(#_s1):not(#_s2), .home-adv-page .menu-toggle:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.home-psi-page .menu-toggle:not(#_s1):not(#_s2) i, .home-adv-page .menu-toggle:not(#_s1):not(#_s2) i { color: inherit !important; }
+.home-psi-page .menu-toggle:not(#_s1):not(#_s2):hover, .home-adv-page .menu-toggle:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.elo-filtros-gatilho:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.elo-filtros-gatilho:not(#_s1):not(#_s2) i { color: inherit !important; }
+.elo-filtros-gatilho:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.coment-aviso-nao-prof:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.coment-aviso-nao-prof:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.coment-aviso-nao-prof:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.coment-aviso-nao-prof:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-lilas-cor) !important; }
+.last-activities:not(#_s1):not(#_s2) {
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+}
+.status-pill.active:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-verde-cor) !important;
+}
+.status-pill.active:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.status-pill.pending:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-amarelo-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-amarelo-cor) !important;
+}
+.status-pill.pending:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.badge-respondido:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-verde-cor) !important;
+}
+.badge-respondido:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.badge-aguardando:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+}
+.badge-aguardando:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.categoria-badge:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+}
+.categoria-badge:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.estado-vazio:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-azul-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 24px !important;
+  color: var(--soft-texto) !important;
+}
+.estado-vazio:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.estado-vazio:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.estado-vazio:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-azul-cor) !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

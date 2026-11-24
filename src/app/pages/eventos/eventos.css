@@ -705,3 +705,25 @@ body.dark-theme .estado-vazio p,
 :host-context(body[data-theme="dark"]) .encerrados-contagem { background: rgba(255, 255, 255, .08); color: #C9C2DA; }
 :host-context(body[data-theme="dark"]) .encerrados-sub { color: #9E97B5; }
 :host-context(body[data-theme="dark"]) .encerrados-acao { background: #1E2535; border-color: rgba(255, 255, 255, .12); color: #D9CCFF; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.estado-vazio:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-azul-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 24px !important;
+  color: var(--soft-texto) !important;
+}
+.estado-vazio:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.estado-vazio:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.estado-vazio:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-azul-cor) !important; }
+.vazio-icon-wrapper:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-azul-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-azul-cor) !important;
+}
+.vazio-icon-wrapper:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

@@ -1132,3 +1132,64 @@ header.header-prof .logout-btn:hover {
 :host-context(body[data-theme="dark"]) .empty-state i {
   color: #e9e1ff !important;
 }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.hora-chip:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.hora-chip:not(#_s1):not(#_s2) i { color: inherit !important; }
+.hora-chip:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.hora-chip.ativo:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 15%, var(--soft-lilas-tile) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena), 0 0 0 2px var(--soft-lilas-tile) !important;
+  color: var(--soft-lilas-cor) !important;
+}
+.hora-chip.ativo:not(#_s1):not(#_s2) :is(i, strong, span, small) { color: inherit !important; }
+.agenda-erro:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-vermelho-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.agenda-erro:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.agenda-erro:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.agenda-erro:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-vermelho-cor) !important; }
+.conta-perigo:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-vermelho-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.conta-perigo:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.conta-perigo:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.conta-perigo:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-vermelho-cor) !important; }
+.conta-anotacoes:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.conta-anotacoes:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.conta-anotacoes:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.conta-anotacoes:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-lilas-cor) !important; }
+.chip-nota:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-amarelo-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-amarelo-cor) !important;
+}
+.chip-nota:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

@@ -324,3 +324,15 @@ i { color: inherit; }
   .pc-alcance-tit + .pc-alcance-num { padding-left: 0; border-left: none; }
   .pc-novo-beneficio { flex-direction: column; }
 }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.pc-chip.sel:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 15%, var(--soft-rosa-tile) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena), 0 0 0 2px var(--soft-rosa-tile) !important;
+  color: var(--soft-rosa-cor) !important;
+}
+.pc-chip.sel:not(#_s1):not(#_s2) :is(i, strong, span, small) { color: inherit !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

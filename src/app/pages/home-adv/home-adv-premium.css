@@ -906,3 +906,78 @@
 :host-context(body[data-theme="dark"]) .home-adv-page #documentos .doc-premium-texto strong { color: #F3EDFF !important; }
 :host-context(body[data-theme="dark"]) .home-adv-page #documentos .doc-chip-premium { background: rgba(183, 148, 246, .14) !important; color: #D6C4FF !important; border-color: rgba(183, 148, 246, .3) !important; }
 :host-context(body[data-theme="dark"]) .home-adv-page #documentos .doc-premium-icone { background: #1B2336 !important; color: #C4B5FD !important; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.doc-aviso:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-laranja-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.doc-aviso:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.doc-aviso:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.doc-aviso:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-laranja-cor) !important; }
+.doc-aviso:not(#_s1):not(#_s2) > i:first-child {
+  display: inline-grid !important; place-items: center; flex: 0 0 auto;
+  min-width: 40px; height: 40px; border-radius: 13px !important;
+  background: linear-gradient(145deg, var(--soft-base), var(--soft-laranja-tile)) !important;
+  box-shadow: var(--soft-brilho), 0 6px 14px rgba(124, 95, 203, .08) !important;
+  color: var(--soft-laranja-cor) !important; border: none !important;
+}
+.doc-aviso:not(#_s1):not(#_s2) > i:first-child i { color: var(--soft-laranja-cor) !important; }
+.doc-erro:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-vermelho-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.doc-erro:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.doc-erro:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.doc-erro:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-vermelho-cor) !important; }
+.doc-erro:not(#_s1):not(#_s2) > i:first-child {
+  display: inline-grid !important; place-items: center; flex: 0 0 auto;
+  min-width: 40px; height: 40px; border-radius: 13px !important;
+  background: linear-gradient(145deg, var(--soft-base), var(--soft-vermelho-tile)) !important;
+  box-shadow: var(--soft-brilho), 0 6px 14px rgba(124, 95, 203, .08) !important;
+  color: var(--soft-vermelho-cor) !important; border: none !important;
+}
+.doc-erro:not(#_s1):not(#_s2) > i:first-child i { color: var(--soft-vermelho-cor) !important; }
+.doc-sessao.marcada:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 15%, var(--soft-lilas-tile) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena), 0 0 0 2px var(--soft-lilas-tile) !important;
+  color: var(--soft-lilas-cor) !important;
+}
+.doc-sessao.marcada:not(#_s1):not(#_s2) :is(i, strong, span, small) { color: inherit !important; }
+.pl-msg:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.pl-msg:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.pl-msg:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.pl-msg:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-verde-cor) !important; }
+.pl-msg.erro:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-vermelho-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.pl-msg.erro:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.pl-msg.erro:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.pl-msg.erro:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-vermelho-cor) !important; }
+.doc-chip-gratis:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-verde-cor) !important;
+}
+.doc-chip-gratis:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

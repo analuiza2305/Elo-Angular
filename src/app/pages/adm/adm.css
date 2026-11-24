@@ -6858,3 +6858,135 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
     width: 100%;
   }
 }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.ap-btn-advertir:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-laranja-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-laranja-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.ap-btn-advertir:not(#_s1):not(#_s2) i { color: inherit !important; }
+.ap-btn-advertir:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-laranja-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.ap-btn-suspender:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-vermelho-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-vermelho-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.ap-btn-suspender:not(#_s1):not(#_s2) i { color: inherit !important; }
+.ap-btn-suspender:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-vermelho-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.ap-btn-reativar:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-verde-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.ap-btn-reativar:not(#_s1):not(#_s2) i { color: inherit !important; }
+.ap-btn-reativar:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-verde-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.forum-btn-abrir:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.forum-btn-abrir:not(#_s1):not(#_s2) i { color: inherit !important; }
+.forum-btn-abrir:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.suspender-alerta-box:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-amarelo-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.suspender-alerta-box:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.suspender-alerta-box:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.suspender-alerta-box:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-amarelo-cor) !important; }
+.suspender-alerta-box:not(#_s1):not(#_s2) > i:first-child {
+  display: inline-grid !important; place-items: center; flex: 0 0 auto;
+  min-width: 40px; height: 40px; border-radius: 13px !important;
+  background: linear-gradient(145deg, var(--soft-base), var(--soft-amarelo-tile)) !important;
+  box-shadow: var(--soft-brilho), 0 6px 14px rgba(124, 95, 203, .08) !important;
+  color: var(--soft-amarelo-cor) !important; border: none !important;
+}
+.suspender-alerta-box:not(#_s1):not(#_s2) > i:first-child i { color: var(--soft-amarelo-cor) !important; }
+.ap-box-perigo:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-vermelho-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.ap-box-perigo:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.ap-box-perigo:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.ap-box-perigo:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-vermelho-cor) !important; }
+.ap-selo-ok:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-verde-cor) !important;
+}
+.ap-selo-ok:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.ap-selo-perigo:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-vermelho-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-vermelho-cor) !important;
+}
+.ap-selo-perigo:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.ap-selo-alerta:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-laranja-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-laranja-cor) !important;
+}
+.ap-selo-alerta:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.cfg-nivel-opcao:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.cfg-nivel-opcao:not(#_s1):not(#_s2) i { color: inherit !important; }
+.cfg-nivel-opcao:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.cfg-nivel-opcao.sel:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 15%, var(--soft-lilas-tile) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena), 0 0 0 2px var(--soft-lilas-tile) !important;
+  color: var(--soft-lilas-cor) !important;
+}
+.cfg-nivel-opcao.sel:not(#_s1):not(#_s2) :is(i, strong, span, small) { color: inherit !important; }
+.suspender-modal:not(#_s1):not(#_s2), .config-modal:not(#_s1):not(#_s2), .forum-modal:not(#_s1):not(#_s2), .mae-drawer:not(#_s1):not(#_s2) {
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 24px !important;
+}
+.maes-toolbar:not(#_s1):not(#_s2), .forum-search-row:not(#_s1):not(#_s2) {
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+}
+/* ===== FIM ESTÉTICA SOFT ===== */

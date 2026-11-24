@@ -239,3 +239,18 @@ button.ai-avatar:focus-visible { outline: 3px solid #F2B230; outline-offset: 3px
 :host-context(body[data-theme="dark"]) .ai-aviso,
 :host-context(body[data-theme="dark"]) .ai-origem { color: #B3A8CC; }
 :host-context(body[data-theme="dark"]) .ai-form textarea::placeholder { color: #9C90B8; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.ai-linha .ai-msg.apoio:not(#_s1):not(#_s2), .ai-msg.apoio:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-rosa-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 16px 16px 16px 4px !important;
+  color: var(--soft-texto) !important;
+}
+.ai-linha .ai-msg.apoio:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5), .ai-msg.apoio:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.ai-linha .ai-msg.apoio:not(#_s1):not(#_s2) :is(p, li), .ai-msg.apoio:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.ai-linha .ai-msg.apoio:not(#_s1):not(#_s2) :is(small, .rotulo), .ai-msg.apoio:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-rosa-cor) !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

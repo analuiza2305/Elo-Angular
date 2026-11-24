@@ -3189,3 +3189,22 @@ body[data-theme="dark"] app-landing-page .legal-links a { color: #B8B0D6; }
         bottom: -12%;
     }
 }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.status-pill.active:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-verde-cor) !important;
+}
+.status-pill.active:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.status-pill.pending:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-amarelo-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-amarelo-cor) !important;
+}
+.status-pill.pending:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

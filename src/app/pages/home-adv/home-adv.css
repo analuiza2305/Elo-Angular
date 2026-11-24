@@ -7311,3 +7311,100 @@ header.header .right-section > #notif-psi.notif-wrap.notif-wrap { display: flex 
 :host-context(body[data-theme="dark"]) :is(.home-psi-page, .home-adv-page) #consultas .cs-area-secundaria .cs-btn-recusar {
   background: rgba(253, 164, 175, .08) !important; color: #FDA4AF !important; border-color: rgba(253, 164, 175, .3) !important;
 }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.cs-btn-concluir:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-verde-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.cs-btn-concluir:not(#_s1):not(#_s2) i { color: inherit !important; }
+.cs-btn-concluir:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-verde-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.cs-area-secundaria .cs-btn-recusar:not(#_s1):not(#_s2), .cs-btn-recusar:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-rosa-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-rosa-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.cs-area-secundaria .cs-btn-recusar:not(#_s1):not(#_s2) i, .cs-btn-recusar:not(#_s1):not(#_s2) i { color: inherit !important; }
+.cs-area-secundaria .cs-btn-recusar:not(#_s1):not(#_s2):hover, .cs-btn-recusar:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-rosa-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.cs-aviso-passou:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.cs-aviso-passou:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.cs-aviso-passou:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.cs-aviso-passou:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-lilas-cor) !important; }
+.aviso-cadastro:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-laranja-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.aviso-cadastro:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.aviso-cadastro:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.aviso-cadastro:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-laranja-cor) !important; }
+.aviso-cadastro:not(#_s1):not(#_s2) > i:first-child {
+  display: inline-grid !important; place-items: center; flex: 0 0 auto;
+  min-width: 40px; height: 40px; border-radius: 13px !important;
+  background: linear-gradient(145deg, var(--soft-base), var(--soft-laranja-tile)) !important;
+  box-shadow: var(--soft-brilho), 0 6px 14px rgba(124, 95, 203, .08) !important;
+  color: var(--soft-laranja-cor) !important; border: none !important;
+}
+.aviso-cadastro:not(#_s1):not(#_s2) > i:first-child i { color: var(--soft-laranja-cor) !important; }
+.an-texto:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 16px !important;
+  color: var(--soft-texto) !important;
+}
+.an-texto:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.an-texto:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.an-texto:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-lilas-cor) !important; }
+.em-construcao:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.em-construcao:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.em-construcao:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.em-construcao:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-lilas-cor) !important; }
+.f-post-cat:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+}
+.f-post-cat:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.c-data:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+}
+.c-data:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.event:not(#_s1):not(#_s2) {
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 16px !important;
+}
+/* ===== FIM ESTÉTICA SOFT ===== */

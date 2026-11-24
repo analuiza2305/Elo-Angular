@@ -1601,3 +1601,40 @@ body {
 :host-context(body[data-theme="dark"]) .cq-info i { color: #CDBBFF !important; }
 :host-context(body[data-theme="dark"]) .cq-depois { color: #B8B0D6; }
 :host-context(body[data-theme="dark"]) .cq-depois:hover { background: rgba(255, 255, 255, .06); color: #F4F1FF; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.ap-confirmar:not(#_s1):not(#_s2) {
+  background: var(--soft-lilas-forte, var(--soft-lilas-forte)) !important; color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, .25) !important;
+  box-shadow: 0 10px 24px rgba(75, 44, 130, .22), inset 0 1px 0 rgba(255, 255, 255, .25) !important;
+  transition: transform .2s ease, box-shadow .2s ease !important;
+}
+.ap-confirmar:not(#_s1):not(#_s2) i { color: #FFFFFF !important; }
+.ap-confirmar:not(#_s1):not(#_s2):hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(75, 44, 130, .28), inset 0 1px 0 rgba(255, 255, 255, .25) !important; }
+.aviso-ativo:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.aviso-ativo:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.aviso-ativo:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.aviso-ativo:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-verde-cor) !important; }
+.selo-bem-avaliado:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-amarelo-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-amarelo-cor) !important;
+}
+.selo-bem-avaliado:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.chip-nota:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-amarelo-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-amarelo-cor) !important;
+}
+.chip-nota:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

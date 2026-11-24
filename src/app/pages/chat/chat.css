@@ -647,3 +647,20 @@
 /* Botão do tutorial do chat */
 .sidebar-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .btn-como-chat { border: none; background: none; cursor: pointer; color: inherit; font-size: 1.15rem; padding: 4px; line-height: 1; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.back-btn:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.back-btn:not(#_s1):not(#_s2) i { color: inherit !important; }
+.back-btn:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+/* ===== FIM ESTÉTICA SOFT ===== */

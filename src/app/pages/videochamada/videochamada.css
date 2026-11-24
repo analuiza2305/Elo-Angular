@@ -875,3 +875,18 @@
 .tema-escuro .acc-video-menu li { color: #f5f0ff; }
 .tema-escuro .acc-video-menu li:hover,
 .tema-escuro .acc-video-menu li:focus-visible { background: #2a3350; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.call-info:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.call-info:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.call-info:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.call-info:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-verde-cor) !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

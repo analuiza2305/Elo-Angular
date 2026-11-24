@@ -559,3 +559,36 @@ body[data-theme="dark"] .esqueci-senha-link a {
     outline-offset: 2px;
 }
 .dropdown-item:focus-visible { outline-offset: -3px; background: #f3efff; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.custom-alert-box:not(#_s1):not(#_s2), .custom-success-box:not(#_s1):not(#_s2) {
+  --soft-base: #FFFFFF; --soft-borda: rgba(255, 255, 255, .95);
+  --soft-sombra: 0 12px 32px rgba(124, 95, 203, .10), 0 2px 6px rgba(124, 95, 203, .05);
+  --soft-brilho: inset 0 1px 0 rgba(255, 255, 255, .9);
+  --soft-titulo: #2D1E4E; --soft-texto: #6B5E8E;
+  --soft-verde-fim: #EEF9F3; --soft-verde-tile: #D8F1E4; --soft-verde-cor: #2F7A55;
+  --soft-vermelho-fim: #FFF0F2; --soft-vermelho-tile: #FBD9DE; --soft-vermelho-cor: #B4374A;
+}
+.custom-alert-box:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-vermelho-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.custom-alert-box:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.custom-alert-box:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.custom-alert-box:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-vermelho-cor) !important; }
+.custom-success-box:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.custom-success-box:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.custom-success-box:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.custom-success-box:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-verde-cor) !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

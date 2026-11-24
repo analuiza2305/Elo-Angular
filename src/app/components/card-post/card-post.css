@@ -237,3 +237,22 @@ button.fr-acao:hover,
 :host(.no-trilho) .fr-post-corpo { display: flex; flex-direction: column; min-height: 0; }
 :host(.no-trilho) .fr-post-rodape { margin-top: auto !important; padding-top: 12px; }
 :host(.no-trilho) .fr-post-lateral { padding-top: 10px !important; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.fr-status.respondido:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-verde-cor) !important;
+}
+.fr-status.respondido:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.fr-status.aguardando:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+}
+.fr-status.aguardando:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

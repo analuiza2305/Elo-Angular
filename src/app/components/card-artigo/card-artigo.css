@@ -184,3 +184,15 @@ button.ac-bookmark { border: none; cursor: pointer; font: inherit; }
 :host(.compacto) .ac-title { font-size: 1rem !important; margin-bottom: 8px !important; }
 :host(.compacto) .ac-excerpt { font-size: .82rem !important; margin-bottom: 14px !important; }
 :host(.compacto) .ac-footer { font-size: .85rem !important; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.vis-selo:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-laranja-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-laranja-cor) !important;
+}
+.vis-selo:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

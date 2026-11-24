@@ -256,3 +256,26 @@
 
 /* Ajuste 02/11 (auditoria de contraste): ícone acompanha a cor do texto do botão */
 .qb-btn i { color: inherit !important; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.qb-apoio:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-rosa-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.qb-apoio:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.qb-apoio:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.qb-apoio:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-rosa-cor) !important; }
+.qb-apoio:not(#_s1):not(#_s2) > i:first-child {
+  display: inline-grid !important; place-items: center; flex: 0 0 auto;
+  min-width: 40px; height: 40px; border-radius: 13px !important;
+  background: linear-gradient(145deg, var(--soft-base), var(--soft-rosa-tile)) !important;
+  box-shadow: var(--soft-brilho), 0 6px 14px rgba(124, 95, 203, .08) !important;
+  color: var(--soft-rosa-cor) !important; border: none !important;
+}
+.qb-apoio:not(#_s1):not(#_s2) > i:first-child i { color: var(--soft-rosa-cor) !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */
