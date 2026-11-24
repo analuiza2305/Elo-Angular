@@ -19,7 +19,13 @@
   flex: 0 0 calc((100% - 2 * var(--gap)) / 3);
   min-width: 0;
   scroll-snap-align: start;
+  /* todos os cards com a altura do mais alto (inscrita ou não, título de 1 ou 2 linhas) */
+  height: auto !important;
+  align-self: stretch;
+  display: flex !important;
+  flex-direction: column;
 }
+:host ::ng-deep .trilho > * > * { flex: 1 1 auto; height: auto !important; }
 
 /* Setinhas nos lados, no meio da altura */
 .seta {

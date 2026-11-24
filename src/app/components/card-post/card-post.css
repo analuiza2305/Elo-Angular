@@ -219,9 +219,11 @@ button.fr-acao:hover,
 :host(.no-trilho) .fr-post { height: 100%; box-sizing: border-box; grid-template-rows: 1fr auto; }
 .fr-post:focus-visible { outline: 3px solid #B9A8F5; outline-offset: 2px; }
 
-/* Card bem estreito (celular, no carrossel): o status desce para uma linha própria e não é cortado */
+/* Card bem estreito (celular, no carrossel): nada vaza do card */
 @container card-post (max-width: 330px) {
+  .fr-post-rodape { flex-wrap: wrap !important; row-gap: 8px; }
   .fr-post-lateral { flex-wrap: wrap; gap: 10px; }
   .fr-post-acoes { align-items: center; }
-  .fr-status { flex: 1 1 100%; justify-content: center; white-space: normal; text-align: center; }
+  .fr-status { flex: 1 1 100%; justify-content: center; white-space: nowrap; font-size: .74rem !important; padding: 6px 10px !important; }
+  .fr-post-meta { font-size: .76rem; }
 }

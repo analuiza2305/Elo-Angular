@@ -328,19 +328,17 @@ body.dark-theme .btn-icone-acao:hover,
 :host-context(body[data-theme="dark"]) .evento-card.is-encerrado { border-color: rgba(255, 255, 255, .08); }
 
 .evento-card { height: 100%; }
+.evento-body { min-height: 0; }
+.evento-acoes { margin-top: auto !important; }
+.ev-org-txt, .ev-org-nome { min-width: 0; }
 
-/* Aviso de quanto falta (até 7 dias) */
-  position: absolute; left: 14px; bottom: 14px; z-index: 2;
-  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
-  background: rgba(255, 255, 255, .95); color: #B4531A; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .78rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
-}
-
-/* Card estreito (celular, no carrossel da home): botão principal numa linha só */
+/* Card estreito (celular, no carrossel da home): botão principal numa linha só,
+   compartilhar e denunciar embaixo, à direita. Todos os cards com a mesma altura. */
 @container card-evento (max-width: 330px) {
-  .evento-acoes { gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-  .btn-inscrever { flex: 1 1 100%; white-space: nowrap; padding: 12px 10px; font-size: .9rem; }
-  .btn-icone-acao { width: 42px; height: 42px; flex-shrink: 0; }
+  .evento-acoes { gap: 8px !important; flex-wrap: wrap !important; justify-content: flex-end !important; }
+  .btn-inscrever { flex: 1 1 100% !important; white-space: nowrap !important; padding: 11px 10px !important; font-size: .88rem !important; }
+  .btn-icone-acao { width: 40px !important; height: 40px !important; flex-shrink: 0; }
+  .ev-org-nome strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
 }
 
 /* Versão compacta (carrossel da home): o mesmo card, só mais enxuto */

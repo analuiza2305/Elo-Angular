@@ -65,7 +65,7 @@
 
 /* Celular */
 @media (max-width: 700px) {
-  .hm-secao { margin-top: 20px; padding: 20px 16px 22px; border-radius: 26px; }
+  .hm-secao { margin-top: 20px; padding: 18px 12px 20px; border-radius: 24px; }
   .hm-cabeca { flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
   .hm-selo { width: 44px; height: 44px; border-radius: 14px; font-size: 1.45rem; }
   .hm-cabeca-textos h3 { font-size: 1.15rem; }
