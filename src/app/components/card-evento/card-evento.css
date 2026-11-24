@@ -342,3 +342,17 @@ body.dark-theme .btn-icone-acao:hover,
   .btn-inscrever { flex: 1 1 100%; white-space: nowrap; padding: 12px 10px; font-size: .9rem; }
   .btn-icone-acao { width: 42px; height: 42px; flex-shrink: 0; }
 }
+
+/* Versão compacta (carrossel da home): o mesmo card, só mais enxuto */
+:host(.compacto) .evento-cover-container { height: 160px !important; }
+:host(.compacto) .evento-body { padding: 16px 16px 18px !important; }
+:host(.compacto) .evento-titulo { font-size: 1.02rem !important; margin-bottom: 6px !important; }
+:host(.compacto) .evento-meta { font-size: .8rem !important; margin-bottom: 10px !important; }
+:host(.compacto) .ev-org { margin: 0 0 10px !important; padding: 7px 10px !important; border-radius: 12px !important; gap: 10px !important; }
+:host(.compacto) .ev-org-ic { flex-basis: 30px !important; height: 30px !important; border-radius: 10px !important; }
+:host(.compacto) .ev-org-txt small { font-size: .62rem !important; }
+:host(.compacto) .ev-org-nome { font-size: .85rem !important; }
+:host(.compacto) .evento-descricao { font-size: .82rem !important; line-height: 1.5 !important; margin-bottom: 14px !important; -webkit-line-clamp: 2 !important; }
+:host(.compacto) .btn-inscrever { padding: 9px 10px !important; font-size: .85rem !important; border-radius: 12px !important; }
+:host(.compacto) .btn-icone-acao { width: 38px !important; height: 38px !important; border-radius: 12px !important; }
+:host(.compacto) .calendar-date-box { transform: scale(.88) !important; transform-origin: bottom right !important; }

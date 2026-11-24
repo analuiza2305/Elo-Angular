@@ -176,3 +176,11 @@
 button.ac-bookmark { border: none; cursor: pointer; font: inherit; }
 /* textos não encolhem quando o card fica estreito (cortavam no meio da linha) */
 .ac-body > * { flex-shrink: 0; }
+
+/* Versão compacta (carrossel da home): o mesmo card, só mais enxuto */
+:host(.compacto) .ac-img-wrapper { height: 160px !important; min-height: 160px !important; max-height: 160px !important; }
+:host(.compacto) .ac-body { padding: 16px !important; }
+:host(.compacto) .ac-time { font-size: .76rem !important; }
+:host(.compacto) .ac-title { font-size: 1rem !important; margin-bottom: 8px !important; }
+:host(.compacto) .ac-excerpt { font-size: .82rem !important; margin-bottom: 14px !important; }
+:host(.compacto) .ac-footer { font-size: .85rem !important; }

@@ -156,7 +156,7 @@
             @if (ultimosArtigos().length) {
                 <app-carrossel rotulo="Dicas para ler">
                     @for (artigo of ultimosArtigos(); track artigo.id) {
-                        <app-card-artigo [artigo]="artigo" (ler)="irParaArtigo($event)" (favoritar)="toggleSalvarArtigo($event)"></app-card-artigo>
+                        <app-card-artigo class="compacto" [artigo]="artigo" (ler)="irParaArtigo($event)" (favoritar)="toggleSalvarArtigo($event)"></app-card-artigo>
                     }
                 </app-carrossel>
             } @else if (!isLoading()) {
@@ -182,7 +182,7 @@
             @if (ultimosEventos().length) {
                 <app-carrossel rotulo="Próximos eventos">
                     @for (ev of ultimosEventos(); track ev.id) {
-                        <app-card-evento [ev]="ev" [inscrito]="inscricoes.isInscrito(ev.id)"
+                        <app-card-evento class="compacto" [ev]="ev" [inscrito]="inscricoes.isInscrito(ev.id)"
                                          (detalhes)="eventoAberto.set($event)" (compartilhar)="detalhesEvento.compartilhar($event)"></app-card-evento>
                     }
                 </app-carrossel>
