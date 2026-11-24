@@ -337,7 +337,10 @@ body.dark-theme .btn-icone-acao:hover,
 @container card-evento (max-width: 330px) {
   .evento-acoes { gap: 8px !important; flex-wrap: wrap !important; justify-content: flex-end !important; }
   .btn-inscrever { flex: 1 1 100% !important; white-space: nowrap !important; padding: 11px 10px !important; font-size: .88rem !important; }
-  .btn-icone-acao { width: 40px !important; height: 40px !important; flex-shrink: 0; }
+  /* compartilhar e denunciar: metade/metade na linha de baixo, maiores */
+  .btn-icone-acao { flex: 1 1 calc(50% - 4px) !important; width: auto !important; height: 44px !important; font-size: 1.05rem !important; }
+  .evento-acoes app-denunciar { flex: 1 1 calc(50% - 4px); display: flex; }
+  .evento-acoes app-denunciar ::ng-deep .den-btn-icone { width: 100% !important; height: 44px !important; font-size: 1.05rem !important; border-radius: 12px !important; }
   .ev-org-nome strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
 }
 
@@ -352,5 +355,5 @@ body.dark-theme .btn-icone-acao:hover,
 :host(.compacto) .ev-org-nome { font-size: .85rem !important; }
 :host(.compacto) .evento-descricao { font-size: .82rem !important; line-height: 1.5 !important; margin-bottom: 14px !important; -webkit-line-clamp: 2 !important; }
 :host(.compacto) .btn-inscrever { padding: 9px 10px !important; font-size: .85rem !important; border-radius: 12px !important; }
-:host(.compacto) .btn-icone-acao { width: 38px !important; height: 38px !important; border-radius: 12px !important; }
+:host(.compacto) .btn-icone-acao { width: 38px; height: 38px; border-radius: 12px !important; }
 :host(.compacto) .calendar-date-box { transform: scale(.88) !important; transform-origin: bottom right !important; }

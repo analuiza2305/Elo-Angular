@@ -226,4 +226,14 @@ button.fr-acao:hover,
   .fr-post-acoes { align-items: center; }
   .fr-status { flex: 1 1 100%; justify-content: center; white-space: nowrap; font-size: .74rem !important; padding: 6px 10px !important; }
   .fr-post-meta { font-size: .76rem; }
+  .fr-post { grid-template-columns: 34px minmax(0, 1fr) !important; column-gap: 10px !important; padding: 14px 12px !important; }
+  .fr-post-avatar { width: 34px !important; height: 34px !important; }
+  .fr-post-rodape { gap: 8px !important; }
+  .fr-tag { padding: 4px 10px !important; font-size: .74rem !important; }
+  .fr-post-rodape ::ng-deep .den-btn { font-size: .8rem !important; padding: 4px 6px !important; gap: 5px !important; }
 }
+
+/* No carrossel da home: categoria e denunciar ficam logo acima da linha (sem buraco no meio) */
+:host(.no-trilho) .fr-post-corpo { display: flex; flex-direction: column; min-height: 0; }
+:host(.no-trilho) .fr-post-rodape { margin-top: auto !important; padding-top: 12px; }
+:host(.no-trilho) .fr-post-lateral { padding-top: 10px !important; }
