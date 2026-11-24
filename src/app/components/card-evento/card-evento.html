@@ -1,0 +1,69 @@
+<div class="evento-card" [class.is-encerrado]="ev.encerrado" [class.is-destaque]="ev.visibilidade && ev.visibilidade !== 'basico'" [class.is-premium]="ev.visibilidade === 'premium'">
+    @if (ev.capa) {
+        <div class="evento-cover-container">
+            <img [src]="ev.capa" [alt]="ev.titulo" class="evento-cover">
+
+            <!-- Categoria Dinâmica no Canto Superior Esquerdo -->
+            <span class="categoria-badge">
+                <i class="fa-solid fa-bookmark"></i> {{ ev.categoriaNome || 'Evento' }}
+            </span>
+            @if (ev.visibilidade && ev.visibilidade !== 'basico') {
+                <span class="vis-selo vis-selo-capa" [class.premium]="ev.visibilidade === 'premium'">
+                    <i class="fa-solid" [class.fa-crown]="ev.visibilidade === 'premium'" [class.fa-star]="ev.visibilidade !== 'premium'"></i>
+                    {{ ev.visibilidade === 'premium' ? 'Premium' : 'Destaque' }}
+                </span>
+            }
+            @if (ev.encerrado) {
+                <span class="selo-ja-aconteceu"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Já aconteceu</span>
+            }
+            <!-- Bloco de Data Flutuante -->
+            <div class="calendar-date-box">
+                <span class="cal-dia">{{ ev.dia || '23' }}</span>
+                <span class="cal-mes">{{ ev.mes || 'JUN' }}</span>
+            </div>
+        </div>
+    }
+    <div class="evento-body">
+        @if (!ev.capa && ev.visibilidade && ev.visibilidade !== 'basico') {
+            <span class="vis-selo" [class.premium]="ev.visibilidade === 'premium'">
+                <i class="fa-solid" [class.fa-crown]="ev.visibilidade === 'premium'" [class.fa-star]="ev.visibilidade !== 'premium'"></i>
+                {{ ev.visibilidade === 'premium' ? 'Destaque Premium' : 'Em destaque' }}
+            </span>
+        }
+        <h3 class="evento-titulo">{{ ev.titulo || 'Evento' }}</h3>
+        <span class="evento-meta">
+            <i class="fa-regular fa-clock"></i> {{ ev.dataFormatada || 'Data a definir' }}
+        </span>
+        @if (ev.enviadoPor) {
+            <div class="ev-org">
+                <span class="ev-org-ic"><i class="fa-regular fa-building"></i></span>
+                <div class="ev-org-txt">
+                    <small>Organizado por</small>
+                    <span class="ev-org-nome"><strong>{{ ev.enviadoPor }}</strong><app-selos-autor [uid]="ev.parceiroId"></app-selos-autor></span>
+                </div>
+            </div>
+        }
+        <p class="evento-descricao">{{ ev.descricao }}</p>
+
+        <div class="evento-acoes">
+            @if (ev.encerrado) {
+                <button class="btn-inscrever encerrado" (click)="detalhes.emit(ev)">
+                    <i class="fa-regular fa-calendar-xmark"></i> Evento encerrado
+                </button>
+            } @else if (inscrito) {
+                <button class="btn-inscrever inscrito" (click)="detalhes.emit(ev)">
+                    <i class="fa-solid fa-check"></i> Você está inscrita!
+                </button>
+            } @else {
+                <button class="btn-inscrever" (click)="detalhes.emit(ev)">
+                    <i class="ph ph-hand-pointing"></i> Ver e me inscrever
+                </button>
+            }
+            <!-- Botão Compartilhar unificado em todos os cards -->
+            <button class="btn-icone-acao" (click)="compartilhar.emit(ev)" title="Compartilhar evento">
+                <i class="fa-solid fa-share-nodes"></i>
+            </button>
+            <app-denunciar tipo="evento" rotulo="" [alvoId]="ev.id" [alvoTitulo]="ev.titulo" [alvoDono]="ev.enviadoPor || ''"></app-denunciar>
+        </div>
+    </div>
+</div>

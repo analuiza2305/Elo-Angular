@@ -3,12 +3,20 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../components/header/header';
+import { CardPostComponent } from '../../components/card-post/card-post';
+import { CardArtigoComponent } from '../../components/card-artigo/card-artigo';
+import { CardEventoComponent } from '../../components/card-evento/card-evento';
+import { EventoDetalhesComponent } from '../../components/evento-detalhes/evento-detalhes';
+import { CarrosselComponent } from '../../components/carrossel/carrossel';
+import { carregarPostsForum, curtirPost } from '../../services/forum-dados';
+import { carregarArtigos, ordemPadraoArtigos, alternarFavorito } from '../../services/artigos-dados';
+import { carregarEventos, InscricoesEventosService } from '../../services/eventos-dados';
 import { auth, db } from '../../core/firebase'; 
 import { onAuthStateChanged } from 'firebase/auth';
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 import { GuiaPassosComponent, PassoGuia } from '../../components/guia-passos/guia-passos';
 import { 
-  collection, query, orderBy, limit, where, getDocs, doc, getDoc, updateDoc, arrayUnion, arrayRemove, Timestamp, onSnapshot
+  collection, query, orderBy, limit, where, getDocs, doc, getDoc, updateDoc, setDoc, deleteDoc, increment, getCountFromServer, Timestamp, onSnapshot
 } from 'firebase/firestore';
 import { motivoEncerramentoAutomatico, encerrarAutomaticamente } from '../../services/prazos-consulta';
 import { formatarDataArtigo, autorDoArtigo, carregarIdsFavoritos, definirFavorito } from '../../services/artigo-utils';
@@ -16,9 +24,9 @@ import { formatarDataArtigo, autorDoArtigo, carregarIdsFavoritos, definirFavorit
 @Component({
   selector: 'app-home-mae',
   standalone: true,
-  imports: [HeaderComponent, CommonModule, RouterModule, FormsModule, AnuncioEspacoComponent, GuiaPassosComponent],
+  imports: [CardPostComponent, CardArtigoComponent, CardEventoComponent, EventoDetalhesComponent, CarrosselComponent, HeaderComponent, CommonModule, RouterModule, FormsModule, AnuncioEspacoComponent, GuiaPassosComponent],
   templateUrl: './home-mae.html',
-  styleUrls: ['./home-mae.css']
+  styleUrls: ['./home-mae.css', './home-mae-cards.css']
 })
 export class HomeMaeComponent implements OnInit, OnDestroy {
   private router = inject(Router);
@@ -29,14 +37,13 @@ export class HomeMaeComponent implements OnInit, OnDestroy {
   ultimosPosts = signal<any[]>([]);
   ultimosArtigos = signal<any[]>([]);
   ultimosEventos = signal<any[]>([]);
-  userInscritos = signal<any[]>([]); 
+  readonly inscricoes = inject(InscricoesEventosService);
   artigosSalvos = signal<string[]>([]); // IDS DOS ARTIGOS SALVOS NO FIRESTORE
 
   isLoading = signal<boolean>(true);
   showWelcomeModal = signal<boolean>(false);
   
   // MODAIS
-  selectedEvent = signal<any>(null);
   infoModal = signal<{title: string, message: string} | null>(null);
   confirmModal = signal<{title: string, message: string, action: () => void} | null>(null);
 
@@ -206,7 +213,7 @@ export class HomeMaeComponent implements OnInit, OnDestroy {
         this.ouvirConsultas(firebaseUser.uid);
       } else {
         this.currentUser.set(null);
-        this.userInscritos.set([]);
+        this.inscricoes.carregar(null);
         this.artigosSalvos.set([]);
       }
       
@@ -230,7 +237,7 @@ export class HomeMaeComponent implements OnInit, OnDestroy {
         } else {
           this.abrirGuiaNaPrimeiraVez();
         }
-        this.userInscritos.set(data['eventosInscritos'] || []);
+        this.inscricoes.inscritos.set(data['eventosInscritos'] || []);
         this.artigosSalvos.set(data['artigosSalvos'] || []);
       }
     } catch (err) {
@@ -276,118 +283,55 @@ export class HomeMaeComponent implements OnInit, OnDestroy {
   // ==========================================
   // FIRESTORE GETS (DADOS REAIS)
   // ==========================================
+  // Os três blocos buscam os dados com as mesmas funções das páginas
+  // (services/forum-dados, artigos-dados e eventos-dados), então o que aparece
+  // aqui é igual ao que aparece no Fórum, na Comunidade e em Eventos.
   async carregarUltimosPosts() {
     try {
-      const q = query(collection(db, 'posts'), orderBy('data', 'desc'), limit(3));
-      const snapshot = await getDocs(q);
-      const posts: any[] = [];
-      for (const docSnap of snapshot.docs) {
-        const p = docSnap.data();
-        p['id'] = docSnap.id;
-        p['dataFormatada'] = p['data']?.toDate?.().toLocaleDateString('pt-BR') || 'Agora';
-        p['autorFotoFinal'] = p['autorFoto'] || './img/account_icon.png';
-        p['autorNomeFinal'] = p['autorNome'] || 'Usuário';
-
-        const curtidas = p['curtidas'] || [];
-        p['jaCurtiu'] = this.currentUser() ? curtidas.includes(this.currentUser().uid) : false;
-
-        if (p['autorId']) {
-          const userSnap = await getDoc(doc(db, 'usuarios', p['autorId']));
-          if (userSnap.exists()) {
-             p['autorFotoFinal'] = userSnap.data()['avatar'] || userSnap.data()['fotoURL'] || p['autorFotoFinal'];
-             p['autorNomeFinal'] = userSnap.data()['nome'] || p['autorNomeFinal'];
-          }
-        }
-        posts.push(p);
-      }
-      this.ultimosPosts.set(posts);
+      const user = this.currentUser();
+      const posts = await carregarPostsForum({ limite: 9, user, meuAutorId: user?.uid || '' });
+      this.ultimosPosts.set(posts.slice(0, 6));
     } catch (err) { console.error(err); }
   }
 
   async carregarUltimosArtigos() {
     try {
-      const q = query(collection(db, 'artigos'), orderBy('datahorapost', 'desc'), limit(12));
-      const user = this.currentUser();
-      const [snap, favoritos] = await Promise.all([
-        getDocs(q),
-        user ? carregarIdsFavoritos(user.uid) : Promise.resolve([] as string[]),
-      ]);
-
-      const artigos = snap.docs.filter(d => !d.data()?.['moderacao']?.removido).map(d => {
-        const data = d.data();
-        return {
-          id: d.id,
-          ...data,
-          dataString: formatarDataArtigo(data),
-          autorExibido: autorDoArtigo(data),
-          salvo: user ? (favoritos.includes(d.id) || data['salvosPor']?.includes(user.uid) || false) : false
-        };
-      });
-      this.ultimosArtigos.set(artigos.slice(0, 3));
+      const artigos = await carregarArtigos(this.currentUser());
+      this.ultimosArtigos.set(artigos.sort(ordemPadraoArtigos).slice(0, 9));
     } catch (e) { console.error(e); }
   }
 
   async carregarUltimosEventos() {
     try {
-      // só eventos que ainda não aconteceram, do mais próximo para o mais distante
-      const q = query(collection(db, 'eventos'), where('data', '>=', Timestamp.now()), orderBy('data', 'asc'), limit(6));
-      const snap = await getDocs(q);
-      const eventos = snap.docs.filter(d => !d.data()?.['moderacao']?.removido).map(docSnap => {
-        const data = docSnap.data();
-        const rawDate = data['data'] ?? data['date'];
-        const dataFormatada = rawDate?.toDate ? rawDate.toDate() : (new Date(rawDate));
-        return {
-          id: docSnap.id, ...data,
-          dataFormatada: dataFormatada ? dataFormatada.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) : '',
-          horaFormatada: dataFormatada ? dataFormatada.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
-          diaNum: dataFormatada ? String(dataFormatada.getDate()).padStart(2, '0') : '',
-          mesCurto: dataFormatada ? dataFormatada.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '') : '',
-          diaSemana: dataFormatada ? (d => d.charAt(0).toUpperCase() + d.slice(1))(dataFormatada.toLocaleDateString('pt-BR', { weekday: 'long' })) : ''
-        };
-      });
-      this.ultimosEventos.set(eventos.slice(0, 3));
-      this.verificarNovidadesEventos(eventos.map((e: any) => e.id));
-      this.isLoading.set(false);
-    } catch (e) { this.isLoading.set(false); }
+      const proximos = (await carregarEventos()).filter(e => !e.encerrado);
+      this.ultimosEventos.set(proximos.slice(0, 9));
+      this.verificarNovidadesEventos(proximos.map((e: any) => e.id));
+    } catch (e) { console.error(e); }
+    finally { this.isLoading.set(false); }
   }
 
   // ==========================================
   // AÇÕES: CURTIR, SALVAR E NAVEGAÇÃO
   // ==========================================
-  async toggleLike(post: any, event: Event) {
-    event.preventDefault(); event.stopPropagation();
+  async toggleLike(post: any) {
     const user = this.currentUser();
     if (!user) {
       this.infoModal.set({title: 'Login necessário', message: 'Você precisa estar conectada para curtir!'});
       return;
     }
-    const postRef = doc(db, 'posts', post.id);
-    const isLiked = post.jaCurtiu;
-    try {
-      post.jaCurtiu = !isLiked;
-      if (isLiked) await updateDoc(postRef, { curtidas: arrayRemove(user.uid) });
-      else await updateDoc(postRef, { curtidas: arrayUnion(user.uid) });
-    } catch (error) { post.jaCurtiu = isLiked; }
+    await curtirPost(post, user.uid);
   }
 
-  // Salvar ou Remover Artigo dos favoritos no Firestore
-  async toggleSalvarArtigo(artigo: any, event: Event) {
-    event.preventDefault(); 
-    event.stopPropagation();
+  irParaPost(id: string) { this.router.navigate(['/comentResp'], { queryParams: { postId: id } }); }
+  irParaArtigo(id: string) { this.router.navigate(['/artigo_ind'], { queryParams: { id } }); }
+
+  async toggleSalvarArtigo(artigo: any) {
     const user = this.currentUser();
     if (!user) {
       this.infoModal.set({title: 'Login necessário', message: 'Você precisa estar logada para salvar postagens!'});
       return;
     }
-    const isSaved = artigo.salvo;
-
-    try {
-      artigo.salvo = !isSaved;
-      await definirFavorito(user.uid, artigo.id, !isSaved);
-    } catch (err) {
-      artigo.salvo = isSaved;
-      console.error("Erro ao salvar artigo", err);
-    }
+    await alternarFavorito(artigo, user.uid);
   }
 
   // Navegação direta para as páginas completas
@@ -397,59 +341,6 @@ export class HomeMaeComponent implements OnInit, OnDestroy {
 
   getImg(src: string): string { return src || './img/art1_img.png'; }
 
-  isUserInscrito(id: string): boolean {
-    return this.userInscritos().some(i => i.id === id);
-  }
-
-  openEventModal(ev: any) { this.selectedEvent.set(ev); }
-  closeEventModal() { this.selectedEvent.set(null); }
-
-  async inscrever(ev: any) {
-    const user = this.currentUser();
-    if (!user) {
-      this.infoModal.set({ title: 'Login necessário', message: 'Você precisa estar logado para se inscrever.' });
-      return;
-    }
-    
-    // Formata a data com precisão e salva a capa e o local para o calendário
-    const dateISO = ev.data instanceof Date ? ev.data.toISOString() : (ev.data ? new Date(ev.data).toISOString() : '');
-    const toSave = { 
-      id: ev.id, 
-      titulo: ev.titulo || '', 
-      descricao: ev.descricao || '', 
-      date: dateISO,
-      capa: ev.capa || '',
-      local: ev.local || ''
-    };
-    
-    const novos = [...this.userInscritos(), toSave];
-    try {
-      await updateDoc(doc(db, 'usuarios', user.uid), { eventosInscritos: novos });
-      this.userInscritos.set(novos);
-      this.closeEventModal();
-      this.infoModal.set({ title: 'Sucesso', message: 'Inscrição realizada com sucesso!' });
-    } catch (err) {
-      this.infoModal.set({ title: 'Erro', message: 'Erro ao inscrever. Tente novamente.' });
-    }
-  }
-
-  cancelarInscricao(ev: any) {
-    this.confirmModal.set({
-      title: 'Cancelar inscrição',
-      message: 'Tem certeza que deseja cancelar sua inscrição neste evento?',
-      action: async () => {
-        try {
-          const atualizados = this.userInscritos().filter(e => e.id !== ev.id);
-          await updateDoc(doc(db, 'usuarios', this.currentUser().uid), { eventosInscritos: atualizados });
-          this.userInscritos.set(atualizados);
-          this.confirmModal.set(null);
-          this.closeEventModal();
-          this.infoModal.set({ title: 'Cancelado', message: 'Inscrição cancelada com sucesso.' });
-        } catch(err) {
-          this.confirmModal.set(null);
-          this.infoModal.set({ title: 'Erro', message: 'Erro ao cancelar. Tente novamente.' });
-        }
-      }
-    });
-  }
+  /** evento aberto no modal (o mesmo da página de Eventos) */
+  eventoAberto = signal<any>(null);
 }

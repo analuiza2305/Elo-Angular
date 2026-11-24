@@ -1,0 +1,105 @@
+<!-- MODAL DE DETALHES -->
+@if (evento) {
+    <div class="evm-fundo" (click)="fechar.emit()">
+        <section class="evm" role="dialog" (keydown.escape)="fechar.emit()" aria-modal="true" aria-labelledby="evm-titulo" (click)="$event.stopPropagation()">
+            <div class="evm-capa" [class.sem-foto]="!evento?.capa">
+                @if (evento?.capa) {
+                    <img [src]="evento.capa" [alt]="evento.titulo">
+                }
+                <div class="evm-capa-chips">
+                    <span class="evm-chip"><i class="fa-solid fa-bookmark"></i> {{ evento?.categoriaNome || 'Evento' }}</span>
+                    @if (evento?.visibilidade && evento?.visibilidade !== 'basico') {
+                        <span class="evm-chip evm-chip-vis" [class.premium]="evento?.visibilidade === 'premium'">
+                            <i class="fa-solid" [class.fa-crown]="evento?.visibilidade === 'premium'" [class.fa-star]="evento?.visibilidade !== 'premium'"></i>
+                            {{ evento?.visibilidade === 'premium' ? 'Premium' : 'Destaque' }}
+                        </span>
+                    }
+                </div>
+                <button type="button" class="evm-fechar" (click)="fechar.emit()" aria-label="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="evm-data" aria-hidden="true">
+                    <strong>{{ evento?.dia || '--' }}</strong>
+                    <span>{{ evento?.mes || '' }}</span>
+                </div>
+            </div>
+
+            <div class="evm-corpo">
+                @if (inscricoes.isInscrito(evento?.id)) {
+                    <span class="evm-inscrita"><i class="fa-solid fa-circle-check"></i> Você está inscrita</span>
+                }
+                <h2 id="evm-titulo" class="evm-titulo">{{ evento?.titulo }}</h2>
+                @if (evento?.encerrado) {
+                    <p class="aviso-eventos-passados">
+                        <i class="fa-solid fa-circle-info"></i>
+                        Este evento já aconteceu{{ evento?.dataFormatada ? ' em ' + evento?.dataFormatada : '' }}. As inscrições estão encerradas.
+                    </p>
+                }
+
+                <div class="evm-infos">
+                    <div class="evm-info">
+                        <span class="evm-ic ic-lilas"><i class="fa-regular fa-calendar"></i></span>
+                        <div><small>Quando</small><strong>{{ evento?.dataFormatada || 'Data a definir' }}</strong></div>
+                    </div>
+                    <div class="evm-info">
+                        <span class="evm-ic ic-rosa"><i class="fa-solid fa-location-dot"></i></span>
+                        <div><small>Onde</small><strong>{{ evento?.local || 'Online / Presencial' }}</strong></div>
+                    </div>
+                </div>
+
+                @if (evento?.enviadoPor) {
+                    <div class="evm-org">
+                        <span class="evm-ic ic-branco"><i class="fa-regular fa-building"></i></span>
+                        <div>
+                            <small>Organizado por</small>
+                            <span class="evm-org-nome"><strong>{{ evento?.enviadoPor }}</strong><app-selos-autor [uid]="evento?.parceiroId"></app-selos-autor></span>
+                        </div>
+                    </div>
+                }
+
+                <h3 class="evm-sub">Sobre o evento</h3>
+                <p class="evm-descricao" [innerHTML]="evento?.descricao"></p>
+            </div>
+
+            <div class="evm-acoes">
+                <button type="button" class="evm-btn-icone" (click)="compartilhar(evento)" title="Compartilhar evento" aria-label="Compartilhar evento">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </button>
+                @if (embutido) {
+                    <span class="evm-btn evm-btn-previa"><i class="fa-regular fa-eye"></i> Prévia: as mães se inscrevem por aqui</span>
+                } @else if (evento?.encerrado) {
+                    <button type="button" class="evm-btn evm-btn-inscrever" disabled>
+                        Inscrições encerradas
+                    </button>
+                } @else if (inscricoes.isInscrito(evento?.id)) {
+                    <button type="button" class="evm-btn evm-btn-cancelar" (click)="cancelarInscricao()">
+                        <i class="fa-solid fa-xmark"></i> Cancelar inscrição
+                    </button>
+                } @else {
+                    <button type="button" class="evm-btn evm-btn-inscrever" (click)="inscrever()">
+                        Quero me inscrever <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                }
+            </div>
+        </section>
+    </div>
+}
+
+<!-- MODAL DE AVISO / CONFIRMAÇÃO -->
+@if (showModalAviso()) {
+    <div class="modal" style="display: flex;" (click)="fecharAviso()">
+        <div class="modal-content modal-aviso-box" (click)="$event.stopPropagation()">
+            <h2 class="modal-titulo" style="margin-bottom: 12px;">{{ avisoInfo().titulo }}</h2>
+            <p class="modal-descricao" style="margin-bottom: 24px;">{{ avisoInfo().mensagem }}</p>
+
+            @if (avisoInfo().isConfirm) {
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <button class="btn-cancelar" style="background: rgba(157, 143, 231, 0.2); color: inherit;" (click)="fecharAviso()">Não, Voltar</button>
+                    <button class="btn-cancelar-red" (click)="avisoInfo().acao()">Sim, Confirmar</button>
+                </div>
+            } @else {
+                <button class="btn-inscrever" style="width: 100%;" (click)="fecharAviso()">OK</button>
+            }
+        </div>
+    </div>
+}

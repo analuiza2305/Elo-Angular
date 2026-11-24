@@ -86,58 +86,9 @@
             } @else {
                 <div class="fr-lista">
                     @for (post of postsVisiveis; track post.id) {
-                        <article class="fr-post" (click)="irParaDetalhes(post.id)">
-                            <img [src]="post.autorFotoFinal" [alt]="post.autorNomeFinal" class="fr-post-avatar">
-
-                            <div class="fr-post-corpo">
-                                <div class="fr-post-meta">
-                                    <strong>{{ post.autorNomeFinal }}</strong><app-selos-autor [uid]="post.autorId"></app-selos-autor>
-                                    <span class="fr-post-ponto">•</span>
-                                    <span>{{ post.dataFormatada }}</span>
-                                </div>
-                                <h3 class="fr-post-titulo">{{ post.titulo }}</h3>
-                                <p class="fr-post-texto">{{ post.conteudo }}</p>
-
-                                <div class="fr-post-rodape">
-                                    @if (post.categoria) {
-                                        <span class="fr-tag">{{ post.categoria }}</span>
-                                    }
-                                    @if (post.editadoEm) {
-                                        <span class="fr-editado">editado</span>
-                                    }
-                                    @if (currentUser() && !post.ehMeu) {
-                                        <app-denunciar tipo="post" [alvoId]="post.id" [alvoTitulo]="post.titulo" [alvoDono]="post.autorNomeFinal"></app-denunciar>
-                                    }
-                                    @if (post.ehMeu) {
-                                        <button type="button" class="fr-editar" (click)="abrirModalEdicao(post, $event)">
-                                            <i class="fa-regular fa-pen-to-square"></i> Editar
-                                        </button>
-                                        <button type="button" class="fr-excluir" (click)="confirmarExclusao(post.id, $event)">
-                                            <i class="fa-regular fa-trash-can"></i> Excluir
-                                        </button>
-                                    }
-                                </div>
-                            </div>
-
-                            <div class="fr-post-lateral">
-                                <div class="fr-post-acoes">
-                                    <button type="button" class="fr-acao" [class.curtido]="post.jaCurtiu" (click)="toggleLikePost(post, $event)" [attr.aria-label]="post.jaCurtiu ? 'Descurtir' : 'Curtir'">
-                                        <i [ngClass]="post.jaCurtiu ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
-                                        <span>{{ post.likes || 0 }}</span>
-                                    </button>
-                                    <span class="fr-acao" aria-label="Comentários">
-                                        <i class="fa-regular fa-comment"></i>
-                                        <span>{{ post.totalComentarios || 0 }}</span>
-                                    </span>
-                                </div>
-
-                                @if (post.totalComentarios > 0) {
-                                    <span class="fr-status respondido"><i class="fa-solid fa-circle-check"></i> Respondido por especialista</span>
-                                } @else {
-                                    <span class="fr-status aguardando"><i class="fa-regular fa-clock"></i> Aguardando especialista</span>
-                                }
-                            </div>
-                        </article>
+                        <app-card-post [post]="post" [podeDenunciar]="!!currentUser()"
+                                       (abrir)="irParaDetalhes($event)" (curtir)="toggleLikePost($event)"
+                                       (editar)="abrirModalEdicao(post, $event)" (excluir)="confirmarExclusao(post.id, $event)"></app-card-post>
                         @if ($index === 2 || ($last && postsVisiveis.length < 3)) {
                             <app-anuncio-espaco posicao="forum"></app-anuncio-espaco>
                         }

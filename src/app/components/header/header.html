@@ -452,6 +452,44 @@
             @if (naoLidas() > 0) { <span class="notif-badge" aria-hidden="true">{{ naoLidas() > 9 ? '9+' : naoLidas() }}</span> }
           </button>
 
+          <!-- AVISOS NO CELULAR: só a lista, sem abrir o menu -->
+          @if (avisosCelular) {
+            <div class="avisos-cel-fundo" (click)="fecharAvisosCelular()" aria-hidden="true"></div>
+            <div class="avisos-cel" role="dialog" aria-label="Avisos" (click)="$event.stopPropagation()" (keydown.escape)="fecharAvisosCelular()">
+              <div class="avisos-cel-topo">
+                <strong><i class="ph-light ph-bell" aria-hidden="true"></i> Avisos</strong>
+                @if (naoLidas() > 0) {
+                  <button type="button" class="notif-marcar" (click)="marcarTodasComoLidas($event)">Marcar todas como lidas</button>
+                }
+                <button type="button" class="avisos-cel-fechar" aria-label="Fechar avisos" (click)="fecharAvisosCelular()"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+              @if (notificacoes().length === 0) {
+                <div class="notif-vazio">
+                  <i class="fa-regular fa-bell-slash"></i>
+                  <p>Nenhum aviso por enquanto.</p>
+                </div>
+              } @else {
+                <ul class="notif-lista">
+                  @for (n of notificacoes(); track n.id) {
+                    <li>
+                      <button type="button" class="notif-item" [class.nao-lida]="!n.lida" (click)="abrirNotificacao(n)">
+                        <span class="notif-icone" [class.recusada]="n.tipo === 'consulta_recusada'" [class.roxa]="n.tipo !== 'consulta_recusada' && n.tipo !== 'consulta_confirmada'">
+                          <i [class]="iconeNotificacao(n.tipo)"></i>
+                        </span>
+                        <span class="notif-texto">
+                          <strong>{{ n.titulo }}</strong>
+                          <span class="notif-msg">{{ n.mensagem }}</span>
+                          <span class="notif-tempo">{{ tempoRelativo(n.criadoEm) }}</span>
+                        </span>
+                        @if (!n.lida) { <span class="notif-ponto" aria-hidden="true"></span> }
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+
           <!-- BOTÃO HAMBÚRGUER (APENAS NO MOBILE) -->
           <button class="menu-toggle mae-menu-topo" aria-label="Abrir menu" (click)="toggleMobileMenu()">
             <i class="fa" [class.fa-bars]="!isMobileMenuOpen" [class.fa-xmark]="isMobileMenuOpen"></i>

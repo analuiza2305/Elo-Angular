@@ -9,13 +9,14 @@ import { collection, getDocs, doc, getDoc, query, where, limit } from 'firebase/
 import { formatarDataArtigo, dataDoArtigo, autorDoArtigo, fonteDoArtigo, carregarIdsFavoritos, definirFavorito } from '../../services/artigo-utils';
 import { AlertaService } from '../../core/services/alerta.service';
 
-import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 import { prioridadeVisibilidade, visibilidadeEfetiva } from '../../services/divulgacao';
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+import { CardArtigoComponent } from '../../components/card-artigo/card-artigo';
+import { carregarArtigos, alternarFavorito, ordemPadraoArtigos } from '../../services/artigos-dados';
 @Component({
   selector: 'app-artigos',
   standalone: true,
-  imports: [FiltrosDropdownDirective, CommonModule, RouterModule, HeaderComponent, SelosAutorComponent, AnuncioEspacoComponent],
+  imports: [CardArtigoComponent, FiltrosDropdownDirective, CommonModule, RouterModule, HeaderComponent, AnuncioEspacoComponent],
   templateUrl: './artigos.html',
   styleUrls: ['./artigos.css']
 })
@@ -67,9 +68,7 @@ export class Artigos implements OnInit {
         return dataA - dataB;
       }
       // Padrão: quem tem pacote de divulgação aparece primeiro, depois os mais recentes
-      const porNivel = prioridadeVisibilidade(b.visibilidade) - prioridadeVisibilidade(a.visibilidade);
-      if (porNivel) return porNivel;
-      return dataB - dataA;
+      return ordemPadraoArtigos(a, b);
     });
 
     return filtrados;
@@ -102,27 +101,7 @@ export class Artigos implements OnInit {
   async carregarArtigos() {
     try {
       this.isLoading.set(true);
-      const user = this.currentUser();
-      const [snap, favoritos] = await Promise.all([
-        getDocs(collection(db, 'artigos')),
-        user ? carregarIdsFavoritos(user.uid) : Promise.resolve([] as string[]),
-      ]);
-
-      const artigos = snap.docs.filter(d => !d.data()?.['moderacao']?.removido).map(d => {
-        const data = d.data();
-        return {
-          id: d.id,
-          ...data,
-          // nível de visibilidade (pacote de divulgação do parceiro); volta ao básico quando o pacote acaba
-          visibilidade: visibilidadeEfetiva(data),
-          dataString: formatarDataArtigo(data),
-          autorExibido: autorDoArtigo(data),
-          fonteExibida: fonteDoArtigo(data),
-          // favoritos ficam no perfil da usuária (usuarios/{uid}.favoritos)
-          salvo: user ? (favoritos.includes(d.id) || data['salvosPor']?.includes(user.uid) || false) : false
-        };
-      });
-
+      const artigos = await carregarArtigos(this.currentUser());
       this.todosArtigos.set(artigos);
     } catch (e) {
       console.error("Erro ao carregar artigos:", e);
@@ -186,18 +165,7 @@ export class Artigos implements OnInit {
       return;
     }
 
-    const isSaved = artigo.salvo;
-
-    // Atualização Otimista: Muda na tela antes do banco terminar
-    artigo.salvo = !isSaved;
-
-    try {
-      await definirFavorito(user.uid, artigo.id, !isSaved);
-    } catch (err) {
-      // Reverte se der erro no Firestore
-      artigo.salvo = isSaved;
-      console.error("Erro ao salvar artigo", err);
-    }
+    await alternarFavorito(artigo, user.uid);
   }
 
   // Se a imagem der erro 404, substitui por um padrão seguro

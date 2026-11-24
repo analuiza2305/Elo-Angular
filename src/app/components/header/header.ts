@@ -107,12 +107,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   abrirAvisoNaTela(n: Notificacao) { this.fecharAvisoNaTela(); this.abrirNotificacao(n); }
 
-  /** Sino do topo no celular: abre o menu já com os avisos abertos. */
+  /** Sino do topo no celular: abre só a lista de avisos (sem o menu lateral). */
+  avisosCelular = false;
   abrirAvisosCelular(event: Event) {
     event.stopPropagation();
-    this.isMobileMenuOpen = true;
-    this.isNotifOpen = true;
+    this.isMobileMenuOpen = false;
+    this.isNotifOpen = false;
+    this.avisosCelular = !this.avisosCelular;
   }
+  fecharAvisosCelular() { this.avisosCelular = false; }
   isNotifOpen = false;
   private unsubNotificacoes: Unsubscribe | null = null;
   private unsubAuth: (() => void) | null = null;
@@ -332,6 +335,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   async abrirNotificacao(n: Notificacao) {
     this.isNotifOpen = false;
+    this.avisosCelular = false;
     if (this.isMobileMenuOpen) this.isMobileMenuOpen = false;
     if (!n.lida) {
       try {
@@ -881,6 +885,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isUserDropdownOpen = false;
     this.isLangMenuOpen = false;
     this.isNotifOpen = false;
+    this.avisosCelular = false;
     this.menuAberto.set(false);
   }
 }

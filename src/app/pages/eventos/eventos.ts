@@ -2,20 +2,20 @@ import { Component, Input, OnInit, signal, inject, computed } from '@angular/cor
 import { FiltrosDropdownDirective } from '../../core/directives/filtros-dropdown.directive';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { DenunciarComponent } from '../../components/denunciar/denunciar';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
 
-import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 import { prioridadeVisibilidade, visibilidadeEfetiva } from '../../services/divulgacao';
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
-import { categoriaDoEvento, infoCategoriaEvento } from '../../services/eventos-categorias';
+import { CardEventoComponent } from '../../components/card-evento/card-evento';
+import { EventoDetalhesComponent } from '../../components/evento-detalhes/evento-detalhes';
+import { carregarEventos, ordemPadraoEventos, InscricoesEventosService } from '../../services/eventos-dados';
 @Component({
   selector: 'app-eventos',
   standalone: true,
-  imports: [FiltrosDropdownDirective, CommonModule, RouterModule, HeaderComponent, DenunciarComponent, SelosAutorComponent, AnuncioEspacoComponent],
+  imports: [CardEventoComponent, EventoDetalhesComponent, FiltrosDropdownDirective, CommonModule, RouterModule, HeaderComponent, AnuncioEspacoComponent],
   templateUrl: './eventos.html',
   styleUrls: ['./eventos.css']
 })
@@ -25,9 +25,10 @@ export class Eventos implements OnInit {
   /** Dentro do painel do parceiro: sem header e sem inscrição (é a vitrine que as mães veem). */
   @Input() embutido = false;
 
+  private readonly inscricoes = inject(InscricoesEventosService);
+
   currentUser = signal<any>(null);
   eventos = signal<any[]>([]);
-  userInscritos = signal<any[]>([]);
   isLoading = signal<boolean>(true);
 
   // Filtros e Dropdowns
@@ -38,10 +39,8 @@ export class Eventos implements OnInit {
   textoOrdenacao = signal<string>('Mais recentes');
 
   // Controle de Modais
+  /** evento aberto no modal (components/evento-detalhes) */
   eventoSelecionado = signal<any>(null);
-  showModalDetalhes = signal<boolean>(false);
-  showModalAviso = signal<boolean>(false);
-  avisoInfo = signal({ titulo: '', mensagem: '', isConfirm: false, acao: () => {} });
 
   eventosFiltrados = computed(() => {
     const cat = this.categoriaSelecionada();
@@ -64,9 +63,9 @@ export class Eventos implements OnInit {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         this.currentUser.set(user);
-        if (!this.embutido) await this.carregarInscricoesUsuario(user.uid);
+        if (!this.embutido) await this.inscricoes.carregar(user.uid);
       } else {
-        this.userInscritos.set([]);
+        this.inscricoes.carregar(null);
       }
       await this.carregarEventos();
     });
@@ -77,83 +76,16 @@ export class Eventos implements OnInit {
     });
   }
 
-  async carregarInscricoesUsuario(uid: string) {
-    try {
-      const userRef = doc(db, 'usuarios', uid);
-      const snap = await getDoc(userRef);
-      if (snap.exists()) {
-        this.userInscritos.set(snap.data()['eventosInscritos'] || []);
-      }
-    } catch (err) {
-      console.error('Erro ao carregar inscrições:', err);
-      this.userInscritos.set([]);
-    }
-  }
-
   async carregarEventos() {
     try {
       this.isLoading.set(true);
-      const snap = await getDocs(collection(db, "eventos"));
-      const lista: any[] = [];
-
-      snap.forEach(docSnap => {
-        const data = docSnap.data();
-        if (data?.['moderacao']?.removido) return; // removido pela moderação
-        let dataFormatada = '';
-        let dataObj = null;
-        let dia = '23';
-        let mes = 'JUN';
-
-        const rawDate = data['data'] ?? data['date'] ?? null;
-        if (rawDate && rawDate.toDate) {
-          dataObj = rawDate.toDate();
-        } else if (typeof rawDate === 'string') {
-          dataObj = new Date(rawDate);
-        }
-
-        if (dataObj && !isNaN(dataObj.getTime())) {
-          dataFormatada = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) +
-                          ' às ' +
-                          dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-          dia = String(dataObj.getDate()).padStart(2, '0');
-          mes = dataObj.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase();
-        }
-
-        const encerrado = !!dataObj && dataObj.getTime() < Date.now();
-
-        lista.push({
-          id: docSnap.id,
-          ...data,
-          // mesma lista de categorias do painel do parceiro (eventos antigos são convertidos)
-          categoria: categoriaDoEvento(data),
-          categoriaNome: infoCategoriaEvento(categoriaDoEvento(data)).nome,
-          // evento que já passou perde o destaque pago e vai para o fim da lista
-          visibilidade: encerrado ? 'basico' : visibilidadeEfetiva(data),
-          encerrado,
-          dataObj,
-          dataFormatada,
-          dia,
-          mes
-        });
-      });
-
-      lista.sort((a, b) => this.ordemPadrao(a, b));
+      const lista = await carregarEventos();
       this.eventos.set(lista);
     } catch (err) {
       console.error('Erro ao carregar eventos:', err);
     } finally {
       this.isLoading.set(false);
     }
-  }
-
-  /** Próximos primeiro (destaque pago na frente, depois o mais próximo); encerrados no fim, do mais recente ao mais antigo. */
-  private ordemPadrao(a: any, b: any): number {
-    if (a.encerrado !== b.encerrado) return a.encerrado ? 1 : -1;
-    const ta = a.dataObj?.getTime() || 0;
-    const tb = b.dataObj?.getTime() || 0;
-    if (a.encerrado) return tb - ta;
-    return prioridadeVisibilidade(b.visibilidade) - prioridadeVisibilidade(a.visibilidade) || ta - tb;
   }
 
   filtrarCategoria(categoria: string) {
@@ -183,7 +115,7 @@ export class Eventos implements OnInit {
 
     const lista = [...this.eventos()];
     if (tipo === 'recentes') {
-      lista.sort((a, b) => this.ordemPadrao(a, b));
+      lista.sort((a, b) => ordemPadraoEventos(a, b));
     } else if (tipo === 'antigos') {
       lista.sort((a, b) => (b.dataObj?.getTime() || 0) - (a.dataObj?.getTime() || 0));
     } else if (tipo === 'alfabetica') {
@@ -193,116 +125,14 @@ export class Eventos implements OnInit {
   }
 
   isInscrito(eventoId: string): boolean {
-    return this.userInscritos().some(e => e.id === eventoId);
+    return this.inscricoes.isInscrito(eventoId);
   }
 
   abrirDetalhes(evento: any) {
     this.eventoSelecionado.set(evento);
-    this.showModalDetalhes.set(true);
   }
 
   fecharModais() {
-    this.showModalDetalhes.set(false);
-    this.showModalAviso.set(false);
-  }
-
-  abrirAviso(titulo: string, mensagem: string) {
-    this.avisoInfo.set({ titulo, mensagem, isConfirm: false, acao: () => {} });
-    this.showModalAviso.set(true);
-  }
-
-  abrirConfirmacao(titulo: string, mensagem: string, acao: () => void) {
-    this.avisoInfo.set({ titulo, mensagem, isConfirm: true, acao });
-    this.showModalAviso.set(true);
-  }
-
-  compartilharEvento(evento: any) {
-    if (navigator.share) {
-      navigator.share({
-        title: evento.titulo,
-        text: evento.descricao,
-        url: window.location.href,
-      }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      this.abrirAviso('Link copiado!', 'O link deste evento foi copiado para a sua área de transferência.');
-    }
-  }
-
-  async inscrever() {
-    const user = this.currentUser();
-    if (!user) {
-      this.abrirAviso('Login necessário', 'Você precisa estar logada para se inscrever em um evento.');
-      return;
-    }
-
-    const evento = this.eventoSelecionado();
-    if (evento?.encerrado) {
-      this.abrirAviso('Evento encerrado', 'Esse evento já aconteceu, então as inscrições foram encerradas.');
-      return;
-    }
-    if (this.isInscrito(evento.id)) {
-      this.abrirAviso('Atenção', 'Você já está inscrita nesse evento.');
-      return;
-    }
-
-    try {
-      const userRef = doc(db, 'usuarios', user.uid);
-      const novoEventoSalvar = {
-        id: evento.id,
-        titulo: evento.titulo ?? '',
-        descricao: evento.descricao ?? '',
-        date: evento.dataObj ? evento.dataObj.toString() : ''
-      };
-
-      const novasInscricoes = [...this.userInscritos(), novoEventoSalvar];
-      await updateDoc(userRef, { eventosInscritos: novasInscricoes });
-
-      this.userInscritos.set(novasInscricoes);
-      this.fecharModais();
-      this.abrirAviso('Sucesso!', 'Sua inscrição foi realizada com sucesso.');
-    } catch (err) {
-      console.error(err);
-      this.abrirAviso('Erro', 'Ocorreu um erro ao realizar a inscrição. Tente novamente.');
-    }
-  }
-
-  cancelarInscricao() {
-    const user = this.currentUser();
-    const evento = this.eventoSelecionado();
-
-    if (!user) {
-      this.abrirAviso('Atenção', 'Você precisa estar logada para realizar essa ação.');
-      return;
-    }
-
-    if (!evento) return;
-
-    this.abrirConfirmacao(
-      'Cancelar Inscrição',
-      'Tem certeza que deseja cancelar sua inscrição neste evento?',
-      async () => {
-        try {
-          const listaAtualizada = this.userInscritos().filter((e: any) => e.id !== evento.id);
-
-          const userRef = doc(db, 'usuarios', user.uid);
-          await updateDoc(userRef, {
-            eventosInscritos: listaAtualizada
-          });
-
-          this.userInscritos.set(listaAtualizada);
-          this.eventoSelecionado.set(null);
-          this.fecharModais();
-
-          setTimeout(() => {
-            this.abrirAviso('Inscrição Cancelada', 'Sua inscrição foi cancelada com sucesso!');
-          }, 300);
-
-        } catch (error) {
-          console.error("Erro ao cancelar a inscrição:", error);
-          this.abrirAviso('Erro', 'Ocorreu um erro ao cancelar. Tente novamente.');
-        }
-      }
-    );
+    this.eventoSelecionado.set(null);
   }
 }
