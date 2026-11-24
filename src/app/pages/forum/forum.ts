@@ -1,13 +1,14 @@
 import { Component, EventEmitter, Input, OnInit, Output, signal, inject } from '@angular/core';
+import { FiltrosDropdownDirective } from '../../core/directives/filtros-dropdown.directive';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { DenunciarComponent } from '../../components/denunciar/denunciar';
 import { HeaderComponent } from '../../components/header/header';
 import { auth, db } from '../../core/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+import { carregarPostsForum, curtirPost } from '../../services/forum-dados';
+import { CardPostComponent } from '../../components/card-post/card-post';
 import {
   collection, query, orderBy, limit, getDocs, doc, getDoc, addDoc, serverTimestamp, updateDoc, deleteDoc, setDoc, increment, getCountFromServer, writeBatch, where
 } from 'firebase/firestore';
@@ -17,7 +18,7 @@ const POSTS_POR_PAGINA = 8;
 @Component({
   selector: 'app-forum',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, DenunciarComponent, SelosAutorComponent, AnuncioEspacoComponent],
+  imports: [CardPostComponent, FiltrosDropdownDirective, CommonModule, RouterModule, FormsModule, HeaderComponent, AnuncioEspacoComponent],
   templateUrl: './forum.html',
   styleUrls: ['./forum.css']
 })
@@ -148,83 +149,12 @@ export class ForumComponent implements OnInit {
   async carregarPosts() {
     try {
       this.isLoading.set(true);
-      const q = query(collection(db, 'posts'), orderBy('data', 'desc'), limit(20));
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) {
-        this.posts.set([]);
-        this.isLoading.set(false);
-        return;
-      }
-      const user = this.currentUser();
-
-      const postsList = await Promise.all(snapshot.docs.map(async (docSnap) => {
-        const p = docSnap.data();
-        const postId = docSnap.id;
-
-        let autorNome = p['autorNome'] || 'Usuária';
-        let autorFoto = p['autorFoto'] || './img/account_icon.png';
-
-        if (p['autorId'] && String(p['autorId']).startsWith('parc_')) {
-          // empresa parceira: o nome e a foto ficam gravados no próprio post
-        } else if (p['autorId'] && p['autorId'] !== 'anonimo') {
-          try {
-            const userSnap = await getDoc(doc(db, 'usuarios', p['autorId']));
-            if (userSnap.exists()) {
-              const uData = userSnap.data();
-              autorNome = uData['nome'] || autorNome;
-              autorFoto = uData['avatar'] || uData['fotoURL'] || autorFoto;
-            }
-          } catch (e) { console.error(e); }
-        }
-        if (p['autorId'] === 'anonimo') {
-          autorNome = 'Anônimo';
-          autorFoto = './img/account_icon.png';
-        }
-
-        let jaCurtiu = false;
-        let totalComentarios = 0;
-        // "ehMeu": o post é de quem está logada? Nos anônimos o autorId é só 'anonimo',
-        // então a dona é descoberta pelo vínculo privado em `postsAutores/{postId}`.
-        let ehMeu = !!user && p['autorId'] === this.meuAutorId();
-        const promisesExtras = [];
-        if (user && p['autorId'] === 'anonimo' && !this.embutido) {
-          promisesExtras.push(
-            getDoc(doc(db, 'postsAutores', postId)).then(vinculo => {
-              ehMeu = vinculo.exists() && vinculo.data()['uid'] === user.uid;
-            }).catch(() => {}) // sem permissão de leitura = não é dela
-          );
-        }
-        if (user) {
-          promisesExtras.push(
-            getDoc(doc(db, 'posts', postId, 'likes', user.uid)).then(likeSnap => {
-              jaCurtiu = likeSnap.exists();
-            }).catch(() => {})
-          );
-        }
-        promisesExtras.push(
-          getCountFromServer(collection(db, 'posts', postId, 'comentarios')).then(comSnap => {
-            totalComentarios = comSnap.data().count;
-          }).catch(() => {})
-        );
-        await Promise.all(promisesExtras);
-
-        return {
-          id: postId,
-          ...p,
-          autorNomeFinal: autorNome,
-          autorFotoFinal: autorFoto,
-          dataFormatada: p['data']?.toDate
-            ? p['data'].toDate().toLocaleString('pt-BR', { dateStyle: 'medium', timeStyle: 'short' })
-            : 'Agora',
-          jaCurtiu,
-          totalComentarios,
-          ehMeu
-        };
-      }));
-
-      // Esconde do fórum público os posts removidos pela moderação do admin
-      const postsVisiveis = postsList.filter((p: any) => !p.moderacao?.removido);
-
+      const postsVisiveis = await carregarPostsForum({
+        limite: 20,
+        user: this.currentUser(),
+        meuAutorId: this.meuAutorId(),
+        embutido: this.embutido,
+      });
       this.posts.set(postsVisiveis);
     } catch (err) {
       console.error('Erro ao carregar posts:', err);
@@ -347,27 +277,11 @@ export class ForumComponent implements OnInit {
     }
   }
 
-  async toggleLikePost(post: any, event: Event) {
-    event.stopPropagation();
+  async toggleLikePost(post: any, event?: Event) {
+    event?.stopPropagation();
     const user = this.currentUser();
     if (!user) return;
-    const likeRef = doc(db, 'posts', post.id, 'likes', user.uid);
-    const postRef = doc(db, 'posts', post.id);
-    try {
-      if (post.jaCurtiu) {
-        post.jaCurtiu = false;
-        post.likes = Math.max(0, (post.likes || 1) - 1);
-        await deleteDoc(likeRef);
-        await updateDoc(postRef, { likes: increment(-1) });
-      } else {
-        post.jaCurtiu = true;
-        post.likes = (post.likes || 0) + 1;
-        await setDoc(likeRef, { curtido: true });
-        await updateDoc(postRef, { likes: increment(1) });
-      }
-    } catch (err) {
-      console.error('Erro ao curtir:', err);
-    }
+    await curtirPost(post, user.uid);
   }
 
   confirmarExclusao(postId: string, event: Event) {

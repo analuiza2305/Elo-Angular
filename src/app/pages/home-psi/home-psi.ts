@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit, signal, computed, Inject, PLATFORM_ID, inject } from '@angular/core';
+import { FiltrosDropdownDirective } from '../../core/directives/filtros-dropdown.directive';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -22,6 +23,9 @@ import { PERGUNTAS_BEM_ESTAR, PerguntaBemEstar, rotuloDaResposta, respostaDeRisc
 
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
 import { encerrarAutomaticamente, motivoEncerramentoAutomatico, textoEncerramento } from '../../services/prazos-consulta';
+import { AcessibilidadeService } from '../../core/services/acessibilidade.service';
+import { ClicavelTecladoDirective } from '../../core/directives/clicavel-teclado.directive';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 type SecaoHomePsi = 'dashboard' | 'agenda' | 'artigos' | 'consultas' | 'forum' | 'pacientes' | 'chats' | 'documentos' | 'planos';
 type AbaConsultas = 'Pendentes' | 'Agendadas' | 'Realizadas' | 'Negadas';
 type CategoriaArtigo = 'posts' | 'legislativos' | 'educacionais' | 'dicas';
@@ -92,11 +96,13 @@ const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', catego
 @Component({
   selector: 'app-home-psi',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AnuncioEspacoComponent],
+  imports: [FiltrosDropdownDirective, ClicavelTecladoDirective, TranslatePipe, CommonModule, FormsModule, RouterModule, AnuncioEspacoComponent],
   templateUrl: './home-psi.html',
   styleUrl: './home-psi.css',
 })
 export class HomePsi implements OnInit, OnDestroy {
+  /** Acessibilidade compartilhada por todas as telas (ver AcessibilidadeService). */
+  readonly acc = inject(AcessibilidadeService);
   public router = inject(Router);
   private readonly alerta = inject(AlertaService);
   private lembreteService = inject(LembreteService);
@@ -1731,10 +1737,6 @@ export class HomePsi implements OnInit, OnDestroy {
   }
 
   toggleAccessibilityMenu(): void { this.accessibilityMenuOpen.update((v) => !v); }
-  aumentarFonte(): void { } diminuirFonte(): void { } alternarFiltroDaltonismo(): void { }
-  alternarLeituraVoz(): void { } alternarMascaraLeitura(): void { } alternarTextoDestacado(): void { }
-  alternarAltoContraste(): void { } aumentarEspacamentoLinhas(): void { } diminuirEspacamentoLinhas(): void { }
-  redefinirAcessibilidade(): void { }
 
   toggleTheme(): void {
     if (!this.isBrowser) return;

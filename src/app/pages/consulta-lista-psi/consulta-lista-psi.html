@@ -13,16 +13,6 @@
     </div>
   </div>
 
-  @if (questionarioRespondido() === false) {
-    <section class="convite-questionario">
-      <span class="cq-icone"><i class="ph ph-heart"></i></span>
-      <div class="cq-texto">
-        <strong>Antes de marcar com uma psicóloga, conte como você está</strong>
-        <p>São 8 perguntas rápidas (uns 2 minutos). Assim ela já chega na conversa sabendo um pouco de você.</p>
-      </div>
-      <button type="button" class="cq-btn" (click)="irParaQuestionario()">Responder agora</button>
-    </section>
-  }
 
   <div class="search-bar-wrapper">
     <div class="search-bar">
@@ -37,18 +27,48 @@
       </button>
     </div>
 
-    <div class="tipo-filtros" role="group" aria-label="Tipo de profissional">
-      <button type="button" class="tipo-chip" [class.ativo]="filtroTipo() === 'todos'" [attr.aria-pressed]="filtroTipo() === 'todos'" (click)="filtroTipo.set('todos')">
-        Todos <span>{{ contagemTipo().todos }}</span>
+    <div class="tipo-filtros elo-filtros-barra">
+      <div class="elo-filtros" appFiltrosDropdown role="group" aria-label="Tipo de profissional">
+      <button type="button" class="tipo-chip elo-filtro" [class.ativo]="filtroTipo() === 'todos'" [attr.aria-pressed]="filtroTipo() === 'todos'" (click)="filtroTipo.set('todos')">
+        <i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Todos <span>{{ contagemTipo().todos }}</span>
       </button>
-      <button type="button" class="tipo-chip" [class.ativo]="filtroTipo() === 'psicologo'" [attr.aria-pressed]="filtroTipo() === 'psicologo'" (click)="filtroTipo.set('psicologo')">
-        Psicólogos <span>{{ contagemTipo().psicologo }}</span>
+      <button type="button" class="tipo-chip elo-filtro" [class.ativo]="filtroTipo() === 'psicologo'" [attr.aria-pressed]="filtroTipo() === 'psicologo'" (click)="filtroTipo.set('psicologo')">
+        <i class="fa-solid fa-brain" aria-hidden="true"></i> Psicólogos <span>{{ contagemTipo().psicologo }}</span>
       </button>
-      <button type="button" class="tipo-chip" [class.ativo]="filtroTipo() === 'advogado'" [attr.aria-pressed]="filtroTipo() === 'advogado'" (click)="filtroTipo.set('advogado')">
-        Advogados <span>{{ contagemTipo().advogado }}</span>
+      <button type="button" class="tipo-chip elo-filtro" [class.ativo]="filtroTipo() === 'advogado'" [attr.aria-pressed]="filtroTipo() === 'advogado'" (click)="filtroTipo.set('advogado')">
+        <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Advogados <span>{{ contagemTipo().advogado }}</span>
       </button>
+      </div>
     </div>
   </div>
+
+  <!-- Convite para o questionário de bem-estar (fica abaixo da busca para não brigar com o banner) -->
+  @if (questionarioRespondido() === false && !conviteFechado()) {
+    <section class="convite-questionario" aria-labelledby="cq-titulo">
+      <div class="cq-arte" aria-hidden="true">
+        <i class="ph-fill ph-heart"></i>
+        <span class="cq-brilho"></span>
+      </div>
+
+      <div class="cq-texto">
+        <span class="cq-etiqueta">Para consultas com psicóloga</span>
+        <h2 id="cq-titulo">Conte como você está antes de marcar</h2>
+        <p>Assim a psicóloga já chega na conversa sabendo um pouco de você.</p>
+        <ul class="cq-info">
+          <li><i class="ph ph-list-checks" aria-hidden="true"></i> 8 perguntas</li>
+          <li><i class="ph ph-clock" aria-hidden="true"></i> Uns 2 minutos</li>
+          <li><i class="ph ph-lock-simple" aria-hidden="true"></i> Só as suas psicólogas veem</li>
+        </ul>
+      </div>
+
+      <div class="cq-acoes">
+        <button type="button" class="cq-btn" (click)="irParaQuestionario()">
+          Responder agora <i class="ph ph-arrow-right" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="cq-depois" (click)="fecharConvite()">Agora não</button>
+      </div>
+    </section>
+  }
 
   @if (isLoading()) {
     <div class="card" style="justify-content: center; padding: 60px;">
@@ -259,12 +279,12 @@
 
 <!-- MODAL DE AGENDAMENTO -->
 @if (showModal()) {
-  <div id="modalAgendamento" class="modal-wrapper">
+  <div id="modalAgendamento" class="modal-wrapper" role="dialog" aria-modal="true" aria-labelledby="tituloModalAgendamento">
     <div class="modal-overlay" (click)="fecharModal()"></div>
     <div class="modal-content premium-modal">
       <div class="modal-header-fancy">
-        <h2>Confirmar Agendamento</h2>
-        <button class="close-btn" (click)="fecharModal()"><i class="ph ph-x"></i></button>
+        <h2 id="tituloModalAgendamento">Confirmar Agendamento</h2>
+        <button type="button" class="close-btn" (click)="fecharModal()" aria-label="Fechar"><i class="ph ph-x" aria-hidden="true"></i></button>
       </div>
 
       <p class="modal-subtitle">Revise os dados da sua consulta abaixo.</p>

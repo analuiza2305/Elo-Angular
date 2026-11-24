@@ -1,4 +1,4 @@
-/* Assistente virtual "Elo" — botão flutuante e janela de conversa */
+/* Assistente virtual "Elô" (coruja mascote) — botão flutuante e janela de conversa */
 :host { position: fixed; left: 18px; bottom: 18px; z-index: 1500; font-family: 'Nunito', 'Inter', sans-serif; }
 
 .ai-botao {
@@ -91,3 +91,166 @@
 :host-context(body[data-theme="dark"]) .ai-form { border-color: rgba(255,255,255,.08); }
 :host-context(body[data-theme="dark"]) .ai-form textarea { background: #0F141E; color: #EDE6FF; border-color: rgba(255,255,255,.15); }
 :host-context(body[data-theme="dark"]) .ai-enviar { background: #6C4BBF; }
+
+/* =========================================================
+   ELÔ, A CORUJA
+========================================================= */
+/* Botão flutuante com o rostinho da Elô */
+.ai-botao { padding-left: 7px; }
+.ai-botao-avatar {
+  display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%;
+  background: #FFFFFF; box-shadow: 0 2px 6px rgba(42, 27, 92, .2);
+}
+
+/* Topo roxo como na folha da mascote */
+.ai-topo {
+  padding: 14px 14px 14px 16px; border-bottom: none;
+  background: linear-gradient(135deg, #7C5FCB 0%, #5B3D99 100%);
+}
+.ai-avatar { width: 50px; height: 50px; background: #FFFFFF; box-shadow: 0 4px 10px rgba(42, 27, 92, .25); }
+.ai-topo-texto strong { color: #FFFFFF; font-family: 'Poppins', sans-serif; font-size: 1.1rem; }
+.ai-topo-texto { min-width: 0; }
+.ai-topo-texto small {
+  display: flex; align-items: center; gap: 6px; color: #E6DEFF; font-size: .78rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ai-online { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #4ADE9B; box-shadow: 0 0 0 2px rgba(74, 222, 155, .3); }
+.ai-icone { color: #FFFFFF; }
+.ai-icone:hover { background: rgba(255, 255, 255, .16); }
+
+/* Elô inteira no começo da conversa */
+/* A Elô fica um pouco à esquerda para o balãozinho de fala caber à direita */
+.ai-boas-vindas { display: flex; justify-content: flex-start; padding: 6px 0 2px 64px; }
+
+/* Respostas com o rostinho ao lado */
+.ai-linha { display: flex; align-items: flex-end; gap: 8px; align-self: flex-start; max-width: 94%; }
+.ai-linha .ai-msg { max-width: none; background: #FFFFFF; border: 1px solid #ECE4FA; box-shadow: 0 4px 12px rgba(91, 61, 153, .06); }
+.ai-linha .ai-msg.apoio { background: #FFF1F4; border-color: #F5C2CF; }
+.ai-msg-avatar { margin-bottom: 2px; }
+.ai-lista { background: #FBF9FF; }
+
+/* Tema escuro */
+:host-context(body[data-theme="dark"]) .ai-topo { background: linear-gradient(135deg, #5B3D99 0%, #3F2A70 100%); }
+:host-context(body[data-theme="dark"]) .ai-topo-texto strong { color: #FFFFFF; }
+:host-context(body[data-theme="dark"]) .ai-icone { color: #FFFFFF; }
+:host-context(body[data-theme="dark"]) .ai-lista { background: #121722; }
+:host-context(body[data-theme="dark"]) .ai-linha .ai-msg { background: #1E2535; border-color: rgba(255, 255, 255, .08); box-shadow: none; }
+:host-context(body[data-theme="dark"]) .ai-linha .ai-msg.apoio { background: #2A1820; border-color: #5A2A3A; }
+
+/* =========================================================
+   BRINCADEIRA AO TOCAR NA FOTO DA ELÔ
+========================================================= */
+button.ai-avatar {
+  position: relative; flex-shrink: 0; padding: 0; border: none; cursor: pointer;
+  transition: transform .15s ease;
+}
+button.ai-avatar:hover { transform: scale(1.06); }
+button.ai-avatar:focus-visible { outline: 3px solid #F2B230; outline-offset: 3px; }
+
+/* 1º toque: pulinho com "amassadinha" */
+.ai-avatar[data-brincadeira="pulo"] { animation: elo-pulo .9s cubic-bezier(.3, 1.4, .5, 1) both; }
+@keyframes elo-pulo {
+  0%   { transform: translateY(0) scale(1, 1); }
+  15%  { transform: translateY(2px) scale(1.12, .86); }
+  40%  { transform: translateY(-12px) scale(.92, 1.1); }
+  60%  { transform: translateY(0) scale(1.1, .9); }
+  75%  { transform: translateY(-5px) scale(.97, 1.04); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+/* 2º toque: giro de 360° com piscadinha */
+.ai-avatar[data-brincadeira="giro"] { animation: elo-giro .9s cubic-bezier(.5, -0.3, .4, 1.3) both; }
+@keyframes elo-giro {
+  0%   { transform: rotate(0) scale(1); }
+  50%  { transform: rotate(200deg) scale(1.12); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* 3º toque: balancinho e coraçõezinhos subindo */
+.ai-avatar[data-brincadeira="coracoes"] { animation: elo-balanco 1s ease-in-out both; }
+@keyframes elo-balanco {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-10deg); }
+  40% { transform: rotate(8deg); }
+  60% { transform: rotate(-5deg); }
+  80% { transform: rotate(3deg); }
+}
+.ai-coracoes { position: absolute; inset: 0; pointer-events: none; }
+.ai-coracoes i {
+  position: absolute; left: 50%; bottom: 35%; font-style: normal; font-size: 15px; opacity: 0;
+  animation: elo-coracao 1.2s ease-out forwards;
+}
+.ai-coracoes i:nth-child(1) { --x: -26px; animation-delay: 0s; }
+.ai-coracoes i:nth-child(2) { --x: 2px;   animation-delay: .12s; font-size: 18px; }
+.ai-coracoes i:nth-child(3) { --x: 26px;  animation-delay: .24s; }
+@keyframes elo-coracao {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(.4); }
+  25%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--x)), -26px) scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-avatar[data-brincadeira], .ai-coracoes i { animation-duration: .01ms !important; }
+}
+
+/* =========================================================
+   CONTRASTE DOS BOTÕES
+   O styles.css pinta todo <i> com a cor de destaque (roxo médio),
+   e aí os ícones sumiam em cima do roxo. Aqui eles herdam a cor do botão.
+========================================================= */
+.ai-botao i, .ai-janela i { color: inherit; }
+
+/* Recomeçar / fechar: círculo claro no topo roxo */
+.ai-icone {
+  display: inline-grid; place-items: center; flex-shrink: 0;
+  width: 36px; height: 36px; font-size: 1rem;
+  background: rgba(255, 255, 255, .18); border: 1px solid rgba(255, 255, 255, .35); color: #FFFFFF;
+}
+.ai-icone:hover { background: rgba(255, 255, 255, .3); }
+.ai-icone:focus-visible { outline: 3px solid #F2B230; outline-offset: 2px; }
+
+/* Botão redondo da Elô aberto (X) */
+.ai-botao.aberto > i { color: #FFFFFF; font-size: 1.3rem; }
+
+/* Enviar: desativado fica claro mas com o ícone visível, em vez de "apagado" */
+.ai-enviar { display: inline-grid; place-items: center; flex-shrink: 0; font-size: 1rem; transition: background .15s ease; }
+.ai-enviar:hover:not(:disabled) { background: #4B2C82; }
+.ai-enviar:disabled { opacity: 1; background: #E6DEF7; color: #5B3D99; }
+.ai-enviar:focus-visible { outline: 3px solid #F2B230; outline-offset: 2px; }
+
+/* Sugestões e "ir para": roxo mais forte e borda visível */
+.ai-sugestoes button, .ai-link { color: #4B2C82; border-color: #B9A6E3; background: #FFFFFF; }
+.ai-sugestoes button:hover, .ai-link:hover { background: #4B2C82; color: #FFFFFF; border-color: #4B2C82; }
+.ai-sugestoes button:focus-visible, .ai-link:focus-visible { outline: 3px solid #F2B230; outline-offset: 2px; }
+
+/* Textos pequenos mais legíveis */
+.ai-aviso, .ai-origem { color: #6B5F86; }
+.ai-form textarea::placeholder { color: #7A6A9A; }
+
+/* Tema escuro */
+:host-context(body[data-theme="dark"]) .ai-icone { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .3); color: #FFFFFF; }
+:host-context(body[data-theme="dark"]) .ai-enviar { background: #7C5FCB; color: #FFFFFF; }
+:host-context(body[data-theme="dark"]) .ai-enviar:hover:not(:disabled) { background: #9378E0; }
+:host-context(body[data-theme="dark"]) .ai-enviar:disabled { background: #2A3142; color: #C9BCF0; }
+:host-context(body[data-theme="dark"]) .ai-sugestoes button,
+:host-context(body[data-theme="dark"]) .ai-link { background: #1E2535; color: #E3D9FF; border-color: rgba(205, 187, 255, .45); }
+:host-context(body[data-theme="dark"]) .ai-sugestoes button:hover,
+:host-context(body[data-theme="dark"]) .ai-link:hover { background: #7C5FCB; color: #FFFFFF; border-color: #7C5FCB; }
+:host-context(body[data-theme="dark"]) .ai-aviso,
+:host-context(body[data-theme="dark"]) .ai-origem { color: #B3A8CC; }
+:host-context(body[data-theme="dark"]) .ai-form textarea::placeholder { color: #9C90B8; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.ai-linha .ai-msg.apoio:not(#_s1):not(#_s2), .ai-msg.apoio:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-rosa-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 16px 16px 16px 4px !important;
+  color: var(--soft-texto) !important;
+}
+.ai-linha .ai-msg.apoio:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5), .ai-msg.apoio:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.ai-linha .ai-msg.apoio:not(#_s1):not(#_s2) :is(p, li), .ai-msg.apoio:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.ai-linha .ai-msg.apoio:not(#_s1):not(#_s2) :is(small, .rotulo), .ai-msg.apoio:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-rosa-cor) !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

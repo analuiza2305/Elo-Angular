@@ -1,9 +1,10 @@
-import { Component, AfterViewInit, Inject, PLATFORM_ID, ViewEncapsulation, signal } from '@angular/core';
+import { Component, AfterViewInit, Inject, PLATFORM_ID, ViewEncapsulation, signal, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HeaderComponent } from '../../components/header/header';
 import { FooterComponent } from '../../components/footer/footer';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { I18nService } from '../../core/i18n/i18n.service';
 
 interface Depoimento {
   nome: string;
@@ -25,6 +26,21 @@ export class LandingPageComponent implements AfterViewInit {
 
   // Os textos abaixo são CHAVES do dicionário (src/app/core/i18n/translations.ts);
   // o HTML traduz com o pipe 't'.
+
+  private readonly i18n = inject(I18nService);
+
+  /** Imagem do hero no idioma atual (ex.: imagenshero-celular-en.png). Português usa a original. */
+  imagemHero(nome: string): string {
+    const idioma = this.i18n.idioma();
+    return idioma === 'pt' ? `/img/${nome}.png` : `/img/${nome}-${idioma}.png`;
+  }
+
+  /** Se a versão traduzida da imagem ainda não existir, volta para a em português. */
+  usarImagemPadrao(evento: Event, nome: string): void {
+    const img = evento.target as HTMLImageElement;
+    const padrao = `/img/${nome}.png`;
+    if (!img.src.endsWith(padrao)) img.src = padrao;
+  }
 
   // ---------- Mockup de agendamento (seção Consultorias) ----------
   readonly dias = [

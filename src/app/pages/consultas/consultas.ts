@@ -30,10 +30,10 @@ export class ConsultasComponent implements OnInit {
   @ViewChild('guiaChat') guiaChat?: GuiaPassosComponent;
   private guiaChatVerificado = false;
   readonly passosGuiaChat: PassoGuia[] = [
-    { icone: 'ph-light ph-chat-circle-text', titulo: 'Sua consulta foi confirmada!', texto: 'Agora você pode conversar com a profissional pelo chat, antes e depois da consulta. Toque em "Mandar mensagem" no cartão da consulta.' },
-    { icone: 'ph-light ph-user-list', titulo: 'Escolha com quem falar', texto: 'Na tela do chat, a lista da esquerda mostra as profissionais das suas consultas. Toque no nome para abrir a conversa.' },
-    { icone: 'ph-light ph-paper-plane-tilt', titulo: 'Escreva ou mande áudio', texto: 'Digite embaixo e toque em enviar. Se preferir, toque no microfone para gravar um áudio (até 1 minuto) e toque de novo para enviar.' },
-    { icone: 'ph-light ph-bell', titulo: 'Aviso de resposta', texto: 'Quando ela responder, aparece um número na conversa e um aviso no sino lá em cima. O chat não substitui a consulta por vídeo.' },
+    { icone: 'ph-light ph-chat-circle-text', titulo: 'Sua consulta foi confirmada!', texto: 'Agora você pode conversar com a profissional pelo chat, antes e depois da consulta. Toque em "Mandar mensagem" no cartão da consulta.', imagem: 'chat-mandar-mensagem' },
+    { icone: 'ph-light ph-user-list', titulo: 'Escolha com quem falar', texto: 'Na tela do chat, a lista da esquerda mostra as profissionais das suas consultas. Toque no nome para abrir a conversa.', imagem: 'chat-lista' },
+    { icone: 'ph-light ph-paper-plane-tilt', titulo: 'Escreva ou mande áudio', texto: 'Digite embaixo e toque em enviar. Se preferir, toque no microfone para gravar um áudio (até 1 minuto) e toque de novo para enviar.', imagem: 'chat-audio' },
+    { icone: 'ph-light ph-bell', titulo: 'Aviso de resposta', texto: 'Quando ela responder, aparece um número na conversa e um aviso no sino lá em cima. O chat não substitui a consulta por vídeo.', imagem: 'chat-aviso' },
   ];
 
   currentUser = signal<any>(null);

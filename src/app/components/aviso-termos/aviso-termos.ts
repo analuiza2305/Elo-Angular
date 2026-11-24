@@ -3,6 +3,8 @@ import { isPlatformBrowser } from '@angular/common';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { VERSAO_DOCUMENTOS_LEGAIS } from '../../pages/documento-legal/documentos-legais';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { I18nService } from '../../core/i18n/i18n.service';
 
 /** Onde o aceite fica guardado no navegador. */
 const CHAVE_ACEITE = 'eloAceiteTermos';
@@ -37,12 +39,13 @@ const DURACAO_SAIDA_MS = 320;
 @Component({
   selector: 'app-aviso-termos',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './aviso-termos.html',
   styleUrls: ['./aviso-termos.css'],
 })
 export class AvisoTermosComponent implements OnDestroy {
   private router = inject(Router);
+  private i18n = inject(I18nService);
   private ehNavegador = isPlatformBrowser(inject(PLATFORM_ID));
   private caixa = viewChild<ElementRef<HTMLElement>>('caixa');
   private sub?: Subscription;
@@ -229,12 +232,14 @@ export class AvisoTermosComponent implements OnDestroy {
     const trechos = Array.from(raiz.querySelectorAll('[data-ler]'))
       .map((el) => (el.textContent ?? '').replace(/\s+/g, ' ').trim())
       .filter(Boolean);
-    const voz = speechSynthesis.getVoices().find((v) => v.lang?.toLowerCase().startsWith('pt'));
+    // Fala no idioma escolhido no site (antes era sempre português)
+    const lang = { pt: 'pt-BR', en: 'en-US', es: 'es-ES' }[this.i18n.idioma()];
+    const voz = speechSynthesis.getVoices().find((v) => v.lang?.toLowerCase().startsWith(lang.slice(0, 2)));
     speechSynthesis.cancel();
     this.lendo.set(true);
     trechos.forEach((trecho, i) => {
       const fala = new SpeechSynthesisUtterance(trecho);
-      fala.lang = 'pt-BR';
+      fala.lang = lang;
       fala.rate = 0.95;
       if (voz) fala.voice = voz;
       if (i === trechos.length - 1) fala.onend = () => this.lendo.set(false);

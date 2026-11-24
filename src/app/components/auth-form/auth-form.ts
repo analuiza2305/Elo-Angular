@@ -15,11 +15,12 @@ import { collection, doc, setDoc, getDoc, updateDoc, query, where, getDocs, limi
 import { auth, db } from '../../core/firebase';
 import { EmailVerificationService } from '../../core/services/email-verification.service';
 import { VERSAO_DOCUMENTOS_LEGAIS } from '../../pages/documento-legal/documentos-legais';
+import { ClicavelTecladoDirective } from '../../core/directives/clicavel-teclado.directive';
 
 @Component({
   selector: 'app-auth-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ClicavelTecladoDirective],
   templateUrl: './auth-form.html',
   styleUrls: ['./auth-form.css'],
 })
@@ -176,6 +177,40 @@ export class AuthFormComponent {
     this.tipoDocumento = tipo;
     this.isDropdownOpen = false;
     this.errorMessage.set('');
+    // Quem escolheu pelo teclado continua no campo (o foco não se perde)
+    (event.target as HTMLElement | null)?.closest<HTMLElement>('.dropdown-container')?.focus();
+  }
+
+  /**
+   * Teclado no seletor de documento (OAB/CNPJ/CRP), que antes só abria com o mouse:
+   * Enter/Espaço/↓ abrem e vão para a primeira opção, ↑/↓ andam entre as opções, Esc fecha.
+   */
+  teclaNoDropdown(event: KeyboardEvent) {
+    const container = event.currentTarget as HTMLElement;
+    const itens = Array.from(container.querySelectorAll<HTMLElement>('.dropdown-item'));
+    const atual = itens.indexOf(document.activeElement as HTMLElement);
+
+    if (event.key === 'Escape') {
+      if (this.isDropdownOpen) {
+        event.preventDefault();
+        this.isDropdownOpen = false;
+        container.focus();
+      }
+      return;
+    }
+
+    if (event.target === container && ['Enter', ' ', 'ArrowDown'].includes(event.key)) {
+      event.preventDefault();
+      this.isDropdownOpen = true;
+      setTimeout(() => itens[0]?.focus());
+      return;
+    }
+
+    if (atual >= 0 && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+      event.preventDefault();
+      const proximo = event.key === 'ArrowDown' ? Math.min(atual + 1, itens.length - 1) : Math.max(atual - 1, 0);
+      itens[proximo].focus();
+    }
   }
 
   getDocumentoLabel(): string {

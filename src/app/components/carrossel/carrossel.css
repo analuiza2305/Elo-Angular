@@ -1,0 +1,66 @@
+:host { display: block; --gap: 20px; }
+.carrossel { position: relative; }
+
+.trilho {
+  display: flex;
+  gap: var(--gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  /* espaço para a sombra e o "levantar" dos cards não serem cortados */
+  padding: 6px 4px 14px;
+  margin: -6px -4px -14px;
+}
+.trilho::-webkit-scrollbar { display: none; }
+
+/* 3 por vez no computador */
+:host ::ng-deep .trilho > * {
+  flex: 0 0 calc((100% - 2 * var(--gap)) / 3);
+  min-width: 0;
+  scroll-snap-align: start;
+  /* todos os cards com a altura do mais alto (inscrita ou não, título de 1 ou 2 linhas) */
+  height: auto !important;
+  align-self: stretch;
+  display: flex !important;
+  flex-direction: column;
+}
+:host ::ng-deep .trilho > * > * { flex: 1 1 auto; height: auto !important; }
+
+/* Setinhas nos lados, no meio da altura */
+.seta {
+  position: absolute; top: 50%; z-index: 3;
+  display: grid; place-items: center;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid rgba(75, 44, 130, .14);
+  background: #FFFFFF; color: #4B2C82;
+  font-size: 1.25rem; cursor: pointer;
+  box-shadow: 0 8px 22px rgba(45, 30, 78, .16);
+  transform: translateY(-50%);
+  transition: opacity .2s ease, transform .2s ease, background .2s ease, color .2s ease;
+}
+.seta i { color: inherit !important; }
+.seta:hover { background: #4B2C82; color: #FFFFFF; }
+.seta:focus-visible { outline: 3px solid #B9A8F5; outline-offset: 2px; }
+.seta-ant { left: -23px; }
+.seta-prox { right: -23px; }
+.seta.escondida { opacity: 0; pointer-events: none; transform: translateY(-50%) scale(.8); }
+
+/* Tablet: 2 por vez */
+@media (max-width: 1024px) {
+  :host ::ng-deep .trilho > * { flex-basis: calc((100% - var(--gap)) / 2); }
+}
+
+/* Celular: 1 inteiro + 25% do próximo; arrasta com o dedo */
+@media (max-width: 700px) {
+  :host { --gap: 12px; }
+  :host ::ng-deep .trilho > * { flex-basis: calc((100% - var(--gap)) / 1.25); }
+  .seta { width: 38px; height: 38px; font-size: 1rem; }
+  .seta-ant { left: -8px; }
+  .seta-prox { right: -8px; }
+}
+
+@media (prefers-reduced-motion: reduce) { .trilho { scroll-behavior: auto; } }
+
+:host-context(body[data-theme="dark"]) .seta { background: #232B40; color: #E5DCFF; border-color: rgba(255, 255, 255, .14); box-shadow: 0 8px 22px rgba(0, 0, 0, .4); }
+:host-context(body[data-theme="dark"]) .seta:hover { background: #7C5FCB; color: #FFFFFF; }

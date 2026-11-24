@@ -57,7 +57,7 @@ i {
 
 .subtexto {
     color: #564286; 
-    font-size: 14px;
+    font-size: 0.875rem;
     margin-bottom: 20px;
 }
 
@@ -72,7 +72,7 @@ i {
 }
 
 .input-group .icon {
-    font-size: 16px;
+    font-size: 1rem;
     margin-right: 8px;
     color: #583E8E;
     width: 20px;
@@ -83,7 +83,7 @@ i {
     border: none;
     outline: none;
     width: 100%;
-    font-size: 14px;
+    font-size: 0.875rem;
     background: transparent;
     font-family: inherit;
 }
@@ -95,7 +95,7 @@ i {
     color: #fff;
     border: none;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 1rem;
     cursor: pointer;
     transition: 0.3s;
     font-weight: bold;
@@ -110,7 +110,7 @@ i {
     text-align: right;
     margin-top: -8px;
     margin-bottom: 15px;
-    font-size: 13px;
+    font-size: 0.8125rem;
 }
 
 .forgot a {
@@ -125,14 +125,14 @@ i {
 
 .divider-google {
     margin: 15px 0;
-    font-size: 14px;
+    font-size: 0.875rem;
     color: #583E8E;
     font-weight: bold;
 }
 
 .cad-link {
     margin-top: 15px;
-    font-size: 13px;
+    font-size: 0.8125rem;
     color: #664F9F;
     line-height: 1.6;
 }
@@ -287,3 +287,36 @@ body[data-theme="dark"] .auth-top-actions .icon-btn:hover {
 .custom-success-box button {
     color: #235a29;
 }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.custom-alert-box:not(#_s1):not(#_s2), .custom-success-box:not(#_s1):not(#_s2) {
+  --soft-base: #FFFFFF; --soft-borda: rgba(255, 255, 255, .95);
+  --soft-sombra: 0 12px 32px rgba(124, 95, 203, .10), 0 2px 6px rgba(124, 95, 203, .05);
+  --soft-brilho: inset 0 1px 0 rgba(255, 255, 255, .9);
+  --soft-titulo: #2D1E4E; --soft-texto: #6B5E8E;
+  --soft-verde-fim: #EEF9F3; --soft-verde-tile: #D8F1E4; --soft-verde-cor: #2F7A55;
+  --soft-vermelho-fim: #FFF0F2; --soft-vermelho-tile: #FBD9DE; --soft-vermelho-cor: #B4374A;
+}
+.custom-alert-box:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-vermelho-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.custom-alert-box:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.custom-alert-box:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.custom-alert-box:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-vermelho-cor) !important; }
+.custom-success-box:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.custom-success-box:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.custom-success-box:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.custom-success-box:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-verde-cor) !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

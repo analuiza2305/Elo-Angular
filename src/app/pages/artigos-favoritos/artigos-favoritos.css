@@ -371,3 +371,18 @@ body[data-theme="dark"] .artigo-resumo {
 }
 /* Ajuste 02/11 (auditoria de contraste): ícone do estado vazio herda a cor do círculo */
 .vazio-icon-wrapper i { color: inherit !important; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.estado-vazio:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-azul-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 24px !important;
+  color: var(--soft-texto) !important;
+}
+.estado-vazio:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.estado-vazio:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.estado-vazio:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-azul-cor) !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

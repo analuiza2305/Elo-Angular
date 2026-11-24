@@ -47,5 +47,11 @@ export class I18nService {
 
   private atualizarAtributoLang(): void {
     document.documentElement.lang = this.idioma() === 'pt' ? 'pt-BR' : this.idioma();
+    // Título da aba no idioma escolhido (só troca o título padrão; páginas com título próprio,
+    // como a de um artigo, continuam com o delas)
+    const titulosPadrao = (['pt', 'en', 'es'] as Idioma[]).map((i) => TRANSLATIONS[i]['titulo_aba']);
+    if (!document.title || titulosPadrao.includes(document.title)) {
+      document.title = this.t('titulo_aba');
+    }
   }
 }

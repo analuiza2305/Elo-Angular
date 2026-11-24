@@ -6,14 +6,19 @@ import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, query, whe
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 import { SelosAutorComponent } from '../../components/selos-autor/selos-autor';
+import { AcessibilidadeService } from '../../core/services/acessibilidade.service';
+import { ClicavelTecladoDirective } from '../../core/directives/clicavel-teclado.directive';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 @Component({
   selector: 'app-artigo-ind-profissional',
   standalone: true,
-  imports: [CommonModule, RouterModule, SelosAutorComponent],
+  imports: [ClicavelTecladoDirective, TranslatePipe, CommonModule, RouterModule, SelosAutorComponent],
   templateUrl: './artigo-ind-profissional.html',
   styleUrls: ['./artigo-ind-profissional.css']
 })
 export class ArtigoIndProfissional implements OnInit {
+  /** Acessibilidade compartilhada por todas as telas (ver AcessibilidadeService). */
+  readonly acc = inject(AcessibilidadeService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private location = inject(Location);
@@ -242,8 +247,4 @@ export class ArtigoIndProfissional implements OnInit {
   toggleAccessibilityMenu() {
     this.accessibilityMenuOpen.set(!this.accessibilityMenuOpen());
   }
-
-  aumentarFonte() {}
-  diminuirFonte() {}
-  redefinirAcessibilidade() {}
 }

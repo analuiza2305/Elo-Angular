@@ -102,136 +102,97 @@
             </button>
         </section>
 
-        <!-- ===== FÓRUM: balões de conversa ===== -->
-        <section class="hs">
-            <div class="hs-cabeca">
-                <div>
-                    <h3>Conversas no fórum</h3>
+        <!-- ===== Os cards abaixo são os MESMOS componentes das páginas =====
+             Fórum: app-card-post · Comunidade: app-card-artigo · Eventos: app-card-evento
+             (e o modal de evento é o app-evento-detalhes). Mudou lá, muda aqui. -->
+
+        <!-- ===== FÓRUM ===== -->
+        <section class="hm-secao hm-forum" aria-labelledby="hm-forum-titulo">
+            <div class="hm-cabeca">
+                <span class="hm-selo hm-selo-forum" aria-hidden="true"><i class="ph ph-chats-circle"></i></span>
+                <div class="hm-cabeca-textos">
+                    <h3 id="hm-forum-titulo">Conversas no fórum</h3>
                     <p>O que as mães estão falando agora</p>
                 </div>
-                <a class="hs-ver" routerLink="/forum">Ver todas <i class="ph-light ph-arrow-right"></i></a>
+                <div class="hm-cabeca-acoes">
+                    <a class="hm-botao-sec" routerLink="/forum"><i class="ph ph-pencil-simple-line"></i> <span>Escrever</span></a>
+                    <a class="hm-ver" routerLink="/forum">Ver todas <i class="ph ph-arrow-right"></i></a>
+                </div>
             </div>
             @if (isLoading()) {
                 <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
             }
-            <div class="hs-trilho">
-                @for (post of ultimosPosts(); track post.id) {
-                    <a [routerLink]="['/comentResp']" [queryParams]="{ postId: post.id }" class="hs-bolha">
-                        <span class="hs-status" [class.ok]="post.respondido">
-                            <span class="hs-ponto"></span>
-                            {{ post.respondido ? 'Especialista respondeu' : 'Esperando resposta' }}
-                        </span>
-                        <strong class="hs-bolha-titulo">{{ post.titulo }}</strong>
-                        <span class="hs-autor">
-                            <img [src]="post.autorFotoFinal" alt="">
-                            {{ post.autorNomeFinal }} · {{ post.dataFormatada }}
-                        </span>
-                    </a>
-                }
-            </div>
+            @if (ultimosPosts().length) {
+                <app-carrossel rotulo="Conversas no fórum">
+                    @for (post of ultimosPosts(); track post.id) {
+                        <app-card-post class="no-trilho" [post]="post" [podeDenunciar]="!!currentUser()"
+                                       (abrir)="irParaPost($event)" (curtir)="toggleLike($event)"></app-card-post>
+                    }
+                </app-carrossel>
+            } @else if (!isLoading()) {
+                <div class="hm-vazio"><i class="ph ph-chats-circle"></i><p>Ainda não tem conversas. Que tal começar uma?</p></div>
+            }
         </section>
 
         <section class="section">
             <app-anuncio-espaco class="anuncio-largo" posicao="home-mae"></app-anuncio-espaco>
         </section>
 
-        <!-- ===== DICAS: estilo revista, imagem e título ===== -->
-        <section class="hs">
-            <div class="hs-cabeca">
-                <div>
-                    <h3>Dicas para ler</h3>
+        <!-- ===== DICAS PARA LER ===== -->
+        <section class="hm-secao hm-dicas" aria-labelledby="hm-dicas-titulo">
+            <div class="hm-cabeca">
+                <span class="hm-selo hm-selo-dicas" aria-hidden="true"><i class="ph ph-book-open-text"></i></span>
+                <div class="hm-cabeca-textos">
+                    <h3 id="hm-dicas-titulo">Dicas para ler</h3>
                     <p>Textos curtos, para ler com calma</p>
                 </div>
-                <a class="hs-ver" routerLink="/artigos">Ver todas <i class="ph-light ph-arrow-right"></i></a>
+                <div class="hm-cabeca-acoes">
+                    <a class="hm-ver" routerLink="/artigos">Ver todas <i class="ph ph-arrow-right"></i></a>
+                </div>
             </div>
             @if (isLoading()) {
                 <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
             }
-            <div class="hs-cards">
-                @for (artigo of ultimosArtigos(); track artigo.id) {
-                    <a [routerLink]="['/artigo_ind']" [queryParams]="{ id: artigo.id }" class="hc">
-                        <img [src]="getImg(artigo.img)" alt="" class="hc-capa">
-                        <span class="hc-corpo">
-                            <span class="hc-tag">{{ artigo.categoria || 'Maternidade' }} · {{ artigo.tempoLeitura || '5 min' }} de leitura</span>
-                            <strong class="hc-titulo">{{ artigo.titulo }}</strong>
-                            <span class="hc-resumo">{{ artigo.resumo || 'Dicas e reflexões para o seu dia a dia.' }}</span>
-                            <span class="hc-rodape">
-                                <span class="hc-autor">Por {{ artigo.autorExibido || 'Equipe Elo' }}</span>
-                                <span class="hc-botao">Ler <i class="ph-light ph-arrow-right"></i></span>
-                            </span>
-                        </span>
-                    </a>
-                }
-            </div>
+            @if (ultimosArtigos().length) {
+                <app-carrossel rotulo="Dicas para ler">
+                    @for (artigo of ultimosArtigos(); track artigo.id) {
+                        <app-card-artigo class="compacto" [artigo]="artigo" (ler)="irParaArtigo($event)" (favoritar)="toggleSalvarArtigo($event)"></app-card-artigo>
+                    }
+                </app-carrossel>
+            } @else if (!isLoading()) {
+                <div class="hm-vazio"><i class="ph ph-book-open-text"></i><p>Nenhuma postagem por enquanto.</p></div>
+            }
         </section>
 
-        <!-- ===== EVENTOS: agenda simples ===== -->
-        <section class="hs">
-            <div class="hs-cabeca">
-                <div>
-                    <h3>Próximos eventos</h3>
+        <!-- ===== PRÓXIMOS EVENTOS ===== -->
+        <section class="hm-secao hm-eventos" aria-labelledby="hm-eventos-titulo">
+            <div class="hm-cabeca">
+                <span class="hm-selo hm-selo-eventos" aria-hidden="true"><i class="ph ph-calendar-heart"></i></span>
+                <div class="hm-cabeca-textos">
+                    <h3 id="hm-eventos-titulo">Próximos eventos</h3>
                     <p>Encontros e palestras gratuitas</p>
                 </div>
-                <a class="hs-ver" routerLink="/eventos">Ver todos <i class="ph-light ph-arrow-right"></i></a>
+                <div class="hm-cabeca-acoes">
+                    <a class="hm-ver" routerLink="/eventos">Ver todos <i class="ph ph-arrow-right"></i></a>
+                </div>
             </div>
             @if (isLoading()) {
                 <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
             }
-            <div class="hs-cards">
-                @for (ev of ultimosEventos(); track ev.id) {
-                    <article class="hc hc-evento">
-                        <span class="hc-capa-box">
-                            <img [src]="ev.capa || './img/art5_img.jpg'" alt="" class="hc-capa">
-                            <span class="hc-data"><strong>{{ ev.diaNum }}</strong><small>{{ ev.mesCurto }}</small></span>
-                        </span>
-                        <span class="hc-corpo">
-                            <strong class="hc-titulo">{{ ev.titulo }}</strong>
-                            <span class="hc-info"><i class="ph-light ph-clock"></i> {{ ev.diaSemana }}, às {{ ev.horaFormatada }}</span>
-                            <span class="hc-info"><i class="ph-light ph-map-pin"></i> {{ ev.local || 'Online' }}</span>
-                            @if (isUserInscrito(ev.id)) {
-                                <button type="button" class="hc-acao hc-acao-feita" (click)="openEventModal(ev)"><i class="ph-light ph-check-circle"></i> Você está inscrita</button>
-                            } @else {
-                                <button type="button" class="hc-acao" (click)="openEventModal(ev)">Ver e me inscrever</button>
-                            }
-                        </span>
-                    </article>
-                } @empty {
-                    @if (!isLoading()) { <p class="hs-vazio">Nenhum evento marcado por enquanto.</p> }
-                }
-            </div>
+            @if (ultimosEventos().length) {
+                <app-carrossel rotulo="Próximos eventos">
+                    @for (ev of ultimosEventos(); track ev.id) {
+                        <app-card-evento class="compacto" [ev]="ev" [inscrito]="inscricoes.isInscrito(ev.id)"
+                                         (detalhes)="eventoAberto.set($event)" (compartilhar)="detalhesEvento.compartilhar($event)"></app-card-evento>
+                    }
+                </app-carrossel>
+            } @else if (!isLoading()) {
+                <div class="hm-vazio"><i class="ph ph-calendar-blank"></i><p>Nenhum evento marcado por enquanto.</p></div>
+            }
         </section>
 
-        @if (selectedEvent()) {
-        <div class="modal" style="background: rgba(0,0,0,0.6);" (click)="closeEventModal()">
-            <div class="modal-content" style="padding: 0; max-width: 500px; overflow: hidden;" (click)="$event.stopPropagation()">
-                <span class="close" style="z-index: 10; color: white; background: rgba(0,0,0,0.3); border-radius: 50%; width: 30px; height: 30px; text-align: center; line-height: 28px;" (click)="closeEventModal()">&times;</span>
-
-                @if (selectedEvent().capa) {
-                    <img [src]="selectedEvent().capa" style="width: 100%; height: 200px; object-fit: cover; display: block;" [alt]="selectedEvent().titulo">
-                }
-
-                <div style="padding: 24px;">
-                    <h2 style="margin: 0 0 10px 0; color: #3E2A72;">{{ selectedEvent().titulo || 'Evento' }}</h2>
-                    <p style="color: #6C4BBF; font-weight: bold; font-size: 14px; margin-bottom: 16px;">
-                        <i class="fa-solid fa-location-dot"></i> {{ selectedEvent().local || 'Online' }} • {{ selectedEvent().dataFormatada }} às {{ selectedEvent().horaFormatada }}
-                    </p>
-                    <div style="color: #555; line-height: 1.6; margin-bottom: 24px;" [innerHTML]="selectedEvent().descricao"></div>
-
-                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                        <button type="button" style="padding: 10px 16px; background: #eee; color: #555; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;" (click)="closeEventModal()">Fechar</button>
-
-                        @if (!currentUser()) {
-                            <button type="button" style="padding: 10px 16px; background: #6C4BBF; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;" (click)="infoModal.set({title: 'Login', message: 'Você precisa logar.'})">Entrar para participar</button>
-                        } @else if (isUserInscrito(selectedEvent().id)) {
-                            <button type="button" style="padding: 10px 16px; background: #d9534f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;" (click)="cancelarInscricao(selectedEvent())">Cancelar Inscrição</button>
-                        } @else {
-                            <button type="button" style="padding: 10px 16px; background: #6C4BBF; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;" (click)="inscrever(selectedEvent())">Quero participar</button>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
+        <!-- Modal do evento: o mesmo da página de Eventos -->
+        <app-evento-detalhes #detalhesEvento [evento]="eventoAberto()" (fechar)="eventoAberto.set(null)"></app-evento-detalhes>
 
     @if (infoModal()) {
         <div class="modal">

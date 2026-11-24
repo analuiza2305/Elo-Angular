@@ -19,15 +19,20 @@ import { carregarReputacao, Reputacao, REPUTACAO_VAZIA } from '../../services/re
 import { PlanoService } from '../../services/plano';
 import { SeloService } from '../../services/selo';
 import { AlertaService } from '../../core/services/alerta.service';
+import { AcessibilidadeService } from '../../core/services/acessibilidade.service';
+import { ClicavelTecladoDirective } from '../../core/directives/clicavel-teclado.directive';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-perfil-profissional',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent],
+  imports: [ClicavelTecladoDirective, TranslatePipe, CommonModule, RouterModule, FormsModule, HeaderComponent],
   templateUrl: './perfil-profissional.html',
   styleUrls: ['./perfil-profissional.css']
 })
 export class PerfilProfissionalComponent implements OnInit {
+  /** Acessibilidade compartilhada por todas as telas (ver AcessibilidadeService). */
+  readonly acc = inject(AcessibilidadeService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private readonly alerta = inject(AlertaService);
@@ -134,6 +139,12 @@ export class PerfilProfissionalComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Respeita o tema que a pessoa escolheu nas outras telas (antes abria sempre claro)
+    if (typeof window !== 'undefined') {
+      this.isDarkMode.set(localStorage.getItem('theme') === 'dark');
+      document.body.setAttribute('data-theme', this.isDarkMode() ? 'dark' : 'light');
+    }
+
     this.route.queryParams.subscribe(params => {
       const paramUid = params['uid'];
 
@@ -708,8 +719,6 @@ export class PerfilProfissionalComponent implements OnInit {
   toggleTheme() {
       this.isDarkMode.set(!this.isDarkMode());
       document.body.setAttribute('data-theme', this.isDarkMode() ? 'dark' : 'light');
+      localStorage.setItem('theme', this.isDarkMode() ? 'dark' : 'light');
   }
-  aumentarFonte() {}
-  diminuirFonte() {}
-  redefinirAcessibilidade() {}
 }

@@ -483,3 +483,319 @@
 .af-faixa i,
 .at-caixa i { color: inherit; }
 .at-ler-mais i { color: var(--at-roxo); }
+
+/* =========================================================
+   VISUAL NOVO DA JANELA DE BOAS-VINDAS
+   Cartão grande e arejado, cada item num cartãozinho branco
+   com o ícone num quadrado com sombra.
+   ========================================================= */
+:host {
+  --at-card-fim: #f8f5ff;
+  --at-destaque: #5b2fb0;
+  --at-sombra-icone: 0 6px 16px rgba(104, 68, 176, 0.14);
+}
+:host-context(body[data-theme="dark"]) {
+  --at-card-fim: #1b2336;
+  --at-destaque: #d6c9ff;
+  --at-sombra-icone: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.at-caixa {
+  max-width: 660px;
+  padding: 40px 44px 36px;
+  border-radius: 36px;
+  border: 1px solid var(--at-borda);
+  background: linear-gradient(180deg, var(--at-card) 0%, var(--at-card-fim) 100%);
+  box-shadow: 0 40px 90px rgba(32, 20, 60, 0.32);
+}
+
+.at-topo { margin-bottom: 22px; }
+.at-marca { gap: 12px; font-size: 1.4rem; font-weight: 700; }
+.at-logo { width: 52px; height: 52px; }
+
+.at-ouvir {
+  min-height: 52px;
+  padding: 0 24px;
+  border-color: var(--at-borda);
+  background: var(--at-card);
+  font-size: 1.02rem;
+  box-shadow: 0 6px 16px rgba(75, 44, 130, 0.1);
+}
+.at-fechar {
+  width: 52px;
+  height: 52px;
+  border-color: var(--at-borda);
+  background: var(--at-card);
+  font-size: 1.2rem;
+  box-shadow: 0 6px 16px rgba(75, 44, 130, 0.1);
+}
+
+.at-titulo {
+  margin: 0 0 10px !important;
+  font-family: var(--font-heading, 'Poppins', sans-serif);
+  font-size: 1.95rem !important;
+  font-weight: 800;
+}
+.at-intro { margin: 0 0 26px; max-width: 34em; font-size: 1.08rem; }
+
+.at-lista { gap: 16px; margin-bottom: 26px; }
+.at-lista li {
+  align-items: center;
+  gap: 22px;
+  padding: 20px 22px;
+  border: 1px solid var(--at-borda);
+  border-radius: 20px;
+  background: var(--at-card);
+}
+.at-lista p { font-size: 1.02rem; line-height: 1.7; }
+.at-lista strong { color: var(--at-destaque); }
+/* Os textos dos itens vêm traduzidos via [innerHTML]; o <strong> de dentro precisa do ::ng-deep */
+:host ::ng-deep .at-lista p strong { color: var(--at-destaque); font-weight: 700; }
+
+.at-icone {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--at-card);
+  box-shadow: var(--at-sombra-icone);
+  font-size: 1.55rem;
+}
+
+.at-ler-mais { margin-bottom: 22px; font-size: 1rem; }
+
+/* O rodapé (aceite + botão) continua preso embaixo, mas sem linha separando */
+.at-rodape {
+  bottom: -36px;
+  margin: 0 -44px -36px;
+  padding: 6px 44px 36px;
+  border-top: none;
+  background: var(--at-card-fim);
+}
+
+.at-aceite {
+  align-items: center;
+  gap: 22px;
+  padding: 20px 28px;
+  border: 1px solid var(--at-borda);
+  border-radius: 20px;
+  background: var(--at-card);
+  color: var(--at-texto);
+  font-weight: 500;
+  font-size: 1.05rem;
+}
+.at-aceite:hover { border-color: var(--at-roxo); }
+.at-check {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid #b9a7ec;
+  border-radius: 10px;
+  background: var(--at-card);
+}
+
+.at-erro { margin: 8px 0 12px; }
+
+.at-botao {
+  min-height: 62px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #b6a5e6 0%, #a593dd 100%);
+  font-size: 1.12rem;
+  box-shadow: 0 10px 24px rgba(104, 68, 176, 0.18);
+}
+.at-botao.pronto { background: linear-gradient(180deg, #8a6fdc 0%, #6844b0 100%); }
+.at-botao.pronto:hover { background: linear-gradient(180deg, #7c60d1 0%, #573899 100%); }
+:host-context(body[data-theme="dark"]) .at-botao { background: #3d3560; }
+:host-context(body[data-theme="dark"]) .at-botao.pronto { background: #c4b5fd; color: #141a26; }
+
+@media (max-width: 480px) {
+  .at-caixa { padding: 24px 18px 20px; border-radius: 26px 26px 0 0; }
+  .at-titulo { font-size: 1.45rem !important; }
+  .at-marca { font-size: 1.2rem; }
+  .at-logo { width: 42px; height: 42px; }
+  .at-ouvir { min-height: 46px; padding: 0 16px; }
+  .at-fechar { width: 46px; height: 46px; }
+  .at-lista li { gap: 14px; padding: 14px 14px; }
+  .at-icone { width: 50px; height: 50px; border-radius: 16px; font-size: 1.25rem; }
+  .at-rodape { bottom: -20px; margin: 0 -18px -20px; padding: 6px 18px 20px; }
+  .at-aceite { gap: 14px; padding: 14px 16px; }
+}
+
+/* =========================================================
+   CABE TUDO NA TELA, SEM ROLAR
+   Itens em 2 colunas no computador e espaços mais enxutos.
+   Em telas baixas (notebook pequeno, celular) tudo encolhe mais um pouco.
+   ========================================================= */
+.at-caixa {
+  max-width: 780px;
+  padding: 26px 32px 24px;
+  border-radius: 32px;
+}
+
+.at-topo { margin-bottom: 10px; }
+.at-marca { font-size: 1.2rem; gap: 10px; }
+.at-logo { width: 42px; height: 42px; }
+.at-ouvir { min-height: 44px; padding: 0 18px; font-size: 0.95rem; }
+.at-fechar { width: 44px; height: 44px; font-size: 1.05rem; }
+
+.at-titulo { margin: 0 0 4px !important; font-size: 1.6rem !important; }
+.at-intro { margin: 0 0 16px; font-size: 1rem; line-height: 1.5; }
+
+.at-lista {
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.at-lista li {
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+}
+.at-lista p { font-size: 0.93rem; line-height: 1.5; }
+.at-icone {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  font-size: 1.2rem;
+}
+
+.at-ler-mais { margin-bottom: 12px; font-size: 0.93rem; }
+
+.at-rodape {
+  position: static;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+.at-aceite {
+  gap: 16px;
+  padding: 12px 18px;
+  border-radius: 16px;
+  font-size: 0.98rem;
+}
+.at-check { width: 28px; height: 28px; border-radius: 8px; }
+.at-erro { min-height: 1.2em; margin: 4px 0 8px; font-size: 0.88rem; }
+.at-botao { min-height: 52px; border-radius: 16px; font-size: 1.05rem; }
+
+/* Notebooks com pouca altura */
+@media (max-height: 700px) and (min-width: 701px) {
+  .at-caixa { padding: 20px 28px 18px; }
+  .at-titulo { font-size: 1.4rem !important; }
+  .at-intro { margin-bottom: 12px; font-size: 0.95rem; }
+  .at-lista { gap: 10px; margin-bottom: 10px; }
+  .at-lista li { padding: 10px 14px; }
+  .at-lista p { font-size: 0.88rem; line-height: 1.45; }
+  .at-icone { width: 40px; height: 40px; font-size: 1.05rem; }
+  .at-ler-mais { margin-bottom: 8px; }
+  .at-aceite { padding: 10px 16px; font-size: 0.93rem; }
+  .at-botao { min-height: 48px; }
+}
+
+/* Celular e telas estreitas: uma coluna, sem os ícones grandes */
+@media (max-width: 700px) {
+  .at-fundo { align-items: center; padding: 10px; }
+  .at-caixa {
+    max-height: calc(100dvh - 20px);
+    padding: 16px 16px 14px;
+    border-radius: 24px;
+  }
+  .at-topo { margin-bottom: 6px; }
+  .at-marca { font-size: 1.05rem; gap: 8px; }
+  .at-logo { width: 32px; height: 32px; }
+  .at-ouvir { min-height: 40px; padding: 0 14px; font-size: 0.88rem; }
+  .at-fechar { width: 40px; height: 40px; }
+  .at-titulo { font-size: 1.2rem !important; }
+  .at-intro { margin-bottom: 10px; font-size: 0.88rem; line-height: 1.4; }
+  .at-lista { grid-template-columns: 1fr; gap: 6px; margin-bottom: 8px; }
+  .at-lista li { gap: 10px; padding: 8px 12px; border-radius: 14px; align-items: center; }
+  .at-lista p { font-size: 0.82rem; line-height: 1.4; }
+  .at-icone { width: 32px; height: 32px; border-radius: 10px; font-size: 0.9rem; box-shadow: none; }
+  .at-ler-mais { margin-bottom: 8px; font-size: 0.82rem; }
+  .at-aceite { gap: 12px; padding: 10px 12px; font-size: 0.85rem; line-height: 1.4; }
+  .at-check { width: 24px; height: 24px; }
+  .at-erro { margin: 2px 0 6px; }
+  .at-botao { min-height: 48px; font-size: 1rem; }
+}
+
+/* Celular: ganha espaço tirando os ícones dos itens e juntando o "Ouvir" ao topo */
+@media (max-width: 700px) {
+  .at-icone { display: none; }
+  .at-lista li { padding: 8px 12px; }
+  .at-lista p { font-size: 0.8rem; line-height: 1.38; }
+  .at-titulo { font-size: 1.12rem !important; }
+  .at-intro { font-size: 0.84rem; margin-bottom: 8px; }
+  .at-ler-mais i { display: none; }
+}
+/* Celular de altura comum ou menor: o texto de introdução sai (os itens já explicam tudo) */
+@media (max-width: 700px) and (max-height: 740px) {
+  .at-intro { display: none; }
+  .at-lista { gap: 5px; }
+  .at-lista li { padding: 7px 10px; }
+  .at-lista p { font-size: 0.78rem; line-height: 1.35; }
+  .at-aceite { padding: 8px 12px; font-size: 0.8rem; }
+  .at-botao { min-height: 44px; }
+  .at-erro { min-height: 0.8em; margin: 2px 0 4px; }
+}
+
+/* =========================================================
+   UMA COLUNA SÓ (também no computador), com cartõezinhos mais baixos
+   para tudo continuar cabendo na tela sem rolar.
+   ========================================================= */
+.at-caixa { max-width: 600px; }
+.at-lista { grid-template-columns: 1fr; gap: 8px; margin-bottom: 12px; }
+.at-lista li { align-items: center; gap: 14px; padding: 9px 14px; border-radius: 16px; }
+.at-lista p { font-size: 0.9rem; line-height: 1.45; }
+.at-icone { width: 38px; height: 38px; border-radius: 12px; font-size: 1rem; }
+.at-intro { margin-bottom: 12px; }
+
+@media (max-height: 700px) and (min-width: 701px) {
+  .at-lista { gap: 6px; margin-bottom: 8px; }
+  .at-lista li { padding: 7px 12px; }
+  .at-lista p { font-size: 0.85rem; line-height: 1.4; }
+  .at-icone { width: 32px; height: 32px; font-size: 0.9rem; }
+  .at-intro { margin-bottom: 8px; font-size: 0.9rem; }
+  .at-topo { margin-bottom: 6px; }
+}
+
+/* Uma coluna só (como na referência), com os itens mais baixinhos para caber sem rolar */
+.at-caixa { max-width: 620px; }
+.at-lista {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.at-lista li {
+  align-items: center;
+  gap: 14px;
+  padding: 9px 14px;
+  border-radius: 16px;
+}
+.at-lista p { font-size: 0.9rem; line-height: 1.42; }
+.at-icone {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  font-size: 1.05rem;
+}
+
+@media (max-height: 700px) and (min-width: 701px) {
+  .at-caixa { padding: 18px 26px 16px; }
+  .at-topo { margin-bottom: 6px; }
+  .at-intro { display: none; }
+  .at-lista { gap: 6px; margin-bottom: 8px; }
+  .at-lista li { padding: 7px 12px; }
+  .at-lista p { font-size: 0.86rem; line-height: 1.38; }
+  .at-icone { width: 34px; height: 34px; font-size: 0.95rem; }
+  .at-aceite { padding: 9px 14px; }
+  .at-botao { min-height: 46px; }
+}
+
+/* Celular (repete aqui para valer depois das regras de uma coluna acima) */
+@media (max-width: 700px) {
+  .at-lista { gap: 6px; margin-bottom: 8px; }
+  .at-lista li { gap: 10px; padding: 8px 12px; border-radius: 14px; }
+  .at-lista p { font-size: 0.8rem; line-height: 1.38; }
+}
+@media (max-width: 700px) and (max-height: 740px) {
+  .at-lista { gap: 5px; }
+  .at-lista li { padding: 7px 10px; }
+  .at-lista p { font-size: 0.78rem; line-height: 1.35; }
+}

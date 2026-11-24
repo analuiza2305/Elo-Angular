@@ -7,6 +7,7 @@ import { FooterSimplesComponent } from './components/footer-simples/footer-simpl
 import { CpfObrigatorioComponent } from './components/cpf-obrigatorio/cpf-obrigatorio';
 import { AvisoTermosComponent } from './components/aviso-termos/aviso-termos';
 import { AnimacoesService } from './core/services/animacoes.service';
+import { AcessibilidadeService } from './core/services/acessibilidade.service';
 
 // Telas sem o footer simples: landing page (tem o footer completo), autenticação e videochamada (tela cheia)
 const ROTAS_SEM_FOOTER = new Set([
@@ -44,6 +45,11 @@ export class AppComponent {
 
   constructor() {
     const animacoes = inject(AnimacoesService);
-    afterNextRender(() => animacoes.iniciar());
+    const acessibilidade = inject(AcessibilidadeService);
+    afterNextRender(() => {
+      animacoes.iniciar();
+      // Reaplica fonte, contraste, daltonismo etc. que a pessoa escolheu (sobrevive ao F5)
+      acessibilidade.aplicar();
+    });
   }
 }

@@ -13592,3 +13592,656 @@ body.area-mae main textarea { font-size: max(16px, 1rem) !important; }
   /* o botão flutuante global de menu some: o menu está na barra de baixo */
   body.area-mae > .menu-toggle { display: none !important; }
 }
+
+/* =========================================
+   ACESSIBILIDADE GLOBAL (AcessibilidadeService)
+   Os filtros ficam no <html> para não quebrar elementos fixos.
+========================================= */
+
+/* Espaçamento entre linhas: vale para o texto de todas as telas */
+html.acc-espacamento body :is(p, li, dd, dt, td, th, blockquote, label, textarea, figcaption) {
+    line-height: var(--acc-line-height, 1.5) !important;
+}
+
+/* Alto contraste: o <html> é invertido; fotos e vídeos voltam às cores reais */
+html.acc-contraste img,
+html.acc-contraste video,
+html.acc-contraste iframe,
+html.acc-contraste picture,
+html.acc-contraste canvas,
+html.acc-contraste .perfil-avatar,
+html.acc-contraste [style*="background-image"] {
+    filter: invert(1) hue-rotate(180deg) !important;
+}
+
+/* A máscara de leitura continua escurecendo (e não clareando) com o contraste ligado */
+html.acc-contraste #reading-mask-overlay {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+/* Itens de menu que viraram focáveis pelo teclado: mostram onde está o foco */
+[appTeclado]:focus-visible,
+#accessibility-menu li:focus-visible,
+#language-menu li:focus-visible,
+.mobile-acc-sublist li:focus-visible {
+    outline: 3px solid #7c5cd6;
+    outline-offset: -3px;
+    border-radius: 6px;
+}
+
+/* Campos de login/cadastro: mostra claramente qual campo está com o foco (teclado e mouse) */
+.input-group:focus-within {
+    box-shadow: 0 0 0 3px rgba(124, 92, 214, 0.35) !important;
+    border-color: #6844b0 !important;
+}
+
+/* Links "Termos de Uso" / "Política de Privacidade" no cadastro: o cartão é claro
+   também no modo escuro, então o link precisa ser roxo escuro (antes ficava lilás claro, ilegível) */
+.aceite-termos a,
+body[data-theme="dark"] .aceite-termos a {
+    color: #4B2C82 !important;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+/* Fonte aumentada: os cabeçalhos quebram em mais de uma linha em vez de empurrar
+   itens para fora da tela ou ficarem um em cima do outro */
+html.acc-fonte-grande .top-header,
+html.acc-fonte-grande .header {
+    height: auto !important;
+    min-height: 0 !important;
+}
+html.acc-fonte-grande .top-header .header-container,
+html.acc-fonte-grande .header .header-content {
+    flex-wrap: wrap !important;
+    height: auto !important;
+    row-gap: 10px;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+/* Landing/profissionais no computador: o menu deixa de ficar "flutuando" no meio
+   (position absolute) e passa a ocupar o próprio espaço, sem ficar embaixo da logo */
+@media screen and (min-width: 993px) {
+    html.acc-fonte-grande .header-content .nav-links {
+        position: static !important;
+        transform: none !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 6px 20px !important;
+        flex: 1 1 auto;
+    }
+}
+html.acc-fonte-grande .top-header .left-section,
+html.acc-fonte-grande .top-header .right-section,
+html.acc-fonte-grande .header .nav-links,
+html.acc-fonte-grande .header .header-actions {
+    flex-wrap: wrap !important;
+    min-width: 0;
+    row-gap: 8px;
+}
+
+/* Com a fonte maior o cabeçalho da landing fica mais alto: em vez de "fixed" (que cobriria
+   o começo da página), ele entra no fluxo e continua grudado no topo ao rolar */
+html.acc-fonte-grande app-header:has(> header.header) {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+html.acc-fonte-grande app-header > header.header {
+    position: relative !important;
+}
+
+/* Login/cadastro no modo escuro: o cartão continua claro, então os elementos dentro dele
+   não podem usar as cores claras do modo escuro (que são para fundo escuro).
+   - opções OAB/CNPJ/CRP herdavam o branco do menu do cabeçalho (.dropdown-item) e sumiam
+   - o olho de mostrar senha ficava lilás claro
+   - a caixinha de aceite ficava preta (o navegador desenhava no esquema escuro) */
+body[data-theme="dark"] :is(.login-box, .cadastro-box) {
+    color-scheme: light;
+}
+body[data-theme="dark"] :is(.login-box, .cadastro-box) .dropdown-titulo {
+    color: #4B2C82 !important;
+}
+body[data-theme="dark"] :is(.login-box, .cadastro-box) .dropdown-item {
+    color: #4B2C82 !important;
+    font-weight: 600;
+}
+body[data-theme="dark"] :is(.login-box, .cadastro-box) .dropdown-item:hover,
+body[data-theme="dark"] :is(.login-box, .cadastro-box) .dropdown-item:focus-visible {
+    background: #f3efff !important;
+}
+body[data-theme="dark"] :is(.login-box, .cadastro-box) .btn-olho {
+    color: #6844b0 !important;
+}
+body[data-theme="dark"] :is(.login-box, .cadastro-box) input[type="checkbox"] {
+    accent-color: #583E8E;
+}
+
+/* =========================================================
+   BOTÕES DE MODAIS NO CELULAR
+   Vários modais empilham os botões no celular (flex-direction: column),
+   mas os botões têm "flex: 1". Em coluna isso zera a altura e o botão fica
+   fininho. A altura mínima abaixo impede isso sem mudar o resto do layout.
+========================================================= */
+@media (max-width: 768px) {
+  :is(.alerta-acoes, .modal-actions, .modal-actions-footer, .bv-acoes, .consulta-acoes, .cs-acoes,
+      .dm-rodape, .card-actions, .pc-form-acoes, .pc-modal-rodape, .suspender-acoes, .mod-vis-acoes,
+      .cfg-form-acoes, .den-acoes, .evm-acoes, .modal-footer, .modal-botoes, .acoes-modal) > :is(button, a, .btn) {
+    min-height: 46px;
+  }
+}
+
+/* =========================================================
+   PADRÃO DE FILTROS DO SITE (igual à página de Artigos)
+   Barra branca arredondada; filtros em texto com ícone; o escolhido
+   fica numa pílula roxa; "ordenar" numa pílula com borda, à direita.
+   No celular os filtros viram um dropdown (diretiva appFiltrosDropdown).
+
+   Uso:
+     <div class="elo-filtros-barra">
+       <div class="elo-filtros" appFiltrosDropdown> <button class="elo-filtro" [class.active]="...">…</button> … </div>
+       <button class="elo-ordenar">…</button>      (opcional)
+     </div>
+========================================================= */
+body .elo-filtros-barra {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 14px !important;
+    margin-bottom: 35px;
+    padding: 12px 20px !important;
+    background: #FFFFFF !important;
+    border: 1px solid rgba(132, 113, 177, 0.1) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 6px 20px rgba(115, 93, 163, 0.03) !important;
+}
+body .elo-filtros-barra .elo-filtros {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    min-width: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+body .elo-filtros-barra .elo-filtros::-webkit-scrollbar { display: none; }
+
+body .elo-filtro {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-shrink: 0;
+    height: auto !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    border-radius: 50px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #4B2C82 !important;
+    font-family: 'Nunito', sans-serif !important;
+    font-size: 0.9rem !important;
+    font-weight: 700 !important;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+body .elo-filtro i { color: inherit !important; }
+body .elo-filtro:hover { background: rgba(124, 105, 169, 0.08) !important; color: #4B2C82 !important; }
+body .elo-filtro:is(.active, .ativo) {
+    background: #4B2C82 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 14px rgba(75, 44, 130, 0.22) !important;
+}
+body .elo-filtro:focus-visible { outline: 3px solid #B9A8F5 !important; outline-offset: 2px; }
+/* Contador dentro do filtro (ex.: "Psicólogos 11") */
+body .elo-filtro > span {
+    display: inline-grid; place-items: center;
+    min-width: 22px; height: 20px; padding: 0 7px;
+    border-radius: 999px; background: #F1ECFB !important; color: #6E5AA8 !important;
+    font-size: 0.75rem; font-weight: 800;
+}
+body .elo-filtro:is(.active, .ativo) > span { background: rgba(255, 255, 255, 0.22) !important; color: #FFFFFF !important; }
+
+/* Botão/seletor de ordenação */
+body .elo-filtros-barra .elo-ordenar {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-shrink: 0;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 10px 18px !important;
+    border: 1px solid rgba(132, 113, 177, 0.2) !important;
+    border-radius: 50px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #4B2C82 !important;
+    font-family: 'Nunito', sans-serif !important;
+    font-size: 0.9rem !important;
+    font-weight: 700 !important;
+    cursor: pointer;
+}
+body .elo-filtros-barra .elo-ordenar:hover { background: rgba(124, 105, 169, 0.06) !important; }
+body .elo-filtros-barra .elo-ordenar i { color: inherit !important; }
+body .elo-filtros-barra .elo-ordenar select {
+    field-sizing: content;
+    border: none !important; background: transparent !important; box-shadow: none !important;
+    padding: 0 !important; margin: 0 !important; height: auto !important; min-height: 0 !important;
+    color: inherit !important; font: inherit !important; cursor: pointer; appearance: none; -webkit-appearance: none;
+}
+
+/* Botão do dropdown (criado pela diretiva appFiltrosDropdown): só aparece no celular */
+body .elo-filtros-gatilho { display: none; }
+
+/* =========================================================
+   FILTROS EM DROPDOWN (celular e tablet, até 900px)
+   [ 🔲 Todos  ▾ ]  [ Mais recentes ▾ ]
+   Ao tocar, a lista abre num cartão embaixo da barra.
+   ========================================================= */
+@media (max-width: 900px) {
+    body .elo-filtros-barra {
+        position: relative;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding: 10px 12px !important;
+        border-radius: 22px !important;
+        margin-bottom: 24px;
+        overflow: visible !important;
+    }
+    /* Os menus antigos "Categoria: ..." do celular não são mais necessários */
+    body .elo-filtros-barra .mobile-only-categorias,
+    body .elo-filtros-barra .fr-so-mobile { display: none !important; }
+
+    body .elo-filtros-gatilho {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1 1 120px;
+        min-width: 0;
+        min-height: 44px;
+        padding: 8px 16px 8px 18px;
+        border: 1px solid rgba(75, 44, 130, 0.22);
+        border-radius: 50px;
+        background: #F4F0FC;
+        color: #4B2C82;
+        font-family: 'Nunito', sans-serif;
+        font-size: 0.92rem;
+        font-weight: 800;
+        text-align: left;
+        cursor: pointer;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    body .elo-filtros-gatilho:focus-visible { outline: 3px solid #B9A8F5; outline-offset: 2px; }
+    body .elo-filtros-gatilho.aberto { border-color: #4B2C82; box-shadow: 0 0 0 3px rgba(75, 44, 130, 0.12); }
+    body .elo-filtros-gatilho i { color: inherit !important; }
+    body .elo-filtros-gatilho-rotulo {
+        display: inline-flex; align-items: center; gap: 8px; flex: 1; min-width: 0;
+        overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    /* contador (ex.: "Psicólogos 11") dentro do botão */
+    body .elo-filtros-gatilho-rotulo > span {
+        display: inline-grid; place-items: center; min-width: 22px; height: 20px; padding: 0 7px;
+        border-radius: 999px; background: #FFFFFF; color: #4B2C82; font-size: .75rem; font-weight: 800;
+    }
+    body .elo-filtros-gatilho-seta { font-size: .8rem; transition: transform .2s ease; }
+    body .elo-filtros-gatilho.aberto .elo-filtros-gatilho-seta { transform: rotate(180deg); }
+
+    /* A lista: escondida até abrir; depois vira um cartão flutuante */
+    body .elo-filtros-barra.tem-dropdown .elo-filtros {
+        display: none !important;
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        z-index: 60;
+        flex-direction: column !important;
+        gap: 4px !important;
+        padding: 8px !important;
+        max-height: min(60vh, 420px);
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        background: #FFFFFF;
+        border: 1px solid rgba(132, 113, 177, 0.18);
+        border-radius: 20px;
+        box-shadow: 0 18px 40px rgba(45, 30, 78, 0.18);
+        animation: elo-filtros-abre .18s ease;
+    }
+    body .elo-filtros-barra.tem-dropdown .elo-filtros.aberto { display: flex !important; }
+    body .elo-filtros-barra.tem-dropdown .elo-filtro {
+        width: 100%;
+        justify-content: flex-start !important;
+        padding: 12px 16px !important;
+        min-height: 46px;
+        border-radius: 14px !important;
+    }
+    body .elo-filtros-barra.tem-dropdown .elo-filtro > span { margin-left: auto; }
+
+    body .elo-filtros-barra.tem-dropdown .elo-filtro:is(.active, .ativo) { box-shadow: none !important; }
+
+    body .elo-filtros-barra .elo-ordenar { flex: 0 0 auto !important; min-height: 44px !important; align-self: center; }
+    /* algumas páginas embrulham o ordenar numa div com width: 100% */
+    body .elo-filtros-barra > :has(.elo-ordenar):not(.elo-filtros) { flex: 0 0 auto !important; width: auto !important; }
+}
+@keyframes elo-filtros-abre { from { opacity: 0; transform: translateY(-6px); } }
+@media (max-width: 380px) {
+    /* tela bem estreita: ordenar vai pra linha de baixo, ocupando a largura */
+    body .elo-filtros-barra > :has(.elo-ordenar):not(.elo-filtros) { flex: 1 1 100% !important; }
+    body .elo-filtros-barra .elo-ordenar { flex: 1 1 100% !important; width: 100% !important; justify-content: center; }
+}
+
+/* Tema escuro */
+body[data-theme="dark"] .elo-filtros-barra {
+    background: #1A2030 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: none !important;
+}
+body[data-theme="dark"] .elo-filtro { color: #C9C2DA !important; }
+body[data-theme="dark"] .elo-filtro:hover { background: rgba(255, 255, 255, 0.06) !important; color: #FFFFFF !important; }
+body[data-theme="dark"] .elo-filtro:is(.active, .ativo) { background: #7C5FCB !important; color: #FFFFFF !important; }
+body[data-theme="dark"] .elo-filtro > span { background: rgba(255, 255, 255, 0.1) !important; color: #E5DCFF !important; }
+body[data-theme="dark"] .elo-filtros-barra .elo-ordenar { border-color: rgba(255, 255, 255, 0.14) !important; color: #D9CCFF !important; }
+body[data-theme="dark"] .elo-filtros-gatilho { background: #241B38; border-color: rgba(205, 187, 255, 0.3); color: #EDE6FF; }
+body[data-theme="dark"] .elo-filtros-gatilho.aberto { border-color: #9C88D9; box-shadow: 0 0 0 3px rgba(156, 136, 217, 0.2); }
+body[data-theme="dark"] .elo-filtros-gatilho-rotulo > span { background: rgba(255, 255, 255, 0.12); color: #EDE6FF; }
+@media (max-width: 900px) {
+    body[data-theme="dark"] .elo-filtros-barra.tem-dropdown .elo-filtros {
+        background: #1A2030; border-color: rgba(255, 255, 255, 0.1); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    }
+}
+
+/* =========================================================
+   HEADER DA MÃE EM NOTEBOOK (901px a 1440px)
+   Vai encolhendo por etapas pra nunca passar da tela:
+   1) nome da usuária com reticências / só a foto
+   2) busca vira um botão redondo que abre ao clicar
+   3) links mais justos e logo só com o ícone
+   ========================================================= */
+@media (min-width: 901px) {
+  .top-header .user-dropdown-btn .user-name {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .top-header .right-section.desktop-right { min-width: 0 !important; }
+}
+
+@media (min-width: 901px) and (max-width: 1380px) {
+  .top-header .user-dropdown-btn .user-name { max-width: 96px; }
+}
+@media (min-width: 901px) and (max-width: 1180px) {
+  .top-header .user-dropdown-btn .user-name { display: none !important; }
+  .top-header .user-dropdown-btn { padding: 4px 10px 4px 4px !important; gap: 6px !important; }
+}
+
+@media (min-width: 901px) and (max-width: 1280px) {
+  .top-header .search-box {
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+    cursor: pointer;
+    transition: width .25s ease, margin .25s ease, box-shadow .2s ease;
+    z-index: 5;
+  }
+  .top-header .search-box .icon-search-left {
+    position: absolute !important;
+    left: 0; width: 42px; top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+    margin: 0 !important;
+    pointer-events: none;
+  }
+  .top-header .search-box input {
+    position: absolute !important;
+    inset: 0;
+    width: 100% !important;
+    height: 100%;
+    padding: 0 !important;
+    border-radius: 50px;
+    color: transparent !important;
+    cursor: pointer;
+  }
+  .top-header .search-box input::placeholder { color: transparent !important; }
+
+  /* Aberta: cresce pra esquerda por cima dos links, sem empurrar nada */
+  .top-header .search-box:focus-within {
+    width: 260px !important;
+    max-width: 260px !important;
+    margin-left: -218px !important;
+    box-shadow: 0 8px 24px rgba(75, 44, 130, .18);
+    background: #fff !important;
+  }
+  .top-header .search-box:focus-within input {
+    padding: 0 14px 0 40px !important;
+    color: #2D1E4E !important;
+    cursor: text;
+  }
+  .top-header .search-box:focus-within input::placeholder { color: #7A6A9A !important; }
+  body[data-theme="dark"] .top-header .search-box:focus-within { background: #241B38 !important; }
+  body[data-theme="dark"] .top-header .search-box:focus-within input { color: #F3EEFF !important; }
+  body[data-theme="dark"] .top-header .search-box:focus-within input::placeholder { color: #B9A9DC !important; }
+
+  .top-header .right-section.desktop-right { gap: 8px !important; }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .top-header .header-container { padding: 0 16px !important; gap: 10px !important; }
+  .top-header .left-section { gap: 10px !important; }
+  .top-header .desktop-nav .nav-item { padding: 6px 7px !important; font-size: .82rem !important; }
+  .top-header .right-section.desktop-right { gap: 6px !important; }
+  .top-header .header-icon-btn,
+  .top-header .search-box { width: 38px !important; min-width: 38px !important; height: 38px !important; }
+  .top-header .search-box:not(:focus-within) { max-width: 38px !important; }
+  .top-header .search-box .icon-search-left { width: 38px; }
+}
+
+@media (min-width: 901px) and (max-width: 1100px) {
+  .top-header .logo-area .company-name { display: none !important; }
+}
+
+/* =========================================================
+   ESTÉTICA SOFT (botões, avisos, selos, painéis) — 23/11
+   Card branco com degradê leve da cor do aviso, borda clarinha,
+   sombra lilás difusa e ícone em quadradinho tingido.
+   As regras de cada item ficam no fim do CSS de cada tela
+   (procure por "ESTÉTICA SOFT"); aqui só as cores, para o
+   modo escuro trocar tudo de uma vez.
+   ========================================================= */
+:root {
+  --soft-base: #FFFFFF;
+  --soft-borda: rgba(255, 255, 255, .95);
+  --soft-borda-linha: rgba(132, 113, 177, .10);
+  --soft-sombra: 0 12px 32px rgba(124, 95, 203, .10), 0 2px 6px rgba(124, 95, 203, .05);
+  --soft-sombra-pequena: 0 4px 12px rgba(124, 95, 203, .10);
+  --soft-sombra-hover: 0 16px 36px rgba(124, 95, 203, .16), 0 2px 6px rgba(124, 95, 203, .06);
+  --soft-brilho: inset 0 1px 0 rgba(255, 255, 255, .9);
+  --soft-titulo: #2D1E4E;
+  --soft-texto: #6B5E8E;
+
+  --soft-verde-fim: #EEF9F3;    --soft-verde-tile: #D8F1E4;    --soft-verde-cor: #2F7A55;    --soft-verde-forte: linear-gradient(135deg, #5DBE92, #2F8A63);
+  --soft-laranja-fim: #FFF6EA;  --soft-laranja-tile: #FCE6C8;  --soft-laranja-cor: #A85F1C;  --soft-laranja-forte: linear-gradient(135deg, #F2A65A, #C9742E);
+  --soft-rosa-fim: #FFF1F5;     --soft-rosa-tile: #FADAE4;     --soft-rosa-cor: #B4405F;     --soft-rosa-forte: linear-gradient(135deg, #E886A6, #B4405F);
+  --soft-vermelho-fim: #FFF0F2; --soft-vermelho-tile: #FBD9DE; --soft-vermelho-cor: #B4374A; --soft-vermelho-forte: linear-gradient(135deg, #E57C8A, #B4374A);
+  --soft-lilas-fim: #F3EEFD;    --soft-lilas-tile: #E6DDF8;    --soft-lilas-cor: #5B3D99;    --soft-lilas-forte: linear-gradient(135deg, #8B72C8, #5B3D99);
+  --soft-azul-fim: #EFF4FF;     --soft-azul-tile: #DCE6FB;     --soft-azul-cor: #2F5DA8;
+  --soft-amarelo-fim: #FFF9E6;  --soft-amarelo-tile: #FAEDBF;  --soft-amarelo-cor: #876410;
+}
+body[data-theme="dark"] {
+  --soft-base: #1B2336;
+  --soft-borda: rgba(255, 255, 255, .07);
+  --soft-borda-linha: rgba(255, 255, 255, .08);
+  --soft-sombra: 0 12px 30px rgba(0, 0, 0, .35);
+  --soft-sombra-pequena: 0 4px 12px rgba(0, 0, 0, .3);
+  --soft-sombra-hover: 0 16px 36px rgba(0, 0, 0, .45);
+  --soft-brilho: inset 0 1px 0 rgba(255, 255, 255, .06);
+  --soft-titulo: #F4F1FF;
+  --soft-texto: #C0B6DC;
+
+  --soft-verde-fim: rgba(52, 211, 153, .12);    --soft-verde-tile: rgba(52, 211, 153, .2);    --soft-verde-cor: #7EE2B8;
+  --soft-laranja-fim: rgba(251, 176, 85, .12);  --soft-laranja-tile: rgba(251, 176, 85, .2);  --soft-laranja-cor: #F7C27D;
+  --soft-rosa-fim: rgba(244, 143, 177, .12);    --soft-rosa-tile: rgba(244, 143, 177, .2);    --soft-rosa-cor: #F5A3BD;
+  --soft-vermelho-fim: rgba(248, 113, 113, .12);--soft-vermelho-tile: rgba(248, 113, 113, .2);--soft-vermelho-cor: #FCA5A5;
+  --soft-lilas-fim: rgba(157, 143, 231, .14);   --soft-lilas-tile: rgba(157, 143, 231, .24);  --soft-lilas-cor: #CDBFF5;
+  --soft-azul-fim: rgba(96, 165, 250, .12);     --soft-azul-tile: rgba(96, 165, 250, .2);     --soft-azul-cor: #93C5FD;
+  --soft-amarelo-fim: rgba(250, 204, 21, .12);  --soft-amarelo-tile: rgba(250, 204, 21, .2);  --soft-amarelo-cor: #FDE68A;
+}
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.btn-favoritar:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.btn-favoritar:not(#_s1):not(#_s2) i { color: inherit !important; }
+.btn-favoritar:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.btn-chat:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.btn-chat:not(#_s1):not(#_s2) i { color: inherit !important; }
+.btn-chat:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.btn-mobile-logout:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-vermelho-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-vermelho-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.btn-mobile-logout:not(#_s1):not(#_s2) i { color: inherit !important; }
+.btn-mobile-logout:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-vermelho-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.mobile-acc-btn:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-azul-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-azul-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.mobile-acc-btn:not(#_s1):not(#_s2) i { color: inherit !important; }
+.mobile-acc-btn:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-azul-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.drawer-close:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.drawer-close:not(#_s1):not(#_s2) i { color: inherit !important; }
+.drawer-close:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.home-psi-page .menu-toggle:not(#_s1):not(#_s2), .home-adv-page .menu-toggle:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.home-psi-page .menu-toggle:not(#_s1):not(#_s2) i, .home-adv-page .menu-toggle:not(#_s1):not(#_s2) i { color: inherit !important; }
+.home-psi-page .menu-toggle:not(#_s1):not(#_s2):hover, .home-adv-page .menu-toggle:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.elo-filtros-gatilho:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.elo-filtros-gatilho:not(#_s1):not(#_s2) i { color: inherit !important; }
+.elo-filtros-gatilho:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+.coment-aviso-nao-prof:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.coment-aviso-nao-prof:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.coment-aviso-nao-prof:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.coment-aviso-nao-prof:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-lilas-cor) !important; }
+.last-activities:not(#_s1):not(#_s2) {
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+}
+.status-pill.active:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-verde-cor) !important;
+}
+.status-pill.active:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.status-pill.pending:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-amarelo-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-amarelo-cor) !important;
+}
+.status-pill.pending:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.badge-respondido:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-verde-cor) !important;
+}
+.badge-respondido:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.badge-aguardando:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+}
+.badge-aguardando:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.categoria-badge:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-lilas-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-lilas-cor) !important;
+}
+.categoria-badge:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.estado-vazio:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-azul-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 24px !important;
+  color: var(--soft-texto) !important;
+}
+.estado-vazio:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.estado-vazio:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.estado-vazio:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-azul-cor) !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

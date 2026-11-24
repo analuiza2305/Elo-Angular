@@ -2,22 +2,29 @@
   <!-- Botão flutuante (canto esquerdo: o direito é do VLibras) -->
   <button type="button" class="ai-botao" [class.aberto]="aberto()" (click)="alternar()"
           [attr.aria-expanded]="aberto()" aria-controls="ai-janela"
-          [attr.aria-label]="aberto() ? 'Fechar assistente' : 'Abrir assistente virtual'">
+          [attr.aria-label]="aberto() ? 'Fechar a Elô' : 'Abrir a Elô, assistente virtual'">
     @if (aberto()) {
       <i class="fa-solid fa-xmark" aria-hidden="true"></i>
     } @else {
-      <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
-      <span class="ai-botao-texto">Dúvidas? Fale com a Elo</span>
+      <span class="ai-botao-avatar"><app-elo-coruja [soRosto]="true" [tamanho]="40" [animada]="false"></app-elo-coruja></span>
+      <span class="ai-botao-texto">Dúvidas? Fale com a Elô</span>
     }
   </button>
 
   @if (aberto()) {
-    <section class="ai-janela" id="ai-janela" role="dialog" aria-label="Assistente virtual Elo">
+    <section class="ai-janela" id="ai-janela" role="dialog" aria-label="Elô, assistente virtual">
       <header class="ai-topo">
-        <span class="ai-avatar" aria-hidden="true"><i class="fa-solid fa-robot"></i></span>
+        <!-- Clicar na foto da Elô faz ela brincar (pulo, giro ou coraçõezinhos) -->
+        <button type="button" class="ai-avatar" [attr.data-brincadeira]="brincadeira()" (click)="brincar()"
+                aria-label="Foto da Elô (toque para ela brincar)" title="Oi! 💜">
+          <app-elo-coruja [soRosto]="true" [tamanho]="44" [expressao]="expressaoTopo()"></app-elo-coruja>
+          @if (brincadeira() === 'coracoes') {
+            <span class="ai-coracoes" aria-hidden="true"><i>💜</i><i>💗</i><i>💜</i></span>
+          }
+        </button>
         <div class="ai-topo-texto">
-          <strong>Elo, assistente do site</strong>
-          <small>Ajuda a usar o Elo Materno</small>
+          <strong>Elô</strong>
+          <small><span class="ai-online" aria-hidden="true"></span> online · sua ajudante no site</small>
         </div>
         <button type="button" class="ai-icone" (click)="limparConversa()" title="Começar de novo" aria-label="Começar conversa de novo">
           <i class="fa-solid fa-rotate-left"></i>
@@ -28,19 +35,36 @@
       </header>
 
       <div class="ai-lista" #lista aria-live="polite">
+        <!-- A Elô inteira no topo da conversa (role para cima para ver).
+             Ela tem easter eggs: toque nos olhos, barriga, asas, cachecol, orelhas, bico e pezinhos;
+             segure para um abraço; 5 toques rápidos = modo noite; 10 = ela fica tontinha. -->
+        <div class="ai-boas-vindas">
+          <app-elo-coruja [expressao]="mensagens().length <= 1 ? 'oi' : 'normal'" [tamanho]="112" [interativa]="true"></app-elo-coruja>
+        </div>
+
         @for (m of mensagens(); track $index) {
-          <div class="ai-msg" [class.mae]="m.autor === 'mae'" [class.apoio]="m.origem === 'apoio'">
-            <p>{{ m.texto }}</p>
-            @if (m.link) {
-              <button type="button" class="ai-link" (click)="irPara(m.link.rota)">
-                Ir para {{ m.link.rotulo }} <i class="fa-solid fa-arrow-right"></i>
-              </button>
-            }
-            @if (m.origem === 'faq') { <small class="ai-origem">Resposta das perguntas frequentes</small> }
-          </div>
+          @if (m.autor === 'mae') {
+            <div class="ai-msg mae"><p>{{ m.texto }}</p></div>
+          } @else {
+            <div class="ai-linha">
+              <app-elo-coruja class="ai-msg-avatar" [soRosto]="true" [tamanho]="32" [animada]="false" [expressao]="expressaoDa(m)"></app-elo-coruja>
+              <div class="ai-msg" [class.apoio]="m.origem === 'apoio'">
+                <p>{{ m.texto }}</p>
+                @if (m.link) {
+                  <button type="button" class="ai-link" (click)="irPara(m.link.rota)">
+                    Ir para {{ m.link.rotulo }} <i class="fa-solid fa-arrow-right"></i>
+                  </button>
+                }
+                @if (m.origem === 'faq') { <small class="ai-origem">Resposta das perguntas frequentes</small> }
+              </div>
+            </div>
+          }
         }
         @if (pensando()) {
-          <div class="ai-msg ai-digitando" aria-label="A Elo está escrevendo"><span></span><span></span><span></span></div>
+          <div class="ai-linha">
+            <app-elo-coruja class="ai-msg-avatar" [soRosto]="true" [tamanho]="32" expressao="pensando"></app-elo-coruja>
+            <div class="ai-msg ai-digitando" aria-label="A Elô está pensando"><span></span><span></span><span></span></div>
+          </div>
         }
         @if (mensagens().length <= 1) {
           <div class="ai-sugestoes">
@@ -59,7 +83,7 @@
         </button>
       </form>
       <p class="ai-aviso">
-        <i class="fa-solid fa-lock"></i> Não escreva CPF, endereço ou senha. A Elo é uma IA e pode errar; ela não substitui a psicóloga nem a advogada.
+        <i class="fa-solid fa-lock"></i> Não escreva CPF, endereço ou senha. A Elô é uma IA e pode errar; ela não substitui a psicóloga nem a advogada.
       </p>
     </section>
   }

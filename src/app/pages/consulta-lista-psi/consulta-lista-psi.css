@@ -1198,10 +1198,10 @@ body {
 :host-context(body[data-theme="dark"]) .date-chip.selected .date { color: #1A1530 !important; }
 
 /* Contadores dos filtros */
-.tipo-chip.ativo { background: #6A55A0 !important; border-color: #6A55A0 !important; }
+/* Os filtros seguem o padrão do site (.elo-filtro em styles.css); aqui só o contador */
 .tipo-chip.ativo, .tipo-chip.ativo span { color: #FFFFFF !important; }
 .tipo-chip:not(.ativo) span { color: #5B4A93; }
-.tipo-chip.ativo span { background: rgba(26, 21, 48, 0.28) !important; }
+.tipo-chip.ativo span { background: rgba(255, 255, 255, 0.22) !important; }
 
 /* ===== Banner no modo escuro: texto claro (11/11) ===== */
 :host-context(body[data-theme="dark"]) .hero-section .page-header h1 {
@@ -1417,24 +1417,6 @@ body {
 /* =========================================================
    QUESTIONÁRIO ANTES DE AGENDAR + PERFIL NO MODAL (reunião 21/11)
 ========================================================= */
-.convite-questionario {
-  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-  margin: 0 0 22px; padding: 16px 20px; border-radius: 18px;
-  background: linear-gradient(135deg, #F4EEFF, #FFF0F5); border: 1px solid #E3D7FA;
-}
-.cq-icone {
-  width: 46px; height: 46px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center;
-  background: #FFFFFF; color: #7C5FCB; font-size: 1.4rem;
-}
-.cq-texto { flex: 1; min-width: 220px; }
-.cq-texto strong { display: block; color: #3E2A6E; font-size: 1.02rem; }
-.cq-texto p { margin: 4px 0 0; color: #5E5675; font-size: .94rem; }
-.cq-btn {
-  padding: 11px 20px; border-radius: 999px; border: none; cursor: pointer;
-  background: #5B3D99; color: #FFFFFF; font-family: inherit; font-weight: 700; font-size: .95rem;
-}
-.cq-btn:hover { background: #4A2B82; }
-
 .sobre-prof-mini { margin: 14px 0 6px; display: flex; flex-direction: column; gap: 10px; }
 .spm-linha { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .spm-nota, .spm-selo {
@@ -1453,13 +1435,206 @@ body {
 .aviso-questionario-modal i { font-size: 1.2rem; margin-top: 1px; }
 .aviso-questionario-modal a { color: #5B3D99; font-weight: 700; }
 
-:host-context(body[data-theme="dark"]) .convite-questionario { background: #1A2030; border-color: rgba(255,255,255,.12); }
-:host-context(body[data-theme="dark"]) .cq-icone { background: #241D3D; color: #CDBBFF; }
-:host-context(body[data-theme="dark"]) .cq-texto strong { color: #EDE6FF; }
-:host-context(body[data-theme="dark"]) .cq-texto p,
 :host-context(body[data-theme="dark"]) .spm-bio { color: #C9C2DA; }
-:host-context(body[data-theme="dark"]) .cq-btn { background: #6C4BBF; }
 :host-context(body[data-theme="dark"]) .spm-nota { background: rgba(157,143,231,.14); color: #E5DCFF; }
 :host-context(body[data-theme="dark"]) .spm-selo { background: rgba(126,226,168,.12); color: #7EE2A8; }
 :host-context(body[data-theme="dark"]) .aviso-questionario-modal { background: #2E2614; color: #F3D58A; }
 :host-context(body[data-theme="dark"]) .aviso-questionario-modal a { color: #CDBBFF; }
+
+/* =========================================================
+   CONVITE PARA O QUESTIONÁRIO DE BEM-ESTAR (redesenhado)
+   Fica abaixo da busca/filtros: antes ficava entre o banner e a busca,
+   e a busca (que sobe para "encaixar" no banner) ficava por cima dele.
+========================================================= */
+.convite-questionario {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin: 26px 0 8px;
+  padding: 22px 26px;
+  border-radius: 28px;
+  background:
+    radial-gradient(260px 160px at 100% 0%, rgba(252, 233, 241, .9) 0%, transparent 70%),
+    #FFFFFF;
+  border: 1px solid #ECE4FB;
+  box-shadow: 0 14px 34px rgba(108, 75, 191, .10);
+  overflow: hidden;
+}
+
+/* "Arte" do card: coração num quadrado em degradê */
+.cq-arte {
+  position: relative;
+  flex-shrink: 0;
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #B79BF2 0%, #7C5FCB 60%, #E88AB0 130%);
+  box-shadow: 0 12px 24px rgba(124, 95, 203, .32);
+}
+.cq-arte i { font-size: 2.1rem; color: #FFFFFF !important; }
+.cq-brilho {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .85);
+  box-shadow: -34px 36px 0 -2px rgba(255, 255, 255, .5);
+}
+
+.cq-texto { flex: 1; min-width: 0; }
+.cq-etiqueta {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #F3EEFE;
+  color: #5B3D99;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+.cq-texto h2 {
+  margin: 0 0 4px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.22rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #2D1E4E;
+}
+.cq-texto p { margin: 0; color: #5E5675; font-size: .96rem; line-height: 1.5; }
+
+.cq-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.cq-info li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #4B2C82;
+  font-size: .86rem;
+  font-weight: 700;
+}
+.cq-info i { font-size: 1.05rem; color: #7C5FCB !important; }
+
+.cq-acoes {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.cq-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #7C5CD6 0%, #5B3D99 100%);
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: .98rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(91, 61, 153, .28);
+  transition: transform .15s ease, filter .2s ease;
+}
+.cq-btn i { color: #FFFFFF !important; transition: transform .2s ease; }
+.cq-btn:hover { filter: brightness(1.05); }
+.cq-btn:hover i { transform: translateX(3px); }
+.cq-btn:active { transform: scale(.98); }
+.cq-depois {
+  min-height: 38px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: #6E6788;
+  font-family: inherit;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.cq-depois:hover { background: #F5F1FD; color: #4B2C82; }
+.cq-btn:focus-visible,
+.cq-depois:focus-visible { outline: 3px solid #B9A8F5; outline-offset: 3px; }
+
+@media (max-width: 760px) {
+  .convite-questionario {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 20px 18px;
+    border-radius: 24px;
+  }
+  .cq-arte { width: 60px; height: 60px; border-radius: 20px; }
+  .cq-arte i { font-size: 1.7rem; }
+  .cq-texto h2 { font-size: 1.1rem; }
+  .cq-acoes { flex-direction: row; }
+  .cq-btn { flex: 1; }
+  .cq-depois { padding: 0 14px; }
+}
+
+/* modo escuro */
+:host-context(body[data-theme="dark"]) .convite-questionario {
+  background:
+    radial-gradient(260px 160px at 100% 0%, rgba(232, 138, 176, .10) 0%, transparent 70%),
+    #1A2030;
+  border-color: rgba(255, 255, 255, .08);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .3);
+}
+:host-context(body[data-theme="dark"]) .cq-etiqueta { background: rgba(157, 143, 231, .16); color: #E5DCFF; }
+:host-context(body[data-theme="dark"]) .cq-texto h2 { color: #F4F1FF; }
+:host-context(body[data-theme="dark"]) .cq-texto p { color: #C9C2DA; }
+:host-context(body[data-theme="dark"]) .cq-info li { color: #DCD3F7; }
+:host-context(body[data-theme="dark"]) .cq-info i { color: #CDBBFF !important; }
+:host-context(body[data-theme="dark"]) .cq-depois { color: #B8B0D6; }
+:host-context(body[data-theme="dark"]) .cq-depois:hover { background: rgba(255, 255, 255, .06); color: #F4F1FF; }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.ap-confirmar:not(#_s1):not(#_s2) {
+  background: var(--soft-lilas-forte, var(--soft-lilas-forte)) !important; color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, .25) !important;
+  box-shadow: 0 10px 24px rgba(75, 44, 130, .22), inset 0 1px 0 rgba(255, 255, 255, .25) !important;
+  transition: transform .2s ease, box-shadow .2s ease !important;
+}
+.ap-confirmar:not(#_s1):not(#_s2) i { color: #FFFFFF !important; }
+.ap-confirmar:not(#_s1):not(#_s2):hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(75, 44, 130, .28), inset 0 1px 0 rgba(255, 255, 255, .25) !important; }
+.aviso-ativo:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.aviso-ativo:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.aviso-ativo:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.aviso-ativo:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-verde-cor) !important; }
+.selo-bem-avaliado:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-amarelo-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-amarelo-cor) !important;
+}
+.selo-bem-avaliado:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+.chip-nota:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-amarelo-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-amarelo-cor) !important;
+}
+.chip-nota:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */

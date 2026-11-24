@@ -1,0 +1,15 @@
+<div class="carrossel" role="region" [attr.aria-label]="rotulo" aria-roledescription="carrossel">
+  <button type="button" class="seta seta-ant" [class.escondida]="!podeVoltar()" [attr.aria-hidden]="!podeVoltar()"
+          [attr.tabindex]="podeVoltar() ? 0 : -1" aria-label="Anteriores" (click)="mover(-1)">
+    <i class="ph ph-caret-left" aria-hidden="true"></i>
+  </button>
+
+  <div class="trilho" #trilho>
+    <ng-content></ng-content>
+  </div>
+
+  <button type="button" class="seta seta-prox" [class.escondida]="!podeAvancar()" [attr.aria-hidden]="!podeAvancar()"
+          [attr.tabindex]="podeAvancar() ? 0 : -1" aria-label="Próximos" (click)="mover(1)">
+    <i class="ph ph-caret-right" aria-hidden="true"></i>
+  </button>
+</div>

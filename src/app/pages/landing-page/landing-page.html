@@ -24,9 +24,11 @@
 
         <div class="hero-mockup fade-in slide-up">
             <div class="mockup-wrapper devices-composition">
-                <!-- Correção do caminho da imagem -->
-                <img src="/img/imagenshero-notebook-2.png" alt="EloMaterno no Computador" class="device-laptop">
-                <img src="/img/imagenshero-celular.png" alt="EloMaterno no Celular" class="device-phone">
+                <!-- Imagens do hero por idioma: basta salvar em public/img as versões
+                     imagenshero-notebook-2-en.png / -es.png e imagenshero-celular-en.png / -es.png.
+                     Enquanto não existirem, aparece a versão em português (fallback no (error)). -->
+                <img [src]="imagemHero('imagenshero-notebook-2')" (error)="usarImagemPadrao($event, 'imagenshero-notebook-2')" [alt]="'a11y_img_notebook' | t" class="device-laptop">
+                <img [src]="imagemHero('imagenshero-celular')" (error)="usarImagemPadrao($event, 'imagenshero-celular')" [alt]="'a11y_img_celular' | t" class="device-phone">
             </div>
         </div>
     </section>
@@ -41,12 +43,12 @@
             <div class="partners-grid">
                 <!-- Parceiro 1: Justiceiras -->
                 <div class="partner-logo">
-                    <img src="/img/justiceiras-logo.png" alt="Justiceiras - Força Tarefa Pró-Mulher">
+                    <img src="/img/justiceiras-logo.png" [alt]="'a11y_logo_justiceiras' | t">
                 </div>
 
                 <!-- Parceiro 2: Amparo Maternal -->
                 <div class="partner-logo">
-                   <img src="/img/logo-rme-transparente.png" alt="Amparo Maternal">
+                   <img src="/img/logo-rme-transparente.png" [alt]="'a11y_logo_rme' | t">
                 </div>
             </div>
         </div>
@@ -237,7 +239,7 @@
                 </div>
 
                 <div class="lp-partner-card">
-                    <div class="lp-partner-logo"><img src="/img/logo-rme-transparente.png" alt="Rede Mulher Empreendedora"></div>
+                    <div class="lp-partner-logo"><img src="/img/logo-rme-transparente.png" [alt]="'a11y_logo_rme' | t"></div>
                     <h3>Rede Mulher Empreendedora</h3>
                     <span>{{ 'ally_rme_desc' | t }}</span>
                     <a href="https://rme.net.br/" target="_blank" rel="noopener" class="lp-link">{{ 'ally_link' | t }}</a>

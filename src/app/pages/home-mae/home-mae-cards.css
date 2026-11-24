@@ -1,0 +1,88 @@
+/* =========================================================
+   BLOCOS DA HOME DA MÃE: Fórum, Dicas para ler e Próximos eventos
+   Os cards NÃO são estilizados aqui: são os mesmos componentes
+   das páginas (components/card-post, card-artigo, card-evento),
+   então ficam sempre iguais ao Fórum, à Comunidade e a Eventos.
+   Aqui fica só a caixinha branca de cada bloco e o cabeçalho.
+   ========================================================= */
+
+.hm-secao {
+  position: relative;
+  margin-top: 28px;
+  padding: 26px 34px 30px;
+  border-radius: 32px;
+  background: #FAF7FF;
+  border: 1px solid rgba(124, 95, 203, .12);
+  box-shadow: 0 16px 48px rgba(124, 95, 203, .08);
+}
+
+/* Cabeçalho: ícone leve + título + botões, tudo dentro da caixinha */
+.hm-cabeca { display: flex; align-items: center; gap: 18px; margin-bottom: 22px; }
+.hm-selo {
+  flex-shrink: 0; display: grid; place-items: center;
+  width: 52px; height: 52px; border-radius: 16px;
+  font-size: 1.75rem;
+  transition: transform .25s ease;
+}
+.hm-selo i { color: inherit !important; }
+.hm-secao:hover .hm-selo { transform: translateY(-2px); }
+.hm-selo-forum   { background: #EFE9FB; color: #5B3D99; }
+.hm-selo-dicas   { background: #EFE9FB; color: #5B3D99; }
+.hm-selo-eventos { background: #EFE9FB; color: #5B3D99; }
+
+.hm-cabeca-textos { flex: 1; min-width: 0; }
+.hm-cabeca-textos h3 {
+  margin: 0; font-family: 'Poppins', sans-serif; font-size: 1.4rem; font-weight: 600;
+  color: #3E2A72; letter-spacing: -.01em; line-height: 1.25;
+}
+.hm-cabeca-textos p { margin: 4px 0 0 !important; color: #8A80A8; font-size: .95rem !important; }
+
+.hm-cabeca-acoes { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.hm-ver, .hm-botao-sec {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 18px; border-radius: 999px;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .9rem; text-decoration: none; white-space: nowrap;
+  transition: background .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.hm-ver { background: #5B3D99; color: #FFFFFF; box-shadow: 0 6px 16px rgba(75, 44, 130, .2); }
+.hm-ver i { color: inherit !important; transition: transform .2s ease; }
+.hm-ver:hover { background: #4B2C82; transform: translateY(-1px); }
+.hm-ver:hover i { transform: translateX(4px); }
+.hm-botao-sec { background: #FFFFFF; color: #4B2C82; border: 1px solid rgba(75, 44, 130, .2); }
+.hm-botao-sec i { color: inherit !important; }
+.hm-botao-sec:hover { background: #F4F0FC; }
+.hm-ver:focus-visible, .hm-botao-sec:focus-visible { outline: 3px solid #B9A8F5; outline-offset: 2px; }
+
+/* Card do fórum no carrossel: mesma altura para todos */
+.hm-forum app-card-post { height: auto; }
+
+/* Vazio */
+.hm-vazio {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 30px 20px;
+  border: 2px dashed rgba(132, 113, 177, .25); border-radius: 22px; color: #6B5E8E; text-align: center;
+}
+.hm-vazio > i { font-size: 1.8rem; color: #9C88D9 !important; }
+.hm-vazio p { margin: 0; }
+
+/* Celular */
+@media (max-width: 700px) {
+  .hm-secao { margin-top: 20px; padding: 18px 12px 20px; border-radius: 24px; }
+  .hm-cabeca { flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+  .hm-selo { width: 44px; height: 44px; border-radius: 14px; font-size: 1.45rem; }
+  .hm-cabeca-textos h3 { font-size: 1.15rem; }
+  .hm-cabeca-textos p { font-size: .85rem !important; }
+  .hm-cabeca-acoes { width: 100%; }
+  .hm-cabeca-acoes > * { flex: 1; min-height: 44px; }
+}
+
+/* Tema escuro */
+:host-context(body[data-theme="dark"]) .hm-secao { background: linear-gradient(180deg, #1D1A33 0%, #18162B 100%); border-color: rgba(255, 255, 255, .06); box-shadow: none; }
+:host-context(body[data-theme="dark"]) .hm-selo-forum   { background: rgba(157, 143, 231, .16); color: #CDBFF5; }
+:host-context(body[data-theme="dark"]) .hm-selo-dicas   { background: rgba(157, 143, 231, .16); color: #CDBFF5; }
+:host-context(body[data-theme="dark"]) .hm-selo-eventos { background: rgba(157, 143, 231, .16); color: #CDBFF5; }
+:host-context(body[data-theme="dark"]) .hm-cabeca-textos h3 { color: #F1ECFF; }
+:host-context(body[data-theme="dark"]) .hm-cabeca-textos p { color: #B8B0D6; }
+:host-context(body[data-theme="dark"]) .hm-ver { background: #7C5FCB; box-shadow: none; }
+:host-context(body[data-theme="dark"]) .hm-ver:hover { background: #9378E0; }
+:host-context(body[data-theme="dark"]) .hm-botao-sec { background: transparent; color: #E5DCFF; border-color: rgba(255, 255, 255, .16); }
+:host-context(body[data-theme="dark"]) .hm-botao-sec:hover { background: rgba(255, 255, 255, .06); }
+:host-context(body[data-theme="dark"]) .hm-vazio { border-color: rgba(255, 255, 255, .14); color: #B8B0D6; }

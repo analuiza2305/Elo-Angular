@@ -12,6 +12,8 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { buscarNoSite, ResultadoBusca, ROTULO_TIPO, ICONE_TIPO } from '../../services/busca-geral';
 import { salvarPreferenciaLocal } from '../../services/preferencia-suporte';
 import { AssistenteIaComponent } from '../assistente-ia/assistente-ia';
+import { AcessibilidadeService } from '../../core/services/acessibilidade.service';
+import { ClicavelTecladoDirective } from '../../core/directives/clicavel-teclado.directive';
 
 /** Aviso gravado em `notificacoes` (ex.: o profissional confirmou ou recusou a consulta). */
 export interface Notificacao {
@@ -33,7 +35,7 @@ export interface Notificacao {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TranslatePipe, AssistenteIaComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TranslatePipe, AssistenteIaComponent, ClicavelTecladoDirective],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
@@ -105,12 +107,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   abrirAvisoNaTela(n: Notificacao) { this.fecharAvisoNaTela(); this.abrirNotificacao(n); }
 
-  /** Sino do topo no celular: abre o menu já com os avisos abertos. */
+  /** Sino do topo no celular: abre só a lista de avisos (sem o menu lateral). */
+  avisosCelular = false;
   abrirAvisosCelular(event: Event) {
     event.stopPropagation();
-    this.isMobileMenuOpen = true;
-    this.isNotifOpen = true;
+    this.isMobileMenuOpen = false;
+    this.isNotifOpen = false;
+    this.avisosCelular = !this.avisosCelular;
   }
+  fecharAvisosCelular() { this.avisosCelular = false; }
   isNotifOpen = false;
   private unsubNotificacoes: Unsubscribe | null = null;
   private unsubAuth: (() => void) | null = null;
@@ -226,17 +231,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   userName = signal<string>('Usuária');
   userAvatar = signal<string>('./img/avatar_usuario.png');
 
-  // Variáveis de Acessibilidade Avançada
-  tamanhoFonte = 16;
-  espacamentoLinha = 1.5;
-  filtroDaltonismoIndex = 0;
-  filtrosSVG = ['', 'url(#protanopia)', 'url(#deuteranopia)', 'url(#tritanopia)', 'url(#Acromatopsia)'];
-
-  leituraVozAtiva = signal<boolean>(false);
-  mascaraAtiva = signal<boolean>(false);
-  altoContrasteAtivo = signal<boolean>(false);
-  negritoAtivo = signal<boolean>(false);
-  mouseY = signal<number>(0);
+  readonly acc = inject(AcessibilidadeService);
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -340,6 +335,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   async abrirNotificacao(n: Notificacao) {
     this.isNotifOpen = false;
+    this.avisosCelular = false;
     if (this.isMobileMenuOpen) this.isMobileMenuOpen = false;
     if (!n.lida) {
       try {
@@ -800,103 +796,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.menuAberto.update((v: boolean) => !v);
   }
 
-  aumentarFonte() {
-    if (this.tamanhoFonte < 24) {
-      this.tamanhoFonte += 2;
-      document.documentElement.style.fontSize = `${this.tamanhoFonte}px`;
-    }
-  }
-
-  diminuirFonte() {
-    if (this.tamanhoFonte > 12) {
-      this.tamanhoFonte -= 2;
-      document.documentElement.style.fontSize = `${this.tamanhoFonte}px`;
-    }
-  }
-
-  alternarFiltroDaltonismo() {
-    this.filtroDaltonismoIndex = (this.filtroDaltonismoIndex + 1) % this.filtrosSVG.length;
-    document.body.style.filter = this.filtrosSVG[this.filtroDaltonismoIndex];
-  }
-
-  lerEmVozAlta() {
-    this.leituraVozAtiva.update((v: boolean) => !v);
-    if (!this.leituraVozAtiva()) {
-      window.speechSynthesis.cancel();
-      return;
-    }
-    const textoSelecionado = window.getSelection()?.toString();
-    const textoParaLer = textoSelecionado || document.querySelector('main')?.innerText || 'Selecione um texto para ler.';
-    const fala = new SpeechSynthesisUtterance(textoParaLer);
-    fala.lang = 'pt-BR';
-    window.speechSynthesis.speak(fala);
-  }
-
-alternarMascara() {
-    this.mascaraAtiva.update((v: boolean) => !v);
-    const masks = document.querySelectorAll('#reading-mask-overlay');
-
-    masks.forEach(mask => {
-      if (this.mascaraAtiva()) {
-        mask.classList.remove('hidden');
-        (mask as HTMLElement).style.display = 'block';
-      } else {
-        mask.classList.add('hidden');
-        (mask as HTMLElement).style.display = 'none';
-      }
-    });
-  }
-
-  alternarNegrito() {
-    this.negritoAtivo.update((v: boolean) => !v);
-    if (this.negritoAtivo()) document.body.classList.add('acessibilidade-negrito');
-    else document.body.classList.remove('acessibilidade-negrito');
-  }
-
-  alternarAltoContraste() {
-    this.altoContrasteAtivo.update((v: boolean) => !v);
-    if (this.altoContrasteAtivo()) document.body.classList.add('acessibilidade-alto-contraste');
-    else document.body.classList.remove('acessibilidade-alto-contraste');
-  }
-
-  aumentarEspacamento() {
-    if (this.espacamentoLinha < 2.5) {
-      this.espacamentoLinha += 0.2;
-      document.body.style.lineHeight = `${this.espacamentoLinha}`;
-    }
-  }
-
-  diminuirEspacamento() {
-    if (this.espacamentoLinha > 1.0) {
-      this.espacamentoLinha -= 0.2;
-      document.body.style.lineHeight = `${this.espacamentoLinha}`;
-    }
-  }
-
-redefinirAcessibilidade() {
-    this.tamanhoFonte = 16;
-    this.espacamentoLinha = 1.5;
-    this.filtroDaltonismoIndex = 0;
-
-    document.documentElement.style.fontSize = '16px';
-    document.body.style.lineHeight = '';
-    document.body.style.filter = '';
-
-    this.negritoAtivo.set(false);
-    this.altoContrasteAtivo.set(false);
-    this.leituraVozAtiva.set(false);
-
-    // Desativa TODAS as máscaras na redefinição
-    this.mascaraAtiva.set(false);
-    const masks = document.querySelectorAll('#reading-mask-overlay');
-    masks.forEach(mask => {
-      mask.classList.add('hidden');
-      (mask as HTMLElement).style.display = 'none';
-    });
-
-    window.speechSynthesis.cancel();
-    document.body.classList.remove('acessibilidade-negrito', 'acessibilidade-alto-contraste');
-  }
+  // Acessibilidade: o template chama direto o AcessibilidadeService (this.acc),
+  // que é o mesmo em todas as telas e fica salvo no navegador.
 
   // --- HEADER AO ROLAR A PÁGINA ---
   /** true depois que a página rola um pouco: o header fica translúcido (efeito vidro). */
@@ -916,17 +817,6 @@ redefinirAcessibilidade() {
         if (secao && secao.getBoundingClientRect().top <= 120) atual = id;
       }
       this.activeSection.set(atual);
-    }
-  }
-
-  @HostListener('document:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    if (this.mascaraAtiva()) {
-      const windows = document.querySelectorAll('.highlight-window');
-      windows.forEach(windowEl => {
-        // Centraliza a faixa transparente no cursor do mouse
-        (windowEl as HTMLElement).style.top = `${event.clientY - 60}px`;
-      });
     }
   }
 
@@ -995,6 +885,7 @@ redefinirAcessibilidade() {
     this.isUserDropdownOpen = false;
     this.isLangMenuOpen = false;
     this.isNotifOpen = false;
+    this.avisosCelular = false;
     this.menuAberto.set(false);
   }
 }

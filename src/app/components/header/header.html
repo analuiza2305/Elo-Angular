@@ -2,8 +2,8 @@
 @if (tipo === 'landing' || tipo === 'profissional') {
   <header class="header" [class.scrolled]="isScrolled()">
     <div class="container header-content">
-      <a routerLink="/" class="logo" aria-label="Ir para a página inicial">
-        <img src="./img/logo_icon.png" alt="Ícone EloMaterno" class="logo-icon">
+      <a routerLink="/" class="logo" [attr.aria-label]="'a11y_ir_inicio' | t">
+        <img src="./img/logo_icon.png" [alt]="'a11y_icone_elo' | t" class="logo-icon">
         elomaterno
       </a>
 
@@ -12,7 +12,7 @@
       <nav class="nav-links" id="nav-menu" [class.active]="isMobileMenuOpen">
           <div class="mobile-nav-header">
             <span class="mobile-nav-title"><img src="./img/logo_icon.png" alt="" class="mobile-nav-logo"> elomaterno</span>
-            <button type="button" class="btn-close-mobile" aria-label="Fechar menu" (click)="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" class="btn-close-mobile" [attr.aria-label]="'a11y_fechar_menu' | t" (click)="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
           </div>
 
           <!-- O Angular decide quais links mostrar baseado na página atual
@@ -47,16 +47,16 @@
 
             @if (isAccMenuOpen) {
               <ul class="mobile-acc-sublist">
-                <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> {{ 'acc_fonte_mais' | t }}</li>
-                <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> {{ 'acc_fonte_menos' | t }}</li>
-                <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> {{ 'acc_daltonismo' | t }}</li>
-                <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> {{ 'acc_voz' | t }}</li>
-                <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> {{ 'acc_mascara' | t }}</li>
-                <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> {{ 'acc_negrito' | t }}</li>
-                <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> {{ 'acc_contraste' | t }}</li>
-                <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> {{ 'acc_espaco_mais' | t }}</li>
-                <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> {{ 'acc_espaco_menos' | t }}</li>
-                <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> {{ 'acc_redefinir' | t }}</li>
+                <li appTeclado (click)="acc.aumentarFonte()"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> {{ 'acc_fonte_mais' | t }}</li>
+                <li appTeclado (click)="acc.diminuirFonte()"><i class="fa-solid fa-circle-minus" aria-hidden="true"></i> {{ 'acc_fonte_menos' | t }}</li>
+                <li appTeclado (click)="acc.alternarDaltonismo()"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{ 'acc_daltonismo' | t }}</li>
+                <li appTeclado (click)="acc.alternarLeitura()"><i class="fa-solid fa-ear-listen" aria-hidden="true"></i> {{ 'acc_voz' | t }}</li>
+                <li appTeclado (click)="acc.alternarMascara()"><i class="fa-solid fa-highlighter" aria-hidden="true"></i> {{ 'acc_mascara' | t }}</li>
+                <li appTeclado (click)="acc.alternarNegrito()"><i class="fa-solid fa-bold" aria-hidden="true"></i> {{ 'acc_negrito' | t }}</li>
+                <li appTeclado (click)="acc.alternarContraste()"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i> {{ 'acc_contraste' | t }}</li>
+                <li appTeclado (click)="acc.aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down" aria-hidden="true"></i> {{ 'acc_espaco_mais' | t }}</li>
+                <li appTeclado (click)="acc.diminuirEspacamento()"><i class="fa-solid fa-compress" aria-hidden="true"></i> {{ 'acc_espaco_menos' | t }}</li>
+                <li appTeclado (click)="acc.redefinir()"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> {{ 'acc_redefinir' | t }}</li>
               </ul>
             }
           </div>
@@ -69,35 +69,35 @@
 
       <div class="header-actions">
           <div class="language-selector">
-            <button type="button" class="btn-language" aria-label="Mudar idioma" (click)="toggleLangMenu($event)">
-              <img [src]="currentFlagUrl()" alt="Idioma atual" class="flag-icon">
+            <button type="button" class="btn-language" [attr.aria-label]="'a11y_mudar_idioma' | t" (click)="toggleLangMenu($event)">
+              <img [src]="currentFlagUrl()" [alt]="'a11y_idioma_atual' | t" class="flag-icon">
             </button>
             <ul id="language-menu" [class.hidden]="!isLangMenuOpen" (click)="$event.stopPropagation()">
-              <li (click)="selecionarIdioma('pt')"><img src="https://flagcdn.com/w20/br.png" class="flag-icon"> Português</li>
-              <li (click)="selecionarIdioma('en')"><img src="https://flagcdn.com/w20/us.png" class="flag-icon"> English</li>
-              <li (click)="selecionarIdioma('es')"><img src="https://flagcdn.com/w20/es.png" class="flag-icon"> Español</li>
+              <li appTeclado (click)="selecionarIdioma('pt')"><img src="https://flagcdn.com/w20/br.png" class="flag-icon" alt=""> Português</li>
+              <li appTeclado (click)="selecionarIdioma('en')"><img src="https://flagcdn.com/w20/us.png" class="flag-icon" alt=""> English</li>
+              <li appTeclado (click)="selecionarIdioma('es')"><img src="https://flagcdn.com/w20/es.png" class="flag-icon" alt=""> Español</li>
             </ul>
           </div>
 
           <div class="accessibility-selector">
-            <button type="button" class="btn-icon" aria-label="Opções de acessibilidade" (click)="toggleAccMenu($event)">
+            <button type="button" class="btn-icon" [attr.aria-label]="'acc_opcoes' | t" (click)="toggleAccMenu($event)">
               <i class="fa fa-universal-access"></i>
             </button>
             <ul id="accessibility-menu" [class.hidden]="!isAccMenuOpen" (click)="$event.stopPropagation()">
-              <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> {{ 'acc_fonte_mais' | t }}</li>
-              <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> {{ 'acc_fonte_menos' | t }}</li>
-              <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> {{ 'acc_daltonismo' | t }}</li>
-              <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> {{ 'acc_voz' | t }}</li>
-              <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> {{ 'acc_mascara' | t }}</li>
-              <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> {{ 'acc_negrito' | t }}</li>
-              <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> {{ 'acc_contraste' | t }}</li>
-              <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> {{ 'acc_espaco_mais' | t }}</li>
-              <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> {{ 'acc_espaco_menos' | t }}</li>
-              <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> {{ 'acc_redefinir' | t }}</li>
+              <li appTeclado (click)="acc.aumentarFonte()"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> {{ 'acc_fonte_mais' | t }}</li>
+              <li appTeclado (click)="acc.diminuirFonte()"><i class="fa-solid fa-circle-minus" aria-hidden="true"></i> {{ 'acc_fonte_menos' | t }}</li>
+              <li appTeclado (click)="acc.alternarDaltonismo()"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{ 'acc_daltonismo' | t }}</li>
+              <li appTeclado (click)="acc.alternarLeitura()"><i class="fa-solid fa-ear-listen" aria-hidden="true"></i> {{ 'acc_voz' | t }}</li>
+              <li appTeclado (click)="acc.alternarMascara()"><i class="fa-solid fa-highlighter" aria-hidden="true"></i> {{ 'acc_mascara' | t }}</li>
+              <li appTeclado (click)="acc.alternarNegrito()"><i class="fa-solid fa-bold" aria-hidden="true"></i> {{ 'acc_negrito' | t }}</li>
+              <li appTeclado (click)="acc.alternarContraste()"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i> {{ 'acc_contraste' | t }}</li>
+              <li appTeclado (click)="acc.aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down" aria-hidden="true"></i> {{ 'acc_espaco_mais' | t }}</li>
+              <li appTeclado (click)="acc.diminuirEspacamento()"><i class="fa-solid fa-compress" aria-hidden="true"></i> {{ 'acc_espaco_menos' | t }}</li>
+              <li appTeclado (click)="acc.redefinir()"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> {{ 'acc_redefinir' | t }}</li>
             </ul>
           </div>
 
-          <button type="button" class="btn-icon" aria-label="Alternar tema" (click)="toggleTheme()">
+          <button type="button" class="btn-icon" [attr.aria-label]="'a11y_alternar_tema' | t" (click)="toggleTheme()">
             <i class="fa" [class.fa-moon]="!isDarkMode" [class.fa-sun]="isDarkMode"></i>
           </button>
 
@@ -125,7 +125,7 @@
           }
       </div>
 
-      <button class="menu-toggle" aria-label="Abrir menu" (click)="toggleMobileMenu()">
+      <button class="menu-toggle" [attr.aria-label]="'a11y_abrir_menu' | t" (click)="toggleMobileMenu()">
         <i class="fa" [class.fa-bars]="!isMobileMenuOpen" [class.fa-xmark]="isMobileMenuOpen"></i>
       </button>
     </div>
@@ -157,16 +157,16 @@
             <i class="fa fa-universal-access"></i>
           </button>
           <ul id="accessibility-menu" [class.hidden]="!isAccMenuOpen" (click)="$event.stopPropagation()">
-            <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
-            <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
-            <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
-            <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
-            <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
-            <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
-            <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
-            <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
-            <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
-            <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+            <li appTeclado (click)="acc.aumentarFonte()"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> {{ 'acc_fonte_mais' | t }}</li>
+            <li appTeclado (click)="acc.diminuirFonte()"><i class="fa-solid fa-circle-minus" aria-hidden="true"></i> {{ 'acc_fonte_menos' | t }}</li>
+            <li appTeclado (click)="acc.alternarDaltonismo()"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{ 'acc_daltonismo' | t }}</li>
+            <li appTeclado (click)="acc.alternarLeitura()"><i class="fa-solid fa-ear-listen" aria-hidden="true"></i> {{ 'acc_voz' | t }}</li>
+            <li appTeclado (click)="acc.alternarMascara()"><i class="fa-solid fa-highlighter" aria-hidden="true"></i> {{ 'acc_mascara' | t }}</li>
+            <li appTeclado (click)="acc.alternarNegrito()"><i class="fa-solid fa-bold" aria-hidden="true"></i> {{ 'acc_negrito' | t }}</li>
+            <li appTeclado (click)="acc.alternarContraste()"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i> {{ 'acc_contraste' | t }}</li>
+            <li appTeclado (click)="acc.aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down" aria-hidden="true"></i> {{ 'acc_espaco_mais' | t }}</li>
+            <li appTeclado (click)="acc.diminuirEspacamento()"><i class="fa-solid fa-compress" aria-hidden="true"></i> {{ 'acc_espaco_menos' | t }}</li>
+            <li appTeclado (click)="acc.redefinir()"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> {{ 'acc_redefinir' | t }}</li>
           </ul>
         </div>
 
@@ -274,16 +274,16 @@
         </button>
         @if (menuAberto()) {
           <ul class="mobile-acc-sublist">
-            <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
-            <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
-            <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
-            <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
-            <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
-            <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
-            <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
-            <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
-            <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
-            <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+            <li appTeclado (click)="acc.aumentarFonte()"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> {{ 'acc_fonte_mais' | t }}</li>
+            <li appTeclado (click)="acc.diminuirFonte()"><i class="fa-solid fa-circle-minus" aria-hidden="true"></i> {{ 'acc_fonte_menos' | t }}</li>
+            <li appTeclado (click)="acc.alternarDaltonismo()"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{ 'acc_daltonismo' | t }}</li>
+            <li appTeclado (click)="acc.alternarLeitura()"><i class="fa-solid fa-ear-listen" aria-hidden="true"></i> {{ 'acc_voz' | t }}</li>
+            <li appTeclado (click)="acc.alternarMascara()"><i class="fa-solid fa-highlighter" aria-hidden="true"></i> {{ 'acc_mascara' | t }}</li>
+            <li appTeclado (click)="acc.alternarNegrito()"><i class="fa-solid fa-bold" aria-hidden="true"></i> {{ 'acc_negrito' | t }}</li>
+            <li appTeclado (click)="acc.alternarContraste()"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i> {{ 'acc_contraste' | t }}</li>
+            <li appTeclado (click)="acc.aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down" aria-hidden="true"></i> {{ 'acc_espaco_mais' | t }}</li>
+            <li appTeclado (click)="acc.diminuirEspacamento()"><i class="fa-solid fa-compress" aria-hidden="true"></i> {{ 'acc_espaco_menos' | t }}</li>
+            <li appTeclado (click)="acc.redefinir()"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> {{ 'acc_redefinir' | t }}</li>
           </ul>
         }
       </div>
@@ -412,16 +412,16 @@
                 </button>
 
                 <ul id="accessibility-menu" [class.hidden]="!menuAberto()" (click)="$event.stopPropagation()">
-                    <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
-                    <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
-                    <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
-                    <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
-                    <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
-                    <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
-                    <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
-                    <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
-                    <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
-                    <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+                    <li appTeclado (click)="acc.aumentarFonte()"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> {{ 'acc_fonte_mais' | t }}</li>
+                    <li appTeclado (click)="acc.diminuirFonte()"><i class="fa-solid fa-circle-minus" aria-hidden="true"></i> {{ 'acc_fonte_menos' | t }}</li>
+                    <li appTeclado (click)="acc.alternarDaltonismo()"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{ 'acc_daltonismo' | t }}</li>
+                    <li appTeclado (click)="acc.alternarLeitura()"><i class="fa-solid fa-ear-listen" aria-hidden="true"></i> {{ 'acc_voz' | t }}</li>
+                    <li appTeclado (click)="acc.alternarMascara()"><i class="fa-solid fa-highlighter" aria-hidden="true"></i> {{ 'acc_mascara' | t }}</li>
+                    <li appTeclado (click)="acc.alternarNegrito()"><i class="fa-solid fa-bold" aria-hidden="true"></i> {{ 'acc_negrito' | t }}</li>
+                    <li appTeclado (click)="acc.alternarContraste()"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i> {{ 'acc_contraste' | t }}</li>
+                    <li appTeclado (click)="acc.aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down" aria-hidden="true"></i> {{ 'acc_espaco_mais' | t }}</li>
+                    <li appTeclado (click)="acc.diminuirEspacamento()"><i class="fa-solid fa-compress" aria-hidden="true"></i> {{ 'acc_espaco_menos' | t }}</li>
+                    <li appTeclado (click)="acc.redefinir()"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> {{ 'acc_redefinir' | t }}</li>
                 </ul>
               </div>
 
@@ -451,6 +451,44 @@
             <span class="mae-sino-texto">Avisos</span>
             @if (naoLidas() > 0) { <span class="notif-badge" aria-hidden="true">{{ naoLidas() > 9 ? '9+' : naoLidas() }}</span> }
           </button>
+
+          <!-- AVISOS NO CELULAR: só a lista, sem abrir o menu -->
+          @if (avisosCelular) {
+            <div class="avisos-cel-fundo" (click)="fecharAvisosCelular()" aria-hidden="true"></div>
+            <div class="avisos-cel" role="dialog" aria-label="Avisos" (click)="$event.stopPropagation()" (keydown.escape)="fecharAvisosCelular()">
+              <div class="avisos-cel-topo">
+                <strong><i class="ph-light ph-bell" aria-hidden="true"></i> Avisos</strong>
+                @if (naoLidas() > 0) {
+                  <button type="button" class="notif-marcar" (click)="marcarTodasComoLidas($event)">Marcar todas como lidas</button>
+                }
+                <button type="button" class="avisos-cel-fechar" aria-label="Fechar avisos" (click)="fecharAvisosCelular()"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+              @if (notificacoes().length === 0) {
+                <div class="notif-vazio">
+                  <i class="fa-regular fa-bell-slash"></i>
+                  <p>Nenhum aviso por enquanto.</p>
+                </div>
+              } @else {
+                <ul class="notif-lista">
+                  @for (n of notificacoes(); track n.id) {
+                    <li>
+                      <button type="button" class="notif-item" [class.nao-lida]="!n.lida" (click)="abrirNotificacao(n)">
+                        <span class="notif-icone" [class.recusada]="n.tipo === 'consulta_recusada'" [class.roxa]="n.tipo !== 'consulta_recusada' && n.tipo !== 'consulta_confirmada'">
+                          <i [class]="iconeNotificacao(n.tipo)"></i>
+                        </span>
+                        <span class="notif-texto">
+                          <strong>{{ n.titulo }}</strong>
+                          <span class="notif-msg">{{ n.mensagem }}</span>
+                          <span class="notif-tempo">{{ tempoRelativo(n.criadoEm) }}</span>
+                        </span>
+                        @if (!n.lida) { <span class="notif-ponto" aria-hidden="true"></span> }
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
 
           <!-- BOTÃO HAMBÚRGUER (APENAS NO MOBILE) -->
           <button class="menu-toggle mae-menu-topo" aria-label="Abrir menu" (click)="toggleMobileMenu()">
@@ -559,16 +597,16 @@
 
                 @if (menuAberto()) {
                   <ul class="mobile-acc-sublist">
-                    <li (click)="aumentarFonte()"><i class="fa-solid fa-circle-plus"></i> Aumentar Fonte</li>
-                    <li (click)="diminuirFonte()"><i class="fa-solid fa-circle-minus"></i> Diminuir Fonte</li>
-                    <li (click)="alternarFiltroDaltonismo()"><i class="fa-solid fa-eye-slash"></i> Filtros Daltonismo</li>
-                    <li (click)="lerEmVozAlta()"><i class="fa-solid fa-ear-listen"></i> Leitura em Voz</li>
-                    <li (click)="alternarMascara()"><i class="fa-solid fa-highlighter"></i> Máscara de leitura</li>
-                    <li (click)="alternarNegrito()"><i class="fa-solid fa-bold"></i> Letras destacadas</li>
-                    <li (click)="alternarAltoContraste()"><i class="fa-solid fa-circle-half-stroke"></i> Alto contraste</li>
-                    <li (click)="aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down"></i> Aumentar Espaçamento</li>
-                    <li (click)="diminuirEspacamento()"><i class="fa-solid fa-compress"></i> Diminuir Espaçamento</li>
-                    <li (click)="redefinirAcessibilidade()"><i class="fa-solid fa-rotate-left"></i> Redefinir</li>
+                    <li appTeclado (click)="acc.aumentarFonte()"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> {{ 'acc_fonte_mais' | t }}</li>
+                    <li appTeclado (click)="acc.diminuirFonte()"><i class="fa-solid fa-circle-minus" aria-hidden="true"></i> {{ 'acc_fonte_menos' | t }}</li>
+                    <li appTeclado (click)="acc.alternarDaltonismo()"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i> {{ 'acc_daltonismo' | t }}</li>
+                    <li appTeclado (click)="acc.alternarLeitura()"><i class="fa-solid fa-ear-listen" aria-hidden="true"></i> {{ 'acc_voz' | t }}</li>
+                    <li appTeclado (click)="acc.alternarMascara()"><i class="fa-solid fa-highlighter" aria-hidden="true"></i> {{ 'acc_mascara' | t }}</li>
+                    <li appTeclado (click)="acc.alternarNegrito()"><i class="fa-solid fa-bold" aria-hidden="true"></i> {{ 'acc_negrito' | t }}</li>
+                    <li appTeclado (click)="acc.alternarContraste()"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i> {{ 'acc_contraste' | t }}</li>
+                    <li appTeclado (click)="acc.aumentarEspacamento()"><i class="fa-solid fa-arrows-up-down" aria-hidden="true"></i> {{ 'acc_espaco_mais' | t }}</li>
+                    <li appTeclado (click)="acc.diminuirEspacamento()"><i class="fa-solid fa-compress" aria-hidden="true"></i> {{ 'acc_espaco_menos' | t }}</li>
+                    <li appTeclado (click)="acc.redefinir()"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> {{ 'acc_redefinir' | t }}</li>
                   </ul>
                 }
               </div>

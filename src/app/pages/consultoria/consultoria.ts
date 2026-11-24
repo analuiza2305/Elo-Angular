@@ -24,11 +24,11 @@ export class Consultoria implements OnInit {
 
   /** Slides do "Como funciona" (abre sozinho até a mãe marcar "não mostrar de novo"). */
   passosComoFunciona: PassoGuia[] = [
-    { icone: 'ph-light ph-stethoscope', titulo: 'Escolha a profissional', texto: 'Psicóloga ou advogada. Veja o perfil e as avaliações de outras mães.' },
-    { icone: 'ph-light ph-calendar-blank', titulo: 'Marque o dia e o horário', texto: 'Ela confirma o pedido e um aviso aparece na sua tela.' },
-    { icone: 'ph-light ph-clipboard-text', titulo: 'Conte como você está', texto: 'Com a psicóloga, você responde um questionário rápido, de 2 minutos.' },
-    { icone: 'ph-light ph-video-camera', titulo: 'Entre na chamada', texto: 'Na hora marcada, abra "Minhas consultas" e toque no botão verde "Entrar na chamada".' },
-    { icone: 'ph-light ph-info', titulo: 'Bom saber', texto: 'A consulta é um atendimento breve e gratuito. Não substitui uma terapia contínua nem um processo na Justiça.' },
+    { icone: 'ph-light ph-stethoscope', titulo: 'Escolha a profissional', texto: 'Psicóloga ou advogada. Veja o perfil e as avaliações de outras mães.', imagem: 'escolher-profissional' },
+    { icone: 'ph-light ph-calendar-blank', titulo: 'Marque o dia e o horário', texto: 'Ela confirma o pedido e um aviso aparece na sua tela.', imagem: 'dia-horario' },
+    { icone: 'ph-light ph-clipboard-text', titulo: 'Conte como você está', texto: 'Com a psicóloga, você responde um questionário rápido, de 2 minutos.', imagem: 'questionario' },
+    { icone: 'ph-light ph-video-camera', titulo: 'Entre na chamada', texto: 'Na hora marcada, abra "Minhas consultas" e toque no botão verde "Entrar na chamada".', imagem: 'entrar-chamada' },
+    { icone: 'ph-light ph-info', titulo: 'Bom saber', texto: 'A consulta é um atendimento breve e gratuito. Não substitui uma terapia contínua nem um processo na Justiça.', imagem: 'bom-saber' },
   ];
 
   ngOnInit() {

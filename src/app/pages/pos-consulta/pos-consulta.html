@@ -43,6 +43,45 @@
               <span class="acess-switch" [class.on]="altoContraste()"></span>
             </button>
 
+            <!-- Demais opções: as mesmas do resto do site (AcessibilidadeService) -->
+            <button type="button" class="acess-item" role="menuitemcheckbox"
+                    [attr.aria-checked]="acc.estado().daltonismo > 0" (click)="acc.alternarDaltonismo()">
+              <i class="fa-solid fa-eye-slash"></i>
+              <span>{{ 'acc_daltonismo' | t }}</span>
+              <span class="acess-switch" [class.on]="acc.estado().daltonismo > 0"></span>
+            </button>
+
+            <button type="button" class="acess-item" role="menuitemcheckbox"
+                    [attr.aria-checked]="acc.lendo()" (click)="acc.alternarLeitura()">
+              <i class="fa-solid fa-ear-listen"></i>
+              <span>{{ 'acc_voz' | t }}</span>
+              <span class="acess-switch" [class.on]="acc.lendo()"></span>
+            </button>
+
+            <button type="button" class="acess-item" role="menuitemcheckbox"
+                    [attr.aria-checked]="acc.estado().mascara" (click)="acc.alternarMascara()">
+              <i class="fa-solid fa-highlighter"></i>
+              <span>{{ 'acc_mascara' | t }}</span>
+              <span class="acess-switch" [class.on]="acc.estado().mascara"></span>
+            </button>
+
+            <button type="button" class="acess-item" role="menuitemcheckbox"
+                    [attr.aria-checked]="acc.estado().negrito" (click)="acc.alternarNegrito()">
+              <i class="fa-solid fa-bold"></i>
+              <span>{{ 'acc_negrito' | t }}</span>
+              <span class="acess-switch" [class.on]="acc.estado().negrito"></span>
+            </button>
+
+            <button type="button" class="acess-item" (click)="acc.aumentarEspacamento()">
+              <i class="fa-solid fa-arrows-up-down"></i>
+              <span>{{ 'acc_espaco_mais' | t }}</span>
+            </button>
+
+            <button type="button" class="acess-item" (click)="acc.diminuirEspacamento()">
+              <i class="fa-solid fa-compress"></i>
+              <span>{{ 'acc_espaco_menos' | t }}</span>
+            </button>
+
             <button type="button" class="acess-item" (click)="redefinirAcessibilidade()">
               <i class="fa-solid fa-rotate-left"></i>
               <span>Redefinir</span>

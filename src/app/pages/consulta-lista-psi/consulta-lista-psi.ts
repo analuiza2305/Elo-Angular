@@ -1,4 +1,5 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, HostListener, OnInit, signal, computed, inject } from '@angular/core';
+import { FiltrosDropdownDirective } from '../../core/directives/filtros-dropdown.directive';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -42,7 +43,7 @@ interface Profissional {
 @Component({
   selector: 'app-consulta-lista-psi',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, HeaderComponent],
+  imports: [FiltrosDropdownDirective, CommonModule, FormsModule, RouterModule, HeaderComponent],
   templateUrl: './consulta-lista-psi.html',
   styleUrls: ['./consulta-lista-psi.css']
 })
@@ -76,6 +77,13 @@ export class ConsultaListaPsiComponent implements OnInit {
 
   /** A mãe já respondeu o questionário de bem-estar? (null = ainda verificando) */
   questionarioRespondido = signal<boolean | null>(null);
+  /** "Agora não" no convite do questionário: esconde até ela abrir o site de novo. */
+  conviteFechado = signal(typeof sessionStorage !== 'undefined' && sessionStorage.getItem('eloConviteQuestionario') === 'fechado');
+
+  fecharConvite() {
+    this.conviteFechado.set(true);
+    try { sessionStorage.setItem('eloConviteQuestionario', 'fechado'); } catch { /* sem storage */ }
+  }
 
   contagemTipo = computed(() => {
     const lista = this.profissionais();
@@ -387,12 +395,55 @@ export class ConsultaListaPsiComponent implements OnInit {
       hora: prof.horarioSelecionado
     });
     this.motivoConsulta.set('');
+    this.focoAntesDoModal = document.activeElement as HTMLElement | null;
     this.showModal.set(true);
+    // Leva o foco para dentro do modal (quem usa teclado não fica "preso" atrás dele)
+    setTimeout(() => {
+      document.querySelector<HTMLElement>('#modalAgendamento textarea, #modalAgendamento .close-btn')?.focus();
+    });
   }
 
   fecharModal() {
     this.showModal.set(false);
     this.modalInfo.set(null);
+    // Devolve o foco para o botão "Marcar consulta" que abriu o modal
+    this.focoAntesDoModal?.focus?.();
+    this.focoAntesDoModal = null;
+  }
+
+  private focoAntesDoModal: HTMLElement | null = null;
+
+  /** Esc fecha o modal de agendamento (ou o de filtros). */
+  @HostListener('document:keydown.escape')
+  aoApertarEsc() {
+    if (this.showModal()) this.fecharModal();
+    else if (this.showFiltroModal()) this.fecharFiltros();
+  }
+
+  /** Mantém o Tab dentro do modal enquanto ele estiver aberto. */
+  @HostListener('document:keydown.tab', ['$event'])
+  @HostListener('document:keydown.shift.tab', ['$event'])
+  prenderFocoNoModal(event: Event) {
+    if (!this.showModal()) return;
+    const modal = document.querySelector<HTMLElement>('#modalAgendamento .modal-content');
+    if (!modal) return;
+    const focaveis = Array.from(
+      modal.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], textarea, input, select, [tabindex="0"]')
+    );
+    if (!focaveis.length) return;
+    const primeiro = focaveis[0];
+    const ultimo = focaveis[focaveis.length - 1];
+    const voltando = (event as KeyboardEvent).shiftKey;
+    if (!modal.contains(document.activeElement)) {
+      event.preventDefault();
+      primeiro.focus();
+    } else if (!voltando && document.activeElement === ultimo) {
+      event.preventDefault();
+      primeiro.focus();
+    } else if (voltando && document.activeElement === primeiro) {
+      event.preventDefault();
+      ultimo.focus();
+    }
   }
 
   abrirFiltros() { this.showFiltroModal.set(true); }

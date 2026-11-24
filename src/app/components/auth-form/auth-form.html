@@ -36,19 +36,21 @@
     <!-- Seletor de documento (OAB/CNPJ/CRP) — usado tanto no CADASTRO quanto no LOGIN de profissionais/parceiros -->
     @if (publico === 'profissional') {
       <div class="campo-documento">
-        <div class="input-group dropdown-container" (click)="toggleDropdown($event)">
-          <i class="fa-solid fa-id-card icon"></i>
+        <div class="input-group dropdown-container" (click)="toggleDropdown($event)"
+             tabindex="0" role="combobox" aria-haspopup="listbox" aria-label="Tipo de documento"
+             [attr.aria-expanded]="isDropdownOpen" (keydown)="teclaNoDropdown($event)">
+          <i class="fa-solid fa-id-card icon" aria-hidden="true"></i>
           <div class="dropdown" [class.active]="isDropdownOpen" id="dropdownDocumento">
             <div class="dropdown-btn" id="dropdownBtn">
               <span id="documentoSelecionado">{{ getDocumentoLabel() }}</span>
               <span class="seta">▼</span>
             </div>
 
-            <div class="dropdown-menu">
+            <div class="dropdown-menu" role="listbox">
               <div class="dropdown-titulo">Selecione uma opção:</div>
-              <div class="dropdown-item" (click)="selectDocument('oab', $event)">OAB</div>
-              <div class="dropdown-item" (click)="selectDocument('cnpj', $event)">CNPJ</div>
-              <div class="dropdown-item" (click)="selectDocument('crp', $event)">CRP</div>
+              <div class="dropdown-item" appTeclado="option" [attr.aria-selected]="tipoDocumento === 'oab'" (click)="selectDocument('oab', $event)">OAB</div>
+              <div class="dropdown-item" appTeclado="option" [attr.aria-selected]="tipoDocumento === 'cnpj'" (click)="selectDocument('cnpj', $event)">CNPJ</div>
+              <div class="dropdown-item" appTeclado="option" [attr.aria-selected]="tipoDocumento === 'crp'" (click)="selectDocument('crp', $event)">CRP</div>
             </div>
           </div>
         </div>

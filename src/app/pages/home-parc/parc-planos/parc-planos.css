@@ -440,3 +440,38 @@
 .pp-root .pl-card-premium .pl-chip-premium {
   background: var(--pr-btn) !important; color: #FFFFFF !important; box-shadow: 0 8px 18px var(--pr-sombra) !important;
 }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.pl-confirmar:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-amarelo-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.pl-confirmar:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.pl-confirmar:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.pl-confirmar:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-amarelo-cor) !important; }
+.pl-msg:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-verde-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.pl-msg:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.pl-msg:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.pl-msg:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-verde-cor) !important; }
+.pl-msg.erro:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-vermelho-fim) 100%) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 20px !important;
+  color: var(--soft-texto) !important;
+}
+.pl-msg.erro:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
+.pl-msg.erro:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
+.pl-msg.erro:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-vermelho-cor) !important; }
+/* ===== FIM ESTÉTICA SOFT ===== */
