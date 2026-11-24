@@ -11,8 +11,8 @@
   margin-top: 28px;
   padding: 26px 34px 30px;
   border-radius: 32px;
-  background: linear-gradient(180deg, #F4EEFE 0%, #EDE4FB 100%);
-  border: 1px solid rgba(124, 95, 203, .14);
+  background: #FAF7FF;
+  border: 1px solid rgba(124, 95, 203, .12);
   box-shadow: 0 16px 48px rgba(124, 95, 203, .08);
 }
 
