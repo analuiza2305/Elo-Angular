@@ -8698,7 +8698,7 @@ li.preocupa:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-laranja-
 }
 .doc-chip-gratis:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
 .event:not(#_s1):not(#_s2) {
-  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 16px !important;

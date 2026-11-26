@@ -6979,13 +6979,13 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
 }
 .cfg-nivel-opcao.sel:not(#_s1):not(#_s2) :is(i, strong, span, small) { color: inherit !important; }
 .suspender-modal:not(#_s1):not(#_s2), .config-modal:not(#_s1):not(#_s2), .forum-modal:not(#_s1):not(#_s2), .mae-drawer:not(#_s1):not(#_s2) {
-  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 24px !important;
 }
 .maes-toolbar:not(#_s1):not(#_s2), .forum-search-row:not(#_s1):not(#_s2) {
-  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
 }

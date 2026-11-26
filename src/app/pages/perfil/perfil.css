@@ -1129,7 +1129,7 @@ body[data-theme="dark"] .suporte-opcao-perfil small { color: #A9A2BE; }
    Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
    Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
 .suporte-opcao-perfil:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda-linha) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-titulo) !important;

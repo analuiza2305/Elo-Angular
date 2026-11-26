@@ -14125,7 +14125,7 @@ body[data-theme="dark"] {
   box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
 }
 .mobile-acc-btn:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda-linha) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-titulo) !important;
@@ -14144,7 +14144,7 @@ body[data-theme="dark"] {
 }
 .mobile-acc-btn:not(#_s1):not(#_s2):hover { transform: translateY(-1px); box-shadow: var(--soft-sombra-hover) !important; }
 .header .mobile-menu-item.mobile-access-parceiro:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda-linha) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-titulo) !important;
@@ -14181,7 +14181,7 @@ body[data-theme="dark"] {
 }
 .btn-mobile-logout:not(#_s1):not(#_s2) { border: 1px solid color-mix(in srgb, var(--soft-vermelho-cor) 22%, transparent) !important; font-weight: 800 !important; }
 .mobile-acc-sublist:not(#_s1):not(#_s2) {
-  background: linear-gradient(160deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(160deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda-linha) !important; border-radius: 16px !important;
   box-shadow: var(--soft-sombra-pequena) !important; padding: 8px !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 6px !important;
@@ -14238,7 +14238,7 @@ body[data-theme="dark"] {
 .coment-aviso-nao-prof:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
 .coment-aviso-nao-prof:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-lilas-cor) !important; }
 .last-activities:not(#_s1):not(#_s2) {
-  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
 }

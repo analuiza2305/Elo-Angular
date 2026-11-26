@@ -1177,8 +1177,36 @@
 .link-destaque:not(#_s1):not(#_s2):hover { transform: translateY(-1px); box-shadow: 0 12px 26px rgba(75, 44, 130, .34), inset 0 1px 0 rgba(255, 255, 255, .2) !important; color: #FFFFFF !important; }
 .link-destaque:not(#_s1):not(#_s2)::after { display: none !important; }
 #accessibility-menu:not(#_s1):not(#_s2) {
-  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
 }
+.notif-panel:not(#_s1):not(#_s2), .avisos-cel:not(#_s1):not(#_s2) {
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra) !important;
+  border-radius: 22px !important;
+}
+.notif-lista:not(#_s1):not(#_s2) { display: flex !important; flex-direction: column; gap: 8px; padding: 10px !important; }
+.notif-item:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
+  border: 1px solid var(--soft-borda-linha) !important; border-radius: 16px !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  transition: transform .2s ease, box-shadow .2s ease !important;
+}
+.notif-item:not(#_s1):not(#_s2):hover { transform: translateY(-1px); box-shadow: var(--soft-sombra-hover) !important; }
+.notif-item.nao-lida:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-lilas-fim) 0%, color-mix(in srgb, var(--soft-lilas-tile) 60%, var(--soft-lilas-fim)) 100%), var(--soft-base) !important;
+  border-color: var(--soft-borda) !important;
+}
+.notif-item:not(#_s1):not(#_s2) .notif-texto strong { color: var(--soft-titulo) !important; }
+.notif-item:not(#_s1):not(#_s2) .notif-msg { color: var(--soft-texto) !important; }
+.notif-item:not(#_s1):not(#_s2) .notif-tempo { color: color-mix(in srgb, var(--soft-texto) 75%, transparent) !important; }
+.notif-icone:not(#_s1):not(#_s2) {
+  border-radius: 13px !important; box-shadow: var(--soft-brilho), 0 4px 10px rgba(124, 95, 203, .08) !important;
+  background: linear-gradient(145deg, var(--soft-verde-fim), var(--soft-verde-tile)) !important; color: var(--soft-verde-cor) !important;
+}
+.notif-icone.recusada:not(#_s1):not(#_s2) { background: linear-gradient(145deg, var(--soft-vermelho-fim), var(--soft-vermelho-tile)) !important; color: var(--soft-vermelho-cor) !important; }
+.notif-icone.roxa:not(#_s1):not(#_s2) { background: linear-gradient(145deg, var(--soft-lilas-fim), var(--soft-lilas-tile)) !important; color: var(--soft-lilas-cor) !important; }
+.notif-ponto:not(#_s1):not(#_s2) { background: linear-gradient(135deg, #9C88D9, #6B4FB0) !important; box-shadow: 0 0 0 3px var(--soft-lilas-fim) !important; }
 /* ===== FIM ESTÉTICA SOFT ===== */
