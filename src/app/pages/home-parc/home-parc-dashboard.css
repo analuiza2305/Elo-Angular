@@ -29,9 +29,9 @@
 :host #dashboard { display: flex; flex-direction: column; gap: 0; max-width: 1480px; margin: 0 auto; width: 100%; }
 
 /* ---------- TÍTULOS DE SEÇÃO ---------- */
-:host #dashboard .pd-titulo { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin: 0 0 14px; }
-:host #dashboard .pd-titulo h2 { margin: 0; font-family: 'Poppins', sans-serif; font-size: 1.25rem; font-weight: 700; color: var(--pd-titulo); }
-:host #dashboard .pd-titulo p { margin: 2px 0 0; color: var(--pd-texto); font-size: .88rem; }
+:host :is(#dashboard, #relatorios) .pd-titulo { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin: 0 0 14px; }
+:host :is(#dashboard, #relatorios) .pd-titulo h2 { margin: 0; font-family: 'Poppins', sans-serif; font-size: 1.25rem; font-weight: 700; color: var(--pd-titulo); }
+:host :is(#dashboard, #relatorios) .pd-titulo p { margin: 2px 0 0; color: var(--pd-texto); font-size: .88rem; }
 :host #dashboard .pd-link {
   display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; padding: 8px 14px; border-radius: 999px;
   border: none; background: transparent; color: var(--pd-roxo); font: 800 .88rem 'Nunito', sans-serif; cursor: pointer;
@@ -42,33 +42,33 @@
 :host-context(body[data-theme="dark"]) #dashboard .pd-link { color: #D9CCFF; }
 
 /* ---------- SEU IMPACTO (números) ---------- */
-:host #dashboard .pd-kpis {
+:host :is(#dashboard, #relatorios) .pd-kpis {
   display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 18px !important; align-items: stretch !important;
   margin: 0 0 40px !important;
 }
-:host #dashboard .pd-kpi {
+:host :is(#dashboard, #relatorios) .pd-kpi {
   display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 14px !important;
   padding: 22px !important; border-radius: 22px !important; min-height: 0 !important; height: auto !important;
   background: var(--pd-card) !important; border: 1px solid var(--pd-borda) !important; box-shadow: var(--pd-sombra) !important;
   transform: none !important; margin: 0 !important; align-self: stretch !important;
 }
-:host #dashboard .pd-kpi .stat-icon {
+:host :is(#dashboard, #relatorios) .pd-kpi .stat-icon {
   display: grid !important; place-items: center; width: 44px !important; height: 44px !important; border-radius: 14px !important;
   background: var(--pd-tile) !important; color: #7C5FCB !important; font-size: 1.1rem !important; margin: 0 !important;
 }
-:host #dashboard .pd-kpi .stat-icon i { color: inherit !important; }
-:host #dashboard .pd-kpi .stat-info { display: flex !important; flex-direction: column !important; gap: 2px !important; }
-:host #dashboard .pd-kpi .stat-label { order: 0; color: var(--pd-texto) !important; font-size: .86rem !important; font-weight: 700 !important; }
-:host #dashboard .pd-kpi .stat-number {
+:host :is(#dashboard, #relatorios) .pd-kpi .stat-icon i { color: inherit !important; }
+:host :is(#dashboard, #relatorios) .pd-kpi .stat-info { display: flex !important; flex-direction: column !important; gap: 2px !important; }
+:host :is(#dashboard, #relatorios) .pd-kpi .stat-label { order: 0; color: var(--pd-texto) !important; font-size: .86rem !important; font-weight: 700 !important; }
+:host :is(#dashboard, #relatorios) .pd-kpi .stat-number {
   order: 1; font-family: 'Poppins', sans-serif !important; font-size: 2.2rem !important; font-weight: 700 !important;
   line-height: 1.1 !important; color: var(--pd-titulo) !important;
 }
-:host #dashboard .pd-kpi .stat-hint { order: 2; color: var(--pd-texto) !important; opacity: .85; font-size: .78rem !important; font-weight: 600 !important; line-height: 1.35; }
-:host #dashboard .pd-kpi .stat-hint:empty { display: none; }
+:host :is(#dashboard, #relatorios) .pd-kpi .stat-hint { order: 2; color: var(--pd-texto) !important; opacity: .85; font-size: .78rem !important; font-weight: 600 !important; line-height: 1.35; }
+:host :is(#dashboard, #relatorios) .pd-kpi .stat-hint:empty { display: none; }
 /* o número principal ganha destaque */
-:host #dashboard .pd-kpis .stat-card.pd-kpi.pd-kpi-maes { background: linear-gradient(145deg, #8E72DC 0%, #5B3D99 100%) !important; border-color: rgba(255, 255, 255, .25) !important; box-shadow: 0 16px 34px rgba(91, 61, 153, .28) !important; }
-:host #dashboard .pd-kpis .stat-card.pd-kpi.pd-kpi-maes .stat-icon { background: rgba(255, 255, 255, .18) !important; color: #FFFFFF !important; }
-:host #dashboard .pd-kpis .stat-card.pd-kpi.pd-kpi-maes :is(.stat-label, .stat-number, .stat-hint) { color: #FFFFFF !important; }
+:host :is(#dashboard, #relatorios) .pd-kpis .stat-card.pd-kpi.pd-kpi-maes { background: linear-gradient(145deg, #8E72DC 0%, #5B3D99 100%) !important; border-color: rgba(255, 255, 255, .25) !important; box-shadow: 0 16px 34px rgba(91, 61, 153, .28) !important; }
+:host :is(#dashboard, #relatorios) .pd-kpis .stat-card.pd-kpi.pd-kpi-maes .stat-icon { background: rgba(255, 255, 255, .18) !important; color: #FFFFFF !important; }
+:host :is(#dashboard, #relatorios) .pd-kpis .stat-card.pd-kpi.pd-kpi-maes :is(.stat-label, .stat-number, .stat-hint) { color: #FFFFFF !important; }
 
 /* ---------- AGENDA / POSTAGENS / ATIVIDADE ---------- */
 :host #dashboard .pd-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 28px; align-items: start; margin-bottom: 32px; }
@@ -125,16 +125,16 @@
 
 /* ---------- RESPONSIVO ---------- */
 @media (max-width: 1200px) {
-  :host #dashboard .pd-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  :host :is(#dashboard, #relatorios) .pd-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
 }
 @media (max-width: 1000px) {
   :host #dashboard .pd-grid { grid-template-columns: 1fr; gap: 0; }
 }
 @media (max-width: 760px) {
-  :host #dashboard .pd-kpis { gap: 12px !important; }
-  :host #dashboard .pd-kpi { padding: 16px !important; }
-  :host #dashboard .pd-kpi .stat-number { font-size: 1.8rem !important; }
-  :host #dashboard .pd-titulo { flex-wrap: wrap; align-items: center; }
+  :host :is(#dashboard, #relatorios) .pd-kpis { gap: 12px !important; }
+  :host :is(#dashboard, #relatorios) .pd-kpi { padding: 16px !important; }
+  :host :is(#dashboard, #relatorios) .pd-kpi .stat-number { font-size: 1.8rem !important; }
+  :host :is(#dashboard, #relatorios) .pd-titulo { flex-wrap: wrap; align-items: center; }
 }
 @media (prefers-reduced-motion: reduce) {
   :host #dashboard :is(.pd-acao, .pd-atalho, .pd-link i) { transition: none; }

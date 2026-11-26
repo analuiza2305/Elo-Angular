@@ -746,53 +746,74 @@
                 </div>
             </div>
 
-            <div class="stats-grid" id="reportStats">
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-file-lines"></i></div>
+            <div class="pd-titulo">
+                <div>
+                    <h2>Resumo do alcance</h2>
+                    <p>Números somados desde que a sua empresa entrou no Elo Materno</p>
+                </div>
+            </div>
+            <div class="stats-grid pd-kpis" id="reportStats">
+                <div class="stat-card pd-kpi pd-kpi-maes">
+                    <div class="stat-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
                     <div class="stat-info">
-                        <span class="stat-number" id="repArtigos">–</span>
+                        <span class="stat-label">Mães alcançadas</span>
+                        <span class="stat-number" id="repParticipantes">–</span>
+                        <span class="stat-hint">Mães diferentes que interagiram com a sua empresa</span>
+                    </div>
+                </div>
+                <div class="stat-card pd-kpi">
+                    <div class="stat-icon"><i class="fa-solid fa-file-lines"></i></div>
+                    <div class="stat-info">
                         <span class="stat-label">Postagens na Comunidade</span>
+                        <span class="stat-number" id="repArtigos">–</span>
                         <span class="stat-hint" id="repArtigosDetalhe">Posts, conteúdos educacionais e dicas</span>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-yellow"><i class="fa-regular fa-calendar-check"></i></div>
+                <div class="stat-card pd-kpi">
+                    <div class="stat-icon"><i class="fa-regular fa-calendar-check"></i></div>
                     <div class="stat-info">
-                        <span class="stat-number" id="repEventos">–</span>
                         <span class="stat-label">Eventos realizados</span>
+                        <span class="stat-number" id="repEventos">–</span>
                         <span class="stat-hint">Eventos que já aconteceram</span>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-coral"><i class="fa-solid fa-people-group"></i></div>
+                <div class="stat-card pd-kpi">
+                    <div class="stat-icon"><i class="fa-solid fa-briefcase"></i></div>
                     <div class="stat-info">
-                        <span class="stat-number" id="repParticipantes">–</span>
-                        <span class="stat-label">Mães alcançadas</span>
-                        <span class="stat-hint">Mães diferentes que se inscreveram em eventos, salvaram postagens, curtiram tópicos ou clicaram em vagas e cursos</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-briefcase"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-number" id="repNovosMembros">–</span>
                         <span class="stat-label">Interesse em Carreiras</span>
-                        <span class="stat-hint">Cliques em "quero me candidatar" ou "quero me inscrever" nas suas vagas e cursos</span>
+                        <span class="stat-number" id="repNovosMembros">–</span>
+                        <span class="stat-hint">Cliques nas suas vagas e cursos</span>
                     </div>
                 </div>
             </div>
 
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <h3>Postagens na Comunidade por mês</h3>
-                    <canvas id="chartArtigos"></canvas>
+            <div class="pd-titulo">
+                <div>
+                    <h2>Evolução</h2>
+                    <p>Últimos 6 meses</p>
                 </div>
-                <div class="chart-card">
-                    <h3>Eventos realizados</h3>
-                    <canvas id="chartEventos"></canvas>
+            </div>
+            <div class="pr-graficos">
+                <div class="pr-grafico">
+                    <div class="pr-grafico-cab">
+                        <span class="pr-grafico-ic"><i class="fa-solid fa-chart-line"></i></span>
+                        <div><h3>Postagens na Comunidade</h3><small>Quantas você publicou por mês</small></div>
+                    </div>
+                    <div class="pr-grafico-area"><canvas id="chartArtigos"></canvas></div>
                 </div>
-                <div class="chart-card">
-                    <h3>De onde vem o seu alcance</h3>
-                    <canvas id="chartForum"></canvas>
+                <div class="pr-grafico">
+                    <div class="pr-grafico-cab">
+                        <span class="pr-grafico-ic"><i class="fa-solid fa-chart-column"></i></span>
+                        <div><h3>Eventos</h3><small>Eventos por mês</small></div>
+                    </div>
+                    <div class="pr-grafico-area"><canvas id="chartEventos"></canvas></div>
+                </div>
+                <div class="pr-grafico">
+                    <div class="pr-grafico-cab">
+                        <span class="pr-grafico-ic"><i class="fa-solid fa-chart-pie"></i></span>
+                        <div><h3>De onde vem o seu alcance</h3><small>Interações das mães por tipo</small></div>
+                    </div>
+                    <div class="pr-grafico-area pr-grafico-area-rosca"><canvas id="chartForum"></canvas></div>
                 </div>
             </div>
         </section>
@@ -805,91 +826,107 @@
                 </div>
             </div>
 
-            <div class="config-grid">
-                <div class="config-square" id="configPanel-conta">
-                    <div class="config-square-header">
-                        <i class="fa-regular fa-user"></i>
-                        <h3>Informações</h3>
+            <div class="pc-config">
+                <!-- ===== DADOS DA EMPRESA ===== -->
+                <div class="pc-card pc-dados">
+                    <div class="pc-perfil">
+                        <img id="cfgFotoPreview" class="pc-perfil-foto" src="./img/logo_icon.png" alt="Foto do perfil">
+                        <div class="pc-perfil-txt">
+                            <strong id="cfgNomeExibido">Sua empresa</strong>
+                            <small>Foto ou logo em PNG ou JPG, até 2MB</small>
+                        </div>
+                        <button class="pc-btn pc-btn-claro" type="button" id="cfgAlterarFotoBtn"><i class="fa-solid fa-camera"></i> Alterar foto</button>
                     </div>
-                    <form id="formConfigConta">
-                        <label>Nome Fantasia <span class="foto-hint" style="display:inline;">(nome exibido publicamente)</span></label>
-                        <input type="text" id="cfgNomeFantasia" placeholder="Como sua empresa quer ser chamada">
 
-                        <label>Razão Social</label>
-                        <input type="text" id="cfgNomeEmpresa" placeholder="Nome da empresa">
+                    <div class="pc-cab">
+                        <span class="pc-cab-ic"><i class="fa-regular fa-building"></i></span>
+                        <div>
+                            <h3>Dados da empresa</h3>
+                            <p>É assim que as mães veem a sua empresa no Elo Materno.</p>
+                        </div>
+                    </div>
 
-                        <label>E-mail corporativo</label>
-                        <input type="email" id="cfgEmail" placeholder="email@empresa.com.br">
+                    <form id="formConfigConta" class="pc-form">
+                        <div class="pc-campo">
+                            <label for="cfgNomeFantasia">Nome fantasia</label>
+                            <input type="text" id="cfgNomeFantasia" placeholder="Como sua empresa quer ser chamada">
+                            <small>Nome exibido publicamente</small>
+                        </div>
+                        <div class="pc-campo">
+                            <label for="cfgNomeEmpresa">Razão social</label>
+                            <input type="text" id="cfgNomeEmpresa" placeholder="Nome da empresa">
+                        </div>
+                        <div class="pc-campo">
+                            <label for="cfgEmail">E-mail corporativo</label>
+                            <div class="pc-input-ic"><i class="fa-regular fa-envelope"></i><input type="email" id="cfgEmail" placeholder="email@empresa.com.br"></div>
+                        </div>
+                        <div class="pc-campo">
+                            <label for="cfgTelefone">Telefone</label>
+                            <div class="pc-input-ic"><i class="fa-solid fa-phone"></i><input type="text" id="cfgTelefone" placeholder="(11) 99999-9999"></div>
+                        </div>
+                        <div class="pc-campo">
+                            <label for="cfgCidade">Cidade</label>
+                            <div class="pc-input-ic"><i class="fa-solid fa-location-dot"></i><input type="text" id="cfgCidade" placeholder="Cidade"></div>
+                        </div>
+                        <div class="pc-campo">
+                            <label for="cfgSite">Site da empresa</label>
+                            <div class="pc-input-ic"><i class="fa-solid fa-globe"></i><input type="text" id="cfgSite" placeholder="www.suaempresa.com.br"></div>
+                            <small>Os links de vagas e cursos precisam ser deste site ou de uma plataforma de vagas conhecida</small>
+                        </div>
 
-                        <label>Telefone</label>
-                        <input type="text" id="cfgTelefone" placeholder="(11) 99999-9999">
-
-                        <label>Cidade</label>
-                        <input type="text" id="cfgCidade" placeholder="Cidade">
-
-                        <label>Site da empresa <span class="foto-hint" style="display:inline;">(links de vagas e cursos precisam ser deste site ou de uma plataforma de vagas conhecida)</span></label>
-                        <input type="text" id="cfgSite" placeholder="www.suaempresa.com.br">
-
-                        <button type="submit" class="quick-action-btn qa-purple" style="margin-top:10px;">Salvar alterações</button>
-                        <span id="cfgSalvarMsg"></span>
+                        <div class="pc-rodape">
+                            <span id="cfgSalvarMsg" class="pc-msg" role="status"></span>
+                            <button type="submit" class="pc-btn pc-btn-roxo"><i class="fa-solid fa-check"></i> Salvar alterações</button>
+                        </div>
                     </form>
                 </div>
 
-                <div class="config-square" id="configPanel-privacidade">
-                    <div class="config-square-header">
-                        <i class="fa-solid fa-lock"></i>
-                        <h3>Privacidade</h3>
+                <aside class="pc-lateral">
+                    <!-- ===== SEGURANÇA ===== -->
+                    <div class="pc-card">
+                        <div class="pc-cab">
+                            <span class="pc-cab-ic"><i class="fa-solid fa-shield-halved"></i></span>
+                            <div><h3>Segurança</h3><p>Senha e acesso à conta</p></div>
+                        </div>
+                        <div class="pc-linha">
+                            <span class="pc-linha-ic"><i class="fa-solid fa-key"></i></span>
+                            <div class="pc-linha-txt"><strong>Senha</strong><small id="segUltimaAlteracaoSenha">Última alteração: —</small></div>
+                            <button class="pc-btn pc-btn-claro" type="button" id="segAlterarSenhaBtn">Alterar</button>
+                        </div>
+                        <div class="pc-linha">
+                            <span class="pc-linha-ic"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
+                            <div class="pc-linha-txt"><strong>Sair da conta</strong><small>Encerra a sessão neste dispositivo</small></div>
+                            <button class="pc-btn pc-btn-sair" type="button" id="segSairContaBtn">Sair</button>
+                        </div>
                     </div>
-                    <p class="empty-hint">Consulte nossos termos e política antes de continuar usando a plataforma.</p>
-                    <div class="config-legal-links">
-                        <a class="legal-link" href="/termos-de-uso" target="_blank" rel="noopener">
-                            <span class="legal-ic"><i class="fa-solid fa-file-contract"></i></span>
-                            <span class="legal-txt"><strong>Termos de Uso</strong><small>Regras de uso da plataforma</small></span>
-                            <i class="fa-solid fa-arrow-up-right-from-square legal-seta"></i>
+
+                    <!-- ===== PRIVACIDADE ===== -->
+                    <div class="pc-card">
+                        <div class="pc-cab">
+                            <span class="pc-cab-ic"><i class="fa-solid fa-lock"></i></span>
+                            <div><h3>Privacidade</h3><p>Nossos termos e como cuidamos dos seus dados</p></div>
+                        </div>
+                        <a class="pc-linha pc-linha-link" href="/termos-de-uso" target="_blank" rel="noopener">
+                            <span class="pc-linha-ic"><i class="fa-solid fa-file-contract"></i></span>
+                            <div class="pc-linha-txt"><strong>Termos de Uso</strong><small>Regras de uso da plataforma</small></div>
+                            <i class="fa-solid fa-arrow-up-right-from-square pc-seta"></i>
                         </a>
-                        <a class="legal-link" href="/politica-de-privacidade" target="_blank" rel="noopener">
-                            <span class="legal-ic"><i class="fa-solid fa-user-shield"></i></span>
-                            <span class="legal-txt"><strong>Política de Privacidade</strong><small>Como cuidamos dos seus dados</small></span>
-                            <i class="fa-solid fa-arrow-up-right-from-square legal-seta"></i>
+                        <a class="pc-linha pc-linha-link" href="/politica-de-privacidade" target="_blank" rel="noopener">
+                            <span class="pc-linha-ic"><i class="fa-solid fa-user-shield"></i></span>
+                            <div class="pc-linha-txt"><strong>Política de Privacidade</strong><small>Como cuidamos dos seus dados</small></div>
+                            <i class="fa-solid fa-arrow-up-right-from-square pc-seta"></i>
                         </a>
                     </div>
-                </div>
 
-                <div class="config-square" id="configPanel-seguranca">
-                    <div class="config-square-header">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <h3>Segurança</h3>
+                    <!-- ===== EXCLUIR CONTA ===== -->
+                    <div class="pc-card pc-perigo">
+                        <div class="pc-linha">
+                            <span class="pc-linha-ic"><i class="fa-regular fa-trash-can"></i></span>
+                            <div class="pc-linha-txt"><strong>Excluir conta</strong><small>Remove todos os dados da empresa. Não dá para desfazer.</small></div>
+                            <button class="pc-btn pc-btn-perigo" type="button" id="segExcluirContaBtn">Excluir</button>
+                        </div>
                     </div>
-
-                    <div class="config-seguranca-bloco">
-                        <h4>Senha</h4>
-                        <p class="empty-hint" id="segUltimaAlteracaoSenha">Última alteração: —</p>
-                        <button class="quick-action-btn qa-purple" type="button" id="segAlterarSenhaBtn">Alterar senha</button>
-                    </div>
-
-                    <div class="config-seguranca-bloco">
-                        <h4>Sair da conta</h4>
-                        <p class="empty-hint">Encerra sua sessão neste dispositivo.</p>
-                        <button class="quick-action-btn qa-yellow" type="button" id="segSairContaBtn">Sair da conta</button>
-                    </div>
-
-                    <div class="config-seguranca-bloco config-seguranca-perigo">
-                        <h4>Excluir conta</h4>
-                        <p class="empty-hint">Essa ação é permanente e remove todos os seus dados. Não é possível desfazer.</p>
-                        <button class="quick-action-btn qa-coral" type="button" id="segExcluirContaBtn">Excluir minha conta</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="config-card config-photo-card">
-                <h3>Foto do perfil</h3>
-                <div class="config-photo-row">
-                    <img id="cfgFotoPreview" class="config-photo" src="./img/logo_icon.png" alt="Foto do perfil">
-                    <div>
-                        <button class="quick-action-btn qa-purple" type="button" id="cfgAlterarFotoBtn">Alterar foto</button>
-                        <p class="foto-hint">PNG ou JPG. Máx. 2MB</p>
-                    </div>
-                </div>
+                </aside>
             </div>
         </section>
 
