@@ -60,9 +60,11 @@
     linear-gradient(120deg, #F6F0FE 0%, #F1E9FD 55%, #EDE2FC 100%);
 }
 .pd-banner::after {
-  content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 52%; pointer-events: none;
-  background: right bottom / contain no-repeat;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16%); mask-image: linear-gradient(90deg, transparent 0, #000 16%);
+  content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 58%; pointer-events: none;
+  background-position: right bottom; background-size: auto 100%; background-repeat: no-repeat;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 26%), linear-gradient(180deg, transparent 0, #000 22%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 26%), linear-gradient(180deg, transparent 0, #000 22%);
+  -webkit-mask-composite: source-in; mask-composite: intersect;
 }
 .pd-banner-relatorios::after { background-image: url('/img/planos/relatorios-ilustracao-claro.webp'); }
 .pd-banner-empresa::after { background-image: url('/img/planos/empresa-ilustracao-claro.webp'); }
@@ -86,7 +88,31 @@
 :host-context(body[data-theme="dark"]) .pd-banner p { color: #C0B6DC !important; }
 @media (max-width: 760px) {
   .pd-banner { flex-direction: column; align-items: stretch; padding: 150px 20px 22px; }
-  .pd-banner::after { left: 0; width: auto; height: 140px; bottom: auto; background-position: center top; -webkit-mask-image: none; mask-image: none; }
+  .pd-banner::after { left: 0; width: auto; height: 140px; bottom: auto; background-position: center top; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%), linear-gradient(180deg, #000 70%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%), linear-gradient(180deg, #000 70%, transparent 100%); -webkit-mask-composite: source-in; mask-composite: intersect; }
   .pd-banner .pl-hero-texto { max-width: 100%; }
   .pd-btn-banner { width: 100%; justify-content: center; }
+}
+
+/* Ilustração do banner: a área tem o formato da própria imagem (--ilu-ar),
+   encostada embaixo à direita, com degradê nas bordas esquerda e de cima. */
+.pd-banner::after {
+  top: auto !important; left: auto !important; right: 0 !important; bottom: 0 !important;
+  width: min(60%, 720px) !important; height: auto !important; max-height: 100%;
+  aspect-ratio: var(--ilu-ar, 3);
+  background-size: contain !important; background-position: right bottom !important; background-repeat: no-repeat !important;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 24%), linear-gradient(180deg, transparent 0, #000 28%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 24%), linear-gradient(180deg, transparent 0, #000 28%);
+  -webkit-mask-composite: source-in; mask-composite: intersect;
+}
+.pd-banner-relatorios { --ilu-ar: 4.9; }
+.pd-banner-empresa { --ilu-ar: 4.74; }
+.pd-banner-configuracoes { --ilu-ar: 4.9; }
+@media (max-width: 760px) {
+  .pd-banner::after {
+    top: 10px !important; left: 50% !important; right: auto !important; bottom: auto !important; transform: translateX(-50%);
+    width: 100% !important; max-height: 130px;
+    background-position: center bottom !important;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%), linear-gradient(180deg, transparent 0, #000 20%, #000 75%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%), linear-gradient(180deg, transparent 0, #000 20%, #000 75%, transparent 100%);
+  }
 }

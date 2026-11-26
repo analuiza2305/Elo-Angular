@@ -80,10 +80,11 @@ body :is(#planos, #divulgacao):not(#_p) .pl-hero h2 {
 body :is(#planos, #divulgacao):not(#_p) .pl-hero p { margin: 0 !important; color: var(--pl-texto) !important; font-size: 1rem; line-height: 1.5; text-align: left !important; }
 
 body :is(#planos, #divulgacao):not(#_p) .pl-hero::after {
-  content: ''; position: absolute; right: 0; bottom: 0; top: 0; width: 56%;
-  background: url('/img/planos/planos-ilustracao-claro.webp') right bottom / contain no-repeat;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 92%, transparent 100%);
-          mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 92%, transparent 100%);
+  content: ''; position: absolute; right: 0; bottom: 0; top: 0; width: 58%;
+  background: url('/img/planos/planos-ilustracao-claro.webp') right bottom / auto 100% no-repeat;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 26%), linear-gradient(180deg, transparent 0, #000 22%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 26%), linear-gradient(180deg, transparent 0, #000 22%);
+  -webkit-mask-composite: source-in; mask-composite: intersect;
   pointer-events: none;
 }
 body[data-theme="dark"] :is(#planos, #divulgacao):not(#_p) .pl-hero::after { background-image: url('/img/planos/planos-ilustracao-escuro.webp'); }
@@ -287,7 +288,7 @@ body :is(#planos, #divulgacao):not(#_p) .pl-grid { grid-template-columns: repeat
     flex-direction: column; align-items: stretch; min-height: 0;
     padding: 168px 20px 22px !important; margin-bottom: 48px !important;
   }
-  body :is(#planos, #divulgacao):not(#_p) .pl-hero::after { left: 0; width: auto; height: 160px; bottom: auto; background-position: center top; }
+  body :is(#planos, #divulgacao):not(#_p) .pl-hero::after { left: 0; width: auto; height: 160px; bottom: auto; background-position: center top; background-size: auto 100%; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%), linear-gradient(180deg, #000 70%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%), linear-gradient(180deg, #000 70%, transparent 100%); -webkit-mask-composite: source-in; mask-composite: intersect; }
   body :is(#planos, #divulgacao):not(#_p) .pl-hero-texto, body :is(#planos, #divulgacao):not(#_p) .pl-hero-adm .pl-header-info { max-width: 100%; }
   body :is(#planos, #divulgacao):not(#_p) .pl-hero h2 { font-size: 1.6rem !important; }
   body :is(#planos, #divulgacao):not(#_p) .pl-hero-atual { flex-wrap: wrap; border-radius: 22px; }
@@ -332,4 +333,27 @@ body #divulgacao:not(#_p) :is(.dv-secao, .dv-lista) { width: 100% !important; ma
 @media (max-width: 760px) {
   body #divulgacao:not(#_p) .dv-abas { border-radius: 22px !important; flex-wrap: wrap; }
   body #divulgacao:not(#_p) .dv-aba { flex: 1 1 calc(50% - 6px) !important; border-radius: 16px !important; }
+}
+
+/* Ilustração do banner: a área tem o formato da própria imagem (--ilu-ar),
+   encostada embaixo à direita, com degradê nas bordas esquerda e de cima. */
+body :is(#planos, #divulgacao):not(#_p) .pl-hero::after {
+  top: auto !important; left: auto !important; right: 0 !important; bottom: 0 !important;
+  width: min(60%, 720px) !important; height: auto !important; max-height: 100%;
+  aspect-ratio: var(--ilu-ar, 3);
+  background-size: contain !important; background-position: right bottom !important; background-repeat: no-repeat !important;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 24%), linear-gradient(180deg, transparent 0, #000 28%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 24%), linear-gradient(180deg, transparent 0, #000 28%);
+  -webkit-mask-composite: source-in; mask-composite: intersect;
+}
+body :is(#planos, #divulgacao):not(#_p) .pl-hero { --ilu-ar: 3.1; }
+body :is(#planos, #divulgacao):not(#_p) .pl-hero-divulgacao { --ilu-ar: 2.85; }
+@media (max-width: 760px) {
+  body :is(#planos, #divulgacao):not(#_p) .pl-hero::after {
+    top: 0 !important; left: 50% !important; right: auto !important; bottom: auto !important; transform: translateX(-50%);
+    width: 100% !important; max-height: 160px;
+    background-position: center bottom !important;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%), linear-gradient(180deg, transparent 0, #000 20%, #000 75%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%), linear-gradient(180deg, transparent 0, #000 20%, #000 75%, transparent 100%);
+  }
 }
