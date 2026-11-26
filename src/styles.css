@@ -14278,7 +14278,7 @@ body[data-theme="dark"] {
 }
 .categoria-badge:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
 .estado-vazio:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-azul-fim) 0%, color-mix(in srgb, var(--soft-azul-tile) 55%, var(--soft-azul-fim)) 100%), var(--soft-base) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-fim) 0%, color-mix(in srgb, var(--soft-lilas-tile) 55%, var(--soft-lilas-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 24px !important;
@@ -14286,5 +14286,5 @@ body[data-theme="dark"] {
 }
 .estado-vazio:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
 .estado-vazio:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
-.estado-vazio:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-azul-cor) !important; }
+.estado-vazio:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-lilas-cor) !important; }
 /* ===== FIM ESTÉTICA SOFT ===== */

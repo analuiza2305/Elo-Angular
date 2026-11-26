@@ -710,7 +710,7 @@ body.dark-theme .estado-vazio p,
    Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
    Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
 .estado-vazio:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-azul-fim) 0%, color-mix(in srgb, var(--soft-azul-tile) 55%, var(--soft-azul-fim)) 100%), var(--soft-base) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-fim) 0%, color-mix(in srgb, var(--soft-lilas-tile) 55%, var(--soft-lilas-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 24px !important;
@@ -718,12 +718,12 @@ body.dark-theme .estado-vazio p,
 }
 .estado-vazio:not(#_s1):not(#_s2) :is(strong, b, h3, h4, h5) { color: var(--soft-titulo) !important; }
 .estado-vazio:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
-.estado-vazio:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-azul-cor) !important; }
+.estado-vazio:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-lilas-cor) !important; }
 .vazio-icon-wrapper:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-azul-fim) 0%, var(--soft-azul-tile) 100%), var(--soft-base) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-fim) 0%, var(--soft-lilas-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
-  color: var(--soft-azul-cor) !important;
+  color: var(--soft-lilas-cor) !important;
 }
 .vazio-icon-wrapper:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
 /* ===== FIM ESTÉTICA SOFT ===== */
