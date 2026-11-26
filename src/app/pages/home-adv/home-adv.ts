@@ -21,6 +21,9 @@ import { MODELOS_JURIDICOS, ModeloJuridico } from '../../services/modelos-juridi
 import { gerarDocumentoJuridico, gerarRelatorioAtendimentos, formatarHoras, ConsultaRelatorio, gerarProntuario } from '../../services/documentos-pdf';
 
 import { AnuncioEspacoComponent } from '../../components/anuncio-espaco/anuncio-espaco';
+import { CardArtigoComponent } from '../../components/card-artigo/card-artigo';
+import { formatarDataArtigo, autorDoArtigo } from '../../services/artigo-utils';
+import { visibilidadeEfetiva } from '../../services/divulgacao';
 import { encerrarAutomaticamente, motivoEncerramentoAutomatico, textoEncerramento } from '../../services/prazos-consulta';
 import { AcessibilidadeService } from '../../core/services/acessibilidade.service';
 import { ClicavelTecladoDirective } from '../../core/directives/clicavel-teclado.directive';
@@ -94,9 +97,9 @@ const ARTIGO_VAZIO: ArtigoForm = { titulo: '', descricao: '', resumo: '', catego
 @Component({
   selector: 'app-home-adv',
   standalone: true,
-  imports: [FiltrosDropdownDirective, ClicavelTecladoDirective, TranslatePipe, CommonModule, FormsModule, RouterModule, AnuncioEspacoComponent],
+  imports: [FiltrosDropdownDirective, ClicavelTecladoDirective, TranslatePipe, CommonModule, FormsModule, RouterModule, AnuncioEspacoComponent, CardArtigoComponent],
   templateUrl: './home-adv.html',
-  styleUrls: ['./home-adv.css', './home-adv-premium.css'],
+  styleUrls: ['./home-adv.css', './home-adv-premium.css', '../shared/pro-forum-comunidade.css'],
 })
 export class HomeAdv implements OnInit, OnDestroy {
   /** Acessibilidade compartilhada por todas as telas (ver AcessibilidadeService). */
@@ -285,6 +288,18 @@ export class HomeAdv implements OnInit, OnDestroy {
     const sinal = this.ordemArtigos() === 'recentes' ? -1 : 1;
     return [...lista].sort((a, b) => sinal * (a.tempo - b.tempo));
   });
+
+  /** Mesmo formato do card da Comunidade da mãe/parceiro (app-card-artigo). */
+  readonly artigosCards = computed(() =>
+    this.artigosFiltrados().map((a) => ({
+      ...a,
+      img: this.imagemDoArtigo(a),
+      salvo: this.ehFavorito(a.id),
+      dataString: formatarDataArtigo(a),
+      autorExibido: autorDoArtigo(a),
+      visibilidade: visibilidadeEfetiva(a),
+    })),
+  );
 
   readonly categoriasArtigo: { valor: CategoriaArtigo; label: string }[] = [
     { valor: 'posts', label: 'Posts' },
@@ -1022,9 +1037,9 @@ export class HomeAdv implements OnInit, OnDestroy {
   ehFavorito(id: string): boolean { return this.favoritosIds().includes(id); }
 
   /** Salva/remove dos favoritos direto pelo card, sem abrir o artigo. */
-  async alternarFavorito(artigo: any, ev: Event) {
-    ev.preventDefault();
-    ev.stopPropagation();
+  async alternarFavorito(artigo: any, ev?: Event) {
+    ev?.preventDefault();
+    ev?.stopPropagation();
     if (!this.uidAtual) return;
     const salvar = !this.ehFavorito(artigo.id);
     const antes = this.favoritosIds();
@@ -1036,6 +1051,11 @@ export class HomeAdv implements OnInit, OnDestroy {
       this.favoritosIds.set(antes); // desfaz se não salvou
       this.alerta.erro('Não foi possível atualizar seus favoritos. Tente de novo.');
     }
+  }
+
+  /** Abre a postagem na página de leitura do profissional. */
+  lerArtigo(id: string) {
+    this.router.navigate(['/artigo-ind-profissional'], { queryParams: { id, origem: 'adv' } });
   }
 
   alternarOrdemArtigos() { this.ordemArtigos.update((o) => (o === 'recentes' ? 'antigos' : 'recentes')); }

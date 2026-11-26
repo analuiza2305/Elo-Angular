@@ -67,7 +67,7 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
   standalone: true,
   imports: [ClicavelTecladoDirective, TranslatePipe, CommonModule, RouterLink, ParcPlanosComponent, ParcDivulgacaoComponent, ParcCarreirasComponent, AnuncioEspacoComponent, ForumComponent, ComentResp, Artigos, ArtigoInd, Eventos],
   templateUrl: './home-parc.html',
-  styleUrl: './home-parc.css',
+  styleUrls: ['./home-parc.css', './home-parc-dashboard.css', './home-parc-paginas.css'],
 })
 export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   /** Acessibilidade compartilhada por todas as telas (ver AcessibilidadeService). */
@@ -792,9 +792,17 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
    */
   private async calcularAlcance(artigos: any[]): Promise<{
     maesUnicas: number; inscricoesEventos: number; favoritos: number; curtidasForum: number; interessesCarreiras: number;
+    porEvento: Record<string, number>; porArtigo: Record<string, number>;
+    topicosForum: { titulo: string; curtidas: number; data: Date | null }[];
+    carreiras: { tipo: string; titulo: string; interessados: number }[];
   }> {
     const maes = new Set<string>();
     let inscricoesEventos = 0, favoritos = 0, curtidasForum = 0, interessesCarreiras = 0;
+    // detalhes por item (usados na planilha exportada)
+    const porEvento: Record<string, number> = {};
+    const porArtigo: Record<string, number> = {};
+    const topicosForum: { titulo: string; curtidas: number; data: Date | null }[] = [];
+    const carreiras: { tipo: string; titulo: string; interessados: number }[] = [];
 
     const idsEventos = new Set(this.eventosParceiro.map((ev) => ev.id));
     const idsArtigos = new Set(artigos.map((a) => a.id));
@@ -804,8 +812,12 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       const maesSnap = await getDocs(query(collection(db, 'usuarios'), where('tipo', '==', 'mae')));
       maesSnap.forEach((u) => {
         const d = u.data() as any;
-        const inscricoes = ((d['eventosInscritos'] || []) as any[]).filter((e) => idsEventos.has(e?.id)).length;
-        const salvos = ((d['favoritos'] || []) as string[]).filter((id) => idsArtigos.has(id)).length;
+        const evs = ((d['eventosInscritos'] || []) as any[]).filter((e) => idsEventos.has(e?.id));
+        const favs = ((d['favoritos'] || []) as string[]).filter((id) => idsArtigos.has(id));
+        evs.forEach((e) => { porEvento[e.id] = (porEvento[e.id] || 0) + 1; });
+        favs.forEach((id) => { porArtigo[id] = (porArtigo[id] || 0) + 1; });
+        const inscricoes = evs.length;
+        const salvos = favs.length;
         inscricoesEventos += inscricoes;
         favoritos += salvos;
         if (inscricoes || salvos) maes.add(u.id);
@@ -818,6 +830,12 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       for (const p of postsSnap.docs) {
         const likes = await getDocs(collection(db, 'posts', p.id, 'likes'));
         curtidasForum += likes.size;
+        const dp = p.data() as any;
+        topicosForum.push({
+          titulo: dp['titulo'] || 'Tópico sem título',
+          curtidas: likes.size,
+          data: dp['data']?.toDate ? dp['data'].toDate() : null,
+        });
         likes.forEach((l) => maes.add(l.id));
       }
     } catch (err) { console.warn('Alcance: curtidas no fórum', err); }
@@ -829,12 +847,18 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         for (const item of snap.docs) {
           const interessados = await getDocs(collection(db, colecao, item.id, 'interessados'));
           interessesCarreiras += interessados.size;
+          const di = item.data() as any;
+          carreiras.push({
+            tipo: colecao === 'vagas' ? 'Vaga' : 'Curso',
+            titulo: di['titulo'] || di['nome'] || di['cargo'] || 'Sem título',
+            interessados: interessados.size,
+          });
           interessados.forEach((i) => maes.add(i.id));
         }
       } catch (err) { console.warn('Alcance: ' + colecao, err); }
     }
 
-    return { maesUnicas: maes.size, inscricoesEventos, favoritos, curtidasForum, interessesCarreiras };
+    return { maesUnicas: maes.size, inscricoesEventos, favoritos, curtidasForum, interessesCarreiras, porEvento, porArtigo, topicosForum, carreiras };
   }
 
   // =============================================================
@@ -1681,7 +1705,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       ? `<p class="empty-hint">Nenhum evento futuro cadastrado.</p>`
       : proximos.map((ev) => `
           <div class="dash-item dash-item-clicavel" role="button" tabindex="0" title="Ver detalhes do evento">
-            <div class="dash-item-icon"><i class="fa-regular fa-calendar"></i></div>
+            <div class="dash-item-data"><strong>${ev.data.toLocaleDateString('pt-BR', { day: '2-digit' })}</strong><span>${ev.data.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}</span></div>
             <div class="dash-item-body">
               <div class="dash-item-title">${this.sanitize(ev.titulo)}</div>
               <div class="dash-item-sub">${ev.data.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • ${this.sanitize(ev.local)}</div>
@@ -1737,34 +1761,17 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initRelatorios(): void {
-    document.getElementById('exportarRelatorioBtn')?.addEventListener('click', () => {
-      const linhas = [
-        ['Métrica', 'Valor'],
-        ['Postagens na Comunidade', document.getElementById('repArtigos')?.textContent || '0'],
-        ['Eventos realizados', document.getElementById('repEventos')?.textContent || '0'],
-        ['Mães alcançadas (sem repetir)', document.getElementById('repParticipantes')?.textContent || '0'],
-        ['Interesse em Carreiras (cliques em vagas e cursos)', document.getElementById('repNovosMembros')?.textContent || '0'],
-        ['Inscrições nos eventos', String(this.ultimoAlcance?.inscricoesEventos ?? 0)],
-        ['Postagens salvas pelas mães', String(this.ultimoAlcance?.favoritos ?? 0)],
-        ['Curtidas nos tópicos do fórum', String(this.ultimoAlcance?.curtidasForum ?? 0)],
-      ];
-      const csv = linhas.map((l) => l.join(';')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `relatorio_${this.nomeEmpresaAtual || 'parceiro'}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
+    document.getElementById('exportarRelatorioBtn')?.addEventListener('click', () => this.exportarRelatorioExcel());
   }
 
-  /** Último alcance calculado (usado no CSV exportado). */
+  /** Último alcance e postagens calculados (usados na planilha exportada). */
   private ultimoAlcance: Awaited<ReturnType<HomeParc['calcularAlcance']>> | null = null;
+  private ultimosArtigos: any[] = [];
 
   private async carregarRelatorios(): Promise<void> {
     try {
       const artigos = await this.buscarArtigosDaEmpresa();
+      this.ultimosArtigos = artigos;
 
       this.setText('repArtigos', artigos.length);
       this.setText('repArtigosDetalhe', this.resumoCategorias(artigos) || 'Nenhuma ainda');
@@ -1783,6 +1790,29 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  /** Cores e eixos comuns aos gráficos (claro/escuro). */
+  private opcoesGrafico(): any {
+    const escuro = document.body.getAttribute('data-theme') === 'dark';
+    const texto = escuro ? '#C0B6DC' : '#6B5E8E';
+    const grade = escuro ? 'rgba(255,255,255,.07)' : 'rgba(132,113,177,.12)';
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { top: 6, right: 6 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#2D1E4E', padding: 10, cornerRadius: 10, displayColors: false },
+      },
+      scales: {
+        x: { grid: { display: false }, border: { display: false }, ticks: { color: texto, font: { family: 'Nunito', weight: 700 } } },
+        y: {
+          beginAtZero: true, suggestedMax: 4, border: { display: false }, grid: { color: grade },
+          ticks: { color: texto, precision: 0, stepSize: 1, font: { family: 'Nunito', weight: 700 } },
+        },
+      },
+    };
+  }
+
   private renderChartArtigosPorMes(artigos: any[]): void {
     const canvas = document.getElementById('chartArtigos') as HTMLCanvasElement | null;
     if (!canvas) return;
@@ -1797,9 +1827,12 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       type: 'line',
       data: {
         labels: meses.map((m) => m.label),
-        datasets: [{ data: dados, borderColor: '#7a5fe8', backgroundColor: 'rgba(122,95,232,0.15)', fill: true, tension: 0.35 }],
+        datasets: [{
+          label: 'Postagens', data: dados, borderColor: '#7C5FCB', backgroundColor: 'rgba(124,95,203,0.14)',
+          fill: true, tension: 0.35, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#FFFFFF', pointBorderColor: '#7C5FCB', pointBorderWidth: 2,
+        }],
       },
-      options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } },
+      options: this.opcoesGrafico(),
     });
   }
 
@@ -1807,13 +1840,16 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     const canvas = document.getElementById('chartEventos') as HTMLCanvasElement | null;
     if (!canvas) return;
     const meses = this.ultimosNMeses(6);
-    const dados = meses.map((m) => eventos.filter((ev) => ev.data.getMonth() === m.mes && ev.data.getFullYear() === m.ano).length);
+    const dados = meses.map((m) => eventos.filter((ev) => !ev.removido && ev.data.getMonth() === m.mes && ev.data.getFullYear() === m.ano).length);
 
     this.chartsInstanciados['eventos']?.destroy();
     this.chartsInstanciados['eventos'] = new Chart(canvas, {
       type: 'bar',
-      data: { labels: meses.map((m) => m.label), datasets: [{ data: dados, backgroundColor: '#f1b93f', borderRadius: 6 }] },
-      options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } },
+      data: {
+        labels: meses.map((m) => m.label),
+        datasets: [{ label: 'Eventos', data: dados, backgroundColor: '#B9A6E3', hoverBackgroundColor: '#7C5FCB', borderRadius: 10, maxBarThickness: 34 }],
+      },
+      options: this.opcoesGrafico(),
     });
   }
 
@@ -1821,6 +1857,9 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   private renderChartOrigemAlcance(a: { inscricoesEventos: number; favoritos: number; curtidasForum: number; interessesCarreiras: number }): void {
     const canvas = document.getElementById('chartForum') as HTMLCanvasElement | null;
     if (!canvas) return;
+    const escuro = document.body.getAttribute('data-theme') === 'dark';
+    const valores = [a.inscricoesEventos, a.favoritos, a.curtidasForum, a.interessesCarreiras];
+    const vazio = valores.every((v) => !v);
 
     this.chartsInstanciados['forum']?.destroy();
     this.chartsInstanciados['forum'] = new Chart(canvas, {
@@ -1828,12 +1867,271 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       data: {
         labels: ['Inscrições em eventos', 'Postagens salvas', 'Curtidas no fórum', 'Cliques em Carreiras'],
         datasets: [{
-          data: [a.inscricoesEventos, a.favoritos, a.curtidasForum, a.interessesCarreiras],
-          backgroundColor: ['#f1b93f', '#7a5fe8', '#bfa8f5', '#5aa9e6'],
+          // sem dados ainda: um anel cinza-lilás em vez de um gráfico vazio
+          data: vazio ? [1] : valores,
+          backgroundColor: vazio ? [escuro ? '#2A2446' : '#EEE8FB'] : ['#5B3D99', '#8E72DC', '#B9A6E3', '#F1B93F'],
+          borderColor: escuro ? '#1E1B33' : '#FFFFFF', borderWidth: 3, hoverOffset: 6,
         }],
       },
-      options: { maintainAspectRatio: false, plugins: { legend: { position: 'right' } } },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '64%',
+        layout: { padding: 4 },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: escuro ? '#C0B6DC' : '#6B5E8E', usePointStyle: true, pointStyle: 'circle', boxWidth: 8, boxHeight: 8, padding: 12,
+              font: { family: 'Nunito', weight: 700, size: 12 },
+              generateLabels: (chart: any) => {
+                const cores = ['#5B3D99', '#8E72DC', '#B9A6E3', '#F1B93F'];
+                return (chart.data.labels as string[]).map((txt, i) => ({
+                  text: `${txt} (${valores[i]})`, fillStyle: cores[i], strokeStyle: cores[i], fontColor: escuro ? '#C0B6DC' : '#6B5E8E',
+                  pointStyle: 'circle', hidden: false, index: i, lineWidth: 0,
+                }));
+              },
+            },
+            onClick: () => {},
+          },
+          tooltip: { enabled: !vazio, backgroundColor: '#2D1E4E', padding: 10, cornerRadius: 10 },
+        },
+      },
     });
+  }
+
+  // =============================================================
+  // EXPORTAR RELATÓRIO (planilha Excel formatada)
+  // =============================================================
+  private exportandoRelatorio = false;
+
+  private async exportarRelatorioExcel(): Promise<void> {
+    if (this.exportandoRelatorio) return;
+    this.exportandoRelatorio = true;
+    const botao = document.getElementById('exportarRelatorioBtn') as HTMLButtonElement | null;
+    const textoOriginal = botao?.innerHTML || '';
+    if (botao) { botao.disabled = true; botao.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando planilha...'; }
+
+    try {
+      if (!this.ultimoAlcance) await this.carregarRelatorios();
+      const alcance = this.ultimoAlcance;
+      if (!alcance) throw new Error('Não foi possível calcular o alcance.');
+      const artigos = this.ultimosArtigos;
+      const eventos = this.eventosParceiro.filter((ev) => !ev.removido);
+      const { gerarXlsx, bytesDeDataUrl } = await import('../../services/xlsx-simples');
+
+      const empresa = this.dadosParceiroAtual?.nomeFantasia || this.nomeEmpresaAtual || 'Sua empresa';
+      const hoje = new Date();
+      const dataBR = (d: Date | null | undefined) => (d && !isNaN(d.getTime()) ? d.toLocaleDateString('pt-BR') : '—');
+      const nomesCategoria: Record<string, string> = { posts: 'Post', educacionais: 'Educacional', dicas: 'Dica' };
+
+      // ---------- Aba 1: Resumo ----------
+      const L: any[][] = [];
+      const alt: Record<number, number> = {};
+      const mesclar: string[] = [];
+      const linha = (cells: any[], altura?: number) => { L.push(cells); if (altura) alt[L.length - 1] = altura; return L.length; };
+      const vazia = (n = 8, s: any = 'normal') => Array.from({ length: n }, () => ({ v: null, s }));
+
+      // faixa de título
+      linha(vazia(8, 'titulo').map((c, i) => (i === 0 ? { v: 'Relatório de alcance · Elo Materno', s: 'titulo' } : c)), 44);
+      mesclar.push('A1:H1');
+      linha(vazia(8, 'subtitulo').map((c, i) => (i === 0 ? { v: `${empresa}  ·  gerado em ${hoje.toLocaleDateString('pt-BR')} às ${hoje.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`, s: 'subtitulo' } : c)), 26);
+      mesclar.push('A2:H2');
+      linha([], 14);
+
+      // cartões de KPI (4 cartões de 2 colunas)
+      const kpis = [
+        { r: 'MÃES ALCANÇADAS', v: alcance.maesUnicas, d: 'Mães diferentes que interagiram', destaque: true },
+        { r: 'POSTAGENS', v: artigos.length, d: this.resumoCategorias(artigos) || 'Nenhuma ainda' },
+        { r: 'EVENTOS REALIZADOS', v: eventos.filter((e) => e.encerrado).length, d: `${eventos.filter((e) => !e.encerrado).length} próximos` },
+        { r: 'INTERESSE EM CARREIRAS', v: alcance.interessesCarreiras, d: 'Cliques em vagas e cursos' },
+      ];
+      const kRot: any[] = [], kVal: any[] = [], kDica: any[] = [];
+      kpis.forEach((k) => {
+        const p = k.destaque ? 'kpiDestaque' : 'kpi';
+        kRot.push({ v: k.r, s: p === 'kpi' ? 'kpiRotulo' : 'kpiDestaqueRotulo' }, { v: null, s: p === 'kpi' ? 'kpiRotulo' : 'kpiDestaqueRotulo' });
+        kVal.push({ v: k.v, s: p === 'kpi' ? 'kpiValor' : 'kpiDestaqueValor' }, { v: null, s: p === 'kpi' ? 'kpiValor' : 'kpiDestaqueValor' });
+        kDica.push({ v: k.d, s: p === 'kpi' ? 'kpiDica' : 'kpiDestaqueDica' }, { v: null, s: p === 'kpi' ? 'kpiDica' : 'kpiDestaqueDica' });
+      });
+      const rK = linha(kRot, 24); linha(kVal, 40); linha(kDica, 30);
+      ['A', 'C', 'E', 'G'].forEach((c, i) => {
+        const c2 = String.fromCharCode(c.charCodeAt(0) + 1);
+        mesclar.push(`${c}${rK}:${c2}${rK}`, `${c}${rK + 1}:${c2}${rK + 1}`, `${c}${rK + 2}:${c2}${rK + 2}`);
+      });
+      linha([], 18);
+
+      // de onde vem o alcance
+      const origem = [
+        ['Inscrições em eventos', alcance.inscricoesEventos],
+        ['Postagens salvas pelas mães', alcance.favoritos],
+        ['Curtidas nos tópicos do fórum', alcance.curtidasForum],
+        ['Cliques em vagas e cursos', alcance.interessesCarreiras],
+      ] as [string, number][];
+      const totalOrigem = origem.reduce((s, o) => s + o[1], 0);
+      const rO = linha([{ v: 'De onde vem o seu alcance', s: 'secao' }, ...vazia(7, 'secao')], 26);
+      mesclar.push(`A${rO}:H${rO}`);
+      linha([], 6);
+      const rCab = linha([{ v: 'Tipo de interação', s: 'cabecalho' }, ...vazia(3, 'cabecalho'), { v: 'Quantidade', s: 'cabecalho' }, { v: null, s: 'cabecalho' }, { v: '% do total', s: 'cabecalho' }, { v: null, s: 'cabecalho' }], 24);
+      mesclar.push(`A${rCab}:D${rCab}`, `E${rCab}:F${rCab}`, `G${rCab}:H${rCab}`);
+      origem.forEach(([nome, qtd], i) => {
+        const z = i % 2 === 1;
+        const r = linha([
+          { v: nome, s: z ? 'textoZebra' : 'texto' }, ...vazia(3, z ? 'textoZebra' : 'texto'),
+          { v: qtd, s: z ? 'numeroZebra' : 'numero' }, { v: null, s: z ? 'numeroZebra' : 'numero' },
+          { v: totalOrigem ? qtd / totalOrigem : 0, s: z ? 'porcentoZebra' : 'porcento' }, { v: null, s: z ? 'porcentoZebra' : 'porcento' },
+        ], 22);
+        mesclar.push(`A${r}:D${r}`, `E${r}:F${r}`, `G${r}:H${r}`);
+      });
+      const rT = linha([{ v: 'Total de interações', s: 'total' }, ...vazia(3, 'total'), { v: totalOrigem, s: 'totalNumero' }, { v: null, s: 'totalNumero' }, { v: totalOrigem ? 1 : 0, s: 'totalPorcento' }, { v: null, s: 'totalPorcento' }], 24);
+      mesclar.push(`A${rT}:D${rT}`, `E${rT}:F${rT}`, `G${rT}:H${rT}`);
+      linha([], 18);
+
+      // mês a mês
+      const meses = this.ultimosNMeses(6);
+      const rM = linha([{ v: 'Mês a mês (últimos 6 meses)', s: 'secao' }, ...vazia(7, 'secao')], 26);
+      mesclar.push(`A${rM}:H${rM}`);
+      linha([], 6);
+      const rMC = linha([{ v: 'Mês', s: 'cabecalho' }, { v: null, s: 'cabecalho' }, { v: 'Postagens', s: 'cabecalho' }, { v: null, s: 'cabecalho' }, { v: 'Eventos', s: 'cabecalho' }, { v: null, s: 'cabecalho' }, { v: 'Inscrições nos eventos', s: 'cabecalho' }, { v: null, s: 'cabecalho' }], 24);
+      mesclar.push(`A${rMC}:B${rMC}`, `C${rMC}:D${rMC}`, `E${rMC}:F${rMC}`, `G${rMC}:H${rMC}`);
+      let somaP = 0, somaE = 0, somaI = 0;
+      meses.forEach((m, i) => {
+        const z = i % 2 === 1;
+        const posts = artigos.filter((a) => { const d = this.toDate(a['datahorapost']); return d.getMonth() === m.mes && d.getFullYear() === m.ano; }).length;
+        const evMes = eventos.filter((ev) => ev.data.getMonth() === m.mes && ev.data.getFullYear() === m.ano);
+        const insc = evMes.reduce((s, ev) => s + (alcance.porEvento[ev.id] || 0), 0);
+        somaP += posts; somaE += evMes.length; somaI += insc;
+        const n = z ? 'numeroZebra' : 'numero';
+        const r = linha([{ v: `${m.label} ${m.ano}`, s: z ? 'textoZebra' : 'texto' }, { v: null, s: z ? 'textoZebra' : 'texto' }, { v: posts, s: n }, { v: null, s: n }, { v: evMes.length, s: n }, { v: null, s: n }, { v: insc, s: n }, { v: null, s: n }], 22);
+        mesclar.push(`A${r}:B${r}`, `C${r}:D${r}`, `E${r}:F${r}`, `G${r}:H${r}`);
+      });
+      const rMT = linha([{ v: 'Total no período', s: 'total' }, { v: null, s: 'total' }, { v: somaP, s: 'totalNumero' }, { v: null, s: 'totalNumero' }, { v: somaE, s: 'totalNumero' }, { v: null, s: 'totalNumero' }, { v: somaI, s: 'totalNumero' }, { v: null, s: 'totalNumero' }], 24);
+      mesclar.push(`A${rMT}:B${rMT}`, `C${rMT}:D${rMT}`, `E${rMT}:F${rMT}`, `G${rMT}:H${rMT}`);
+      linha([], 14);
+      const rN = linha([{ v: '"Mães alcançadas" conta cada mãe uma vez só, mesmo que ela tenha interagido de várias formas. Os detalhes de cada evento, postagem, tópico e vaga/curso estão nas outras abas.', s: 'nota' }, ...vazia(7, 'nota')], 32);
+      mesclar.push(`A${rN}:H${rN}`);
+
+      // gráficos da tela, como imagens, abaixo das tabelas
+      const imagens: any[] = [];
+      linha([], 18);
+      const rG = linha([{ v: 'Gráficos', s: 'secao' }, ...vazia(7, 'secao')], 26);
+      mesclar.push(`A${rG}:H${rG}`);
+      const inicioGraficos = L.length + 1; // linha (0-based) logo abaixo do título
+      // linha e barras lado a lado (4 colunas cada ≈ 440px); a rosca logo abaixo
+      const larg = 430;
+      const pngLinha = this.graficoComoPng('artigos');
+      const pngBarra = this.graficoComoPng('eventos');
+      const pngRosca = this.graficoComoPng('forum');
+      let altLinha = 0;
+      [[pngLinha, 0], [pngBarra, 4]].forEach(([png, col]: any) => {
+        if (!png) return;
+        const h = Math.round(larg * png.h / png.w);
+        altLinha = Math.max(altLinha, h);
+        imagens.push({ png: bytesDeDataUrl(png.url), col, linha: inicioGraficos, largura: larg, altura: h });
+      });
+      if (pngRosca) {
+        const h = 300;
+        imagens.push({ png: bytesDeDataUrl(pngRosca.url), col: 0, linha: inicioGraficos + Math.ceil(altLinha / 24) + 2, largura: Math.round(h * pngRosca.w / pngRosca.h), altura: h });
+      }
+      // reserva linhas para as imagens não ficarem "flutuando" no fim da planilha
+      for (let i = 0; i < 32; i++) linha([]);
+
+      const abaResumo = {
+        nome: 'Resumo', colunas: [16, 14, 16, 14, 16, 14, 16, 14], linhas: L, alturas: alt, mesclar, imagens, corAba: '5B3D99',
+      };
+
+      // ---------- Aba 2: Eventos ----------
+      const tabela = (nome: string, cor: string, titulo: string, colunas: number[], cab: string[], dados: { v: any; t: 'texto' | 'numero' | 'situacao' }[][], vazioMsg: string) => {
+        const linhas: any[][] = [];
+        const alturas: Record<number, number> = { 0: 38, 1: 22 };
+        const n = colunas.length;
+        const ultima = String.fromCharCode(64 + n);
+        linhas.push([{ v: titulo, s: 'titulo' }, ...vazia(n - 1, 'titulo')]);
+        linhas.push([{ v: `${empresa}  ·  ${dados.length} ${dados.length === 1 ? 'item' : 'itens'}`, s: 'subtitulo' }, ...vazia(n - 1, 'subtitulo')]);
+        linhas.push([]);
+        alturas[2] = 10;
+        linhas.push(cab.map((c) => ({ v: c, s: 'cabecalho' })));
+        alturas[3] = 26;
+        if (!dados.length) {
+          linhas.push([{ v: vazioMsg, s: 'texto' }, ...vazia(n - 1, 'texto')]);
+          alturas[4] = 26;
+        }
+        dados.forEach((d, i) => {
+          const z = i % 2 === 1;
+          linhas.push(d.map((c) => {
+            if (c.t === 'numero') return { v: c.v, s: z ? 'numeroZebra' : 'numero' };
+            if (c.t === 'situacao') return { v: c.v, s: c.v === 'Realizado' ? 'situacaoOk' : 'situacaoProx' };
+            return { v: c.v, s: z ? 'textoZebra' : 'texto' };
+          }));
+          alturas[linhas.length - 1] = 22;
+        });
+        const merges = [`A1:${ultima}1`, `A2:${ultima}2`];
+        if (!dados.length) merges.push(`A5:${ultima}5`);
+        return { nome, colunas, linhas, alturas, mesclar: merges, congelarLinhas: 4, corAba: cor };
+      };
+
+      const abaEventos = tabela('Eventos', '8E72DC', 'Seus eventos', [42, 14, 10, 30, 20, 14, 14],
+        ['Evento', 'Data', 'Hora', 'Local', 'Tipo', 'Situação', 'Inscrições'],
+        [...eventos].sort((a, b) => b.data - a.data).map((ev) => [
+          { v: ev.titulo || 'Evento', t: 'texto' }, { v: dataBR(ev.data), t: 'texto' }, { v: ev.hora || '—', t: 'texto' },
+          { v: ev.local || '—', t: 'texto' }, { v: ev.tipoLabel || '—', t: 'texto' },
+          { v: ev.encerrado ? 'Realizado' : 'Próximo', t: 'situacao' }, { v: alcance.porEvento[ev.id] || 0, t: 'numero' },
+        ]),
+        'Você ainda não cadastrou eventos.');
+
+      const abaPostagens = tabela('Postagens', 'B9A6E3', 'Suas postagens na Comunidade', [56, 18, 16, 18],
+        ['Título', 'Tipo', 'Publicada em', 'Salva pelas mães'],
+        [...artigos].sort((a, b) => this.toDate(b['datahorapost']).getTime() - this.toDate(a['datahorapost']).getTime()).map((a) => [
+          { v: a['titulo'] || 'Sem título', t: 'texto' }, { v: nomesCategoria[a['categoria']] || 'Post', t: 'texto' },
+          { v: dataBR(this.toDate(a['datahorapost'])), t: 'texto' }, { v: alcance.porArtigo[a.id] || 0, t: 'numero' },
+        ]),
+        'Você ainda não publicou na Comunidade.');
+
+      const abaForum = tabela('Fórum', 'F1B93F', 'Seus tópicos no fórum', [60, 16, 14],
+        ['Tópico', 'Publicado em', 'Curtidas'],
+        [...alcance.topicosForum].sort((a, b) => b.curtidas - a.curtidas).map((t) => [
+          { v: t.titulo, t: 'texto' }, { v: dataBR(t.data), t: 'texto' }, { v: t.curtidas, t: 'numero' },
+        ]),
+        'Você ainda não publicou tópicos no fórum.');
+
+      const abaCarreiras = tabela('Carreiras', '6E54B5', 'Suas vagas e cursos', [14, 58, 18],
+        ['Tipo', 'Título', 'Interessadas'],
+        [...alcance.carreiras].sort((a, b) => b.interessados - a.interessados).map((c) => [
+          { v: c.tipo, t: 'texto' }, { v: c.titulo, t: 'texto' }, { v: c.interessados, t: 'numero' },
+        ]),
+        'Você ainda não publicou vagas ou cursos.');
+
+      const blob = gerarXlsx([abaResumo, abaEventos, abaPostagens, abaForum, abaCarreiras] as any, `Relatório ${empresa}`);
+      const nomeArquivo = `relatorio-elo-materno_${empresa.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'parceiro'}_${hoje.toISOString().slice(0, 10)}.xlsx`;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = nomeArquivo;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch (err) {
+      console.error('Erro ao exportar relatório:', err);
+      this.alerta.erro('Não foi possível gerar a planilha. Tente de novo.');
+    } finally {
+      this.exportandoRelatorio = false;
+      if (botao) { botao.disabled = false; botao.innerHTML = textoOriginal; }
+    }
+  }
+
+  /** Copia um gráfico da tela para PNG com fundo branco (o canvas do Chart.js é transparente). */
+  private graficoComoPng(chave: string): { url: string; w: number; h: number } | null {
+    const chart = this.chartsInstanciados[chave];
+    const origem = chart?.canvas;
+    if (!origem || !origem.width || !origem.height) return null;
+    const tela = document.createElement('canvas');
+    tela.width = origem.width;
+    tela.height = origem.height;
+    const ctx = tela.getContext('2d');
+    if (!ctx) return null;
+    // no modo escuro os textos do gráfico são claros, então o fundo acompanha
+    ctx.fillStyle = document.body.getAttribute('data-theme') === 'dark' ? '#1E1B33' : '#FFFFFF';
+    ctx.fillRect(0, 0, tela.width, tela.height);
+    ctx.drawImage(origem, 0, 0);
+    return { url: tela.toDataURL('image/png'), w: tela.width, h: tela.height };
   }
 
   // =============================================================
@@ -1870,10 +2168,11 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
         const perfilNome = document.getElementById('perfilNomeEmpresa');
         if (perfilNome) perfilNome.textContent = this.nomeExibicao(this.dadosParceiroAtual);
 
-        if (msg) { msg.style.color = 'green'; msg.textContent = 'Alterações salvas com sucesso!'; }
+        this.setText('cfgNomeExibido', this.nomeExibicao(this.dadosParceiroAtual));
+        if (msg) { msg.className = 'pc-msg pc-msg-ok'; msg.innerHTML = '<i class="fa-solid fa-circle-check"></i> Alterações salvas!'; }
       } catch (err) {
         console.error('Erro ao salvar configurações:', err);
-        if (msg) { msg.style.color = 'red'; msg.textContent = 'Erro ao salvar alterações.'; }
+        if (msg) { msg.className = 'pc-msg pc-msg-erro'; msg.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Não foi possível salvar. Tente de novo.'; }
       }
     });
 
@@ -1926,12 +2225,13 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
     this.setValue('cfgCidade', this.dadosParceiroAtual['cidade'] || '');
     this.setValue('cfgSite', this.dadosParceiroAtual['site'] || '');
 
+    this.setText('cfgNomeExibido', this.nomeExibicao(this.dadosParceiroAtual));
     const foto = this.dadosParceiroAtual['fotoURL'] || './img/logo_icon.png';
     const preview = document.getElementById('cfgFotoPreview') as HTMLImageElement | null;
     if (preview) preview.src = foto;
 
     const ultimaAlteracao = document.getElementById('segUltimaAlteracaoSenha');
-    if (ultimaAlteracao) ultimaAlteracao.textContent = 'Última alteração: não disponível';
+    if (ultimaAlteracao) ultimaAlteracao.textContent = 'A troca é feita por um link enviado ao seu e-mail';
   }
 
   // =============================================================

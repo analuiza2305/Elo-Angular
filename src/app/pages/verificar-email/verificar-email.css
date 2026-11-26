@@ -201,7 +201,7 @@ i {
   --soft-vermelho-fim: #FFF0F2; --soft-vermelho-tile: #FBD9DE; --soft-vermelho-cor: #B4374A;
 }
 .custom-alert-box:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-vermelho-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-vermelho-fim) 0%, color-mix(in srgb, var(--soft-vermelho-tile) 55%, var(--soft-vermelho-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 20px !important;
@@ -211,7 +211,7 @@ i {
 .custom-alert-box:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
 .custom-alert-box:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-vermelho-cor) !important; }
 .custom-success-box:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-verde-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-verde-fim) 0%, color-mix(in srgb, var(--soft-verde-tile) 55%, var(--soft-verde-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 20px !important;

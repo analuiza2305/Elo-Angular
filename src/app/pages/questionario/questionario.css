@@ -261,7 +261,7 @@
    Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
    Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
 .qb-apoio:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-rosa-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-rosa-fim) 0%, color-mix(in srgb, var(--soft-rosa-tile) 55%, var(--soft-rosa-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 20px !important;
@@ -273,7 +273,7 @@
 .qb-apoio:not(#_s1):not(#_s2) > i:first-child {
   display: inline-grid !important; place-items: center; flex: 0 0 auto;
   min-width: 40px; height: 40px; border-radius: 13px !important;
-  background: linear-gradient(145deg, var(--soft-base), var(--soft-rosa-tile)) !important;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--soft-rosa-tile) 60%, var(--soft-rosa-fim)), var(--soft-rosa-tile)), var(--soft-base) !important;
   box-shadow: var(--soft-brilho), 0 6px 14px rgba(124, 95, 203, .08) !important;
   color: var(--soft-rosa-cor) !important; border: none !important;
 }

@@ -6863,7 +6863,7 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
    Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
    Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
 .ap-btn-advertir:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-laranja-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-laranja-fim) 0%, var(--soft-laranja-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-laranja-cor) !important;
@@ -6871,11 +6871,11 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
 }
 .ap-btn-advertir:not(#_s1):not(#_s2) i { color: inherit !important; }
 .ap-btn-advertir:not(#_s1):not(#_s2):hover {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-laranja-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-laranja-tile) 0%, var(--soft-laranja-fim) 100%), var(--soft-base) !important;
   box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
 }
 .ap-btn-suspender:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-vermelho-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-vermelho-fim) 0%, var(--soft-vermelho-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-vermelho-cor) !important;
@@ -6883,11 +6883,11 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
 }
 .ap-btn-suspender:not(#_s1):not(#_s2) i { color: inherit !important; }
 .ap-btn-suspender:not(#_s1):not(#_s2):hover {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-vermelho-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-vermelho-tile) 0%, var(--soft-vermelho-fim) 100%), var(--soft-base) !important;
   box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
 }
 .ap-btn-reativar:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-verde-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-verde-fim) 0%, var(--soft-verde-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-verde-cor) !important;
@@ -6895,11 +6895,11 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
 }
 .ap-btn-reativar:not(#_s1):not(#_s2) i { color: inherit !important; }
 .ap-btn-reativar:not(#_s1):not(#_s2):hover {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-verde-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-verde-tile) 0%, var(--soft-verde-fim) 100%), var(--soft-base) !important;
   box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
 }
 .forum-btn-abrir:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-fim) 0%, var(--soft-lilas-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-lilas-cor) !important;
@@ -6907,11 +6907,11 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
 }
 .forum-btn-abrir:not(#_s1):not(#_s2) i { color: inherit !important; }
 .forum-btn-abrir:not(#_s1):not(#_s2):hover {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-tile) 0%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
 }
 .suspender-alerta-box:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-amarelo-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-amarelo-fim) 0%, color-mix(in srgb, var(--soft-amarelo-tile) 55%, var(--soft-amarelo-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 20px !important;
@@ -6923,13 +6923,13 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
 .suspender-alerta-box:not(#_s1):not(#_s2) > i:first-child {
   display: inline-grid !important; place-items: center; flex: 0 0 auto;
   min-width: 40px; height: 40px; border-radius: 13px !important;
-  background: linear-gradient(145deg, var(--soft-base), var(--soft-amarelo-tile)) !important;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--soft-amarelo-tile) 60%, var(--soft-amarelo-fim)), var(--soft-amarelo-tile)), var(--soft-base) !important;
   box-shadow: var(--soft-brilho), 0 6px 14px rgba(124, 95, 203, .08) !important;
   color: var(--soft-amarelo-cor) !important; border: none !important;
 }
 .suspender-alerta-box:not(#_s1):not(#_s2) > i:first-child i { color: var(--soft-amarelo-cor) !important; }
 .ap-box-perigo:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-vermelho-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-vermelho-fim) 0%, color-mix(in srgb, var(--soft-vermelho-tile) 55%, var(--soft-vermelho-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 20px !important;
@@ -6939,28 +6939,28 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
 .ap-box-perigo:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
 .ap-box-perigo:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-vermelho-cor) !important; }
 .ap-selo-ok:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-verde-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-verde-fim) 0%, var(--soft-verde-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-verde-cor) !important;
 }
 .ap-selo-ok:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
 .ap-selo-perigo:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-vermelho-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-vermelho-fim) 0%, var(--soft-vermelho-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-vermelho-cor) !important;
 }
 .ap-selo-perigo:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
 .ap-selo-alerta:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-laranja-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-laranja-fim) 0%, var(--soft-laranja-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-laranja-cor) !important;
 }
 .ap-selo-alerta:not(#_s1):not(#_s2) :is(i, strong, span) { color: inherit !important; }
 .cfg-nivel-opcao:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-fim) 0%, var(--soft-lilas-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-lilas-cor) !important;
@@ -6968,24 +6968,24 @@ button:not(.menu-btn):not(.drawer-close) i, a i,
 }
 .cfg-nivel-opcao:not(#_s1):not(#_s2) i { color: inherit !important; }
 .cfg-nivel-opcao:not(#_s1):not(#_s2):hover {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-tile) 0%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
 }
 .cfg-nivel-opcao.sel:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 15%, var(--soft-lilas-tile) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-tile) 0%, color-mix(in srgb, var(--soft-lilas-tile) 70%, var(--soft-lilas-cor)) 140%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena), 0 0 0 2px var(--soft-lilas-tile) !important;
   color: var(--soft-lilas-cor) !important;
 }
 .cfg-nivel-opcao.sel:not(#_s1):not(#_s2) :is(i, strong, span, small) { color: inherit !important; }
 .suspender-modal:not(#_s1):not(#_s2), .config-modal:not(#_s1):not(#_s2), .forum-modal:not(#_s1):not(#_s2), .mae-drawer:not(#_s1):not(#_s2) {
-  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 24px !important;
 }
 .maes-toolbar:not(#_s1):not(#_s2), .forum-search-row:not(#_s1):not(#_s2) {
-  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(160deg, var(--soft-base) 45%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
 }

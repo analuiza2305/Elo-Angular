@@ -337,7 +337,7 @@ body.dark-theme .modal-descricao,
    Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
    Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
 .btn-inscrever:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-fim) 0%, var(--soft-lilas-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-lilas-cor) !important;
@@ -345,11 +345,11 @@ body.dark-theme .modal-descricao,
 }
 .btn-inscrever:not(#_s1):not(#_s2) i { color: inherit !important; }
 .btn-inscrever:not(#_s1):not(#_s2):hover {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-tile) 0%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
 }
 .btn-inscrever.inscrito:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-verde-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-verde-fim) 0%, var(--soft-verde-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-verde-cor) !important;
@@ -357,7 +357,7 @@ body.dark-theme .modal-descricao,
 }
 .btn-inscrever.inscrito:not(#_s1):not(#_s2) i { color: inherit !important; }
 .btn-inscrever.inscrito:not(#_s1):not(#_s2):hover {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-verde-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-verde-tile) 0%, var(--soft-verde-fim) 100%), var(--soft-base) !important;
   box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
 }
 /* ===== FIM ESTÉTICA SOFT ===== */

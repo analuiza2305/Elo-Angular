@@ -329,10 +329,85 @@ i { color: inherit; }
    Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
    Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
 .pc-chip.sel:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 15%, var(--soft-rosa-tile) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-rosa-tile) 0%, color-mix(in srgb, var(--soft-rosa-tile) 70%, var(--soft-rosa-cor)) 140%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena), 0 0 0 2px var(--soft-rosa-tile) !important;
   color: var(--soft-rosa-cor) !important;
 }
 .pc-chip.sel:not(#_s1):not(#_s2) :is(i, strong, span, small) { color: inherit !important; }
 /* ===== FIM ESTÉTICA SOFT ===== */
+
+/* =========================================================
+   PADRÃO DAS PÁGINAS DA MÃE (26/11)
+   Banner igual ao da página Carreiras das mães + resumo do alcance
+   + abas Vagas/Cursos em pílula (como Divulgação e Planos).
+   ========================================================= */
+.pc-root { max-width: 1480px; margin: 0 auto; }
+
+.car-hero {
+  position: relative; overflow: hidden; display: block; min-height: 300px; margin-bottom: 26px; border-radius: 30px;
+  background: radial-gradient(circle at 85% 20%, rgba(247, 198, 221, .45), transparent 45%), linear-gradient(135deg, #F8F5FF, #F1EBFF);
+  box-shadow: 0 14px 40px rgba(91, 61, 153, .07), inset 0 0 0 1px rgba(255, 255, 255, .7);
+}
+.car-hero-img {
+  position: absolute; top: 0; right: 0; width: auto !important; height: 100% !important; max-width: 70%;
+  object-fit: cover; object-position: right center; pointer-events: none; user-select: none;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 30%); mask-image: linear-gradient(to right, transparent 0%, #000 30%);
+}
+.car-hero-texto { position: relative; z-index: 1; max-width: 640px; padding: 56px 0 56px 52px; }
+.car-hero h1 { margin: 0 0 12px; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: clamp(1.75rem, 2.6vw, 2.5rem); line-height: 1.18; color: #2D1E4E; text-align: left; }
+.car-hero p { margin: 0; font-size: 1.02rem; line-height: 1.65; color: #6B5E8E; max-width: 520px; }
+:host-context(body[data-theme="dark"]) .car-hero { background: #15112E; box-shadow: 0 14px 40px rgba(0, 0, 0, .3), inset 0 0 0 1px rgba(255, 255, 255, .06); }
+:host-context(body[data-theme="dark"]) .car-hero h1 { color: #F4F1FF; }
+:host-context(body[data-theme="dark"]) .car-hero p { color: #E2DCF5; }
+
+/* resumo */
+.pc-resumo {
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin-bottom: 26px; padding: 18px 22px; border-radius: 24px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F9F6FF 100%); border: 1px solid rgba(255, 255, 255, .95);
+  box-shadow: 0 14px 36px rgba(124, 95, 203, .10), 0 2px 6px rgba(124, 95, 203, .05);
+}
+.pc-resumo-tit { display: flex; align-items: center; gap: 12px; min-width: 220px; }
+.pc-resumo-tit strong { display: block; color: #2D1E4E; font-weight: 800; }
+.pc-resumo-tit small { color: #6B5E8E; font-size: .8rem; }
+.pc-resumo-ic { display: grid; place-items: center; flex: 0 0 44px; height: 44px; border-radius: 14px; background: linear-gradient(145deg, #F4EEFD, #E2D7F8); color: #7C5FCB; }
+.pc-resumo-ic i { color: inherit !important; }
+.pc-resumo-nums { flex: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.pc-num { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border-radius: 16px; background: #F6F2FD; }
+.pc-num strong { font-family: 'Poppins', sans-serif; font-size: 1.5rem; line-height: 1.1; color: #2D1E4E; }
+.pc-num small { color: #6B5E8E; font-size: .76rem; font-weight: 700; line-height: 1.3; }
+.pc-num small i { color: #7C5FCB !important; }
+.pc-num.destaque { background: linear-gradient(145deg, #8E72DC 0%, #5B3D99 100%); box-shadow: 0 10px 22px rgba(91, 61, 153, .22); }
+.pc-num.destaque :is(strong, small, small i) { color: #FFFFFF !important; }
+:host-context(body[data-theme="dark"]) .pc-resumo { background: linear-gradient(180deg, #1D2438 0%, #1E1B33 100%); border-color: rgba(255, 255, 255, .07); box-shadow: 0 14px 34px rgba(0, 0, 0, .35); }
+:host-context(body[data-theme="dark"]) .pc-resumo-tit strong, :host-context(body[data-theme="dark"]) .pc-num strong { color: #F4F1FF; }
+:host-context(body[data-theme="dark"]) .pc-resumo-tit small, :host-context(body[data-theme="dark"]) .pc-num small { color: #C0B6DC; }
+:host-context(body[data-theme="dark"]) .pc-num:not(.destaque) { background: rgba(255, 255, 255, .05); }
+:host-context(body[data-theme="dark"]) .pc-resumo-ic { background: linear-gradient(145deg, #2A2446, #3A3064); color: #CDBFF5; }
+
+/* abas Vagas/Cursos em pílula */
+.pc-barra { margin-bottom: 26px !important; }
+.pc-abas {
+  padding: 6px !important; border-radius: 999px !important; gap: 6px !important;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F6F1FE 100%) !important; border: 1px solid rgba(255, 255, 255, .95);
+  box-shadow: 0 14px 36px rgba(124, 95, 203, .10) !important;
+}
+.pc-aba { height: 50px !important; min-width: 180px; padding: 0 20px 0 6px !important; border-radius: 999px !important; background: transparent !important; box-shadow: none !important; }
+.pc-aba.ativa { background: linear-gradient(135deg, #8E72DC 0%, #5B3D99 100%) !important; box-shadow: 0 8px 18px rgba(91, 61, 153, .28) !important; }
+.pc-aba.ativa :is(strong, small) { color: #FFFFFF !important; }
+.pc-aba.ativa .pc-aba-ic { background: rgba(255, 255, 255, .2) !important; color: #FFFFFF !important; }
+.pc-aba-ic { border-radius: 50% !important; }
+.pc-btn { border-radius: 999px !important; }
+:host-context(body[data-theme="dark"]) .pc-abas { background: rgba(255, 255, 255, .05) !important; border-color: rgba(255, 255, 255, .07); box-shadow: none !important; }
+
+@media (max-width: 1100px) { .pc-resumo-nums { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 860px) {
+  .car-hero-texto { max-width: none; padding: 28px 22px 8px; }
+  .car-hero-img { position: static; display: block; width: 100% !important; height: auto !important; max-width: none;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 20%); mask-image: linear-gradient(to bottom, transparent 0%, #000 20%); }
+}
+@media (max-width: 640px) {
+  .pc-resumo-nums { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pc-abas { width: 100%; }
+  .pc-aba { flex: 1; min-width: 0; }
+}

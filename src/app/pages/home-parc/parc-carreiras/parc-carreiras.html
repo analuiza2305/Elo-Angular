@@ -1,27 +1,26 @@
 <div class="pc-root">
-  <header class="pc-cab">
-    <span class="pc-cab-ic"><i class="fa-solid fa-briefcase"></i></span>
-    <div>
-      <h2>Carreiras</h2>
-      <p>Divulgue vagas de emprego e cursos para as mães. A candidatura e a inscrição acontecem no seu link.</p>
+  <!-- Mesmo banner da página Carreiras das mães -->
+  <section class="car-hero">
+    <div class="car-hero-texto">
+      <h1>Divulgue vagas e cursos para as mães</h1>
+      <p>Suas oportunidades aparecem na página Carreiras das mães. A candidatura e a inscrição acontecem no link da sua empresa.</p>
     </div>
-  </header>
+    <img class="car-hero-img" src="/img/carreiras-hero.png" alt="" width="1350" height="900" aria-hidden="true">
+  </section>
 
-  <div class="pc-kpis">
-    <div class="pc-kpi"><span class="pc-kpi-ic cor-lilas"><i class="fa-solid fa-briefcase"></i></span><div><strong>{{ vagasAbertas() }}</strong><small>vagas abertas</small></div></div>
-    <div class="pc-kpi"><span class="pc-kpi-ic cor-rosa"><i class="fa-solid fa-box-archive"></i></span><div><strong>{{ vagasEncerradas() }}</strong><small>vagas encerradas</small></div></div>
-    <div class="pc-kpi"><span class="pc-kpi-ic cor-azul"><i class="fa-solid fa-graduation-cap"></i></span><div><strong>{{ cursosAtivos() }}</strong><small>cursos ativos</small></div></div>
-    <div class="pc-kpi"><span class="pc-kpi-ic cor-verde"><i class="fa-solid fa-box-archive"></i></span><div><strong>{{ cursosEncerrados() }}</strong><small>cursos encerrados</small></div></div>
-  </div>
-
-  <!-- Visão geral do alcance: quantas mães viram e quantas clicaram para se candidatar/inscrever -->
-  <div class="pc-alcance">
-    <div class="pc-alcance-tit">
-      <i class="fa-solid fa-chart-simple"></i>
-      <div><strong>Alcance das suas vagas e cursos</strong><small>Cada mãe conta uma vez por vaga ou curso</small></div>
+  <!-- Resumo: alcance + quantidades -->
+  <div class="pc-resumo">
+    <div class="pc-resumo-tit">
+      <span class="pc-resumo-ic"><i class="fa-solid fa-chart-simple"></i></span>
+      <div><strong>Seu alcance</strong><small>Cada mãe conta uma vez por vaga ou curso</small></div>
     </div>
-    <div class="pc-alcance-num"><strong>{{ totalViram() }}</strong><small><i class="fa-regular fa-eye"></i> {{ totalViram() === 1 ? 'mãe abriu os detalhes' : 'mães abriram os detalhes' }}</small></div>
-    <div class="pc-alcance-num"><strong>{{ totalClicaram() }}</strong><small><i class="fa-solid fa-arrow-pointer"></i> {{ totalClicaram() === 1 ? 'mãe clicou para se candidatar ou se inscrever' : 'mães clicaram para se candidatar ou se inscrever' }}</small></div>
+    <div class="pc-resumo-nums">
+      <div class="pc-num destaque"><strong>{{ totalViram() }}</strong><small><i class="fa-regular fa-eye"></i> {{ totalViram() === 1 ? 'mãe abriu os detalhes' : 'mães abriram os detalhes' }}</small></div>
+      <div class="pc-num destaque"><strong>{{ totalClicaram() }}</strong><small><i class="fa-solid fa-arrow-pointer"></i> {{ totalClicaram() === 1 ? 'clicou para se candidatar' : 'clicaram para se candidatar ou se inscrever' }}</small></div>
+      <div class="pc-num"><strong>{{ vagasAbertas() }}</strong><small>{{ vagasAbertas() === 1 ? 'vaga aberta' : 'vagas abertas' }}</small></div>
+      <div class="pc-num"><strong>{{ cursosAtivos() }}</strong><small>{{ cursosAtivos() === 1 ? 'curso ativo' : 'cursos ativos' }}</small></div>
+      <div class="pc-num"><strong>{{ vagasEncerradas() + cursosEncerrados() }}</strong><small>encerrados</small></div>
+    </div>
   </div>
 
   <div class="pc-barra">

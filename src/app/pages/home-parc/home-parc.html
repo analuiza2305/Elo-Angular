@@ -363,6 +363,7 @@
 
         <section class="content" id="dashboard">
 
+            <!-- Banner gradiente interativo (não remover: padrão de parceiro, adm, adv e psi) -->
             <div class="parc-hero" [style.--mouse-x]="heroMouseX()" [style.--mouse-y]="heroMouseY()" (mousemove)="onHeroMouseMove($event)" (mouseleave)="onHeroMouseLeave()">
                 <h1 id="heroBoasVindas">Olá, Parceiro!</h1>
                 <p>Seu espaço de impacto está pronto. Acompanhe seus posts, eventos e o alcance da sua empresa
@@ -372,294 +373,277 @@
                 <div class="hero-glow shape-3"></div>
             </div>
 
-            <div class="stats-grid" id="dashboardStats">
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-file-lines"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-number" id="statPosts">–</span>
-                        <span class="stat-label">Postagens na Comunidade</span>
-                        <span class="stat-hint" id="statPostsDelta"></span>
-                    </div>
+            <!-- Ações principais, logo abaixo do banner -->
+            <div class="pd-acoes">
+                <button type="button" class="pd-acao add-event-btn"><span class="pd-acao-ic"><i class="fa-regular fa-calendar-plus"></i></span><span><strong>Criar evento</strong><small>Palestra, oficina ou encontro</small></span></button>
+                <button type="button" class="pd-acao add-post-btn-artigos"><span class="pd-acao-ic"><i class="fa-solid fa-pen-nib"></i></span><span><strong>Nova postagem</strong><small>Compartilhe um conteúdo</small></span></button>
+                <button type="button" class="pd-acao" id="qaComunicadoBtn"><span class="pd-acao-ic"><i class="fa-solid fa-bullhorn"></i></span><span><strong>Publicar comunicado</strong><small>Um aviso no fórum das mães</small></span></button>
+            </div>
+
+            <!-- ===== SEU IMPACTO ===== -->
+            <div class="pd-titulo">
+                <div>
+                    <h2>Seu impacto</h2>
+                    <p>Como a comunidade está interagindo com a sua empresa</p>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-yellow"><i class="fa-regular fa-calendar"></i></div>
+                <button type="button" class="pd-link" data-target="relatorios">Ver relatórios <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+            <div class="stats-grid pd-kpis" id="dashboardStats">
+                <div class="stat-card pd-kpi pd-kpi-maes">
+                    <div class="stat-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
                     <div class="stat-info">
-                        <span class="stat-number" id="statEventos">–</span>
-                        <span class="stat-label">Eventos cadastrados</span>
-                        <span class="stat-delta" id="statEventosDelta"></span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-coral"><i class="fa-solid fa-people-group"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-number" id="statInscricoes">–</span>
-                        <span class="stat-label">Inscrições nos seus eventos</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-hand-holding-heart"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-number" id="statAlcance">–</span>
                         <span class="stat-label">Mães alcançadas</span>
+                        <span class="stat-number" id="statAlcance">–</span>
                         <span class="stat-hint">Mães diferentes que interagiram com a sua empresa</span>
+                    </div>
+                </div>
+                <div class="stat-card pd-kpi">
+                    <div class="stat-icon"><i class="fa-solid fa-people-group"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Inscrições nos eventos</span>
+                        <span class="stat-number" id="statInscricoes">–</span>
+                        <span class="stat-hint">Somando todos os seus eventos</span>
+                    </div>
+                </div>
+                <div class="stat-card pd-kpi">
+                    <div class="stat-icon"><i class="fa-regular fa-calendar"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Eventos cadastrados</span>
+                        <span class="stat-number" id="statEventos">–</span>
+                        <span class="stat-hint" id="statEventosDelta"></span>
+                    </div>
+                </div>
+                <div class="stat-card pd-kpi">
+                    <div class="stat-icon"><i class="fa-solid fa-book-open"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Postagens na Comunidade</span>
+                        <span class="stat-number" id="statPosts">–</span>
+                        <span class="stat-hint" id="statPostsDelta"></span>
                     </div>
                 </div>
             </div>
 
-            <div class="dash-grid dash-grid-3">
-                <div class="dash-panel">
-                        <div class="dash-panel-header">
-                            <div class="dash-panel-tit">
-                                <span class="dash-panel-ic"><i class="fa-regular fa-comments"></i></span>
-                                <div><h3>Atividade recente</h3><p>Comentários nos seus tópicos</p></div>
-                            </div>
-                        </div>
-                        <div id="atividadeRecenteList" class="dash-list">
-                            <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-                        </div>
+            <!-- ===== AGENDA, POSTAGENS E ATIVIDADE ===== -->
+            <div class="pd-grid">
+                <div class="pd-coluna">
+                    <div class="pd-titulo">
+                        <div><h2>Próximos eventos</h2><p>Os encontros que você marcou com as mães</p></div>
+                        <button type="button" class="pd-link" data-target="calendario">Ver eventos <i class="fa-solid fa-arrow-right"></i></button>
                     </div>
-
-                <div class="dash-panel dash-panel-eventos">
-                        <div class="dash-panel-header">
-                            <div class="dash-panel-tit">
-                                <span class="dash-panel-ic"><i class="fa-regular fa-calendar"></i></span>
-                                <div><h3>Próximos eventos</h3><p>Os encontros que você marcou com as mães</p></div>
-                            </div>
-                            <button class="dash-see-more" data-target="calendario">Ver eventos</button>
-                        </div>
+                    <div class="pd-painel">
                         <div id="proximosEventosList" class="dash-list">
                             <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
                         </div>
                     </div>
 
-                <div class="dash-panel">
-                        <div class="dash-panel-header">
-                            <div class="dash-panel-tit">
-                                <span class="dash-panel-ic"><i class="fa-solid fa-book-open"></i></span>
-                                <div><h3>Postagens recentes</h3><p>O que a sua empresa publicou por último</p></div>
-                            </div>
-                            <button class="dash-see-more" data-target="artigos">Ver comunidade</button>
-                        </div>
+                    <div class="pd-titulo">
+                        <div><h2>Suas postagens recentes</h2><p>O que a sua empresa publicou na Comunidade</p></div>
+                        <button type="button" class="pd-link" data-target="artigos">Ver na Comunidade <i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                    <div class="pd-painel">
                         <div id="artigosRecentesList" class="dash-list">
                             <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
                         </div>
                     </div>
-            </div>
+                </div>
 
-            <div class="quick-actions-panel dash-acoes">
-                        <h3>Ações rápidas</h3>
-                        <div class="quick-actions-grid">
-                            <button class="quick-action-btn qa-tile add-post-btn-artigos">
-                                <span class="qa-ic"><i class="fa-solid fa-pen-nib"></i></span>
-                                <span class="qa-txt"><strong>Nova postagem</strong><small>Compartilhe um conteúdo</small></span>
-                                <i class="fa-solid fa-chevron-right qa-seta"></i>
-                            </button>
-                            <button class="quick-action-btn qa-tile add-event-btn">
-                                <span class="qa-ic"><i class="fa-regular fa-calendar-plus"></i></span>
-                                <span class="qa-txt"><strong>Criar evento</strong><small>Palestra, oficina ou encontro</small></span>
-                                <i class="fa-solid fa-chevron-right qa-seta"></i>
-                            </button>
-                            <button class="quick-action-btn qa-tile" id="qaComunicadoBtn">
-                                <span class="qa-ic"><i class="fa-solid fa-bullhorn"></i></span>
-                                <span class="qa-txt"><strong>Publicar comunicado</strong><small>Um aviso no fórum das mães</small></span>
-                                <i class="fa-solid fa-chevron-right qa-seta"></i>
-                            </button>
-                            <button class="quick-action-btn qa-tile" data-target="relatorios">
-                                <span class="qa-ic"><i class="fa-regular fa-file-lines"></i></span>
-                                <span class="qa-txt"><strong>Ver relatórios</strong><small>Alcance e engajamento</small></span>
-                                <i class="fa-solid fa-chevron-right qa-seta"></i>
-                            </button>
+                <aside class="pd-coluna">
+                    <div class="pd-titulo">
+                        <div><h2>Atividade recente</h2><p>Comentários das mães nos seus tópicos</p></div>
+                    </div>
+                    <div class="pd-painel">
+                        <div id="atividadeRecenteList" class="dash-list">
+                            <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
                         </div>
                     </div>
+
+                    <button type="button" class="pd-atalho" data-target="divulgacao">
+                        <span class="pd-atalho-ic"><i class="fa-solid fa-bullhorn"></i></span>
+                        <span class="pd-atalho-txt"><strong>Quer alcançar mais mães?</strong><small>Destaque suas postagens e eventos na Divulgação</small></span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </aside>
+            </div>
 
             <app-anuncio-espaco posicao="painel-parceiro"></app-anuncio-espaco>
         </section>
 
         <section class="content hidden" id="calendario">
-            <div class="cab-pagina">
-                <span class="cab-icone"><i class="fa-regular fa-calendar"></i></span>
-                <div class="cab-texto">
-                    <h2 class="page-title">Eventos</h2>
-                    <p class="page-subtitle">Crie eventos para as mães e acompanhe tudo o que você já publicou.</p>
-                </div>
-            </div>
-            <div class="pcal">
-                <!-- Topo: sub-abas + criar evento -->
-                <div class="pcal-topo">
-                    <div class="pcal-abas" role="tablist" aria-label="Eventos">
-                        <button type="button" role="tab" class="pcal-aba" [class.ativa]="abaEventos() === 'calendario'"
-                                [attr.aria-selected]="abaEventos() === 'calendario'" (click)="abaEventos.set('calendario')">
-                            <i class="fa-regular fa-calendar"></i> Calendário
-                        </button>
-                        <button type="button" role="tab" class="pcal-aba" [class.ativa]="abaEventos() === 'meus'"
-                                [attr.aria-selected]="abaEventos() === 'meus'" (click)="abaEventos.set('meus')">
-                            <i class="fa-solid fa-list-ul"></i> Meus eventos
-                            <span class="pcal-badge">{{ contagem().todos }}</span>
-                        </button>
-                        <button type="button" role="tab" class="pcal-aba" [class.ativa]="abaEventos() === 'vitrine'"
-                                [attr.aria-selected]="abaEventos() === 'vitrine'" (click)="abaEventos.set('vitrine')">
-                            <i class="fa-regular fa-eye"></i> Como as mães veem
+            <!-- Mesmo banner da página Eventos das mães; abaixo, as ferramentas da empresa.
+                 Na aba "Como as mães veem" aparece a lista completa, igual à das mães. -->
+            <app-eventos class="parc-embutido parc-eventos" [embutido]="true" [somenteTopo]="abaEventos() !== 'vitrine'">
+                    <div class="pcal" eventosFerramentas>
+                    <!-- Topo: sub-abas + criar evento -->
+                    <div class="pcal-topo">
+                        <div class="pcal-abas" role="tablist" aria-label="Eventos">
+                            <button type="button" role="tab" class="pcal-aba" [class.ativa]="abaEventos() === 'calendario'"
+                                    [attr.aria-selected]="abaEventos() === 'calendario'" (click)="abaEventos.set('calendario')">
+                                <i class="fa-regular fa-calendar"></i> Calendário
+                            </button>
+                            <button type="button" role="tab" class="pcal-aba" [class.ativa]="abaEventos() === 'meus'"
+                                    [attr.aria-selected]="abaEventos() === 'meus'" (click)="abaEventos.set('meus')">
+                                <i class="fa-solid fa-list-ul"></i> Meus eventos
+                                <span class="pcal-badge">{{ contagem().todos }}</span>
+                            </button>
+                            <button type="button" role="tab" class="pcal-aba" [class.ativa]="abaEventos() === 'vitrine'"
+                                    [attr.aria-selected]="abaEventos() === 'vitrine'" (click)="abaEventos.set('vitrine')">
+                                <i class="fa-regular fa-eye"></i> Como as mães veem
+                            </button>
+                        </div>
+                        <button type="button" class="pcal-btn-criar add-event-btn" id="calCriarEventoBtn">
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i> Criar evento
                         </button>
                     </div>
-                    <button type="button" class="pcal-btn-criar add-event-btn" id="calCriarEventoBtn">
-                        <i class="fa-solid fa-plus" aria-hidden="true"></i> Criar evento
-                    </button>
-                </div>
 
-                <!-- ===== ABA VITRINE: a página Eventos das mães ===== -->
-                @if (abaEventos() === 'vitrine' && secaoAtiva() === 'calendario') {
-                    <app-eventos class="parc-embutido" [embutido]="true"></app-eventos>
-                }
-
-                <!-- ===== ABA CALENDÁRIO ===== -->
-                @if (abaEventos() === 'calendario') {
-                    <div class="pcal-grade">
-                        <div class="pcal-card pcal-calendario">
-                            <div class="pcal-cal-header">
-                                <button type="button" class="pcal-nav" (click)="mesAnterior()" aria-label="Mês anterior">
-                                    <i class="fa-solid fa-chevron-left"></i>
-                                </button>
-                                <div class="pcal-selects">
-                                    <select aria-label="Mês" [value]="calMes()" (change)="mudarMes($any($event.target).value)">
-                                        @for (m of MESES; track $index) {
-                                            <option [value]="$index" [selected]="$index === calMes()">{{ m }}</option>
-                                        }
-                                    </select>
-                                    <select aria-label="Ano" [value]="calAno()" (change)="mudarAno($any($event.target).value)">
-                                        @for (a of ANOS; track a) {
-                                            <option [value]="a" [selected]="a === calAno()">{{ a }}</option>
-                                        }
-                                    </select>
-                                </div>
-                                <button type="button" class="pcal-nav" (click)="proximoMes()" aria-label="Próximo mês">
-                                    <i class="fa-solid fa-chevron-right"></i>
-                                </button>
-                            </div>
-
-                            <div class="pcal-semana">
-                                @for (d of DIAS_SEMANA; track d) { <span>{{ d }}</span> }
-                            </div>
-
-                            <div class="pcal-dias">
-                                @for (v of calVazios(); track $index) { <div class="pcal-vazio"></div> }
-                                @for (dia of calDias(); track dia.numero) {
-                                    <button type="button" class="pcal-dia"
-                                            [class.hoje]="dia.hoje" [class.passado]="dia.passado"
-                                            [class.tem-evento]="dia.eventos.length" [class.selecionado]="dia.selecionado"
-                                            [attr.title]="dia.tooltip || null"
-                                            [attr.aria-label]="dia.numero + (dia.eventos.length ? ', ' + dia.eventos.length + ' evento(s)' : '')"
-                                            (click)="selecionarDia(dia.data)">
-                                        <span class="pcal-num">{{ dia.numero }}</span>
-                                        @if (dia.eventos.length) {
-                                            <span class="pcal-pontos" aria-hidden="true">
-                                                @for (ev of dia.eventos.slice(0, 3); track ev.id) {
-                                                    <span class="pcal-ponto" [style.background]="dia.passado ? '#c9c4d6' : ev.cor"></span>
-                                                }
-                                            </span>
-                                        }
+                    <!-- ===== ABA CALENDÁRIO ===== -->
+                    @if (abaEventos() === 'calendario') {
+                        <div class="pcal-grade">
+                            <div class="pcal-card pcal-calendario">
+                                <div class="pcal-cal-header">
+                                    <button type="button" class="pcal-nav" (click)="mesAnterior()" aria-label="Mês anterior">
+                                        <i class="fa-solid fa-chevron-left"></i>
                                     </button>
-                                }
-                            </div>
+                                    <div class="pcal-selects">
+                                        <select aria-label="Mês" [value]="calMes()" (change)="mudarMes($any($event.target).value)">
+                                            @for (m of MESES; track $index) {
+                                                <option [value]="$index" [selected]="$index === calMes()">{{ m }}</option>
+                                            }
+                                        </select>
+                                        <select aria-label="Ano" [value]="calAno()" (change)="mudarAno($any($event.target).value)">
+                                            @for (a of ANOS; track a) {
+                                                <option [value]="a" [selected]="a === calAno()">{{ a }}</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <button type="button" class="pcal-nav" (click)="proximoMes()" aria-label="Próximo mês">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                </div>
 
-                            <div class="pcal-rodape">
-                                <div class="pcal-legenda">
-                                    @for (cat of categoriasEvento; track cat.chave) {
-                                        <span><i [style.background]="cat.cor"></i> {{ cat.nome }}</span>
+                                <div class="pcal-semana">
+                                    @for (d of DIAS_SEMANA; track d) { <span>{{ d }}</span> }
+                                </div>
+
+                                <div class="pcal-dias">
+                                    @for (v of calVazios(); track $index) { <div class="pcal-vazio"></div> }
+                                    @for (dia of calDias(); track dia.numero) {
+                                        <button type="button" class="pcal-dia"
+                                                [class.hoje]="dia.hoje" [class.passado]="dia.passado"
+                                                [class.tem-evento]="dia.eventos.length" [class.selecionado]="dia.selecionado"
+                                                [attr.title]="dia.tooltip || null"
+                                                [attr.aria-label]="dia.numero + (dia.eventos.length ? ', ' + dia.eventos.length + ' evento(s)' : '')"
+                                                (click)="selecionarDia(dia.data)">
+                                            <span class="pcal-num">{{ dia.numero }}</span>
+                                            @if (dia.eventos.length) {
+                                                <span class="pcal-pontos" aria-hidden="true">
+                                                    @for (ev of dia.eventos.slice(0, 3); track ev.id) {
+                                                        <span class="pcal-ponto" [style.background]="dia.passado ? '#c9c4d6' : ev.cor"></span>
+                                                    }
+                                                </span>
+                                            }
+                                        </button>
                                     }
                                 </div>
-                                <button type="button" class="pcal-link" (click)="irParaHoje()">Hoje</button>
+
+                                <div class="pcal-rodape">
+                                    <div class="pcal-legenda">
+                                        @for (cat of categoriasEvento; track cat.chave) {
+                                            <span><i [style.background]="cat.cor"></i> {{ cat.nome }}</span>
+                                        }
+                                    </div>
+                                    <button type="button" class="pcal-link" (click)="irParaHoje()">Hoje</button>
+                                </div>
+                            </div>
+
+                            <div class="pcal-card pcal-painel">
+                                <div class="pcal-painel-topo">
+                                    <h3>{{ painelTitulo() }}</h3>
+                                    @if (diaSel()) {
+                                        <button type="button" class="pcal-link" (click)="diaSel.set(null)">Ver próximos</button>
+                                    }
+                                </div>
+
+                                <div class="pcal-lista">
+                                    @for (ev of painelEventos(); track ev.id) {
+                                        <button type="button" class="pcal-item" [class.encerrado]="ev.encerrado" (click)="abrirDetalheEvento(ev)">
+                                            <span class="pcal-item-data" [style.background]="ev.encerrado ? '#ece9f3' : ev.cor + '1f'" [style.color]="ev.encerrado ? '#8a8599' : ev.cor">
+                                                <strong>{{ ev.dia }}</strong><small>{{ ev.mes }}</small>
+                                            </span>
+                                            <span class="pcal-item-info">
+                                                <strong>{{ ev.titulo || 'Evento' }}</strong>
+                                                <small><i class="fa-regular fa-clock"></i> {{ ev.hora }} · {{ ev.local || 'Online' }}</small>
+                                                <span class="pcal-tag" [style.color]="ev.cor" [style.borderColor]="ev.cor + '55'">{{ ev.tipoLabel }}</span>
+                                            </span>
+                                            <i class="fa-solid fa-chevron-right pcal-seta" aria-hidden="true"></i>
+                                        </button>
+                                    } @empty {
+                                        <div class="pcal-vazio-estado">
+                                            <i class="fa-regular fa-calendar-plus"></i>
+                                            @if (diaSel()) {
+                                                <strong>Nenhum evento neste dia</strong>
+                                                @if (podeCriarNoDiaSel()) {
+                                                    <button type="button" class="pcal-btn-sec" (click)="criarEventoNoDia()">Criar evento neste dia</button>
+                                                }
+                                            } @else {
+                                                <strong>Nenhum evento futuro</strong>
+                                                <p>Crie um evento e ele aparece aqui e no calendário das mães.</p>
+                                            }
+                                        </div>
+                                    }
+                                </div>
                             </div>
                         </div>
+                    }
 
-                        <div class="pcal-card pcal-painel">
-                            <div class="pcal-painel-topo">
-                                <h3>{{ painelTitulo() }}</h3>
-                                @if (diaSel()) {
-                                    <button type="button" class="pcal-link" (click)="diaSel.set(null)">Ver próximos</button>
-                                }
+                    <!-- ===== ABA MEUS EVENTOS ===== -->
+                    @if (abaEventos() === 'meus') {
+                        <div class="pcal-card">
+                            <div class="pcal-filtros" role="group" aria-label="Filtrar eventos">
+                                <button type="button" [class.ativo]="filtroMeus() === 'proximos'" (click)="filtroMeus.set('proximos')">Próximos ({{ contagem().proximos }})</button>
+                                <button type="button" [class.ativo]="filtroMeus() === 'encerrados'" (click)="filtroMeus.set('encerrados')">Encerrados ({{ contagem().encerrados }})</button>
+                                <button type="button" [class.ativo]="filtroMeus() === 'todos'" (click)="filtroMeus.set('todos')">Todos ({{ contagem().todos }})</button>
                             </div>
 
-                            <div class="pcal-lista">
-                                @for (ev of painelEventos(); track ev.id) {
-                                    <button type="button" class="pcal-item" [class.encerrado]="ev.encerrado" (click)="abrirDetalheEvento(ev)">
-                                        <span class="pcal-item-data" [style.background]="ev.encerrado ? '#ece9f3' : ev.cor + '1f'" [style.color]="ev.encerrado ? '#8a8599' : ev.cor">
-                                            <strong>{{ ev.dia }}</strong><small>{{ ev.mes }}</small>
+                            <div class="pcal-meus">
+                                @for (ev of meusEventos(); track ev.id) {
+                                    <button type="button" class="pcal-meu" [class.encerrado]="ev.encerrado" (click)="abrirDetalheEvento(ev)">
+                                        <span class="pcal-meu-capa" [style.background]="ev.cor + '22'">
+                                            @if (ev.capa) {
+                                                <img [src]="ev.capa" [alt]="ev.titulo" (error)="$any($event.target).style.display = 'none'">
+                                            }
+                                            <i class="fa-regular fa-calendar" [style.color]="ev.cor"></i>
+                                            <span class="pcal-meu-data"><strong>{{ ev.dia }}</strong><small>{{ ev.mes }}</small></span>
+                                            @if (ev.encerrado) { <span class="pcal-status encerrado">Encerrado</span> }
+                                            @else { <span class="pcal-status proximo">Próximo</span> }
                                         </span>
-                                        <span class="pcal-item-info">
-                                            <strong>{{ ev.titulo || 'Evento' }}</strong>
-                                            <small><i class="fa-regular fa-clock"></i> {{ ev.hora }} · {{ ev.local || 'Online' }}</small>
+                                        <span class="pcal-meu-corpo">
                                             <span class="pcal-tag" [style.color]="ev.cor" [style.borderColor]="ev.cor + '55'">{{ ev.tipoLabel }}</span>
+                                            <strong>{{ ev.titulo || 'Evento' }}</strong>
+                                            <small><i class="fa-regular fa-clock"></i> {{ ev.dataCurta }} às {{ ev.hora }}</small>
+                                            <small><i class="fa-solid fa-location-dot"></i> {{ ev.local || 'Online' }}</small>
+                                            @if (ev.removido) {
+                                                <span class="pcal-aviso"><i class="fa-solid fa-triangle-exclamation"></i> Removido pela moderação</span>
+                                            }
                                         </span>
-                                        <i class="fa-solid fa-chevron-right pcal-seta" aria-hidden="true"></i>
                                     </button>
                                 } @empty {
-                                    <div class="pcal-vazio-estado">
-                                        <i class="fa-regular fa-calendar-plus"></i>
-                                        @if (diaSel()) {
-                                            <strong>Nenhum evento neste dia</strong>
-                                            @if (podeCriarNoDiaSel()) {
-                                                <button type="button" class="pcal-btn-sec" (click)="criarEventoNoDia()">Criar evento neste dia</button>
+                                    <div class="pcal-vazio-estado pcal-vazio-largo">
+                                        <i class="fa-regular fa-calendar-xmark"></i>
+                                        <strong>
+                                            @switch (filtroMeus()) {
+                                                @case ('proximos') { Você não tem eventos futuros }
+                                                @case ('encerrados') { Nenhum evento encerrado ainda }
+                                                @default { Você ainda não publicou eventos }
                                             }
-                                        } @else {
-                                            <strong>Nenhum evento futuro</strong>
-                                            <p>Crie um evento e ele aparece aqui e no calendário das mães.</p>
-                                        }
+                                        </strong>
+                                        <p>Use o botão “Criar evento” para publicar o primeiro.</p>
                                     </div>
                                 }
                             </div>
                         </div>
-                    </div>
-                }
-
-                <!-- ===== ABA MEUS EVENTOS ===== -->
-                @if (abaEventos() === 'meus') {
-                    <div class="pcal-card">
-                        <div class="pcal-filtros" role="group" aria-label="Filtrar eventos">
-                            <button type="button" [class.ativo]="filtroMeus() === 'proximos'" (click)="filtroMeus.set('proximos')">Próximos ({{ contagem().proximos }})</button>
-                            <button type="button" [class.ativo]="filtroMeus() === 'encerrados'" (click)="filtroMeus.set('encerrados')">Encerrados ({{ contagem().encerrados }})</button>
-                            <button type="button" [class.ativo]="filtroMeus() === 'todos'" (click)="filtroMeus.set('todos')">Todos ({{ contagem().todos }})</button>
-                        </div>
-
-                        <div class="pcal-meus">
-                            @for (ev of meusEventos(); track ev.id) {
-                                <button type="button" class="pcal-meu" [class.encerrado]="ev.encerrado" (click)="abrirDetalheEvento(ev)">
-                                    <span class="pcal-meu-capa" [style.background]="ev.cor + '22'">
-                                        @if (ev.capa) {
-                                            <img [src]="ev.capa" [alt]="ev.titulo" (error)="$any($event.target).style.display = 'none'">
-                                        }
-                                        <i class="fa-regular fa-calendar" [style.color]="ev.cor"></i>
-                                        <span class="pcal-meu-data"><strong>{{ ev.dia }}</strong><small>{{ ev.mes }}</small></span>
-                                        @if (ev.encerrado) { <span class="pcal-status encerrado">Encerrado</span> }
-                                        @else { <span class="pcal-status proximo">Próximo</span> }
-                                    </span>
-                                    <span class="pcal-meu-corpo">
-                                        <span class="pcal-tag" [style.color]="ev.cor" [style.borderColor]="ev.cor + '55'">{{ ev.tipoLabel }}</span>
-                                        <strong>{{ ev.titulo || 'Evento' }}</strong>
-                                        <small><i class="fa-regular fa-clock"></i> {{ ev.dataCurta }} às {{ ev.hora }}</small>
-                                        <small><i class="fa-solid fa-location-dot"></i> {{ ev.local || 'Online' }}</small>
-                                        @if (ev.removido) {
-                                            <span class="pcal-aviso"><i class="fa-solid fa-triangle-exclamation"></i> Removido pela moderação</span>
-                                        }
-                                    </span>
-                                </button>
-                            } @empty {
-                                <div class="pcal-vazio-estado pcal-vazio-largo">
-                                    <i class="fa-regular fa-calendar-xmark"></i>
-                                    <strong>
-                                        @switch (filtroMeus()) {
-                                            @case ('proximos') { Você não tem eventos futuros }
-                                            @case ('encerrados') { Nenhum evento encerrado ainda }
-                                            @default { Você ainda não publicou eventos }
-                                        }
-                                    </strong>
-                                    <p>Use o botão “Criar evento” para publicar o primeiro.</p>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
-            </div>
-
+                    }
+                </div>
+            </app-eventos>
         </section>
 
         <section class="content hidden" id="forum">
@@ -727,24 +711,12 @@
         </section>
 
         <section class="content hidden" id="divulgacao">
-            <div class="cab-pagina">
-                <span class="cab-icone"><i class="fa-solid fa-bullhorn"></i></span>
-                <div class="cab-texto">
-                    <h2 class="page-title">Divulgação</h2>
-                    <p class="page-subtitle">Dê mais visibilidade às suas postagens e eventos e anuncie em espaços da plataforma.</p>
-                </div>
-            </div>
+            <!-- título e descrição ficam no banner da divulgação (parc-divulgacao) -->
             <app-parc-divulgacao></app-parc-divulgacao>
         </section>
 
         <section class="content hidden" id="planos">
-            <div class="cab-pagina">
-                <span class="cab-icone"><i class="fa-solid fa-crown"></i></span>
-                <div class="cab-texto">
-                    <h2 class="page-title">Planos</h2>
-                    <p class="page-subtitle">Compare o que cada plano oferece e veja o plano atual da sua empresa.</p>
-                </div>
-            </div>
+            <!-- o título e a descrição ficam no banner de planos (parc-planos) -->
             <app-parc-planos></app-parc-planos>
         </section>
 
@@ -766,169 +738,203 @@
         </section>
 
         <section class="content hidden" id="relatorios">
-            <div class="cab-pagina">
-                <span class="cab-icone"><i class="fa-solid fa-chart-pie"></i></span>
-                <div class="cab-texto">
-                    <h2 class="page-title">Relatórios</h2>
-                    <p class="page-subtitle">Acompanhe o alcance das suas postagens na Comunidade, dos seus eventos e das suas vagas e cursos.</p>
+            <div class="pl-hero pd-banner pd-banner-relatorios">
+                <div class="pl-hero-texto">
+                    <h2>Relatórios</h2>
+                    <p>Acompanhe o alcance das suas postagens na Comunidade, dos seus eventos e das suas vagas e cursos.</p>
+                    <button class="pd-btn-banner" id="exportarRelatorioBtn"><i class="fa-solid fa-download"></i> Exportar relatório</button>
                 </div>
-                <button class="quick-action-btn qa-purple cab-acao" id="exportarRelatorioBtn"><i class="fa-solid fa-download"></i> Exportar</button>
             </div>
 
-            <div class="stats-grid" id="reportStats">
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-file-lines"></i></div>
+            <div class="pd-titulo">
+                <div>
+                    <h2>Resumo do alcance</h2>
+                    <p>Números somados desde que a sua empresa entrou no Elo Materno</p>
+                </div>
+            </div>
+            <div class="stats-grid pd-kpis" id="reportStats">
+                <div class="stat-card pd-kpi pd-kpi-maes">
+                    <div class="stat-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
                     <div class="stat-info">
-                        <span class="stat-number" id="repArtigos">–</span>
+                        <span class="stat-label">Mães alcançadas</span>
+                        <span class="stat-number" id="repParticipantes">–</span>
+                        <span class="stat-hint">Mães diferentes que interagiram com a sua empresa</span>
+                    </div>
+                </div>
+                <div class="stat-card pd-kpi">
+                    <div class="stat-icon"><i class="fa-solid fa-file-lines"></i></div>
+                    <div class="stat-info">
                         <span class="stat-label">Postagens na Comunidade</span>
+                        <span class="stat-number" id="repArtigos">–</span>
                         <span class="stat-hint" id="repArtigosDetalhe">Posts, conteúdos educacionais e dicas</span>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-yellow"><i class="fa-regular fa-calendar-check"></i></div>
+                <div class="stat-card pd-kpi">
+                    <div class="stat-icon"><i class="fa-regular fa-calendar-check"></i></div>
                     <div class="stat-info">
-                        <span class="stat-number" id="repEventos">–</span>
                         <span class="stat-label">Eventos realizados</span>
+                        <span class="stat-number" id="repEventos">–</span>
                         <span class="stat-hint">Eventos que já aconteceram</span>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-coral"><i class="fa-solid fa-people-group"></i></div>
+                <div class="stat-card pd-kpi">
+                    <div class="stat-icon"><i class="fa-solid fa-briefcase"></i></div>
                     <div class="stat-info">
-                        <span class="stat-number" id="repParticipantes">–</span>
-                        <span class="stat-label">Mães alcançadas</span>
-                        <span class="stat-hint">Mães diferentes que se inscreveram em eventos, salvaram postagens, curtiram tópicos ou clicaram em vagas e cursos</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-briefcase"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-number" id="repNovosMembros">–</span>
                         <span class="stat-label">Interesse em Carreiras</span>
-                        <span class="stat-hint">Cliques em "quero me candidatar" ou "quero me inscrever" nas suas vagas e cursos</span>
+                        <span class="stat-number" id="repNovosMembros">–</span>
+                        <span class="stat-hint">Cliques nas suas vagas e cursos</span>
                     </div>
                 </div>
             </div>
 
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <h3>Postagens na Comunidade por mês</h3>
-                    <canvas id="chartArtigos"></canvas>
+            <div class="pd-titulo">
+                <div>
+                    <h2>Evolução</h2>
+                    <p>Últimos 6 meses</p>
                 </div>
-                <div class="chart-card">
-                    <h3>Eventos realizados</h3>
-                    <canvas id="chartEventos"></canvas>
+            </div>
+            <div class="pr-graficos">
+                <div class="pr-grafico">
+                    <div class="pr-grafico-cab">
+                        <span class="pr-grafico-ic"><i class="fa-solid fa-chart-line"></i></span>
+                        <div><h3>Postagens na Comunidade</h3><small>Quantas você publicou por mês</small></div>
+                    </div>
+                    <div class="pr-grafico-area"><canvas id="chartArtigos"></canvas></div>
                 </div>
-                <div class="chart-card">
-                    <h3>De onde vem o seu alcance</h3>
-                    <canvas id="chartForum"></canvas>
+                <div class="pr-grafico">
+                    <div class="pr-grafico-cab">
+                        <span class="pr-grafico-ic"><i class="fa-solid fa-chart-column"></i></span>
+                        <div><h3>Eventos</h3><small>Eventos por mês</small></div>
+                    </div>
+                    <div class="pr-grafico-area"><canvas id="chartEventos"></canvas></div>
+                </div>
+                <div class="pr-grafico">
+                    <div class="pr-grafico-cab">
+                        <span class="pr-grafico-ic"><i class="fa-solid fa-chart-pie"></i></span>
+                        <div><h3>De onde vem o seu alcance</h3><small>Interações das mães por tipo</small></div>
+                    </div>
+                    <div class="pr-grafico-area pr-grafico-area-rosca"><canvas id="chartForum"></canvas></div>
                 </div>
             </div>
         </section>
 
         <section class="content hidden" id="configuracoes">
-            <div class="cab-pagina">
-                <span class="cab-icone"><i class="fa-solid fa-gear"></i></span>
-                <div class="cab-texto">
-                    <h2 class="page-title">Configurações</h2>
-                    <p class="page-subtitle">Dados da empresa, privacidade, segurança e foto do perfil.</p>
+            <div class="pl-hero pd-banner pd-banner-configuracoes">
+                <div class="pl-hero-texto">
+                    <h2>Configurações</h2>
+                    <p>Dados da empresa, privacidade, segurança e foto do perfil.</p>
                 </div>
             </div>
 
-            <div class="config-grid">
-                <div class="config-square" id="configPanel-conta">
-                    <div class="config-square-header">
-                        <i class="fa-regular fa-user"></i>
-                        <h3>Informações</h3>
+            <div class="pc-config">
+                <!-- ===== DADOS DA EMPRESA ===== -->
+                <div class="pc-card pc-dados">
+                    <div class="pc-perfil">
+                        <img id="cfgFotoPreview" class="pc-perfil-foto" src="./img/logo_icon.png" alt="Foto do perfil">
+                        <div class="pc-perfil-txt">
+                            <strong id="cfgNomeExibido">Sua empresa</strong>
+                            <small>Foto ou logo em PNG ou JPG, até 2MB</small>
+                        </div>
+                        <button class="pc-btn pc-btn-claro" type="button" id="cfgAlterarFotoBtn"><i class="fa-solid fa-camera"></i> Alterar foto</button>
                     </div>
-                    <form id="formConfigConta">
-                        <label>Nome Fantasia <span class="foto-hint" style="display:inline;">(nome exibido publicamente)</span></label>
-                        <input type="text" id="cfgNomeFantasia" placeholder="Como sua empresa quer ser chamada">
 
-                        <label>Razão Social</label>
-                        <input type="text" id="cfgNomeEmpresa" placeholder="Nome da empresa">
+                    <div class="pc-cab">
+                        <span class="pc-cab-ic"><i class="fa-regular fa-building"></i></span>
+                        <div>
+                            <h3>Dados da empresa</h3>
+                            <p>É assim que as mães veem a sua empresa no Elo Materno.</p>
+                        </div>
+                    </div>
 
-                        <label>E-mail corporativo</label>
-                        <input type="email" id="cfgEmail" placeholder="email@empresa.com.br">
+                    <form id="formConfigConta" class="pc-form">
+                        <div class="pc-campo">
+                            <label for="cfgNomeFantasia">Nome fantasia</label>
+                            <input type="text" id="cfgNomeFantasia" placeholder="Como sua empresa quer ser chamada">
+                            <small>Nome exibido publicamente</small>
+                        </div>
+                        <div class="pc-campo">
+                            <label for="cfgNomeEmpresa">Razão social</label>
+                            <input type="text" id="cfgNomeEmpresa" placeholder="Nome da empresa">
+                        </div>
+                        <div class="pc-campo">
+                            <label for="cfgEmail">E-mail corporativo</label>
+                            <div class="pc-input-ic"><i class="fa-regular fa-envelope"></i><input type="email" id="cfgEmail" placeholder="email@empresa.com.br"></div>
+                        </div>
+                        <div class="pc-campo">
+                            <label for="cfgTelefone">Telefone</label>
+                            <div class="pc-input-ic"><i class="fa-solid fa-phone"></i><input type="text" id="cfgTelefone" placeholder="(11) 99999-9999"></div>
+                        </div>
+                        <div class="pc-campo">
+                            <label for="cfgCidade">Cidade</label>
+                            <div class="pc-input-ic"><i class="fa-solid fa-location-dot"></i><input type="text" id="cfgCidade" placeholder="Cidade"></div>
+                        </div>
+                        <div class="pc-campo">
+                            <label for="cfgSite">Site da empresa</label>
+                            <div class="pc-input-ic"><i class="fa-solid fa-globe"></i><input type="text" id="cfgSite" placeholder="www.suaempresa.com.br"></div>
+                            <small>Os links de vagas e cursos precisam ser deste site ou de uma plataforma de vagas conhecida</small>
+                        </div>
 
-                        <label>Telefone</label>
-                        <input type="text" id="cfgTelefone" placeholder="(11) 99999-9999">
-
-                        <label>Cidade</label>
-                        <input type="text" id="cfgCidade" placeholder="Cidade">
-
-                        <label>Site da empresa <span class="foto-hint" style="display:inline;">(links de vagas e cursos precisam ser deste site ou de uma plataforma de vagas conhecida)</span></label>
-                        <input type="text" id="cfgSite" placeholder="www.suaempresa.com.br">
-
-                        <button type="submit" class="quick-action-btn qa-purple" style="margin-top:10px;">Salvar alterações</button>
-                        <span id="cfgSalvarMsg"></span>
+                        <div class="pc-rodape">
+                            <span id="cfgSalvarMsg" class="pc-msg" role="status"></span>
+                            <button type="submit" class="pc-btn pc-btn-roxo"><i class="fa-solid fa-check"></i> Salvar alterações</button>
+                        </div>
                     </form>
                 </div>
 
-                <div class="config-square" id="configPanel-privacidade">
-                    <div class="config-square-header">
-                        <i class="fa-solid fa-lock"></i>
-                        <h3>Privacidade</h3>
+                <aside class="pc-lateral">
+                    <!-- ===== SEGURANÇA ===== -->
+                    <div class="pc-card">
+                        <div class="pc-cab">
+                            <span class="pc-cab-ic"><i class="fa-solid fa-shield-halved"></i></span>
+                            <div><h3>Segurança</h3><p>Senha e acesso à conta</p></div>
+                        </div>
+                        <div class="pc-linha">
+                            <span class="pc-linha-ic"><i class="fa-solid fa-key"></i></span>
+                            <div class="pc-linha-txt"><strong>Senha</strong><small id="segUltimaAlteracaoSenha">Última alteração: —</small></div>
+                            <button class="pc-btn pc-btn-claro" type="button" id="segAlterarSenhaBtn">Alterar</button>
+                        </div>
+                        <div class="pc-linha">
+                            <span class="pc-linha-ic"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
+                            <div class="pc-linha-txt"><strong>Sair da conta</strong><small>Encerra a sessão neste dispositivo</small></div>
+                            <button class="pc-btn pc-btn-sair" type="button" id="segSairContaBtn">Sair</button>
+                        </div>
                     </div>
-                    <p class="empty-hint">Consulte nossos termos e política antes de continuar usando a plataforma.</p>
-                    <div class="config-legal-links">
-                        <a class="legal-link" href="/termos-de-uso" target="_blank" rel="noopener">
-                            <span class="legal-ic"><i class="fa-solid fa-file-contract"></i></span>
-                            <span class="legal-txt"><strong>Termos de Uso</strong><small>Regras de uso da plataforma</small></span>
-                            <i class="fa-solid fa-arrow-up-right-from-square legal-seta"></i>
+
+                    <!-- ===== PRIVACIDADE ===== -->
+                    <div class="pc-card">
+                        <div class="pc-cab">
+                            <span class="pc-cab-ic"><i class="fa-solid fa-lock"></i></span>
+                            <div><h3>Privacidade</h3><p>Nossos termos e como cuidamos dos seus dados</p></div>
+                        </div>
+                        <a class="pc-linha pc-linha-link" href="/termos-de-uso" target="_blank" rel="noopener">
+                            <span class="pc-linha-ic"><i class="fa-solid fa-file-contract"></i></span>
+                            <div class="pc-linha-txt"><strong>Termos de Uso</strong><small>Regras de uso da plataforma</small></div>
+                            <i class="fa-solid fa-arrow-up-right-from-square pc-seta"></i>
                         </a>
-                        <a class="legal-link" href="/politica-de-privacidade" target="_blank" rel="noopener">
-                            <span class="legal-ic"><i class="fa-solid fa-user-shield"></i></span>
-                            <span class="legal-txt"><strong>Política de Privacidade</strong><small>Como cuidamos dos seus dados</small></span>
-                            <i class="fa-solid fa-arrow-up-right-from-square legal-seta"></i>
+                        <a class="pc-linha pc-linha-link" href="/politica-de-privacidade" target="_blank" rel="noopener">
+                            <span class="pc-linha-ic"><i class="fa-solid fa-user-shield"></i></span>
+                            <div class="pc-linha-txt"><strong>Política de Privacidade</strong><small>Como cuidamos dos seus dados</small></div>
+                            <i class="fa-solid fa-arrow-up-right-from-square pc-seta"></i>
                         </a>
                     </div>
-                </div>
 
-                <div class="config-square" id="configPanel-seguranca">
-                    <div class="config-square-header">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <h3>Segurança</h3>
+                    <!-- ===== EXCLUIR CONTA ===== -->
+                    <div class="pc-card pc-perigo">
+                        <div class="pc-linha">
+                            <span class="pc-linha-ic"><i class="fa-regular fa-trash-can"></i></span>
+                            <div class="pc-linha-txt"><strong>Excluir conta</strong><small>Remove todos os dados da empresa. Não dá para desfazer.</small></div>
+                            <button class="pc-btn pc-btn-perigo" type="button" id="segExcluirContaBtn">Excluir</button>
+                        </div>
                     </div>
-
-                    <div class="config-seguranca-bloco">
-                        <h4>Senha</h4>
-                        <p class="empty-hint" id="segUltimaAlteracaoSenha">Última alteração: —</p>
-                        <button class="quick-action-btn qa-purple" type="button" id="segAlterarSenhaBtn">Alterar senha</button>
-                    </div>
-
-                    <div class="config-seguranca-bloco">
-                        <h4>Sair da conta</h4>
-                        <p class="empty-hint">Encerra sua sessão neste dispositivo.</p>
-                        <button class="quick-action-btn qa-yellow" type="button" id="segSairContaBtn">Sair da conta</button>
-                    </div>
-
-                    <div class="config-seguranca-bloco config-seguranca-perigo">
-                        <h4>Excluir conta</h4>
-                        <p class="empty-hint">Essa ação é permanente e remove todos os seus dados. Não é possível desfazer.</p>
-                        <button class="quick-action-btn qa-coral" type="button" id="segExcluirContaBtn">Excluir minha conta</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="config-card config-photo-card">
-                <h3>Foto do perfil</h3>
-                <div class="config-photo-row">
-                    <img id="cfgFotoPreview" class="config-photo" src="./img/logo_icon.png" alt="Foto do perfil">
-                    <div>
-                        <button class="quick-action-btn qa-purple" type="button" id="cfgAlterarFotoBtn">Alterar foto</button>
-                        <p class="foto-hint">PNG ou JPG. Máx. 2MB</p>
-                    </div>
-                </div>
+                </aside>
             </div>
         </section>
 
         <section class="content hidden" id="perfil">
-            <div class="cab-pagina">
-                <span class="cab-icone"><i class="fa-regular fa-building"></i></span>
-                <div class="cab-texto">
-                    <h2 class="page-title">Minha empresa</h2>
-                    <p class="page-subtitle">Veja como sua empresa aparece para as mães e acompanhe sua atividade.</p>
+            <div class="pl-hero pd-banner pd-banner-empresa">
+                <div class="pl-hero-texto">
+                    <h2>Minha empresa</h2>
+                    <p>Veja como sua empresa aparece para as mães e acompanhe a sua atividade.</p>
                 </div>
             </div>
 

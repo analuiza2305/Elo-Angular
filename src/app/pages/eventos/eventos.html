@@ -5,15 +5,19 @@
     <!-- 1. HERO COM IMAGEM DE FUNDO E TEXTOS -->
     <section class="eventos-hero-banner">
         <div class="hero-content">
-            <h1>Eventos para você</h1>
+            <h1>{{ embutido ? "Eventos da sua empresa" : "Eventos para você" }}</h1>
             @if (embutido) {
-            <p>É assim que as mães veem os eventos da comunidade, inclusive os da sua empresa.</p>
+            <p>Crie eventos para as mães, acompanhe os seus e veja como eles aparecem na página de Eventos.</p>
             } @else {
             <p>Participe de palestras, encontros e atividades da comunidade. Inscreva-se e veja no calendário.</p>
             }
         </div>
     </section>
 
+    <!-- Ferramentas do parceiro (calendário, meus eventos, criar evento) -->
+    <ng-content select="[eventosFerramentas]"></ng-content>
+
+    @if (!somenteTopo) {
     <!-- 2. BARRA DE FILTROS COM DOIS DROPDOWNS -->
     <div class="eventos-filtros-bar elo-filtros-barra">
         <!-- Filtros em pílulas (Visíveis no Computador) -->
@@ -128,6 +132,7 @@
                 }
             </section>
         }
+    }
     }
 
 

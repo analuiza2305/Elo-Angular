@@ -7,7 +7,7 @@
 }
 
 <!-- CABEÇALHO -->
-<header class="pl-header">
+<header class="pl-header pl-hero pl-hero-adm">
   <div class="pl-header-info">
     <span class="pl-header-icone"><i class="fa-solid fa-crown"></i></span>
     <div>
@@ -93,6 +93,7 @@
               <span class="pl-status" [class.on]="p.ativo">{{ p.ativo ? 'Ativo' : 'Inativo' }}</span>
             </div>
 
+            <span class="pl-card-icone" aria-hidden="true"><i class="fa-solid" [class.fa-seedling]="p.nivel === 'gratuito'" [class.fa-crown]="p.nivel === 'premium' && p.destaque" [class.fa-star]="p.nivel === 'premium' && !p.destaque"></i></span>
             <h3>{{ p.nome }} @if (p.destaque) { <i class="fa-solid fa-star pl-estrela" title="Plano em destaque"></i> }</h3>
             @if (p.descricao) { <p class="pl-descricao">{{ p.descricao }}</p> }
 

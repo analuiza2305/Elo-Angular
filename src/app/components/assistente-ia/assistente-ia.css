@@ -244,7 +244,7 @@ button.ai-avatar:focus-visible { outline: 3px solid #F2B230; outline-offset: 3px
    Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
    Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
 .ai-linha .ai-msg.apoio:not(#_s1):not(#_s2), .ai-msg.apoio:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-rosa-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-rosa-fim) 0%, color-mix(in srgb, var(--soft-rosa-tile) 55%, var(--soft-rosa-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 16px 16px 16px 4px !important;

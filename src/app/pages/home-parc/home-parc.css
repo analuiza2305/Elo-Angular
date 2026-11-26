@@ -7466,7 +7466,7 @@ header .profile-img {
    Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
    Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
 .pcal-btn-sec:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-fim) 0%, var(--soft-lilas-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-lilas-cor) !important;
@@ -7474,11 +7474,11 @@ header .profile-img {
 }
 .pcal-btn-sec:not(#_s1):not(#_s2) i { color: inherit !important; }
 .pcal-btn-sec:not(#_s1):not(#_s2):hover {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-tile) 0%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
 }
 .dash-see-more:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-fim) 0%, var(--soft-lilas-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-lilas-cor) !important;
@@ -7486,11 +7486,11 @@ header .profile-img {
 }
 .dash-see-more:not(#_s1):not(#_s2) i { color: inherit !important; }
 .dash-see-more:not(#_s1):not(#_s2):hover {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-tile) 0%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
 }
 .quick-action-btn.qa-tile:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-fim) 0%, var(--soft-lilas-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-lilas-cor) !important;
@@ -7498,11 +7498,11 @@ header .profile-img {
 }
 .quick-action-btn.qa-tile:not(#_s1):not(#_s2) i { color: inherit !important; }
 .quick-action-btn.qa-tile:not(#_s1):not(#_s2):hover {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-tile) 0%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
 }
 .empty-hint:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-fim) 0%, color-mix(in srgb, var(--soft-lilas-tile) 55%, var(--soft-lilas-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 20px !important;
