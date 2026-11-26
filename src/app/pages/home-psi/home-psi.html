@@ -374,15 +374,27 @@
 
       <div class="artigos-header-top pro-banner banner-comunidade">
         <div class="artigos-title-box">
-          <h2>Comunidade</h2>
+          <h2>Comunidade <br>EloMaterno</h2>
           <p class="secao-sub">Acesse materiais e publique conteúdos para apoiar as mães da comunidade.</p>
         </div>
-        <button type="button" class="btn-novo-artigo" (click)="abrirModalArtigo()">
+      </div>
+
+      <!-- Toda a Comunidade / Minhas postagens + Nova postagem (igual ao painel do parceiro) -->
+      <div class="pp-abas-linha">
+        <div class="pp-abas" role="tablist" aria-label="O que mostrar">
+          <button type="button" class="pp-aba" role="tab" [class.ativa]="filtroArtigo() !== 'meus'" [attr.aria-selected]="filtroArtigo() !== 'meus'" (click)="filtrarArtigos('todos')">
+            <i class="fa-solid fa-globe"></i> Toda a Comunidade
+          </button>
+          <button type="button" class="pp-aba" role="tab" [class.ativa]="filtroArtigo() === 'meus'" [attr.aria-selected]="filtroArtigo() === 'meus'" (click)="filtrarArtigos('meus')">
+            <i class="fa-solid fa-user-pen"></i> Minhas postagens
+          </button>
+        </div>
+        <button type="button" class="pp-btn-novo" (click)="abrirModalArtigo()">
           <i class="fa-solid fa-plus"></i> Nova postagem
         </button>
       </div>
 
-      <div class="artigos-filter-bar elo-filtros-barra">
+      <div class="artigos-filter-bar elo-filtros-barra" *ngIf="filtroArtigo() !== 'meus'">
         <div class="artigos-categorias elo-filtros" appFiltrosDropdown role="group" aria-label="Filtrar artigos">
           <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'todos'" (click)="filtrarArtigos('todos')"><i class="fa-solid fa-border-all"></i> Todos</button>
           <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'favoritos'" (click)="filtrarArtigos('favoritos')"><i class="fa-solid fa-bookmark"></i> Favoritos</button>
@@ -390,7 +402,6 @@
           <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'educacionais'" (click)="filtrarArtigos('educacionais')"><i class="fa-solid fa-graduation-cap"></i> Educacionais</button>
           <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'dicas'" (click)="filtrarArtigos('dicas')"><i class="fa-solid fa-lightbulb"></i> Dicas</button>
           <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'posts'" (click)="filtrarArtigos('posts')"><i class="fa-regular fa-newspaper"></i> Posts</button>
-          <button type="button" class="cat-btn elo-filtro" [class.active]="filtroArtigo() === 'meus'" (click)="filtrarArtigos('meus')"><i class="fa-solid fa-user-pen"></i> Minhas postagens</button>
         </div>
         <button class="btn-sort elo-ordenar" type="button" (click)="alternarOrdemArtigos()">
           <i class="fa-solid fa-sliders"></i> {{ ordemArtigos() === 'recentes' ? 'Mais recentes' : 'Mais antigos' }}
@@ -399,35 +410,22 @@
 
       <div class="loader" *ngIf="carregandoArtigos()" style="margin: 40px auto;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
 
-      <div class="artigos-grid-psi" *ngIf="!carregandoArtigos()">
-        <a [routerLink]="['/artigo-ind-profissional']" [queryParams]="{ id: artigo.id, origem: 'psi' }" class="artigo-card-novo" *ngFor="let artigo of artigosFiltrados()">
-          <div class="ac-img-wrapper">
-            <img *ngIf="imagemDoArtigo(artigo)" [src]="imagemDoArtigo(artigo)" [alt]="artigo.titulo" class="ac-cover" (error)="artigo.img = ''; artigo.capa = ''; artigo.imagem = ''">
-            <div class="ac-sem-imagem" *ngIf="!imagemDoArtigo(artigo)"><i class="fa-regular fa-image"></i></div>
-            <span class="ac-tag" [style.color]="corCategoria(artigo.categoria)">{{ artigo.categoria || 'conteúdo' }}</span>
-            <button type="button" class="ac-fav-btn" [class.salvo]="ehFavorito(artigo.id)" (click)="alternarFavorito(artigo, $event)"
-              [attr.aria-label]="ehFavorito(artigo.id) ? 'Remover dos favoritos' : 'Salvar nos favoritos'"
-              [title]="ehFavorito(artigo.id) ? 'Remover dos favoritos' : 'Salvar nos favoritos'">
-              <i [class]="ehFavorito(artigo.id) ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'"></i>
-            </button>
-          </div>
-          <div class="ac-body">
-            <h4 class="ac-title">{{ artigo.titulo }}</h4>
-            <p class="ac-excerpt">{{ artigo.descricao || artigo.resumo || artigo.conteudo }}</p>
-            <div class="ac-footer">
-              <span class="ac-author"><i class="fa-solid fa-pen-nib"></i> {{ artigo.postadoPor || 'Equipe EloMaterno' }}</span>
-              <span class="ac-ler">Ler postagem <i class="fa-solid fa-arrow-right"></i></span>
-            </div>
-          </div>
-        </a>
-      </div>
-      <p class="vazio-msg" *ngIf="!carregandoArtigos() && artigosFiltrados().length === 0">
-        @if (filtroArtigo() === 'favoritos') {
-          Você ainda não salvou nenhuma postagem. Toque no <i class="fa-regular fa-bookmark"></i> de uma postagem para guardar aqui.
-        } @else {
-          {{ filtroArtigo() === 'meus' ? 'Você ainda não publicou nenhum artigo.' : 'Nenhum artigo publicado ainda.' }}
+      <div class="pp-artigos-grid" *ngIf="!carregandoArtigos()">
+        @for (artigo of artigosCards(); track artigo.id) {
+          <app-card-artigo [artigo]="artigo" (ler)="lerArtigo($event)" (favoritar)="alternarFavorito($event)"></app-card-artigo>
         }
-      </p>
+      </div>
+      <div class="pp-vazio" *ngIf="!carregandoArtigos() && artigosFiltrados().length === 0">
+        <span class="pp-vazio-ic"><i class="fa-regular" [class.fa-bookmark]="filtroArtigo() === 'favoritos'" [class.fa-newspaper]="filtroArtigo() !== 'favoritos'"></i></span>
+        @if (filtroArtigo() === 'favoritos') {
+          <p>Você ainda não salvou nenhuma postagem. Toque no <i class="fa-regular fa-bookmark"></i> de uma postagem para guardar aqui.</p>
+        } @else if (filtroArtigo() === 'meus') {
+          <p>Você ainda não publicou nenhuma postagem.</p>
+          <button type="button" class="pp-btn-novo" (click)="abrirModalArtigo()"><i class="fa-solid fa-plus"></i> Escrever a primeira</button>
+        } @else {
+          <p>Nenhuma postagem nesta categoria ainda.</p>
+        }
+      </div>
 
       <!-- MODAL: NOVO ARTIGO COM PRÉVIA -->
       <div class="modal" *ngIf="modalArtigoAberto()">
@@ -714,74 +712,87 @@
     <section class="content" id="forum" *ngIf="activeSection() === 'forum'">
       <div class="pro-banner banner-forum">
         <div>
-        <h2>Fórum da comunidade</h2>
-      <p class="secao-sub">Acolha e oriente as mães. Sua resposta aparece para elas assim que você enviar.</p>
+          <h2>Participe do <br>fórum <span class="pf-destaque">EloMaterno</span></h2>
+          <p class="secao-sub">Acolha e oriente as mães. Sua resposta aparece para elas assim que você enviar.</p>
         </div>
       </div>
 
-      <div class="forum-toolbar">
-        <div class="forum-search-bar">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" placeholder="Pesquisar no fórum..." [ngModel]="termoForum()" (ngModelChange)="termoForum.set($event)">
-        </div>
-        <div class="forum-filtros">
-          <button type="button" class="cat-btn" [class.active]="filtroForum() === 'todos'" (click)="filtroForum.set('todos')">Todos</button>
-          <button type="button" class="cat-btn" [class.active]="filtroForum() === 'aguardando'" (click)="filtroForum.set('aguardando')"><i class="fa-regular fa-clock"></i> Aguardando resposta</button>
+      <div class="pf-painel">
+        <form class="pf-busca" role="search" (submit)="$event.preventDefault()">
+          <div class="pf-busca-campo">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Buscar por tópicos, palavras-chave ou dúvidas..." aria-label="Pesquisar no fórum"
+                   [ngModel]="termoForum()" (ngModelChange)="termoForum.set($event)" name="termoForum">
+          </div>
+          <button type="submit" class="pf-busca-btn"><i class="fa-solid fa-magnifying-glass"></i> <span>Buscar</span></button>
+        </form>
+        <div class="pf-filtros" role="group" aria-label="Filtrar tópicos">
+          <button type="button" class="pf-filtro" [class.ativo]="filtroForum() === 'todos'" [attr.aria-pressed]="filtroForum() === 'todos'" (click)="filtroForum.set('todos')">
+            <i class="fa-solid fa-table-cells-large"></i> Todos
+          </button>
+          <button type="button" class="pf-filtro" [class.ativo]="filtroForum() === 'aguardando'" [attr.aria-pressed]="filtroForum() === 'aguardando'" (click)="filtroForum.set('aguardando')">
+            <i class="fa-regular fa-clock"></i> Aguardando resposta
+          </button>
         </div>
       </div>
+
+      <h3 class="pf-lista-titulo">{{ filtroForum() === 'aguardando' ? 'Tópicos aguardando resposta' : 'Tópicos recentes' }}</h3>
 
       <div class="loader" *ngIf="carregandoForum()" style="margin: 40px auto;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
 
-      <div class="forum-posts-list" *ngIf="!carregandoForum()">
+      <div class="pf-lista" *ngIf="!carregandoForum()">
         @for (post of forumFiltrado(); track post.id) {
-          <article class="forum-post-card">
-            <div class="f-post-author-row">
-              <img [src]="post.autorFoto" [alt]="post.autorNome">
-              <div class="f-post-author-data">
-                <strong>{{ post.autorNome }}</strong>
-                <span>{{ post.dataTexto }}</span>
+          <article class="pf-post" [class.aberto]="postAbertoId() === post.id">
+            <div class="pf-post-linha">
+              <img class="pf-post-avatar" [src]="post.autorFoto" [alt]="post.autorNome">
+              <div class="pf-post-corpo">
+                <div class="pf-post-meta">
+                  <strong>{{ post.autorNome }}</strong>
+                  <span class="pf-ponto">•</span>
+                  <span>{{ post.dataTexto }}</span>
+                </div>
+                <h4 class="pf-post-titulo">{{ post.titulo }}</h4>
+                <p class="pf-post-texto">{{ post.conteudo }}</p>
+                <div class="pf-post-rodape">
+                  <span class="pf-tag" *ngIf="post.categoria">{{ post.categoria }}</span>
+                  @if (post.totalRespostas > 0) {
+                    <span class="pf-status respondido"><i class="fa-solid fa-circle-check"></i> {{ post.totalRespostas }} {{ post.totalRespostas === 1 ? 'resposta' : 'respostas' }}</span>
+                  } @else {
+                    <span class="pf-status aguardando"><i class="fa-regular fa-clock"></i> Aguardando especialista</span>
+                  }
+                </div>
               </div>
-              <span class="f-post-cat" *ngIf="post.categoria">{{ post.categoria }}</span>
-            </div>
-            <h3 class="f-post-title">{{ post.titulo }}</h3>
-            <p class="f-post-text">{{ post.conteudo }}</p>
-
-            <div class="f-post-footer">
-              @if (post.totalRespostas > 0) {
-                <span class="badge-respondido"><i class="fa-solid fa-check-circle"></i> {{ post.totalRespostas }} {{ post.totalRespostas === 1 ? 'resposta' : 'respostas' }}</span>
-              } @else {
-                <span class="badge-aguardando"><i class="fa-regular fa-clock"></i> Aguardando especialista</span>
-              }
-              <button type="button" class="btn-responder" (click)="alternarPost(post)">
-                <i class="fa-solid fa-reply"></i> {{ postAbertoId() === post.id ? 'Fechar' : 'Responder' }}
+              <button type="button" class="pf-btn-responder" [attr.aria-expanded]="postAbertoId() === post.id" (click)="alternarPost(post)">
+                <i class="fa-solid" [class.fa-reply]="postAbertoId() !== post.id" [class.fa-xmark]="postAbertoId() === post.id"></i>
+                {{ postAbertoId() === post.id ? 'Fechar' : 'Responder' }}
               </button>
             </div>
 
             @if (postAbertoId() === post.id) {
-              <div class="forum-replies">
+              <div class="pf-respostas">
                 @if (carregandoRespostas()) {
                   <div class="loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
                 } @else {
                   @for (r of respostasDoPost(); track r.id) {
-                    <div class="reply-item">
+                    <div class="pf-resposta">
                       <img [src]="r.autorFoto" [alt]="r.autorNome">
-                      <div class="reply-body">
-                        <div class="reply-head"><strong>{{ r.autorNome }}</strong> <span class="reply-tag" *ngIf="r.profissional">Profissional</span> <small>{{ r.dataTexto }}</small></div>
+                      <div class="pf-resposta-corpo">
+                        <div class="pf-resposta-cab"><strong>{{ r.autorNome }}</strong> <span class="pf-selo-pro" *ngIf="r.profissional">Profissional</span> <small>{{ r.dataTexto }}</small></div>
                         <p>{{ r.conteudo }}</p>
                       </div>
                     </div>
                   } @empty {
-                    <p class="vazio-msg" style="margin: 4px 0 12px;">Ainda não há respostas. Seja a primeira pessoa a acolher.</p>
+                    <p class="pf-sem-respostas">Ainda não há respostas. Seja a primeira pessoa a acolher.</p>
                   }
                 }
 
-                <div class="reply-form">
-                  <textarea rows="3" placeholder="Escreva sua orientação profissional ou acolhimento..."
+                <div class="pf-form-resposta">
+                  <textarea rows="3" placeholder="Escreva sua orientação profissional ou acolhimento..." aria-label="Sua resposta"
                             [ngModel]="textoResposta()" (ngModelChange)="textoResposta.set($event)"></textarea>
-                  <p class="reply-erro" *ngIf="erroResposta()">{{ erroResposta() }}</p>
-                  <div class="reply-actions">
-                    <button type="button" class="btn-aceitar" [disabled]="enviandoResposta() || !textoResposta().trim()" (click)="enviarResposta(post)">
-                      {{ enviandoResposta() ? 'Enviando...' : 'Enviar resposta' }}
+                  <p class="pf-erro" *ngIf="erroResposta()">{{ erroResposta() }}</p>
+                  <div class="pf-form-acoes">
+                    <button type="button" class="pf-btn-enviar" [disabled]="enviandoResposta() || !textoResposta().trim()" (click)="enviarResposta(post)">
+                      <i class="fa-solid fa-paper-plane"></i> {{ enviandoResposta() ? 'Enviando...' : 'Enviar resposta' }}
                     </button>
                   </div>
                 </div>
@@ -789,7 +800,10 @@
             }
           </article>
         } @empty {
-          <p class="vazio-msg">Nenhuma publicação encontrada.</p>
+          <div class="pp-vazio">
+            <span class="pp-vazio-ic"><i class="fa-regular fa-comments"></i></span>
+            <p>{{ filtroForum() === 'aguardando' ? 'Nenhum tópico esperando resposta. Todas as mães foram acolhidas!' : 'Nenhuma publicação encontrada.' }}</p>
+          </div>
         }
       </div>
     </section>
