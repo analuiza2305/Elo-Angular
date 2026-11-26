@@ -146,3 +146,20 @@
 /* Texto "Denunciar" na mesma cor da bandeira, no site todo */
 .den-btn, .den-btn span { color: var(--den-vermelho) !important; }
 .den-btn:hover, .den-btn:hover span { color: var(--den-vermelho) !important; background: var(--den-vermelho-bg); }
+
+/* ===== ESTÉTICA SOFT (23/11) =====
+   Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
+   Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
+.den-btn-icone:not(#_s1):not(#_s2) {
+  background: linear-gradient(135deg, var(--soft-rosa-fim) 0%, var(--soft-rosa-tile) 100%), var(--soft-base) !important;
+  border: 1px solid var(--soft-borda) !important;
+  box-shadow: var(--soft-sombra-pequena) !important;
+  color: var(--soft-rosa-cor) !important;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease !important;
+}
+.den-btn-icone:not(#_s1):not(#_s2) i { color: inherit !important; }
+.den-btn-icone:not(#_s1):not(#_s2):hover {
+  background: linear-gradient(135deg, var(--soft-rosa-tile) 0%, var(--soft-rosa-fim) 100%), var(--soft-base) !important;
+  box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
+}
+/* ===== FIM ESTÉTICA SOFT ===== */
