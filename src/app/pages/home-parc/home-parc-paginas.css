@@ -1,0 +1,92 @@
+/* =========================================================
+   PÁGINAS DO PARCEIRO NO PADRÃO DAS PÁGINAS DA MÃE (26/11)
+   Eventos: as ferramentas da empresa (Calendário, Meus eventos,
+   Como as mães veem, Criar evento) ficam numa barra em pílula logo
+   abaixo do mesmo banner da página Eventos das mães.
+   ========================================================= */
+#calendario .pcal-topo {
+  display: flex !important; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  margin: 0 0 26px !important;
+}
+#calendario .pcal-abas {
+  display: flex !important; flex: 1; gap: 6px !important; padding: 6px !important; border-radius: 999px !important;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F6F1FE 100%) !important; border: 1px solid rgba(255, 255, 255, .95) !important;
+  box-shadow: 0 14px 36px rgba(124, 95, 203, .10), 0 2px 6px rgba(124, 95, 203, .05) !important;
+}
+#calendario .pcal-aba {
+  flex: 1 1 0; display: inline-flex !important; align-items: center; justify-content: center; gap: 8px;
+  min-height: 46px; padding: 0 16px !important; border-radius: 999px !important; border: none !important;
+  background: transparent !important; color: #5B3D99 !important; font: 800 .92rem 'Nunito', sans-serif !important; box-shadow: none !important;
+}
+#calendario .pcal-aba i { color: inherit !important; }
+#calendario .pcal-aba:hover { background: rgba(142, 114, 220, .1) !important; }
+#calendario .pcal-aba.ativa { background: linear-gradient(135deg, #8E72DC 0%, #5B3D99 100%) !important; color: #FFFFFF !important; box-shadow: 0 8px 18px rgba(91, 61, 153, .28) !important; }
+#calendario .pcal-badge { background: rgba(142, 114, 220, .16) !important; color: inherit !important; }
+#calendario .pcal-aba.ativa .pcal-badge { background: rgba(255, 255, 255, .25) !important; }
+#calendario .pcal-btn-criar { border-radius: 999px !important; min-height: 50px; padding: 0 24px !important; }
+:host-context(body[data-theme="dark"]) #calendario .pcal-abas { background: rgba(255, 255, 255, .05) !important; border-color: rgba(255, 255, 255, .07) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) #calendario .pcal-aba:not(.ativa) { color: #D9CCFF !important; }
+
+/* calendário e "meus eventos" no estilo soft */
+#calendario :is(.pcal-card, .pcal-lado) {
+  border-radius: 24px !important; border: 1px solid rgba(255, 255, 255, .95) !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F9F6FF 100%) !important;
+  box-shadow: 0 14px 36px rgba(124, 95, 203, .10), 0 2px 6px rgba(124, 95, 203, .05) !important;
+}
+:host-context(body[data-theme="dark"]) #calendario :is(.pcal-card, .pcal-lado) { background: linear-gradient(180deg, #1D2438 0%, #1E1B33 100%) !important; border-color: rgba(255, 255, 255, .07) !important; box-shadow: 0 14px 34px rgba(0, 0, 0, .35) !important; }
+
+/* o cabeçalho antigo das seções (cab-pagina) não aparece mais em Eventos */
+#calendario > .cab-pagina { display: none !important; }
+
+@media (max-width: 760px) {
+  #calendario .pcal-abas { flex: 1 1 100%; border-radius: 22px !important; flex-wrap: wrap; }
+  #calendario .pcal-aba { flex: 1 1 calc(50% - 6px); border-radius: 16px !important; }
+  #calendario .pcal-btn-criar { flex: 1 1 100%; justify-content: center; }
+}
+
+/* =========================================================
+   BANNERS DE RELATÓRIOS, MINHA EMPRESA E CONFIGURAÇÕES
+   Mesma base do banner de Planos/Divulgação (.pl-hero em src/planos.css
+   não se aplica aqui, então a base vem abaixo).
+   ========================================================= */
+.pd-banner {
+  position: relative; overflow: hidden; display: flex; align-items: center;
+  min-height: clamp(200px, 15vw, 270px); margin: 0 0 32px; padding: clamp(28px, 3vw, 48px) clamp(26px, 3.4vw, 56px);
+  border-radius: 28px; border: 1px solid rgba(255, 255, 255, .95);
+  box-shadow: 0 14px 36px rgba(124, 95, 203, .12), 0 2px 6px rgba(124, 95, 203, .06);
+  background:
+    radial-gradient(circle at 8% 110%, rgba(196, 176, 245, .45) 0, transparent 32%),
+    radial-gradient(circle at 70% -20%, rgba(255, 255, 255, .9) 0, transparent 40%),
+    linear-gradient(120deg, #F6F0FE 0%, #F1E9FD 55%, #EDE2FC 100%);
+}
+.pd-banner::after {
+  content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 52%; pointer-events: none;
+  background: right bottom / contain no-repeat;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16%); mask-image: linear-gradient(90deg, transparent 0, #000 16%);
+}
+.pd-banner-relatorios::after { background-image: url('/img/planos/relatorios-ilustracao-claro.webp'); }
+.pd-banner-empresa::after { background-image: url('/img/planos/empresa-ilustracao-claro.webp'); }
+.pd-banner-configuracoes::after { background-image: url('/img/planos/configuracoes-ilustracao-claro.webp'); }
+.pd-banner .pl-hero-texto { position: relative; z-index: 1; max-width: 50%; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.pd-banner h2 { margin: 0 !important; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: clamp(1.8rem, 2.3vw, 2.6rem) !important; line-height: 1.15; color: #2D1E4E !important; text-align: left !important; }
+.pd-banner p { margin: 0 !important; color: #6B5E8E !important; font-size: 1.02rem; line-height: 1.5; text-align: left !important; }
+.pd-btn-banner {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 46px; margin-top: 6px; padding: 0 22px; border: none; border-radius: 999px; cursor: pointer;
+  background: linear-gradient(135deg, #8E72DC 0%, #5B3D99 100%); color: #FFFFFF; font: 800 .92rem 'Nunito', sans-serif;
+  box-shadow: 0 10px 24px rgba(91, 61, 153, .3), inset 0 1px 0 rgba(255, 255, 255, .25);
+}
+.pd-btn-banner i { color: inherit !important; }
+/* modo escuro: fundo roxo-escuro; a ilustração (só existe a clara) fica suave */
+:host-context(body[data-theme="dark"]) .pd-banner {
+  border-color: rgba(255, 255, 255, .07); box-shadow: 0 14px 34px rgba(0, 0, 0, .35);
+  background: radial-gradient(circle at 8% 110%, rgba(124, 82, 224, .35) 0, transparent 32%), radial-gradient(circle at 72% 0%, rgba(124, 82, 224, .35) 0, transparent 45%), linear-gradient(120deg, #251250 0%, #2B1663 55%, #22104A 100%);
+}
+:host-context(body[data-theme="dark"]) .pd-banner::after { mix-blend-mode: multiply; opacity: 1; filter: saturate(1.3); }
+:host-context(body[data-theme="dark"]) .pd-banner h2 { color: #F4F1FF !important; }
+:host-context(body[data-theme="dark"]) .pd-banner p { color: #C0B6DC !important; }
+@media (max-width: 760px) {
+  .pd-banner { flex-direction: column; align-items: stretch; padding: 150px 20px 22px; }
+  .pd-banner::after { left: 0; width: auto; height: 140px; bottom: auto; background-position: center top; -webkit-mask-image: none; mask-image: none; }
+  .pd-banner .pl-hero-texto { max-width: 100%; }
+  .pd-btn-banner { width: 100%; justify-content: center; }
+}

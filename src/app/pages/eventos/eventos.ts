@@ -24,6 +24,8 @@ export class Eventos implements OnInit {
 
   /** Dentro do painel do parceiro: sem header e sem inscrição (é a vitrine que as mães veem). */
   @Input() embutido = false;
+  /** Parceiro: mostra só o banner (a lista fica na aba "Como as mães veem"). */
+  @Input() somenteTopo = false;
 
   private readonly inscricoes = inject(InscricoesEventosService);
 

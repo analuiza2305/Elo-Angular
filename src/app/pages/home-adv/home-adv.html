@@ -1060,30 +1060,28 @@
 
     <!-- PLANOS (Premium do advogado — pagamento simulado) -->
     <section class="content" id="planos" *ngIf="activeSection() === 'planos'">
-      <div class="pl-topo">
-        <h2>Planos</h2>
-        <p>Compare o que cada plano oferece e veja o seu plano atual.</p>
-      </div>
-
-      <div class="pl-atual" [class.premium]="isPremium()">
-        <div class="pl-atual-icone"><i class="fa-solid" [class.fa-crown]="isPremium()" [class.fa-circle-check]="!isPremium()"></i></div>
-        <div class="pl-atual-texto">
-          <span>Seu plano atual</span>
-          <strong>{{ isPremium() ? (assinatura()?.planoNome || 'Premium') : 'Gratuito' }}</strong>
-          @if (isPremium() && validadePremiumTexto()) {
-            <small>Ativo até {{ validadePremiumTexto() }}</small>
-          }
+      <div class="pl-hero" [class.premium]="isPremium()">
+        <div class="pl-hero-texto">
+          <h2>Escolha o plano ideal</h2>
+          <p>Compare o que cada plano oferece e veja o que muda no seu escritório.</p>
+          <div class="pl-hero-atual">
+            <span class="pl-hero-atual-icone"><i class="fa-solid" [class.fa-crown]="isPremium()" [class.fa-seedling]="!isPremium()"></i></span>
+            <span class="pl-hero-atual-txt">
+              <small>Seu plano atual</small>
+              <strong>{{ isPremium() ? (assinatura()?.planoNome || 'Premium') : 'Gratuito' }}</strong>
+            </span>
+            @if (isPremium() && validadePremiumTexto()) {
+              <span class="pl-hero-validade">Ativo até {{ validadePremiumTexto() }}</span>
+            }
+          </div>
         </div>
-        <span class="pl-atual-status" [class.premium]="isPremium()">
-          <i class="fa-solid" [class.fa-circle-check]="isPremium()" [class.fa-user]="!isPremium()"></i>
-          {{ isPremium() ? 'Assinatura ativa' : 'Plano básico' }}
-        </span>
       </div>
 
-      <div class="pl-grid">
+    <div class="pl-grid">
         <div class="pl-card" [class.atual]="!isPremium()">
           <div class="pl-card-topo">
-            <h3><i class="fa-regular fa-heart"></i> {{ planoGratuito().nome }}</h3>
+            <span class="pl-card-icone" aria-hidden="true"><i class="fa-solid fa-seedling"></i></span>
+            <h3>{{ planoGratuito().nome }}</h3>
             @if (!isPremium()) { <span class="pl-chip">Seu plano</span> }
           </div>
           <div class="pl-preco"><strong>R$ 0</strong><span>/mês</span></div>
@@ -1102,7 +1100,8 @@
         @for (plano of planosPremium(); track plano.id) {
           <div class="pl-card pl-card-premium" [class.atual]="ehPlanoAtual(plano)">
             <div class="pl-card-topo">
-              <h3><i class="fa-solid fa-crown"></i> {{ plano.nome }}</h3>
+              <span class="pl-card-icone" aria-hidden="true"><i class="fa-solid" [class.fa-crown]="plano.destaque || $last" [class.fa-star]="!plano.destaque && !$last"></i></span>
+              <h3>{{ plano.nome }}</h3>
               @if (ehPlanoAtual(plano)) {
                 <span class="pl-chip pl-chip-premium">Seu plano</span>
               } @else if (plano.destaque) {

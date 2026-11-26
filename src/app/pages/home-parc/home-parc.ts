@@ -67,7 +67,7 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
   standalone: true,
   imports: [ClicavelTecladoDirective, TranslatePipe, CommonModule, RouterLink, ParcPlanosComponent, ParcDivulgacaoComponent, ParcCarreirasComponent, AnuncioEspacoComponent, ForumComponent, ComentResp, Artigos, ArtigoInd, Eventos],
   templateUrl: './home-parc.html',
-  styleUrl: './home-parc.css',
+  styleUrls: ['./home-parc.css', './home-parc-dashboard.css', './home-parc-paginas.css'],
 })
 export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
   /** Acessibilidade compartilhada por todas as telas (ver AcessibilidadeService). */
@@ -1681,7 +1681,7 @@ export class HomeParc implements OnInit, AfterViewInit, OnDestroy {
       ? `<p class="empty-hint">Nenhum evento futuro cadastrado.</p>`
       : proximos.map((ev) => `
           <div class="dash-item dash-item-clicavel" role="button" tabindex="0" title="Ver detalhes do evento">
-            <div class="dash-item-icon"><i class="fa-regular fa-calendar"></i></div>
+            <div class="dash-item-data"><strong>${ev.data.toLocaleDateString('pt-BR', { day: '2-digit' })}</strong><span>${ev.data.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}</span></div>
             <div class="dash-item-body">
               <div class="dash-item-title">${this.sanitize(ev.titulo)}</div>
               <div class="dash-item-sub">${ev.data.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • ${this.sanitize(ev.local)}</div>

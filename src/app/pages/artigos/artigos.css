@@ -296,3 +296,27 @@ body {
 .estado-vazio:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
 .estado-vazio:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-lilas-cor) !important; }
 /* ===== FIM ESTÉTICA SOFT ===== */
+
+/* Versão da empresa: abas "Toda a Comunidade / Minhas postagens" em pílula,
+   no mesmo padrão das abas de Eventos, Carreiras e Divulgação do parceiro */
+.art-parc-barra { display: flex !important; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 22px !important; }
+.art-parc-abas {
+  display: flex !important; flex: 1; gap: 6px !important; padding: 6px !important; border-radius: 999px !important;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F6F1FE 100%) !important; border: 1px solid rgba(255, 255, 255, .95) !important;
+  box-shadow: 0 14px 36px rgba(124, 95, 203, .10), 0 2px 6px rgba(124, 95, 203, .05) !important;
+}
+.art-parc-aba {
+  flex: 1 1 0; display: inline-flex !important; align-items: center; justify-content: center; gap: 8px; min-height: 46px;
+  border-radius: 999px !important; border: none !important; background: transparent !important; box-shadow: none !important;
+  color: #5B3D99 !important; font: 800 .92rem 'Nunito', sans-serif !important;
+}
+.art-parc-aba i { color: inherit !important; }
+.art-parc-aba:hover { background: rgba(142, 114, 220, .1) !important; }
+.art-parc-aba.ativa { background: linear-gradient(135deg, #8E72DC 0%, #5B3D99 100%) !important; color: #FFFFFF !important; box-shadow: 0 8px 18px rgba(91, 61, 153, .28) !important; }
+.art-parc-novo { border-radius: 999px !important; min-height: 50px; padding: 0 24px !important; }
+:host-context(body[data-theme="dark"]) .art-parc-abas { background: rgba(255, 255, 255, .05) !important; border-color: rgba(255, 255, 255, .07) !important; box-shadow: none !important; }
+:host-context(body[data-theme="dark"]) .art-parc-aba:not(.ativa) { color: #D9CCFF !important; }
+@media (max-width: 760px) {
+  .art-parc-abas { flex: 1 1 100%; }
+  .art-parc-novo { flex: 1 1 100%; justify-content: center; }
+}
