@@ -453,14 +453,14 @@
    Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
    Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
 .pl-opcao.sel:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 15%, var(--soft-lilas-tile) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-tile) 0%, color-mix(in srgb, var(--soft-lilas-tile) 70%, var(--soft-lilas-cor)) 140%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena), 0 0 0 2px var(--soft-lilas-tile) !important;
   color: var(--soft-lilas-cor) !important;
 }
 .pl-opcao.sel:not(#_s1):not(#_s2) :is(i, strong, span, small) { color: inherit !important; }
 .pl-toast:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-verde-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-verde-fim) 0%, color-mix(in srgb, var(--soft-verde-tile) 55%, var(--soft-verde-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 20px !important;
@@ -470,7 +470,7 @@
 .pl-toast:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
 .pl-toast:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-verde-cor) !important; }
 .pl-toast.erro:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-vermelho-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-vermelho-fim) 0%, color-mix(in srgb, var(--soft-vermelho-tile) 55%, var(--soft-vermelho-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 20px !important;

@@ -2325,7 +2325,7 @@ body[data-theme="dark"] .estado-vazio p { color: #C7BBEB !important; }
    Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
    Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
 .close-modal:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 30%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-fim) 0%, var(--soft-lilas-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-lilas-cor) !important;
@@ -2333,11 +2333,11 @@ body[data-theme="dark"] .estado-vazio p { color: #C7BBEB !important; }
 }
 .close-modal:not(#_s1):not(#_s2) i { color: inherit !important; }
 .close-modal:not(#_s1):not(#_s2):hover {
-  background: linear-gradient(135deg, var(--soft-base) 0%, var(--soft-lilas-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-lilas-tile) 0%, var(--soft-lilas-fim) 100%), var(--soft-base) !important;
   box-shadow: var(--soft-sombra-hover) !important; transform: translateY(-1px);
 }
 .cs-espera-box:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-laranja-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-laranja-fim) 0%, color-mix(in srgb, var(--soft-laranja-tile) 55%, var(--soft-laranja-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 20px !important;
@@ -2349,13 +2349,13 @@ body[data-theme="dark"] .estado-vazio p { color: #C7BBEB !important; }
 .cs-espera-box:not(#_s1):not(#_s2) > i:first-child {
   display: inline-grid !important; place-items: center; flex: 0 0 auto;
   min-width: 40px; height: 40px; border-radius: 13px !important;
-  background: linear-gradient(145deg, var(--soft-base), var(--soft-laranja-tile)) !important;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--soft-laranja-tile) 60%, var(--soft-laranja-fim)), var(--soft-laranja-tile)), var(--soft-base) !important;
   box-shadow: var(--soft-brilho), 0 6px 14px rgba(124, 95, 203, .08) !important;
   color: var(--soft-laranja-cor) !important; border: none !important;
 }
 .cs-espera-box:not(#_s1):not(#_s2) > i:first-child i { color: var(--soft-laranja-cor) !important; }
 .cs-chamada-box:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-verde-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-verde-fim) 0%, color-mix(in srgb, var(--soft-verde-tile) 55%, var(--soft-verde-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 20px !important;
@@ -2365,7 +2365,7 @@ body[data-theme="dark"] .estado-vazio p { color: #C7BBEB !important; }
 .cs-chamada-box:not(#_s1):not(#_s2) :is(p, li) { color: var(--soft-texto) !important; }
 .cs-chamada-box:not(#_s1):not(#_s2) :is(small, .rotulo) { color: var(--soft-verde-cor) !important; }
 .modal-cancelar-aviso:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 35%, var(--soft-laranja-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-laranja-fim) 0%, color-mix(in srgb, var(--soft-laranja-tile) 55%, var(--soft-laranja-fim)) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra) !important;
   border-radius: 20px !important;

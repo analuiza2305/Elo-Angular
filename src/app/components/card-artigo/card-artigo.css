@@ -189,7 +189,7 @@ button.ac-bookmark { border: none; cursor: pointer; font: inherit; }
    Card branco com degradê leve da cor, borda clarinha, sombra lilás difusa.
    Cores em styles.css (--soft-*); o modo escuro troca sozinho. */
 .vis-selo:not(#_s1):not(#_s2) {
-  background: linear-gradient(135deg, var(--soft-base) 10%, var(--soft-laranja-fim) 100%) !important;
+  background: linear-gradient(135deg, var(--soft-laranja-fim) 0%, var(--soft-laranja-tile) 100%), var(--soft-base) !important;
   border: 1px solid var(--soft-borda) !important;
   box-shadow: var(--soft-sombra-pequena) !important;
   color: var(--soft-laranja-cor) !important;
